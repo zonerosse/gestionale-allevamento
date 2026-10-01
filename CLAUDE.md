@@ -1,0 +1,97 @@
+# CLAUDE.md – Gestionale Del Piccolo Diavolo
+
+Istruzioni per chi (Claude, in chat o in Claude Code) lavora su questo repository.
+Leggere tutto prima di proporre o scrivere modifiche.
+
+## Cos'è
+Il gestionale dell'allevamento **Del Piccolo Diavolo** (Staffordshire Bull Terrier, Ostellato FE) di Paolo Boldrini:
+cani, pedigree a 8 generazioni, COI, cucciolate, proprietari, salute (vaccini, sverminazioni, esami feci),
+referti e documenti, profili DNA, pagina privata per ogni proprietario.
+
+- Online: **https://gestionale.delpiccolodiavolo.it** (Cloudflare Pages, progetto `gestionale-allevamento`,
+  alias `gestionale-allevamento-gie.pages.dev`).
+- Repository pubblico: `zonerosse/gestionale-allevamento`. In locale: `C:\Hugo\gestionale-allevamento`.
+- **Nel repository c'è solo il programma, mai dati.** Cani, proprietari, file e link segreti stanno su Cloudflare.
+
+## Architettura
+| Pezzo | Dove | Note |
+|---|---|---|
+| Pagine | `public/index.html` (allevatore), `public/proprietario.html` (proprietario) | HTML/CSS/JS in un file solo, nessun build |
+| API | `functions/` (Cloudflare Pages Functions) | |
+| Dati | D1 `gestionale-allevamento`, binding **`DB`** | tabelle `store` (riga `id='main'`: tutto il gestionale in JSON + `version`) e `history` (ultimi 200 salvataggi) |
+| File | R2 `gestionale-allevamento-file`, binding **`FILES`** | foto e PDF; nei dati compaiono come `/files/<chiave>` |
+| Accesso | Cloudflare Access (team `delpiccolodiavolo-site-pages`) | app "gestionale" (solo email di Paolo, One-time PIN) + app bypass su `/p` e `/api/public` |
+| Variabili | Pages → Variabili | `POLICY_AUD` (AUD dell'app "Solo Paolo"), `TEAM_DOMAIN` (`https://delpiccolodiavolo-site-pages.cloudflareaccess.com`) |
+
+### API
+- `GET/PUT /api/data` – legge/salva tutto il gestionale. PUT con `version`: se non coincide → 409 (conflitto, non sovrascrive).
+- `POST /api/upload` – carica foto/PDF in R2, risponde `{url:"/files/<chiave>"}`.
+- `GET /files/<chiave>` – file per l'allevatore.
+- `POST /api/import` – solo primo avvio (database vuoto).
+- `GET /api/public/<token>` – dati della pagina del proprietario (senza login).
+- `GET /api/public/<token>/f/<chiave>` – file del proprietario: solo quelli presenti nella sua pagina.
+- `GET /p/<token>` – serve `proprietario.html`.
+
+Tutto ciò che non è `/p` o `/api/public` richiede `isAdmin()` in `functions/_lib.js`
+(verifica firma del JWT di Access con le chiavi del team + `POLICY_AUD`). Non indebolire mai questo controllo.
+`DEV_BYPASS=1` esiste solo per le prove in locale: **mai** come variabile su Cloudflare.
+
+### Pagina del proprietario (`ownerSubset` in `functions/_lib.js`)
+Il proprietario vede solo: i suoi cani, gli antenati (per pedigree e COI), i documenti non privati dei suoi cani
+e di genitori/nonni, i propri dati di contatto. **Mai**: `notes`, documenti con `private:true`, altri cani,
+altri proprietari, token. I percorsi `/files/` vengono riscritti in `/api/public/<token>/f/`.
+Proprietari esteri (`lang:"en"`): la pagina deve essere **tutta in inglese** (funzione `T(it,en)`, campi `*_en`).
+
+### Struttura del codice nelle due pagine
+`index.html` e `proprietario.html` contengono **lo stesso blocco di codice dell'applicazione**,
+da `/* ---------- Utilità ---------- */` fino a prima di:
+- `/* ---------- Salvataggio online ---------- */` in `index.html`;
+- `/* ---------- Pagina privata del proprietario ---------- */` in `proprietario.html`.
+**Ogni modifica a quel blocco va fatta identica nei due file.** CSS: idem (stesso `<style>`).
+Il salvataggio online sta in fondo a `index.html`: salva da solo ogni 3 secondi se i dati cambiano;
+prima di salvare carica su R2 ogni `data:...;base64,` (foto/PDF nuovi) e lo sostituisce con `/files/...`.
+
+### Modello dei dati (`D`)
+- `D.dogs[id]`: `name, nick, sex (M/F), birth, color, color_en, loi, chip, sbt, sire, dam, status
+  (fattrice/stallone/casa/prenotato/ceduto/sterilizzata/deceduto), ext (esterno), bred (allevato da Paolo),
+  breeder, owner, litter, coiSbt, tests, tests_en, titles, notes, photo,
+  health{vacc[],verm[],feci[]}, docs[{title,title_en,date,file,fname,private}], dna{...}`
+- `D.owners[id]`: `name, country, phone, email, addr, lang (it/en), notes, token` (link segreto `/p/<token>`)
+- `D.litters[id]`: `dam, sire, date, state (nata/pianificata), notes`
+- `D.matings["sire|dam"]`: `{coiSbt}`
+
+### COI
+Il numero principale è sempre il **COI 8 generazioni di SBTPedigree**, inserito a mano (`coiSbt`).
+Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondario. Fascia ideale **6–9%**.
+
+## Regole di Paolo (vincolanti)
+1. **Modifiche all'interfaccia: sempre prima un'anteprima** HTML autonoma da aprire col doppio clic
+   (dati di esempio, oppure una sua "Copia di sicurezza" se la allega). Solo dopo l'approvazione, il codice vero.
+2. **Le scelte le fa lui**: nomi, testi, cosa tenere o togliere si presentano come opzioni (A/B…). Si decide al
+   posto suo solo se lo chiede.
+3. **Non scrive codice a mano**: le modifiche si consegnano pronte in uno zip **`gestionale-*.zip`** da estrarre in
+   `C:\Hugo\gestionale-allevamento` (sovrascrivendo), poi `git add . ; git commit -m "..." ; git push`.
+   Oppure le applica Claude Code direttamente nella cartella.
+4. **Dati di cani e proprietari si cambiano solo da "Modifica" con un "Salva" esplicito**: niente modifiche dirette
+   nei campi; "Annulla modifiche" esce senza domande. Le aggiunte (salute, documenti) hanno il loro modulo con Salva.
+5. **I dati inseriti non devono mai andare persi**: nessuna modifica al programma deve toccare D1/R2,
+   cambiare il formato dei dati in modo incompatibile o richiedere di ricaricare i dati.
+   Se serve un nuovo campo: si aggiunge, con valore vuoto di default.
+6. **Codici fiscali e documenti d'identità dei proprietari non vanno nel gestionale** (né online): restano nei PDF stampati.
+7. Lingua: italiano, testi semplici e diretti; date `gg/mm/aaaa`; simboli ♂ azzurro / ♀ rosa (icone SVG spesse).
+8. Scelte grafiche già fatte: Proprietari raggruppati per cucciolata, tutti aperti; Cucciolate come linea del tempo
+   con foto dei genitori; Salute con bottone siringa fisso.
+
+## Prova in locale (facoltativa)
+```
+npm i -g wrangler@3
+printf "DEV_BYPASS=1\n" > .dev.vars
+wrangler d1 execute gestionale-test --local --file=schema.sql
+wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
+```
+`.dev.vars` è nel `.gitignore`: non deve mai finire su GitHub.
+
+## Da non fare mai
+- Mettere dati veri (JSON dei cani, foto, documenti, token) nel repository.
+- Togliere o aggirare `isAdmin()`, il controllo di versione del PUT o i filtri di `ownerSubset`.
+- Rendere visibili al proprietario note, documenti privati o dati di altri.
