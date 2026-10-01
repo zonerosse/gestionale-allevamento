@@ -253,6 +253,13 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .form .full{grid-column:1/-1}
 
 .owner-view{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px}
+.brd{white-space:normal}.brd-n{font-family:var(--serif);font-size:1.08rem;margin:0 0 2px}
+.brd-l{display:flex;flex-direction:column;gap:2px;margin:8px 0 0}.brd-l a{color:var(--accent);text-underline-offset:2px}
+.brd-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.brd-b a{text-decoration:none}
+.olink-a{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);white-space:normal}
+.olink-a a{text-decoration:none}.olink-a .row-meta{flex:1 1 100%;margin:0}
+.orow-w{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--line)}.orow-w:last-child{border-bottom:0}
+.orow-w .orow{border-bottom:0}.orow-w .cpy{margin-right:12px;white-space:nowrap}.orow-w .nolink{margin-right:16px;font-size:.8rem;color:var(--muted);font-style:italic}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -446,7 +453,7 @@ function dogDetail(id){
   ${dogFacts(d,id,st,own)}
 
   <p class="row-meta">${sbtLink(d)}</p>
-  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}</div>`:""}
+  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}${ownLinkMini(d.owner)}</div>`:""}
   ${!d.ext?`<h2>Salute</h2>${healthHtml(id,false)}`:""}
   <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
   ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
@@ -774,11 +781,13 @@ function ownerPreview(id){
   ${(d.docs||[]).some(z=>!z.private)?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
   ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
   ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
-  <p class="row-meta">${d.sbt?sbtLink(d):""}</p><h2>${T("L'allevatore","The breeder")}</h2><div class="note">Paolo Boldrini · ${T("raggiungibile per telefono e WhatsApp","available by phone and WhatsApp")}</div></div>`;
+  <p class="row-meta">${d.sbt?sbtLink(d):""}</p><h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">Paolo Boldrini</p><span class="row-meta">${T("Allevamento Del Piccolo Diavolo · Ostellato (FE)","Del Piccolo Diavolo kennel · Ostellato (FE), Italy")}</span>
+  <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+393924635584">+39 392 463 5584</a></span><span>Email: <a href="mailto:zonerosse@gmail.com">zonerosse@gmail.com</a></span></div>
+  <div class="brd-b"><a class="btn small" href="tel:+393924635584">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/393924635584" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:zonerosse@gmail.com">Email</a></div></div></div>`;
   LANG="it";
   sheet(`${html}
-  <p class="lead" style="margin-top:14px">${o._none?`Questo cane non ha ancora un proprietario: è un'anteprima. Lingua: <button class="chip" aria-pressed="${o.lang!=="en"}" data-a="ovLang" data-v="${id}|it">Italiano</button> <button class="chip" aria-pressed="${o.lang==="en"}" data-a="ovLang" data-v="${id}|en">English</button>`:`Il proprietario vede solo questa scheda${o.lang==="en"?", <strong>in inglese</strong>":""}: niente note private, niente altri cani, niente altri proprietari.`}</p>
-  ${d.owner?ownLink(d.owner):""}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+  ${o._none?`<p class="lead" style="margin-top:14px">Questo cane non ha ancora un proprietario: è un'anteprima. Lingua: <button class="chip" aria-pressed="${o.lang!=="en"}" data-a="ovLang" data-v="${id}|it">Italiano</button> <button class="chip" aria-pressed="${o.lang==="en"}" data-a="ovLang" data-v="${id}|en">English</button></p>`:""}
+  ${d.owner?ownLink(d.owner):""}<div class="actions"><button class="btn ghost" data-a="close">${o.lang==="en"?"Close":"Chiudi"}</button></div>`);
 }
 
 /* ---------- Cucciolate ---------- */
@@ -838,6 +847,9 @@ function saveLitter(){
 
 /* ---------- Proprietari ---------- */
 let OWNV="A";
+function ownLinkMini(oid){if(typeof OWNER_MODE!=="undefined")return"";const o=D.owners[oid];if(!o)return"";
+  return `<div class="olink-a">${o.token?`<span class="row-meta">Link privato${o.lang==="en"?" · la pagina è in inglese":""}</span><button class="btn small" data-a="copyLink" data-v="${oid}">Copia link</button><a class="btn ghost small" href="/p/${esc(o.token)}" target="_blank" rel="noopener">Apri</a>`
+  :`<span class="row-meta">Link privato non ancora creato</span><button class="btn small" data-a="newToken" data-v="${oid}">Crea il link privato</button>`}</div>`}
 function ownerList(){
   const groups={},nodog=[];
   Object.keys(D.owners).forEach(id=>{const dogs=Object.keys(D.dogs).filter(k=>D.dogs[k].owner===id);if(!dogs.length){nodog.push(id);return}
@@ -847,7 +859,7 @@ function ownerList(){
   const first=keys[0];
   const head=key=>{const [s0,d0]=key.startsWith("L:")?[D.litters[key.slice(2)].sire,D.litters[key.slice(2)].dam]:key.slice(2).split("|");
     const dt=gdate(key);return `<span class="og-t">${esc(dn(d0)||"madre ?")} × ${esc(dn(s0)||"padre ?")}</span><span class="row-meta">${dt?(key.startsWith("L:")?"cucciolata del ":"nati il ")+fmt(dt):"data da inserire"} · ${groups[key].length} ${groups[key].length===1?"proprietario":"proprietari"}</span>`};
-  const row=([id,k])=>{const o=D.owners[id],d=D.dogs[k];return `<button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(o.name)}</span><span class="row-meta">${sexIco(d.sex)} ${esc(d.nick||d.name)}${d.nick?` · <span class="ofull">${esc(d.name)}</span>`:""}</span></span><span class="badge">${esc(o.country||"")}</span></button>`};
+  const row=([id,k])=>{const o=D.owners[id],d=D.dogs[k];return `<div class="orow-w"><button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(o.name)}</span><span class="row-meta">${sexIco(d.sex)} ${esc(d.nick||d.name)}${d.nick?` · <span class="ofull">${esc(d.name)}</span>`:""}</span></span><span class="badge">${esc(o.country||"")}</span></button>${o.token?`<button class="btn ghost small cpy" data-a="copyLink" data-v="${id}">Copia link</button>`:`<span class="nolink">nessun link</span>`}</div>`};
   const body=keys.map(key=>{const rows=groups[key].sort((a,b)=>D.owners[a[0]].name.localeCompare(D.owners[b[0]].name)).map(row).join("");
     return OWNV==="A"?`<h2 class="og-h">${head(key)}</h2><div class="list">${rows}</div>`
       :`<details class="pups og" ${key===first?"open":""}><summary>${head(key)}</summary><div class="list">${rows}</div></details>`}).join("");
