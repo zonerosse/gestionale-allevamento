@@ -88,7 +88,10 @@ Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondar
 6. **Codici fiscali e documenti d'identità dei proprietari non vanno nel gestionale** (né online): restano nei PDF stampati.
 7. Lingua: italiano, testi semplici e diretti; date `gg/mm/aaaa`; simboli ♂ azzurro / ♀ rosa (icone SVG spesse).
 8. Scelte grafiche già fatte: Proprietari raggruppati per cucciolata, tutti aperti; Cucciolate come linea del tempo
-   con foto dei genitori; Salute con bottone siringa fisso.
+   con foto dei genitori; Salute con bottone siringa fisso;
+   Cani → filtro Ceduti raggruppato per cucciolata (dalla più recente, gruppi aperti, alfabetico dentro);
+   Consanguineità con la grafica "Scala" quando la cucciolata ha l'analisi SBT (pagina proprietario: solo numeri);
+   "Copia link" anche nella scheda del cane e nell'elenco proprietari.
 
 ## Prova in locale (facoltativa)
 ```
