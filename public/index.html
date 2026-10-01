@@ -260,6 +260,31 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .olink-a a{text-decoration:none}.olink-a .row-meta{flex:1 1 100%;margin:0}
 .orow-w{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-bottom:1px solid var(--line)}.orow-w:last-child{border-bottom:0}
 .orow-w .orow{border-bottom:0}.orow-w .cpy{margin-right:12px;white-space:nowrap}.orow-w .nolink{margin-right:16px;font-size:.8rem;color:var(--muted);font-style:italic}
+/* analisi SBT della cucciolata (scala) */
+.ca-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ca-sec{border-top:1px solid var(--line);padding:16px 20px}.ca-sec:first-child{border-top:0}
+.ca-h{font-family:var(--serif);font-size:1.05rem;margin:0 0 6px}
+.ca-sub{color:var(--muted);font-size:.86rem;margin:0;font-variant-numeric:tabular-nums}
+.ca-big{font-family:var(--serif);font-size:clamp(2.8rem,9vw,3.6rem);line-height:.95}.ca-big small{font-size:.45em;margin-left:2px}
+.ca-cap{color:var(--ink);font-size:.86rem;font-weight:600;margin-top:6px}
+.ca-scale{position:relative;height:56px;margin:18px 4px 6px}
+.ca-track{position:absolute;left:0;right:0;top:22px;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--ok-soft),var(--bg) 45%,var(--warn-soft))}
+.ca-zone{position:absolute;top:18px;height:18px;border:2px solid var(--ok);border-radius:6px}
+.ca-zl{position:absolute;top:40px;font-size:.75rem;color:var(--ok);white-space:nowrap;transform:translateX(-50%)}
+.ca-pin{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+.ca-pin span{font-size:.8rem;font-weight:600;color:var(--accent);white-space:nowrap}.ca-pin i{width:3px;height:34px;background:var(--accent);border-radius:2px;margin-top:2px}
+.ca-ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:.75rem;font-variant-numeric:tabular-nums;margin:0 0 4px}
+.ca-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 0}
+.ca-trio div{text-align:center;padding:8px 4px;border-radius:8px;background:var(--bg)}
+.ca-trio dt{font-size:.75rem;color:var(--muted)}.ca-trio dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.ca-trio .on{background:var(--accent-soft)}.ca-trio .on dd{color:var(--accent)}
+.ca-anc{list-style:none;margin:0;padding:0}
+.ca-anc li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 0;border-bottom:1px solid var(--line)}.ca-anc li:last-child{border-bottom:0}
+.ca-anc .n{font-family:var(--serif)}.ca-anc .x{color:var(--muted);font-size:.85rem;text-align:right;white-space:nowrap}.ca-anc .x b{color:var(--ink);font-weight:600}
+.ca-foot{border-top:1px solid var(--line);padding:12px 20px;font-size:.85rem;color:var(--muted)}
+.ca-foot a{color:var(--accent);text-underline-offset:2px;display:inline-block;margin-top:4px}
+.ca-mine{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
+.ca-mine strong{color:var(--ink)}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -431,6 +456,18 @@ function fact(l,v){return `<div class="fact"><dt>${l}</dt><dd>${v?esc(v):`<span 
 function factH(l,h){return `<div class="fact"><dt>${l}</dt><dd>${h||'<span class="empty">da inserire</span>'}</dd></div>`}
 function dlink(k){return k&&D.dogs[k]?`<button class="lnk" data-a="open" data-v="${k}">${esc(D.dogs[k].name)}</button>`:""}
 function age(d){if(!d.birth)return"";const b=new Date(d.birth+"T12:00"),n=new Date();let m=(n.getFullYear()-b.getFullYear())*12+n.getMonth()-b.getMonth();if(n.getDate()<b.getDate())m--;if(m<0)return"";const y=Math.floor(m/12),r=m%12;return (y?y+(y===1?" anno":" anni"):"")+(y&&r?" e ":"")+(r?r+(r===1?" mese":" mesi"):"")||"meno di un mese"}
+/* ---------- Analisi SBT della cucciolata (test mating) ---------- */
+// D.litters[id].sbtA = {c3,c5,c8,uniq,max,loss,gens:[[unici,max,ignoti]],top:[{name,n,pct}],src,pdf,date}
+function litA(id){const d=D.dogs[id];const l=d&&d.litter&&D.litters[d.litter];return l&&l.sbtA&&l.sbtA.c8?l.sbtA:null}
+function coiScale(a,me){const N=s=>LANG==="en"?String(s).replace(",","."):String(s).replace(".",","),pos=x=>Math.min(Math.max(x,0)/12*100,100),v=pc(a.c8);
+  return `<div class="ca-box"><div class="ca-sec"><div class="ca-big">${N(a.c8)}<small>%</small></div><div class="ca-cap">${T("COI 8 generazioni · SBTpedigree","8-generation COI · SBTpedigree")}</div>
+  <div class="ca-scale" aria-hidden="true"><div class="ca-track"></div>${me?`<div class="ca-zone" style="left:50%;width:25%"></div><span class="ca-zl" style="left:62.5%">la tua fascia 6–9%</span>`:""}
+  <div class="ca-pin" style="left:${pos(v)}%"><span>${N(a.c8)}%</span><i></i></div></div>
+  <div class="ca-ticks" aria-hidden="true"><span>0%</span><span>3%</span><span>6%</span><span>9%</span><span>12%+</span></div>
+  <dl class="ca-trio">${a.c3!=null&&a.c3!==""?`<div><dt>${T("3 gen.","3 gen.")}</dt><dd>${N(a.c3)}%</dd></div>`:""}${a.c5!=null&&a.c5!==""?`<div><dt>5 gen.</dt><dd>${N(a.c5)}%</dd></div>`:""}<div class="on"><dt>8 gen.</dt><dd>${N(a.c8)}%</dd></div></dl></div>
+  ${a.uniq&&a.max?`<div class="ca-sec"><p class="ca-sub">${a.uniq} ${T("antenati diversi su","different ancestors in")} ${a.max}${a.loss?` · ${T("perdita di antenati","ancestor loss")} ${N(a.loss)}%`:""}</p></div>`:""}
+  ${(a.top||[]).length?`<div class="ca-sec"><p class="ca-h">${T("Antenati più ripetuti","Most repeated ancestors")}</p><ul class="ca-anc">${a.top.map(x=>`<li><span class="n">${esc(x.name)}</span><span class="x"><b>${esc(String(x.n))}×</b>${x.pct?` · ${N(x.pct)}%`:""}</span></li>`).join("")}</ul></div>`:""}
+  ${a.src||a.pdf?`<div class="ca-foot">${a.src?`${T("Fonte: SBTpedigree, test mating","Source: SBTpedigree, test mating")} ${esc(a.src)}`:""}${a.pdf?`<br><a href="${esc(a.pdf)}" target="_blank" rel="noopener">📎 ${T("Analisi completa (PDF)","Full analysis (PDF)")}</a>`:""}</div>`:""}</div>`}
 function dogDetail(id){
   const d=D.dogs[id];if(!d)return "";
   const f=F(id)*100,cov=coverage(d.sire,d.dam);
@@ -440,7 +477,7 @@ function dogDetail(id){
   const b=band(f);
   const born_in=d.litter&&D.litters[d.litter];
   const myLitters=Object.entries(D.litters).filter(([k,l])=>l.dam===id||l.sire===id).sort((a,b)=>(b[1].date||"9")>(a[1].date||"9")?1:-1);
-  const litterRow=([lk,l])=>{const other=l.dam===id?l.sire:l.dam;const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lk);const sbL=(()=>{const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),c=isNaN(sbL)?coi8(l.sire,l.dam)*100:sbL,cLab=isNaN(sbL)?"COI previsto (gestionale)":"COI previsto SBT";
+  const litterRow=([lk,l])=>{const other=l.dam===id?l.sire:l.dam;const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lk);const sbL=(()=>{if(l.sbtA&&l.sbtA.c8)return pc(l.sbtA.c8);const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),c=isNaN(sbL)?coi8(l.sire,l.dam)*100:sbL,cLab=isNaN(sbL)?"COI previsto (gestionale)":"COI previsto SBT";
     return `<div class="row" style="cursor:default"><span><span class="row-name" style="display:block">${l.dam===id?"con ":"con "}${other?dlink(other):'<span class="empty">partner da inserire</span>'}</span><span class="row-meta">${l.state==="pianificata"?"Pianificata":"Nata il "+fmt(l.date)}${pups.length?" · "+pups.length+" cuccioli in archivio":""} · ${cLab} ${c.toFixed(2).replace(".",",")}%${l.notes?" · "+esc(l.notes):""}</span></span>${l.sire&&l.dam?`<button class="btn ghost small" data-a="mateWith" data-v="${l.sire}|${l.dam}">Analizza</button>`:"<span></span>"}</div>`};
   const st=d.ext?"Esterno":(STATUS[d.status]||[""])[0];
   return `<button class="back" data-a="back">‹ Tutti i cani</button>
@@ -461,7 +498,7 @@ function dogDetail(id){
   <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:'<p class="empty">Nessun titolo inserito.</p>'}
   <h2>Pedigree</h2>${pedigree(id)}
   <h2>Consanguineità</h2>
-  ${(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
+  ${litA(id)?(()=>{const a=litA(id),bb=band(pc(a.c8));return coiScale(a,true)+`<div class="ca-mine"><span class="badge ${bb[1]}">${bb[0]}</span><span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(f)}%</strong> · antenati noti ${cov.known} di ${cov.tot} · solo per te</span></div>`})():(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
    return `<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
    <div class="coi-band">${hs?`<span class="badge ${bb[1]}">${bb[0]}</span>`:'<span class="badge">COI SBT non inserito</span>'}</div>
    <div class="coi-cov"><strong>COI 8 generazioni SBT</strong>${hs?"":" · da inserire con Modifica"}</div></div>
@@ -710,7 +747,7 @@ function dogFacts(d,id,st,own){
   const F=(l,v,f)=>`<div class="fact"><dt>${l}</dt><dd>${v||(f?ins(f):'<span class="empty">—</span>')}</dd></div>`;
   return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",esc(d.loi||""),"loi")}${F("Microchip",esc(d.chip||""),"chip")}
   ${F("Padre",d.sire?dlink(d.sire):"","sire")}${F("Madre",d.dam?dlink(d.dam):"","dam")}${F("Stato",esc(st||""),"status")}
-  ${F("Allevatore",d.bred?esc(BREEDER_ME):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:"Paolo Boldrini")}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":"","coiSbt")}</dl>`}
+  ${F("Allevatore",d.bred?esc(BREEDER_ME):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:"Paolo Boldrini")}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":(litA(id)?esc(litA(id).c8)+"% · dalla cucciolata":""),"coiSbt")}</dl>`}
 function ownSave(id){const o=D.owners[id],v=k=>$("#"+k).value.trim();if(!v("eo_name")){$("#eo_name").focus();return}
   Object.assign(o,{name:v("eo_name"),country:v("eo_country"),phone:v("eo_phone"),email:v("eo_email"),addr:v("eo_addr"),lang:v("eo_lang"),notes:v("eo_notes")});EDIT=null;EDIRTY=false;render();toast("Dati salvati.")}
 function editOn(v){const [id,f]=v.split("|");EDIT=id;EDIRTY=false;render();
@@ -772,7 +809,7 @@ function ownerPreview(id){
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi)}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${pedigree(id).replace(/data-a="open" data-v="[^"]*"/g,"disabled")}
-  <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
+  <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
    :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
   ${d.tests?`<h2>${T("Test genetici","Genetic tests")}</h2><div class="note">${esc(LANG==="en"&&d.tests_en?d.tests_en:d.tests)}</div>`:""}
@@ -804,7 +841,7 @@ function litterList(){
   const ls=Object.entries(D.litters).sort((a,b)=>{const pa=a[1].state==="pianificata",pb=b[1].state==="pianificata";if(pa!==pb)return pa?-1:1;return (b[1].date||"").localeCompare(a[1].date||"")});
   const ph=k=>{const d=D.dogs[k];return d&&d.photo?`<img src="${d.photo}" alt="">`:`<span>${esc(((d&&(d.nick||d.name))||"?").trim()[0])}</span>`};
   const card=([lid,l])=>{const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid);
-    const sbL=(()=>{const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),hs=!isNaN(sbL),c=hs?sbL:coi8(l.sire,l.dam)*100,bb=band(c);
+    const sbL=(()=>{if(l.sbtA&&l.sbtA.c8)return pc(l.sbtA.c8);const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),hs=!isNaN(sbL),c=hs?sbL:coi8(l.sire,l.dam)*100,bb=band(c);
     const own=pups.filter(k=>D.dogs[k].owner).length,m=pups.filter(k=>D.dogs[k].sex==="M").length,f=pups.filter(k=>D.dogs[k].sex==="F").length;
     const plan=l.state==="pianificata";
     const dl=k=>k?`<button class="plink" data-a="open" data-v="${k}">${esc(dn(k))}</button>`:'<span class="empty">padre da inserire</span>';
@@ -1062,8 +1099,21 @@ function ownLink(oid){if(typeof OWNER_MODE!=="undefined")return"";const o=D.owne
   return `<div class="ownlink"><strong>Link privato di ${esc(o.name)}</strong><p class="row-meta" style="margin:2px 0 0">Chi ha questo link vede solo la pagina dei suoi cani, sempre aggiornata.</p>
   ${url?`<input readonly value="${esc(url)}" onclick="this.select()"><button class="btn small" data-a="copyLink" data-v="${oid}">Copia link</button> <a class="btn ghost small" href="${esc(url)}" target="_blank" rel="noopener">Apri</a> <button class="btn ghost small" data-a="newToken" data-v="${oid}">Cambia link</button>`
   :`<div style="margin-top:8px"><button class="btn small" data-a="newToken" data-v="${oid}">Crea il link privato</button></div>`}</div>`}
+/* Analisi SBT di una cucciolata: file preparato da Claude dal PDF della simulazione di SBTpedigree.
+   Trova la cucciolata dai nomi di padre e madre e salva i dati in D.litters[id].sbtA (campo nuovo, nient'altro cambia). */
+function findDogByName(n){const q=String(n||"").trim().toLowerCase();if(!q)return[];const all=Object.keys(D.dogs);
+  const ex=all.filter(k=>(D.dogs[k].name||"").trim().toLowerCase()===q);if(ex.length)return ex;
+  return all.filter(k=>{const m=(D.dogs[k].name||"").trim().toLowerCase();return m.length>3&&(q.includes(m)||m.includes(q))})}
+function importSbt(x){const S=findDogByName(x.sire),M=findDogByName(x.dam);
+  const L=Object.entries(D.litters).filter(([,l])=>S.includes(l.sire)&&M.includes(l.dam))
+    .sort((a,b)=>(a[1].state==="pianificata")!==(b[1].state==="pianificata")?(a[1].state==="pianificata"?-1:1):(b[1].date||"").localeCompare(a[1].date||""));
+  if(!L.length){alert(`Non trovo la cucciolata ${x.dam} × ${x.sire}.\n\nControlla che padre e madre abbiano questi nomi e che la cucciolata esista (anche solo pianificata), poi riprova.`);return}
+  const [lid,l]=L[0],when=l.state==="pianificata"?"pianificata":"nata il "+(fmt(l.date)||"?");
+  if(!confirm(`Analisi SBT: COI 8 generazioni ${x.a.c8}%\n\nLa applico alla cucciolata ${dn(l.dam)} × ${dn(l.sire)} (${when})?${l.sbtA?"\n\nQuesta cucciolata ha già un'analisi: verrà sostituita.":""}`))return;
+  l.sbtA=x.a;resetCalc();render();saveNow();toast("Analisi SBT salvata: vale per tutti i cuccioli della cucciolata.")}
 document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;
+      if(o.analisiSbt){importSbt(o.analisiSbt);return}
       if(o.patch)n=applyP(D,o.patch,false);else if(o.data&&o.data.dogs){if(!confirm("Questo file è una copia di sicurezza completa: sostituisce tutti i dati attuali. Procedere?"))return;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,o.data);n=1}else throw 0;
       resetCalc();render();saveNow();alert("Fatto: "+n+" modifiche unite. Il salvataggio online parte da solo.")}catch(err){alert("Questo file non contiene dati del gestionale.")}};r.readAsText(f)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;

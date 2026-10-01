@@ -57,10 +57,18 @@ prima di salvare carica su R2 ogni `data:...;base64,` (foto/PDF nuovi) e lo sost
   breeder, owner, litter, coiSbt, tests, tests_en, titles, notes, photo,
   health{vacc[],verm[],feci[]}, docs[{title,title_en,date,file,fname,private}], dna{...}`
 - `D.owners[id]`: `name, country, phone, email, addr, lang (it/en), notes, token` (link segreto `/p/<token>`)
-- `D.litters[id]`: `dam, sire, date, state (nata/pianificata), notes`
+- `D.litters[id]`: `dam, sire, date, state (nata/pianificata), notes, sbtA`
+  - `sbtA` (facoltativo) = analisi SBT del test mating, vale per tutti i cuccioli della cucciolata:
+    `{c3,c5,c8 (stringhe con virgola), uniq, max, loss, gens:[[unici,max,ignoti]×8], top:[{name,n,pct}], src, date, pdf}`.
+    Si mostra con la grafica "Scala" (`coiScale`): nella scheda di Paolo con la fascia 6–9% e il calcolo Wright,
+    nella pagina del proprietario solo numeri.
 - `D.matings["sire|dam"]`: `{coiSbt}`
 
 ### COI
+**Analisi SBT a ogni cucciolata:** Paolo manda a Claude il PDF della simulazione (test mating) di SBTpedigree;
+Claude prepara `analisi-sbt-<madre>-x-<padre>.json` = `{"analisiSbt":{"sire":"<nome>","dam":"<nome>","a":{...sbtA, pdf:"data:application/pdf;base64,..."}}}`.
+Paolo lo carica con "Importa modifiche": il gestionale trova la cucciolata dai nomi dei genitori (anche pianificata),
+chiede conferma e salva `sbtA`; il PDF va su R2 da solo al salvataggio. Il PDF di SBT è un'immagine: i numeri li legge Claude.
 Il numero principale è sempre il **COI 8 generazioni di SBTPedigree**, inserito a mano (`coiSbt`).
 Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondario. Fascia ideale **6–9%**.
 
