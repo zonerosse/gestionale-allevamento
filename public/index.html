@@ -285,6 +285,8 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .ca-foot a{color:var(--accent);text-underline-offset:2px;display:inline-block;margin-top:4px}
 .ca-mine{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
 .ca-mine strong{color:var(--ink)}
+.aw-bar{display:block;height:5px;border-radius:3px;background:var(--bg);margin-top:5px;max-width:220px}.aw-bar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.aw-more{margin-top:10px}.aw-more summary{cursor:pointer;color:var(--accent);font-weight:500;font-size:.92rem;padding:6px 0}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -489,7 +491,7 @@ function dogDetail(id){
   const born_in=d.litter&&D.litters[d.litter];
   const myLitters=Object.entries(D.litters).filter(([k,l])=>l.dam===id||l.sire===id).sort((a,b)=>(b[1].date||"9")>(a[1].date||"9")?1:-1);
   const litterRow=([lk,l])=>{const other=l.dam===id?l.sire:l.dam;const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lk);const sbL=(()=>{if(l.sbtA&&l.sbtA.c8)return pc(l.sbtA.c8);const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),c=isNaN(sbL)?coi8(l.sire,l.dam)*100:sbL,cLab=isNaN(sbL)?"COI previsto (gestionale)":"COI previsto SBT";
-    return `<div class="row" style="cursor:default"><span><span class="row-name" style="display:block">${l.dam===id?"con ":"con "}${other?dlink(other):'<span class="empty">partner da inserire</span>'}</span><span class="row-meta">${l.state==="pianificata"?"Pianificata":"Nata il "+fmt(l.date)}${pups.length?" · "+pups.length+" cuccioli in archivio":""} · ${cLab} ${c.toFixed(2).replace(".",",")}%${l.notes?" · "+esc(l.notes):""}</span></span>${l.sire&&l.dam?`<button class="btn ghost small" data-a="mateWith" data-v="${l.sire}|${l.dam}">Analizza</button>`:"<span></span>"}</div>`};
+    return `<div class="row" style="cursor:default"><span><span class="row-name" style="display:block">${l.dam===id?"con ":"con "}${other?dlink(other):'<span class="empty">partner da inserire</span>'}</span><span class="row-meta">${l.state==="pianificata"?"Pianificata":"Nata il "+fmt(l.date)}${pups.length?" · "+pups.length+" cuccioli in archivio":""} · ${cLab} ${c.toFixed(2).replace(".",",")}%${l.notes?" · "+esc(l.notes):""}</span></span>${l.sire&&l.dam?`<span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn ghost small" data-a="litterSheet" data-v="${lk}">Scheda</button><button class="btn ghost small" data-a="mateWith" data-v="${l.sire}|${l.dam}">Analizza</button></span>`:"<span></span>"}</div>`};
   const st=d.ext?"Esterno":(STATUS[d.status]||[""])[0];
   return `<button class="back" data-a="back">‹ Tutti i cani</button>
   ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="${esc(d.name)}">`:""}<h1>${esc(d.name)}</h1><p class="nick">${[d.nick&&"“"+esc(d.nick)+"”",st,d.bred?"Allevato da te":""].filter(Boolean).join(" · ")||"&nbsp;"}</p>
@@ -837,6 +839,37 @@ function ownerPreview(id){
   ${d.owner?ownLink(d.owner):""}<div class="actions"><button class="btn ghost" data-a="close">${o.lang==="en"?"Close":"Chiudi"}</button></div>`);
 }
 
+/* Quanto pesa ogni antenato comune sul COI del gestionale (Wright, stessi percorsi di coi8): la somma = coi8 */
+function coiParts(s,d){const by={},out={};if(!s||!d||!D.dogs[s]||!D.dogs[d])return out;
+  routes(d,COI_GEN).forEach(r=>(by[r.a]=by[r.a]||[]).push(r));
+  for(const r of routes(s,COI_GEN)){const L=by[r.a];if(!L)continue;const A=D.dogs[r.a],FA=coi8(A.sire,A.dam),set=new Set(r.path.slice(0,-1));
+    for(const q of L){if(q.path.slice(0,-1).some(x=>set.has(x)))continue;out[r.a]=(out[r.a]||0)+Math.pow(.5,r.d+q.d-1)*(1+FA)}}
+  return out}
+function ancWeight(s,d){const P=coiParts(s,d),ids=Object.keys(P).filter(k=>P[k]>0).sort((a,b)=>P[b]-P[a]);
+  if(!ids.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
+  const tot=ids.reduce((t,k)=>t+P[k],0),mx=P[ids[0]],ord=n=>n+"ª";
+  const row=k=>{const x=D.dogs[k],a=gensOf(s,k),b=gensOf(d,k);return `<div class="anc-row">${thumb(x)}<div class="anc-t"><button class="plink anc-n" data-a="open" data-v="${k}">${esc(x.name)}</button>
+    <span class="row-meta">Lato padre: ${a.map(ord).join(", ")} gen. · Lato madre: ${b.map(ord).join(", ")} gen.</span><span class="aw-bar"><i style="width:${(P[k]/mx*100).toFixed(1)}%"></i></span></div>
+    <div class="anc-r"><span class="anc-c" title="Quota del COI">${pf(P[k]*100)}%</span><span class="row-meta">${Math.round(P[k]/tot*100)}% del totale</span></div></div>`};
+  const top=ids.slice(0,8),rest=ids.slice(8);
+  return `<div class="anc-list">${top.map(row).join("")}</div>${rest.length?`<details class="aw-more"><summary>Altri ${rest.length} antenati in comune, con peso minore</summary><div class="anc-list">${rest.map(row).join("")}</div></details>`:""}`}
+/* ---------- Scheda della cucciolata (solo allevatore) ---------- */
+function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
+  const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).sort((x,y)=>D.dogs[x].name.localeCompare(D.dogs[y].name));
+  const w=s&&dm?coi8(s,dm)*100:NaN,cov=s&&dm?coverage(s,dm):{known:0,tot:0};
+  const sbAlt=(()=>{const m=mateSbt(s,dm);if(!isNaN(m))return m;const p=pups.map(k=>D.dogs[k]).find(x=>x.coiSbt);return p?pc(p.coiSbt):NaN})();
+  const v=a?pc(a.c8):sbAlt,bb=isNaN(v)?null:band(v);
+  const coiH=a?coiScale(a,true):`<div class="coi ${isNaN(v)?"coi-empty":""}"><div class="coi-num">${isNaN(v)?"—":pf(v)+"%"}</div><div class="coi-cov"><strong>COI 8 generazioni SBT</strong>${isNaN(v)?"":" · analisi completa SBT non ancora caricata"}</div></div>`;
+  sheet(`<p class="row-meta" style="margin:0 0 4px">Scheda della cucciolata</p>
+  <h1 style="margin:0 0 4px">${dlink(dm)||"madre ?"} <span class="lx">×</span> ${dlink(s)||'<span class="empty">padre da inserire</span>'}</h1>
+  <p class="nick" style="margin:0 0 12px">${l.state==="pianificata"?"Pianificata":"Nata il "+(fmt(l.date)||"?")}${pups.length?` · ${pups.length} cuccioli (${pupSummary(pups)})`:""}</p>
+  ${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}
+  <h2 style="margin-top:18px">Consanguineità</h2>${coiH}
+  <div class="ca-mine">${bb?`<span class="badge ${bb[1]}">${bb[0]}</span>`:""}${isNaN(w)?"":`<span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(w)}%</strong> · antenati noti ${cov.known} di ${cov.tot}</span>`}</div>
+  ${s&&dm?`<h2>Su chi cade la consanguineità</h2><p class="row-meta" style="margin:0 0 8px">Antenati comuni a padre e madre, in ordine di peso: quanto ognuno porta al COI calcolato dal gestionale (${isNaN(w)?"—":pf(w)+"%"}, 8 generazioni, solo cani inseriti). Il COI di SBT può differire un po'.</p><div class="anc">${ancWeight(s,dm)}</div>`:""}
+  ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}
+  <div class="actions">${s&&dm?`<button class="btn ghost" data-a="mateWith" data-v="${s}|${dm}">Apri in Accoppiamenti</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
+
 /* ---------- Cucciolate ---------- */
 /* simboli maschio / femmina */
 const ICO_M='<svg class="sx-ico sx-m" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-label="maschio"><circle cx="9.5" cy="14.5" r="6"/><path d="M14 10 20.5 3.5M14.5 3.5h6v6"/></svg>';
@@ -864,7 +897,7 @@ function litterList(){
         <div class="ltit"><div class="lnames">${dl(l.dam)} <span class="lx">×</span> ${dl(l.sire)}</div>
         <div class="ldate">${plan?"Pianificata":"Nata il <b>"+fmt(l.date)+"</b>"}</div></div>
         <span class="badge ${plan?"warn":"ok"} lstate">${plan?"Pianificata":"Nata"}</span></div>
-      <div class="lchips">${chips}</div>
+      <div class="lchips">${chips}</div>${l.sire&&l.dam?`<div class="actions" style="margin:8px 0 0"><button class="btn ghost small" data-a="litterSheet" data-v="${lid}">Scheda della cucciolata</button></div>`:""}
       ${l.notes?`<p class="lnotes">${esc(l.notes)}</p>`:""}
       ${pups.length?`<details class="pups lpups"><summary><span>Vedi i cuccioli (${pups.length})</span><span class="row-meta">${pupSummary(pups)}</span></summary><div class="list">${rows(pups)}</div></details>
       <div class="actions" style="margin:10px 0 0"><button class="btn ghost small" data-a="qh" data-v="L:${lid}">Vaccino · sverminazione · esame per la cucciolata</button></div>`:""}
@@ -957,9 +990,9 @@ function mating(){
   <p class="lead" style="margin-top:24px">Pedigree dei tuoi cani ancora incompleti? <button class="btn ghost small" data-a="loadDemo">Carica un esempio didattico</button></p>`;
 }
 function gensOf(root,x,depth=7){const g=[];if(root===x)g.push(1);ancestors(root,depth).forEach((c,i)=>c.forEach(y=>{if(y===x)g.push(i+2)}));return g}
-function ancList(com){if(!com.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
+function ancList(com,S=mateS,M=mateD){if(!com.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
   const ord=n=>n+"ª";
-  const items=com.map(x=>{const a=gensOf(mateS,x),b=gensOf(mateD,x);return{x,a,b,n:a.length+b.length,min:Math.min(...a,...b)}})
+  const items=com.map(x=>{const a=gensOf(S,x),b=gensOf(M,x);return{x,a,b,n:a.length+b.length,min:Math.min(...a,...b)}})
     .sort((p,q)=>q.n-p.n||p.min-q.min||dn(p.x).localeCompare(dn(q.x)));
   return `<h3 class="anc-h">Antenati in comune <span>${items.length}</span></h3><p class="row-meta" style="margin:0 0 8px">Generazioni contate dai cuccioli: 1ª = genitori, 2ª = nonni, 3ª = bisnonni…</p>
   <div class="anc-list">${items.map(({x,a,b,n})=>{const d=D.dogs[x];
@@ -1002,6 +1035,7 @@ document.addEventListener("click",e=>{
   const a=el.dataset.a,v=el.dataset.v||"";
   switch(a){
     case "close":closeSheet();break;
+    case "litterSheet":litterSheet(v);break;
     case "cancelDog":cancelSheet();break;
     case "pedDone":cancelSheet();break;
     case "pedForm":pedForm(v);break;
@@ -1039,7 +1073,7 @@ document.addEventListener("click",e=>{
     case "loadDemo":loadDemo();break;
     case "rmPhoto":tmpPhoto="";$("#fphPrev").innerHTML='<span class="thumb ph" style="width:72px;height:72px;border-radius:8px">?</span>';break;
     case "mate":{const d=D.dogs[v];if(d.sex==="M")mateS=v;else mateD=v;tab="coi";view=null;render();break}
-    case "mateWith":{const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
+    case "mateWith":{closeSheet();const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
   }
 });
 document.addEventListener("input",e=>{if(e.target.id==="srch"){q=e.target.value;rerenderList()}});

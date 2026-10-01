@@ -92,6 +92,8 @@ Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondar
    Cani → filtro Ceduti raggruppato per cucciolata (dalla più recente, gruppi aperti, alfabetico dentro);
    Consanguineità con la grafica "Scala" quando la cucciolata ha l'analisi SBT (pagina proprietario: solo numeri);
    "Copia link" anche nella scheda del cane e nell'elenco proprietari.
+   "Scheda della cucciolata" (`litterSheet`, solo allevatore): da Cucciolate e dalla scheda dei genitori; mostra la scala SBT
+   e "Su chi cade la consanguineità" = antenati comuni ordinati per peso sul COI Wright (`coiParts`, stessi percorsi di `coi8`).
 
 ## Prova in locale (facoltativa)
 ```
