@@ -1,0 +1,5 @@
+dati-iniziali-*.json
+gestionale-copia-di-sicurezza_*.json
+.wrangler/
+.dev.vars
+node_modules/

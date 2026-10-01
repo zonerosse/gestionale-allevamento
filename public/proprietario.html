@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Del Piccolo Diavolo</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECEEF1;--paper:#FFFFFF;--ink:#1C2230;--muted:#5C6472;--line:#D6DAE0;
+  --accent:#8C2B23;--accent-soft:#F4E3E1;--ok:#2F6B3F;--ok-soft:#E1EEE4;--warn:#9A5B12;--warn-soft:#F6EAD8;
+  --serif:"Young Serif",Georgia,"Times New Roman",serif;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14171D;--paper:#1D2129;--ink:#E7E9ED;--muted:#9AA1AD;--line:#2F3541;
+  --accent:#E07468;--accent-soft:#3A2220;--ok:#7CC48E;--ok-soft:#1E3326;--warn:#E3A55A;--warn-soft:#3A2C18;}}
+:root[data-theme="dark"]{
+  --bg:#14171D;--paper:#1D2129;--ink:#E7E9ED;--muted:#9AA1AD;--line:#2F3541;
+  --accent:#E07468;--accent-soft:#3A2220;--ok:#7CC48E;--ok-soft:#1E3326;--warn:#E3A55A;--warn-soft:#3A2C18;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+main{min-width:0}
+nav.side{background:var(--paper);border-right:1px solid var(--line);padding:24px 16px;position:sticky;top:0;height:100vh}
+.brand{font-family:var(--serif);font-size:1.35rem;line-height:1.15;margin:0 0 4px}
+.brand-sub{color:var(--muted);font-size:.85rem;margin:0 0 28px}
+.navbtn{display:flex;width:100%;align-items:center;gap:10px;background:none;border:0;padding:10px 12px;border-radius:8px;text-align:left;color:var(--muted);font-weight:500}
+.navbtn[aria-current="true"]{background:var(--accent-soft);color:var(--accent)}
+.navbtn svg{width:20px;height:20px;flex:none}
+main{padding:28px clamp(16px,4vw,48px) 100px;max-width:1100px;width:100%}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,4vw,2.3rem);line-height:1.1;margin:0 0 6px}
+h2{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:32px 0 12px}
+.lead{color:var(--muted);margin:0 0 20px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;align-items:center}
+.search{flex:1 1 220px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:.9rem;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);font-weight:600}
+.btn{border:0;background:var(--ink);color:var(--paper);border-radius:8px;padding:10px 16px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:6px 12px;font-size:.9rem}
+
+.list{display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;width:100%}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--bg)}
+.row{align-items:center}
+.pups{margin-top:10px;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pups summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;list-style:none;font-weight:600}
+.pups summary::-webkit-details-marker{display:none}
+.pups summary span:first-child::after{content:"▾";display:inline-block;margin-left:8px;color:var(--muted);transition:transform .15s}
+.pups[open] summary span:first-child::after{transform:rotate(180deg)}
+.pups[open] summary{border-bottom:1px solid var(--line)}
+.pups .list{border:0;border-radius:0}
+.lnk{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:500;text-align:left;text-decoration:underline;text-underline-offset:2px}
+.thumb{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--bg);flex:none}
+.thumb.ph{display:grid;place-items:center;color:var(--muted);font-family:var(--serif)}
+.rowwrap{display:flex;gap:12px;align-items:center;min-width:0}
+.hero-photo{width:100%;max-width:420px;max-height:460px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block;margin:0 0 16px}
+.pcell img{width:100%;height:120px;object-fit:contain;background:var(--bg);border-radius:4px;margin:0 0 5px;display:block}
+.photo-edit{display:flex;gap:12px;align-items:center}
+.photo-edit img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+.row-name{font-family:var(--serif);font-size:1.08rem}
+.row-meta{color:var(--muted);font-size:.88rem;grid-column:1}
+.badge{font-size:.78rem;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--muted);align-self:start;white-space:nowrap}
+.badge.f{background:var(--accent-soft);color:var(--accent)}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+
+.back{background:none;border:0;color:var(--muted);padding:0;margin:0 0 14px;font-weight:500}
+.nick{color:var(--muted);font-size:1rem;margin:0 0 18px}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 8px}
+.fact{background:var(--paper);padding:12px 14px}
+.fact dt{color:var(--muted);font-size:.8rem}
+.fact dd{margin:2px 0 0;font-weight:500;overflow-wrap:anywhere}
+.empty{color:var(--muted);font-style:italic;font-weight:400}
+.note{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;white-space:pre-wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}
+
+.hero{display:grid;grid-template-columns:1fr minmax(160px,38%);gap:0;background:var(--ink);color:#fff;border-radius:16px;overflow:hidden;margin:0 0 16px;min-height:220px}
+.hero-t{padding:26px 24px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero-k{margin:0;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.hero-h{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.05;margin:6px 0 6px;color:#fff}
+.hero-s{margin:0;opacity:.75}
+.hero-p{position:relative}.hero-p img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+@media (max-width:560px){.hero{grid-template-columns:1fr;min-height:0}.hero-p{height:260px;order:-1}.hero-t{padding:18px}}
+.lab{margin:0 0 4px;font-weight:600;font-size:.9rem}
+.sx{display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--muted)}
+.sx:focus-within{border-color:var(--ink)}
+.sx input{flex:1;border:0;outline:0;background:none;padding:10px 0;font:inherit;color:var(--ink);min-width:0}
+.fab{position:fixed;right:22px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:9}
+.fab svg{width:26px;height:26px}
+.fabl{position:absolute;right:66px;background:var(--ink);color:var(--paper);font-size:.85rem;padding:4px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.fab:hover .fabl,.fab:focus-visible .fabl{opacity:1}
+@media (max-width:760px){.fab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:16px}}
+.row-par{display:block;font-size:.86rem;margin-top:2px;color:var(--ink)}
+.row-par b{color:var(--muted);font-weight:400;margin:0 2px}
+.row-par i,.row-par2 i{color:var(--muted)}
+.row-par2{display:flex;flex-direction:column;gap:1px;margin-top:4px;font-size:.84rem}
+.row-par2 span{padding-left:7px;border-left:3px solid var(--ink)}
+.row-par2 .pf{border-left-color:var(--accent)}
+.plink{border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.plink:hover{color:var(--accent);text-decoration-color:currentColor}
+.od-wrap{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.od-n{display:block;font-size:.92rem;color:var(--ink)}
+.cb{position:relative}
+.cbi{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:inherit;font-size:1rem;color:var(--ink)}
+.cbi:focus{outline:0;border-color:var(--accent)}
+.cb .menu{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.15);max-height:280px;overflow:auto;z-index:30;display:none}
+.cb .menu.open{display:block}
+.cb .menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;font:inherit;font-size:.95rem;color:var(--ink);cursor:pointer}
+.cb .menu button small{color:var(--muted);margin-left:6px}
+.cb .menu button:hover,.cb .menu button.act{background:var(--bg)}
+.cb .menu .add{border-top:1px solid var(--line);color:var(--accent);font-weight:600}
+.cb .menu .clr{color:var(--muted);font-size:.85rem}
+.cb-none{margin:0;padding:9px 12px;color:var(--muted);font-size:.9rem}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:999px;background:var(--bg);color:var(--muted);margin-left:6px;vertical-align:1px}
+.fnote{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:.9rem;margin:-4px 0 14px}
+.pmiss-box{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.pmiss{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.pmiss:first-of-type{border-top:0}
+.pedf{min-width:880px}
+.pedf .pcell.slot{background:var(--bg);border-style:dashed}
+.pedf .sl{display:block;font-size:.75rem;color:var(--muted);margin:0 0 4px}
+.pedf .cbi{padding:7px 9px;font-size:.9rem}
+.sheet:has(.pedf){width:min(1000px,100%)}
+.anc-h{font-family:var(--serif);font-weight:400;font-size:1.2rem;margin:18px 0 2px}.anc-h span{font-family:var(--sans);font-size:.85rem;color:var(--muted)}
+.anc-list{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.anc-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line)}
+.anc-row:first-child{border-top:0}
+.anc-n{font-family:var(--serif);font-size:1.02rem;text-align:left}
+.anc-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.anc-r{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.anc-c{font-family:var(--serif);font-size:1.35rem;line-height:1}
+.anc-r a{font-size:.82rem;color:var(--accent);white-space:nowrap}
+.hnext{background:var(--warn-soft);border-radius:10px;padding:10px 14px;margin:0 0 12px}
+.hsec{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.hhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}.hhead h3{margin:0;font-size:1rem}
+.hrow{display:grid;grid-template-columns:100px 1fr auto;gap:10px;align-items:start;padding:7px 0;border-top:1px solid var(--line)}
+.hrow:first-child{border-top:0}.hd{color:var(--muted);font-size:.9rem}
+.hrow small{display:block;color:var(--muted);margin-top:2px}.hrow small a{color:var(--accent)}
+.hx{border:0;background:none;color:var(--muted);font-size:1.2rem;line-height:1;cursor:pointer;padding:0 4px}
+.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.pv-ex{border:2px dashed var(--warn);background:var(--warn-soft);border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:.9rem}
+.dna{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.dna-ok{background:var(--ok-soft);color:var(--ok);border-radius:8px;padding:8px 12px;margin:0 0 10px;font-weight:600;font-size:.92rem}
+.dna-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.dna-c{display:flex;justify-content:space-between;gap:8px;background:var(--bg);border-radius:6px;padding:5px 9px;font-size:.85rem}
+.dna-c span{color:var(--muted)}.dna-c b{font-weight:600;font-variant-numeric:tabular-nums}
+.dna-pdf{color:var(--accent);font-weight:600}
+.coi-empty .coi-num{color:var(--muted)}
+.sbt-in input{width:90px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;font:inherit;margin-left:4px}
+.coi2{display:flex;flex-direction:column;gap:2px;margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--line);font-size:.92rem}
+.pups,.pups *,.pups *::before,.pups *::after{box-sizing:border-box}
+.rowwrap>span:last-child{min-width:0}
+.row-name,.row-meta,.row-par2 span,.od-n{overflow-wrap:anywhere}
+.row .badge{justify-self:end;max-width:100%}
+.pups summary{flex-wrap:wrap}.pups summary span{min-width:0}
+.hfab{position:fixed;right:90px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:9}
+.hfab svg{width:24px;height:24px}.hfab .fabl{right:66px}
+.hfab:hover .fabl,.hfab:focus-visible .fabl{opacity:1}
+@media (max-width:760px){.hfab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:84px}}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.92rem;opacity:0;pointer-events:none;transition:all .2s;z-index:40}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.pd-h{margin:12px 0 6px;font-size:.92rem;color:var(--muted)}.pd-h strong{color:var(--ink)}
+.banner .bn-act{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:6px;vertical-align:middle}
+.banner .btn.small{padding:3px 10px;font-size:.82rem}
+.fact-e{all:unset;display:flex;flex-direction:column;justify-content:flex-start;cursor:pointer;box-sizing:border-box;background:var(--paper);padding:12px 14px;text-align:left}
+.fact-e .dt{display:block;color:var(--muted);font-size:.8rem}.fact-e .dd{display:block;margin:2px 0 0;font-weight:500;overflow-wrap:anywhere}
+.fact-e:hover{background:var(--bg)}.fact-e .pen{margin-left:6px;opacity:.35;vertical-align:-2px}
+.fact-e:hover .pen{opacity:1;color:var(--accent)}
+.ins{color:var(--accent);font-weight:600}
+.editbox{background:var(--paper);border:2px solid var(--accent);border-radius:12px;padding:14px;margin:0 0 8px}
+.edit-h{margin:0 0 12px;font-size:.9rem;color:var(--muted)}
+.editbox .f>span{font-size:.88rem;color:var(--muted)}
+.savebar{position:sticky;bottom:0;background:var(--paper);padding:10px 0 4px;margin:12px 0 0}
+.btn.save{background:var(--accent);color:#fff;font-size:1.05rem;padding:12px 28px}
+.facts .ins{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:600;cursor:pointer}
+@media (max-width:760px){.savebar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}}
+.sx-ico{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.sx-m{color:#1f6fd1}.sx-f{color:#d63384}
+.newown{display:grid;gap:6px;margin-top:8px;padding:10px;border:1px dashed var(--line);border-radius:8px}
+.newown input,.newown select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:inherit}
+.og-h{display:flex;flex-direction:column;gap:0;margin:22px 0 8px}.og-t{font-family:var(--serif);font-weight:400;font-size:1.15rem}
+.og summary{flex-direction:column;align-items:flex-start;gap:2px}.og summary .og-t{font-weight:400}
+.og{margin:0 0 10px}
+.orow{grid-template-columns:minmax(0,1fr) auto;padding:10px 16px}.orow-l{display:flex;flex-direction:column;min-width:0}.ofull{color:var(--muted)}
+.lyear{font-family:var(--serif);font-weight:400;font-size:1.05rem;color:var(--muted);margin:26px 0 10px;display:flex;align-items:center;gap:10px}
+.lyear::after{content:"";flex:1;height:1px;background:var(--line)}
+.lcard{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.lplan{border-style:dashed;border-color:var(--warn);background:linear-gradient(0deg,var(--paper),var(--paper)),var(--warn-soft)}
+.lhead{display:flex;align-items:center;gap:14px}
+.lpics{display:flex;flex:none}.lpic{width:58px;height:58px;border-radius:50%;overflow:hidden;border:3px solid var(--paper);box-shadow:0 0 0 2px var(--accent);background:var(--bg);display:grid;place-items:center;font-family:var(--serif);color:var(--muted)}
+.lpic.m{box-shadow:0 0 0 2px var(--ink);margin-left:-14px}.lpic img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.ltit{flex:1;min-width:0}.lnames{font-family:var(--serif);font-size:1.18rem;line-height:1.25}.lnames .plink{text-decoration:none}.lx{color:var(--accent);margin:0 2px}
+.ldate{color:var(--muted);font-size:.9rem;margin-top:2px}.lstate{align-self:flex-start}
+.lchips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.lchip{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border-radius:999px;padding:5px 12px;font-size:.88rem}
+.lchip.ok{background:var(--ok-soft);color:var(--ok)}.lchip.coi-ok{background:var(--ok-soft);color:var(--ok)}.lchip.coi-warn{background:var(--warn-soft);color:var(--warn)}.lchip.coi-low{background:var(--bg)}
+.lnotes{margin:10px 0 0;color:var(--muted);font-size:.9rem}
+.lpups{margin-top:12px}
+.lv-B{position:relative;padding-left:26px;border-left:3px solid var(--line);margin-left:8px}
+.lv-B .lcard{position:relative}.lv-B .lcard::before{content:"";position:absolute;left:-36px;top:28px;width:15px;height:15px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+.lv-B .lplan::before{background:var(--warn)}.lv-B .lyear{margin-left:-26px}
+@media (max-width:560px){.lpic{width:46px;height:46px}.lnames{font-size:1.05rem}.lstate{display:none}}
+.ownlink{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0 0}
+.ownlink input{width:100%;margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.85rem;background:var(--bg)}
+.owner-mode nav.side,.owner-mode nav.bottom,.owner-mode .hfab,.owner-mode #main>.lead,.owner-mode #main>.actions,.owner-mode .ownlink{display:none!important}
+.owner-mode .app{grid-template-columns:minmax(0,1fr)}.owner-mode main{margin:0 auto;max-width:900px}
+.owner-mode .owner-view{border:0;padding:0;background:none}
+/* Pedigree: l'elemento forte */
+.ped-wrap{overflow-x:auto;padding-bottom:6px;margin:0 -4px}
+.ped{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:0 18px;min-width:760px;padding:0 4px}
+.ped-col{display:flex;flex-direction:column;justify-content:space-around;gap:6px}
+.pcell{position:relative;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:7px 10px;font-size:.88rem;line-height:1.25;text-align:left;width:100%;min-height:40px}
+.pcell.m{border-left-color:var(--ink)}
+.pcell.fe{border-left-color:var(--accent)}
+.pcell.unk{color:var(--muted);font-style:italic;border-style:dashed;border-left-width:1px}
+.pcell.rep{background:var(--warn-soft)}
+.pcell .pn{font-family:var(--serif);display:block}
+.pcell small{color:var(--muted)}
+.ped-legend{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+.ped-legend span{display:inline-block;width:12px;height:12px;background:var(--warn-soft);border:1px solid var(--line);vertical-align:-2px;margin-right:4px}
+
+/* COI */
+.coi{display:grid;grid-template-columns:auto 1fr;gap:4px 20px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px}
+.coi-num{font-family:var(--serif);font-size:3rem;line-height:1;grid-row:span 3}
+.coi-band{font-weight:600}
+.coi-cov{color:var(--muted);font-size:.9rem}
+.bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;max-width:240px}
+.bar i{display:block;height:100%;background:var(--muted)}
+.mate{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--muted)}
+label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font-size:1rem}
+.anc{margin-top:12px;font-size:.92rem}
+.anc li{margin:2px 0}
+
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet-bg.open{display:flex}
+.sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){.sheet-bg{align-items:center}.sheet{border-radius:16px}}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form .full{grid-column:1/-1}
+
+.owner-view{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px}
+.owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
+
+.banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
+
+nav.bottom{display:none}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  nav.side{display:none}
+  nav.bottom{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:6px 4px env(safe-area-inset-bottom,0px);z-index:10}
+  nav.bottom .navbtn{flex-direction:column;gap:2px;font-size:.72rem;padding:6px 2px;justify-content:center;text-align:center}
+  .mate,.form{grid-template-columns:1fr}
+  .coi-num{font-size:2.4rem}
+}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body class="owner-mode">
+<div class="app">
+  <nav class="side" aria-label="Sezioni">
+    <p class="brand">Del Piccolo Diavolo</p>
+    <p class="brand-sub">Gestionale allevamento</p>
+    <div id="navSide"></div>
+  </nav>
+  <main id="main"></main>
+</div>
+<button class="hfab" data-a="qh" aria-label="Vaccino, sverminazione o esame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2l4 4M17 7l3-3M19 9l-8.7 8.7a2 2 0 0 1-2.8 0l-2.2-2.2a2 2 0 0 1 0-2.8L14 4M9 11l4 4M5 19l-3 3M14 4l6 6"/></svg><span class="fabl">Vaccino · sverminazione · esame</span></button>
+<nav class="bottom" id="navBottom" aria-label="Sezioni"></nav>
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<script>
+/* ---------- Gestionale online: i dati arrivano dal database ---------- */
+const D={dogs:{},owners:{},litters:{},matings:{}};
+const FILES={},DOCF={};
+const OWNER_MODE=true;
+/* ---------- Utilità ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d?new Date(d+"T12:00").toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric"}):"";
+const dn=id=>id&&D.dogs[id]?D.dogs[id].name:"";
+const newId=p=>p+Math.random().toString(36).slice(2,8);
+const STATUS={fattrice:["Fattrice","f"],stallone:["Stallone","f"],casa:["In casa",""],prenotato:["Prenotato","warn"],ceduto:["Ceduto","ok"],sterilizzata:["Sterilizzata",""],deceduto:["Deceduto",""]};
+
+/* ---------- COI (formula di Wright, coefficiente di parentela) ---------- */
+let kinMemo={},genMemo={};
+function resetCalc(){kinMemo={};genMemo={};coiMemo={}}
+/* COI dei cuccioli con il metodo di Wright, limitato a 8 generazioni come SBTPedigree */
+const COI_GEN=8;let coiMemo={};
+function routes(start,maxd){const out=[],st=[[start,1,[start]]];
+  while(st.length){const [id,d,path]=st.pop();const x=D.dogs[id];if(!x)continue;out.push({a:id,d,path});
+    if(d<maxd){if(x.sire)st.push([x.sire,d+1,path.concat(x.sire)]);if(x.dam)st.push([x.dam,d+1,path.concat(x.dam)])}}
+  return out}
+function coi8(s,d){if(!s||!d||!D.dogs[s]||!D.dogs[d])return 0;const key=s+"|"+d;if(key in coiMemo)return coiMemo[key];coiMemo[key]=0;
+  const R2=routes(d,COI_GEN),by={};R2.forEach(r=>(by[r.a]=by[r.a]||[]).push(r));let t=0;
+  for(const r of routes(s,COI_GEN)){const L=by[r.a];if(!L)continue;const A=D.dogs[r.a],FA=coi8(A.sire,A.dam),set=new Set(r.path.slice(0,-1));
+    for(const q of L){if(q.path.slice(0,-1).some(x=>set.has(x)))continue;t+=Math.pow(.5,r.d+q.d-1)*(1+FA)}}
+  return coiMemo[key]=t}
+function gen(id){if(!id||!D.dogs[id])return -1;if(id in genMemo)return genMemo[id];genMemo[id]=0;const d=D.dogs[id];return genMemo[id]=1+Math.max(gen(d.sire),gen(d.dam))}
+function F(id){const d=D.dogs[id];return d?coi8(d.sire,d.dam):0}
+function kin(a,b){
+  if(!a||!b||!D.dogs[a]||!D.dogs[b])return 0;
+  if(a===b)return .5*(1+F(a));
+  if(gen(a)<gen(b))[a,b]=[b,a];
+  const k=a+"|"+b;if(k in kinMemo)return kinMemo[k];
+  const d=D.dogs[a];return kinMemo[k]=.5*(kin(d.sire,b)+kin(d.dam,b));
+}
+function ancestors(id,depth){ // array per generazione
+  const out=[];let cur=[id];
+  for(let g=0;g<depth;g++){const nx=[];cur.forEach(x=>{const d=x&&D.dogs[x];nx.push(d?d.sire||null:null,d?d.dam||null:null)});out.push(nx);cur=nx}
+  return out;
+}
+function coverage(sire,dam,depth=8){ // antenati noti su 8 generazioni, come SBT
+  let known=0,tot=0;
+  [sire,dam].forEach(p=>{tot++;if(p)known++;ancestors(p,depth-1).forEach(g=>g.forEach(x=>{tot++;if(x)known++}))});
+  return {known,tot};
+}
+function commonAnc(s,d,depth=7){
+  const a=new Set([s,...ancestors(s,depth).flat()].filter(Boolean));
+  return [...new Set([d,...ancestors(d,depth).flat()].filter(x=>x&&a.has(x)))];
+}
+function band(p){
+  if(p<6)return["Sotto la tua fascia ideale (6–9%)",""];
+  if(p<=9)return["Dentro la tua fascia ideale (6–9%)","ok"];
+  return["Sopra la tua fascia ideale (6–9%)","warn"];
+}
+
+/* ---------- Navigazione ---------- */
+const TABS=[
+ ["cani","Cani",'<path d="M5 11c0-3 2-6 7-6s7 3 7 6v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><circle cx="9.5" cy="12" r=".9" fill="currentColor"/><circle cx="14.5" cy="12" r=".9" fill="currentColor"/>'],
+ ["cucciolate","Cucciolate",'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'],
+ ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
+ ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>']
+];
+let tab="cani",view=null,filter="miei",q="";
+function nav(){
+  const h=TABS.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>${l}</button>`).join("");
+  $("#navSide").innerHTML=h;$("#navBottom").innerHTML=h;
+}
+let EDIT=null,EDIRTY=false;
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});
+function leaveOk(){if(!EDIT)return true;if(EDIRTY&&!confirm("Hai cambiato dei dati senza premere Salva.\n\nOK = esci e lascia perdere le modifiche\nAnnulla = resta qui per salvarle"))return false;EDIT=null;EDIRTY=false;return true}
+function go(t){if(!leaveOk())return;tab=t;view=null;render();scrollTo(0,0)}
+function openItem(id){if(!leaveOk())return;if(D.dogs[id]&&!(tab==="proprietari"&&D.owners[id]))tab="cani";view=id;render();scrollTo(0,0)}
+function render(){resetCalc();nav();
+  const m=$("#main");
+  const banner=bannerHtml();
+  if(tab==="cani")m.innerHTML=banner+(view?dogDetail(view):dogList());
+  if(tab==="cucciolate")m.innerHTML=banner+litterList();
+  if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
+  if(tab==="coi")m.innerHTML=banner+mating();
+  if(tab==="coi")calcMate();
+}
+
+/* ---------- Cani ---------- */
+function curLitter(){
+  const ls=Object.entries(D.litters).filter(([,l])=>l.state==="nata"&&l.date).sort((a,b)=>a[1].date<b[1].date?1:-1);
+  return ls.length?ls[0][0]:null;
+}
+function pupFold(ids,label){
+  const lid=curLitter();if(!lid)return["",ids];
+  const pups=ids.filter(k=>D.dogs[k].litter===lid);
+  if(pups.length<2)return["",ids];
+  pups.sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name,"it",{numeric:true}));
+  const l=D.litters[lid];
+  const box=`<details class="pups"><summary><span>${label} · ${esc(dn(l.dam))} × ${esc(dn(l.sire))}</span><span class="row-meta">nata il ${fmt(l.date)} · ${pups.length} cuccioli (${pupSummary(pups)})</span></summary><div class="list">${rows(pups)}</div></details>`;
+  return[box,ids.filter(k=>!pups.includes(k))];
+}
+const HERO="bilquis";
+function isMine(d){return !d.ext&&(d.fattr||d.status!=="ceduto"&&d.status!=="prenotato")}
+function hero(){const d=D.dogs[HERO];
+  return `<div class="hero"><div class="hero-t"><p class="hero-k">Staffordshire Bull Terrier</p><h1 class="hero-h">Del Piccolo Diavolo</h1><p class="hero-s">Gestionale allevamento</p></div>
+  <div class="hero-p">${d&&d.photo?`<img src="${d.photo}" alt="">`:""}</div></div>`;
+}
+function dogList(){
+  const f=[["miei","Miei"],["ceduto","Ceduti"],["prenotato","Prenotati"],["tutti","Tutti"],["fattrice","Fattrici"],["ext","Esterni"]];
+  let ids=Object.keys(D.dogs).filter(id=>{const d=D.dogs[id];
+    if(q&&!(d.name+" "+(d.nick||"")+" "+(d.loi||"")+" "+(d.chip||"")).toLowerCase().includes(q.toLowerCase()))return false;
+    if(filter==="miei")return isMine(d);
+    if(filter==="ext")return d.ext;
+    if(filter==="fattrice")return d.status==="fattrice"||d.fattr;
+    if(filter!=="tutti")return d.status===filter;return true});
+  ids.sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name));
+  let body;
+  {const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
+    body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
+  return `${hero()}
+  <p class="lab">Cerca</p><label class="sx"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input placeholder="Nome, soprannome, LOI o microchip" value="${esc(q)}" id="srch"></label>
+  <button class="fab" data-a="dogForm" aria-label="Nuovo cane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="fabl">Nuovo cane</span></button>
+  <div class="toolbar" style="margin-top:12px">${f.map(([k,l])=>`<button class="chip" aria-pressed="${filter===k}" data-a="filter" data-v="${k}">${l}</button>`).join("")}</div>
+  <p class="row-meta" style="margin:0 0 10px">${Object.keys(D.dogs).length} cani in archivio, compresi antenati e stalloni esterni.</p>
+  ${body}`;
+}
+function sbtLink(d){
+  if(d.sbt)return `<a href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(d.sbt)}" target="_blank" rel="noopener" style="color:var(--accent)">Apri su SBTPedigree ↗</a>`;
+  return `<a href="https://www.google.com/search?q=${encodeURIComponent('site:sbtpedigree.com "'+d.name+'"')}" target="_blank" rel="noopener" style="color:var(--accent)">Cerca su SBTPedigree ↗</a> <span class="empty">· link diretto da inserire in “Modifica”</span>`;
+}
+function thumb(d){return d.photo?`<img class="thumb" src="${d.photo}" alt="">`:`<span class="thumb ph" aria-hidden="true">${esc((d.nick||d.name).trim()[0]||"")}</span>`}
+function born(d){return d.birth?fmt(d.birth):(d.year?"nato nel "+d.year:"")}
+function rows(ids){
+  if(!ids.length)return '<div class="row"><span class="row-meta">Nessun cane con questi criteri. Cambia filtro o aggiungine uno.</span></div>';
+  return ids.map(id=>{const d=D.dogs[id];const st=d.ext?["Esterno",""]:STATUS[d.status]||["",""];
+    const meta=[d.nick&&esc("“"+d.nick+"”"),sexH(d.sex),esc(born(d)),d.owner&&D.owners[d.owner]&&esc("di "+D.owners[d.owner].name)].filter(Boolean).join(", ");
+    const showP=(d.sire||d.dam)&&!d.ext;
+    const pn=k=>k&&D.dogs[k]?esc(D.dogs[k].name):'<i>non inserito</i>';
+    const par=!showP?"":`<span class="row-par2"><span class="pm">${pn(d.sire)}</span><span class="pf">${pn(d.dam)}</span></span>`;
+    return `<button class="row" data-a="open" data-v="${id}"><span class="rowwrap">${thumb(d)}<span><span class="row-name" style="display:block">${esc(d.name)}</span><span class="row-meta">${meta||"&nbsp;"}</span>${par}</span></span>${st[0]?`<span class="badge ${st[1]}">${st[0]}</span>`:"<span></span>"}</button>`}).join("");
+}
+function rerenderList(){const s=$("#srch"),p=s.selectionStart;$("#main").innerHTML=bannerHtml()+dogList();const n=$("#srch");n.focus();n.setSelectionRange(p,p)}
+
+function fact(l,v){return `<div class="fact"><dt>${l}</dt><dd>${v?esc(v):`<span class="empty">${T("da inserire","not yet available")}</span>`}</dd></div>`}
+function factH(l,h){return `<div class="fact"><dt>${l}</dt><dd>${h||'<span class="empty">da inserire</span>'}</dd></div>`}
+function dlink(k){return k&&D.dogs[k]?`<button class="lnk" data-a="open" data-v="${k}">${esc(D.dogs[k].name)}</button>`:""}
+function age(d){if(!d.birth)return"";const b=new Date(d.birth+"T12:00"),n=new Date();let m=(n.getFullYear()-b.getFullYear())*12+n.getMonth()-b.getMonth();if(n.getDate()<b.getDate())m--;if(m<0)return"";const y=Math.floor(m/12),r=m%12;return (y?y+(y===1?" anno":" anni"):"")+(y&&r?" e ":"")+(r?r+(r===1?" mese":" mesi"):"")||"meno di un mese"}
+function dogDetail(id){
+  const d=D.dogs[id];if(!d)return "";
+  const f=F(id)*100,cov=coverage(d.sire,d.dam);
+  const kids=Object.keys(D.dogs).filter(k=>D.dogs[k].sire===id||D.dogs[k].dam===id);
+  const sibs=d.sire&&d.dam?Object.keys(D.dogs).filter(k=>k!==id&&D.dogs[k].sire===d.sire&&D.dogs[k].dam===d.dam):[];
+  const own=d.owner&&D.owners[d.owner];
+  const b=band(f);
+  const born_in=d.litter&&D.litters[d.litter];
+  const myLitters=Object.entries(D.litters).filter(([k,l])=>l.dam===id||l.sire===id).sort((a,b)=>(b[1].date||"9")>(a[1].date||"9")?1:-1);
+  const litterRow=([lk,l])=>{const other=l.dam===id?l.sire:l.dam;const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lk);const sbL=(()=>{const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),c=isNaN(sbL)?coi8(l.sire,l.dam)*100:sbL,cLab=isNaN(sbL)?"COI previsto (gestionale)":"COI previsto SBT";
+    return `<div class="row" style="cursor:default"><span><span class="row-name" style="display:block">${l.dam===id?"con ":"con "}${other?dlink(other):'<span class="empty">partner da inserire</span>'}</span><span class="row-meta">${l.state==="pianificata"?"Pianificata":"Nata il "+fmt(l.date)}${pups.length?" · "+pups.length+" cuccioli in archivio":""} · ${cLab} ${c.toFixed(2).replace(".",",")}%${l.notes?" · "+esc(l.notes):""}</span></span>${l.sire&&l.dam?`<button class="btn ghost small" data-a="mateWith" data-v="${l.sire}|${l.dam}">Analizza</button>`:"<span></span>"}</div>`};
+  const st=d.ext?"Esterno":(STATUS[d.status]||[""])[0];
+  return `<button class="back" data-a="back">‹ Tutti i cani</button>
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="${esc(d.name)}">`:""}<h1>${esc(d.name)}</h1><p class="nick">${[d.nick&&"“"+esc(d.nick)+"”",st,d.bred?"Allevato da te":""].filter(Boolean).join(" · ")||"&nbsp;"}</p>
+  <div class="actions" style="margin:0 0 16px">${EDIT===id?"":`<button class="btn" data-a="editOn" data-v="${id}|">Modifica</button><button class="btn ghost" data-a="dogForm" data-v="${id}">Foto, test, titoli e note</button>`}
+  ${!d.ext?`<button class="btn ghost" data-a="ownerPreview" data-v="${id}">Come la vede il proprietario</button>`:""}
+  <button class="btn ghost" data-a="mate" data-v="${id}">Prova un accoppiamento</button></div>
+  <h2 style="margin-top:8px">Dati</h2>
+  ${dogFacts(d,id,st,own)}
+
+  <p class="row-meta">${sbtLink(d)}</p>
+  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}</div>`:""}
+  ${!d.ext?`<h2>Salute</h2>${healthHtml(id,false)}`:""}
+  <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
+  ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
+  ${d.dna?`<h2>Profilo genetico (DNA)</h2>${dnaHtml(d)}`:""}
+  <h2>Test sanitari</h2>${d.tests?`<div class="note">${esc(d.tests)}</div>`:'<p class="empty">Nessun test inserito.</p>'}
+  <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:'<p class="empty">Nessun titolo inserito.</p>'}
+  <h2>Pedigree</h2>${pedigree(id)}
+  <h2>Consanguineità</h2>
+  ${(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
+   return `<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
+   <div class="coi-band">${hs?`<span class="badge ${bb[1]}">${bb[0]}</span>`:'<span class="badge">COI SBT non inserito</span>'}</div>
+   <div class="coi-cov"><strong>COI 8 generazioni SBT</strong>${hs?"":" · da inserire con Modifica"}</div></div>
+   <div class="coi2"><span>Calcolo del gestionale (Wright, 8 generazioni): <strong>${pf(f)}%</strong></span><span class="row-meta">Antenati noti ${cov.known} di ${cov.tot}.</span></div>`})()}
+  ${born_in?`<h2>Cucciolata di nascita</h2><div class="note">${fmt(born_in.date)||"Data da inserire"} · ${esc(dn(born_in.sire)||"padre da inserire")} × ${esc(dn(born_in.dam))}${born_in.notes?"\n"+esc(born_in.notes):""}</div>`:""}
+  ${sibs.length?`<h2>Fratelli</h2><div class="list">${rows(sibs)}</div>`:""}
+  ${myLitters.length?`<h2>Cucciolate</h2><div class="list">${myLitters.map(litterRow).join("")}</div>`:""}
+  ${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${rows(rk)}</div>`:""}`})():""}
+  <h2>Note</h2>${d.notes?`<div class="note">${esc(d.notes)}</div>`:'<p class="empty">Nessuna nota.</p>'}`;
+}
+
+function pedigree(id){
+  const gens=ancestors(id,4);
+  const all=gens.flat().filter(Boolean),cnt={};all.forEach(x=>cnt[x]=(cnt[x]||0)+1);
+  const rep=Object.keys(cnt).filter(k=>cnt[k]>1);
+  const labels=["Genitori","Nonni","Bisnonni","Trisavoli"];
+  return `<div class="ped-wrap"><div class="ped">${gens.map((g,i)=>`<div class="ped-col" aria-label="${labels[i]}">${g.map((x,j)=>{
+    if(!x)return `<div class="pcell unk">${j%2?"Madre sconosciuta":"Padre sconosciuto"}</div>`;
+    const d=D.dogs[x];
+    return `<button class="pcell ${d.sex==="F"?"fe":"m"} ${rep.includes(x)?"rep":""}" data-a="open" data-v="${x}">${d.photo&&i<3?`<img src="${d.photo}" alt="">`:""}<span class="pn">${esc(d.name)}</span>${d.loi?`<small>${esc(d.loi)}</small>`:""}</button>`}).join("")}</div>`).join("")}</div></div>
+  <p class="ped-legend">${T("Quattro generazioni, scorri di lato sul telefono.","Four generations; on a phone, scroll sideways.")} ${rep.length?'<span></span>'+T("Cani che compaiono più volte.","Dogs appearing more than once."):""}</p>`;
+}
+
+/* ---------- Form cane ---------- */
+/* ---------- Campo con ricerca ---------- */
+let FSTACK=[],MATERET=null;
+function combo(id,sex,val,ph){const d=val&&D.dogs[val];
+  return `<div class="cb" data-sex="${sex||""}" data-for="${id}"><input class="cbi" autocomplete="off" placeholder="${ph||"Scrivi nome, soprannome o ID SBT…"}" value="${d?esc(d.name):""}"><input type="hidden" id="${id}" value="${val||""}"><div class="menu"></div></div>`}
+function sbtOf(v){const m=String(v).match(/dogs_id=(\d+)/)||String(v).trim().match(/^(\d{4,})$/);return m?m[1]:""}
+function cbDraw(cb,act){const inp=cb.querySelector(".cbi"),menu=cb.querySelector(".menu"),sex=cb.dataset.sex,q=inp.value.trim().toLowerCase(),id=sbtOf(q);
+  const ids=Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];return(!sex||d.sex===sex)&&(!q||(d.name+" "+(d.nick||"")+" "+(d.sbt||"")).toLowerCase().includes(id||q))})
+    .sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name)).slice(0,40);
+  cb._ids=ids;cb._act=Math.max(0,Math.min(act||0,ids.length-1));
+  menu.innerHTML=ids.map((k,i)=>{const d=D.dogs[k];return `<button type="button" data-i="${i}" class="${i===cb._act?"act":""}">${esc(d.name)}${d.nick?`<small>“${esc(d.nick)}”</small>`:""}${d.ext?'<span class="tag">esterno</span>':""}</button>`}).join("")
+    +(ids.length?"":'<p class="cb-none">Nessun cane in archivio con questo nome.</p>')
+    +(q?`<button type="button" class="add" data-add="1">＋ Non c’è? Aggiungi “${esc(inp.value.trim())}”</button>`:"")
+    +(cb.querySelector("input[type=hidden]").value?'<button type="button" class="clr" data-clr="1">Togli la scelta</button>':"");
+  menu.classList.add("open")}
+function cbPick(cb,k){const h=cb.querySelector("input[type=hidden]");if(h.id.startsWith("pp|")){if(k)pedSet(h.id,k);return}h.value=k||"";cb.querySelector(".cbi").value=k?D.dogs[k].name:"";cb.querySelector(".menu").classList.remove("open");
+  if(h.id==="ms"){mateS=k||null;calcMate()}if(h.id==="md"){mateD=k||null;calcMate()}}
+function readForm(){const st=$("#fst").value;return{name:$("#fn").value.trim(),nick:$("#fk").value.trim(),sex:$("#fs").value,birth:$("#fb").value,color:$("#fc").value.trim(),loi:$("#fl").value.trim(),chip:$("#fm").value.trim(),sbt:sbtOf($("#fsbt").value),sire:$("#fsi").value||null,dam:$("#fda").value||null,status:st==="ext"?"":st,ext:st==="ext",owner:$("#fo").value,tests:$("#ft").value.trim(),titles:$("#fti").value.trim(),notes:$("#fno").value.trim()}}
+function cbAdd(cb){const name=cb.querySelector(".cbi").value.trim(),field=cb.dataset.for,sex=cb.dataset.sex,sbt=sbtOf(name);
+  if(field.startsWith("pp|")){const nid=newId("d");D.dogs[nid]={name:sbt?"Cane SBT "+sbt:name,sex,ext:true,sbt};pedSet(field,nid);return}
+  const pre={name:sbt?"":name,sbt,sex,ext:true,status:""};
+  if(field==="fsi"||field==="fda"){const editing=$("#sheet [data-a=saveDog]").dataset.v;
+    pre._note=`Dopo il salvataggio torni alla scheda di <strong>${esc($("#fn").value.trim()||"nuovo cane")}</strong>, con questo cane già messo come ${field==="fsi"?"padre":"madre"}.`;
+    FSTACK.push({draft:readForm(),id:editing,field,photo:tmpPhoto});dogForm(null,pre);return}
+  MATERET=field;pre._note=`Dopo il salvataggio torni ad Accoppiamento di prova con questo cane già scelto come ${field==="ms"?"maschio":"femmina"}.`;dogForm(null,pre)}
+function popForm(nid){const f=FSTACK.pop();dogForm(f.id||null,Object.assign(f.draft,nid?{[f.field==="fsi"?"sire":"dam"]:nid}:{}));tmpPhoto=f.photo}
+function cancelSheet(){if(PEDROOT){PEDROOT=null;closeSheet();render();return}if(FSTACK.length&&$("#sheet [data-a=saveDog]")){popForm(null);return}MATERET=null;closeSheet()}
+document.addEventListener("focusin",e=>{if(e.target.classList.contains("cbi"))cbDraw(e.target.closest(".cb"))});
+document.addEventListener("focusout",e=>{if(e.target.classList.contains("cbi")){const cb=e.target.closest(".cb");setTimeout(()=>{cb.querySelector(".menu").classList.remove("open");const h=cb.querySelector("input[type=hidden]");if(h.value&&D.dogs[h.value])cb.querySelector(".cbi").value=D.dogs[h.value].name},150)}});
+document.addEventListener("input",e=>{if(e.target.classList.contains("cbi"))cbDraw(e.target.closest(".cb"))});
+document.addEventListener("keydown",e=>{if(!e.target.classList.contains("cbi"))return;const cb=e.target.closest(".cb");
+  if(e.key==="ArrowDown"){cbDraw(cb,cb._act+1);e.preventDefault()}
+  if(e.key==="ArrowUp"){cbDraw(cb,cb._act-1);e.preventDefault()}
+  if(e.key==="Enter"){e.preventDefault();cb._ids&&cb._ids.length?cbPick(cb,cb._ids[cb._act]):e.target.value.trim()&&cbAdd(cb)}
+  if(e.key==="Escape"){cb.querySelector(".menu").classList.remove("open");e.stopPropagation()}});
+document.addEventListener("mousedown",e=>{const b=e.target.closest(".cb .menu button");if(!b)return;e.preventDefault();const cb=b.closest(".cb");
+  if(b.dataset.add)cbAdd(cb);else if(b.dataset.clr)cbPick(cb,null);else cbPick(cb,cb._ids[+b.dataset.i])});
+let PEDROOT=null;
+function pedSlots(root,gens=4){const out=[];let cur=[{id:root}];
+  for(let g=0;g<gens;g++){const nx=[];cur.forEach(c=>{const d=c.id&&D.dogs[c.id];
+    nx.push({id:d?d.sire||null:null,child:c.id,side:"s"},{id:d?d.dam||null:null,child:c.id,side:"d"})});out.push(nx);cur=nx}
+  return out}
+function pedCount(root){const g=pedSlots(root);let k=0,t=0;g.forEach(c=>c.forEach(x=>{t++;if(x.id)k++}));return{k,t}}
+function pedForm(root){PEDROOT=root;const G=pedSlots(root);
+  const cell=x=>{if(x.id){const d=D.dogs[x.id];return `<div class="pcell ${d.sex==="F"?"fe":"m"}"><span class="pn">${esc(d.name)}</span></div>`}
+    if(x.child)return `<div class="pcell slot ${x.side==="d"?"fe":"m"}"><span class="sl">${x.side==="s"?"Padre":"Madre"} di ${esc(D.dogs[x.child].name)}</span>${combo("pp|"+x.child+"|"+x.side,x.side==="s"?"M":"F",null,"Scrivi o scegli…")}</div>`;
+    return `<div class="pcell unk">—</div>`};
+  const c=pedCount(root);
+  sheet(`<h2 style="margin-top:0">Pedigree di ${esc(D.dogs[root].name)}</h2>
+  <p class="fnote">Scrivi i nomi casella per casella, per esempio copiandoli dal PDF di SBT. Se un cane è già in archivio lo scegli dall’elenco, se no “Aggiungi” lo crea subito come esterno e si aprono le caselle della generazione dopo. Antenati inseriti: <strong>${c.k} di ${c.t}</strong>.</p>
+  <div class="ped-wrap"><div class="ped pedf">${G.map(col=>`<div class="ped-col">${col.map(cell).join("")}</div>`).join("")}</div></div>
+  <div class="actions"><button class="btn" data-a="pedDone">Fatto</button></div>`)}
+function pedSet(field,k){const [,child,side]=field.split("|");D.dogs[child][side==="s"?"sire":"dam"]=k;
+  const sc=$("#sheet").scrollTop,wr=$("#sheet .ped-wrap"),sl=wr?wr.scrollLeft:0;pedForm(PEDROOT);$("#sheet").scrollTop=sc;$("#sheet .ped-wrap").scrollLeft=sl;
+  const nx=$("#sheet .slot .cbi");}
+function opts(sex,sel){
+  return '<option value="">Sconosciuto</option>'+Object.keys(D.dogs).filter(k=>!sex||D.dogs[k].sex===sex).sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name)).map(k=>`<option value="${k}" ${k===sel?"selected":""}>${esc(D.dogs[k].name)}</option>`).join("");
+}
+let tmpPhoto=null;
+function pickPhoto(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+    const m=900,sc=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
+    c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+    tmpPhoto=c.toDataURL("image/jpeg",.82);$("#fphPrev").innerHTML=`<img src="${tmpPhoto}" alt="">`};im.src=r.result};r.readAsDataURL(f);
+}
+function dogForm(id,pre){
+  tmpPhoto=null;
+  const d=pre?Object.assign({},id?D.dogs[id]:{},pre):id?D.dogs[id]:{sex:"F",status:"casa"};
+  sheet(`<h2 style="margin-top:0">${id?"Modifica cane":"Nuovo cane"}</h2>${d._note?`<p class="fnote">${d._note}</p>`:""}
+  <div class="form">
+   <div class="f full photo-edit"><span id="fphPrev">${d.photo?`<img src="${d.photo}" alt="">`:'<span class="thumb ph" style="width:72px;height:72px;border-radius:8px">?</span>'}</span>
+    <label class="btn ghost small" style="cursor:pointer">${d.photo?"Cambia foto":"Aggiungi foto"}<input type="file" accept="image/*" id="fph" hidden ></label>
+    ${d.photo?'<button type="button" class="btn ghost small" data-a="rmPhoto"">Togli foto</button>':""}</div>
+   <label class="f full">Nome completo<input id="fn" value="${esc(d.name)}"></label>
+   <label class="f">Soprannome<input id="fk" value="${esc(d.nick)}"></label>
+   <label class="f">Sesso<select id="fs"><option value="M" ${d.sex==="M"?"selected":""}>Maschio</option><option value="F" ${d.sex==="F"?"selected":""}>Femmina</option><option value="" ${!d.sex?"selected":""}>Da definire</option></select></label>
+   <label class="f">Nascita<input type="date" id="fb" value="${esc(d.birth)}"></label>
+   <label class="f">Colore<input id="fc" value="${esc(d.color)}"></label>
+   <label class="f">LOI<input id="fl" value="${esc(d.loi)}"></label>
+   <label class="f">Microchip<input id="fm" inputmode="numeric" value="${esc(d.chip)}"></label>
+   <label class="f full">SBTPedigree (incolla il link o l'ID)<input id="fsbt" value="${d.sbt?"https://sbtpedigree.com/dog_details?dogs_id="+esc(d.sbt):""}" placeholder="https://sbtpedigree.com/dog_details?dogs_id=…"></label>
+   <div class="f"><span>Padre</span>${combo("fsi","M",d.sire)}</div>
+   <div class="f"><span>Madre</span>${combo("fda","F",d.dam)}</div>
+   <label class="f">Stato<select id="fst">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?"selected":""}>${v[0]}</option>`).join("")}<option value="ext" ${d.ext?"selected":""}>Esterno (antenato o stallone)</option></select></label>
+   <label class="f">Proprietario<select id="fo"><option value="">Paolo</option>${Object.keys(D.owners).map(k=>`<option value="${k}" ${d.owner===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}</select></label>
+   <label class="f">COI 8 generazioni SBT (%)<input id="fcoi" inputmode="decimal" placeholder="es. 6,924" value="${esc(d.coiSbt)}"></label>
+   <label class="f full">Test sanitari<input id="ft" value="${esc(d.tests)}"></label>
+   <label class="f full">Titoli<input id="fti" value="${esc(d.titles)}"></label>
+   <label class="f full">Note<textarea id="fno" rows="3">${esc(d.notes)}</textarea></label>
+  </div>
+  <div class="actions"><button class="btn" data-a="saveDog" data-v="${id||""}">Salva cane</button><button class="btn ghost" data-a="cancelDog">Annulla</button></div>`);
+}
+function saveDog(id){
+  const name=$("#fn").value.trim();if(!name){$("#fn").focus();return}
+  const st=$("#fst").value,nid=id||newId("d");
+  if($("#fsi").value===nid||$("#fda").value===nid){alert("Un cane non può essere genitore di sé stesso.");return}
+  D.dogs[nid]=Object.assign(D.dogs[nid]||{},{name,nick:$("#fk").value.trim(),sex:$("#fs").value,birth:$("#fb").value,color:$("#fc").value.trim(),loi:$("#fl").value.trim(),chip:$("#fm").value.trim(),sire:$("#fsi").value||null,dam:$("#fda").value||null,status:st==="ext"?"":st,ext:st==="ext",sbt:(($("#fsbt").value.match(/dogs_id=(\d+)/)||$("#fsbt").value.trim().match(/^(\d+)$/)||[])[1])||"",photo:tmpPhoto===null?((D.dogs[nid]||{}).photo||""):tmpPhoto,owner:$("#fo").value,tests:$("#ft").value.trim(),titles:$("#fti").value.trim(),notes:$("#fno").value.trim(),coiSbt:$("#fcoi").value.trim().replace("%","")});
+  if(FSTACK.length){popForm(nid);return}
+  if(MATERET){if(MATERET==="ms")mateS=nid;else mateD=nid;MATERET=null;closeSheet();tab="coi";view=null;render();return}
+  closeSheet();tab="cani";view=nid;render();
+}
+
+/* ---------- Salute del cucciolo ---------- */
+const HK={vacc:"Vaccinazioni",feci:"Esame delle feci",verm:"Vermifugo"};
+function H(d){return d.health||(d.health={vacc:[],feci:[],verm:[]})}
+let LANG="it";const T=(it,en)=>LANG==="en"?en:it;
+const HKen={vacc:"Vaccinations",feci:"Faecal examination",verm:"Deworming"};
+const tx=(v,f)=>LANG==="en"&&v[f+"_en"]?v[f+"_en"]:v[f];
+function dueTag(date){if(!date)return"";const t=new Date(date+"T12:00"),n=new Date();const days=Math.round((t-n)/864e5);
+  if(days<0)return `<span class="badge warn">${T("scaduta da "+(-days)+" gg","overdue by "+(-days)+" days")}</span>`;if(days<=14)return `<span class="badge f">${T("tra "+days+" gg","in "+days+" days")}</span>`;return `<span class="badge">${fmt(date)}</span>`}
+function healthHtml(id,ro){const d=D.dogs[id],h=H(d);
+  const del=(k,i)=>ro?"":`<button class="hx" data-a="hDel" data-v="${id}|${k}|${i}" title="Elimina">×</button>`;
+  const sortd=a=>a.map((x,i)=>[x,i]).sort((p,q)=>(q[0].date||"").localeCompare(p[0].date||""));
+  const next=h.vacc.filter(v=>v.next).sort((a,b)=>a.next.localeCompare(b.next)).find(v=>new Date(v.next+"T12:00")>=new Date(Date.now()-864e5*60));
+  const sec=(k,body,empty)=>`<div class="hsec"><div class="hhead"><h3>${T(HK[k],HKen[k])}</h3>${ro?"":`<button class="btn ghost small" data-a="hForm" data-v="${id}|${k}">Aggiungi</button>`}</div>${body||`<p class="empty">${empty}</p>`}</div>`;
+  return `${next?`<div class="hnext"><strong>${T("Prossimo richiamo","Next booster")}:</strong> ${esc(tx(next,"prod"))} · ${fmt(next.next)} ${dueTag(next.next)}</div>`:""}
+  ${sec("vacc",h.vacc.length?`<div class="hlist">${sortd(h.vacc).map(([v,i])=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span>${esc(tx(v,"prod"))}${v.next?`<small>${T("Richiamo","Booster")}: ${fmt(v.next)} ${dueTag(v.next)}</small>`:""}${v.file?`<small><a href="${docHref(v.file)}" download="${esc(v.fname||"allegato")}" target="_blank">📎 ${esc(v.fname||T("Allegato","Attachment"))}</a></small>`:""}</span>${del("vacc",i)}</div>`).join("")}</div>`:"",T("Nessuna vaccinazione inserita.","No vaccinations recorded yet."))}
+  ${sec("verm",h.verm.length?`<div class="hlist">${sortd(h.verm).map(([v,i])=>{const n=v.to?Math.round((new Date(v.to+"T12:00")-new Date(v.date+"T12:00"))/864e5)+1:1;
+   return `<div class="hrow"><span class="hd">${fmt(v.date)}${v.to&&v.to!==v.date?`<br>→ ${fmt(v.to)}`:""}</span><span>${esc(tx(v,"prod"))}${n>1?`<small>${n} ${T("giorni di trattamento","days of treatment")}</small>`:""}${v.file?`<small><a href="${docHref(v.file)}" download="${esc(v.fname||"allegato")}" target="_blank">📎 ${esc(v.fname||T("Allegato","Attachment"))}</a></small>`:""}</span>${del("verm",i)}</div>`}).join("")}</div>`:"",T("Nessun trattamento inserito.","No treatments recorded yet."))}
+  ${sec("feci",h.feci.length?`<div class="hlist">${sortd(h.feci).map(([v,i])=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span>${esc(tx(v,"res"))}${v.file?`<small><a href="${v.file.startsWith("ref:")?(FILES[v.file.slice(4)]||""):v.file}" download="${esc(v.fname||"referto")}" target="_blank">📎 ${esc(LANG==="en"?(v.fname_en||v.fname||"Attached report"):(v.fname||"Referto allegato"))}</a></small>`:""}</span>${del("feci",i)}</div>`).join("")}</div>`:"",T("Nessun esame inserito.","No examinations recorded yet."))}`}
+let hFile=null;
+function hForm(v){const [id,k]=v.split("|");const d=D.dogs[id];hFile=null;
+  const sib=d.litter?Object.keys(D.dogs).filter(x=>x!==id&&D.dogs[x].litter===d.litter):[];
+  const today=new Date().toISOString().slice(0,10);
+  const f={vacc:`<label class="f">Data<input type="date" id="hd" value="${today}"></label><label class="f">Vaccino<input id="hp" placeholder="Nome del vaccino"></label><label class="f">Prossimo richiamo<input type="date" id="hn"></label><label class="f full">Allegato <small>(foto o PDF del libretto o del referto, facoltativo)</small><input type="file" id="hf" accept="application/pdf,image/*"></label>`,
+    verm:`<label class="f">Dal<input type="date" id="hd" value="${today}"></label><label class="f">Al <small>(se più giorni)</small><input type="date" id="he"></label><label class="f full">Prodotto<input id="hp" placeholder="Es. Panacur"></label><label class="f full">Allegato <small>(foto o PDF del libretto o del referto, facoltativo)</small><input type="file" id="hf" accept="application/pdf,image/*"></label>`,
+    feci:`<label class="f">Data<input type="date" id="hd" value="${today}"></label><label class="f full">Esito<input id="hp" placeholder="Es. negativo"></label><label class="f full">Referto (PDF o foto)<input type="file" id="hf" accept="application/pdf,image/*"></label>`}[k];
+  sheet(`<h2 style="margin-top:0">${HK[k]} · ${esc(d.name)}</h2><div class="form">${f}
+  <label class="f full">In inglese <small>(facoltativo, per i proprietari esteri)</small><input id="hpen" placeholder="${k==="feci"?"Es. negative":"Es. stesso nome del prodotto"}"></label>
+  ${sib.length?`<label class="f full chk"><input type="checkbox" id="hall" checked> Uguale per tutti i ${sib.length+1} cuccioli della cucciolata</label>`:""}</div>
+  <div class="actions"><button class="btn" data-a="hSave" data-v="${id}|${k}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
+document.addEventListener("change",e=>{if(e.target.id==="hf"){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{if(!f.type.startsWith("image/")){hFile={data:r.result,name:f.name};return}
+    const im=new Image();im.onload=()=>{const k=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height);hFile={data:c.toDataURL("image/jpeg",.85),name:f.name.replace(/\.[^.]+$/,"")+".jpg"}};im.src=r.result};r.readAsDataURL(f)}});
+function hSave(v){const [id,k]=v.split("|");const d=D.dogs[id];const date=$("#hd").value,prod=$("#hp").value.trim();if(!date||!prod){(!date?$("#hd"):$("#hp")).focus();return}
+  const to=k==="verm"?($("#he").value||""):"";if(to&&to<date){$("#he").focus();return}
+  const en=$("#hpen").value.trim();
+  const att=hFile?{file:hFile.data,fname:hFile.name}:{};const e=Object.assign(k==="vacc"?{date,prod,prod_en:en,next:$("#hn").value||""}:k==="verm"?{date,to,prod,prod_en:en}:{date,res:prod,res_en:en,file:"",fname:""},att);
+  const all=$("#hall")&&$("#hall").checked?Object.keys(D.dogs).filter(x=>D.dogs[x].litter===d.litter):[id];
+  all.forEach(x=>H(D.dogs[x])[k].push(Object.assign({},e)));closeSheet();render()}
+function hDel(v){const [id,k,i]=v.split("|");if(!confirm("Eliminare questa voce?"))return;H(D.dogs[id])[k].splice(+i,1);render()}
+
+/* ---------- Inserimento rapido salute (da ogni pagina) ---------- */
+let QH={k:"verm",target:""};
+function qhTargets(){
+  const ls=Object.entries(D.litters).filter(([lid])=>Object.values(D.dogs).some(d=>d.litter===lid)).sort((a,b)=>(b[1].date||"")>(a[1].date||"")?1:-1);
+  const own=Object.keys(D.dogs).filter(k=>!D.dogs[k].ext).sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name));
+  const grp=(t,ks)=>ks.length?`<optgroup label="${t}">${ks.map(k=>`<option value="D:${k}">${esc(D.dogs[k].name)}${D.dogs[k].nick?" ("+esc(D.dogs[k].nick)+")":""}</option>`).join("")}</optgroup>`:"";
+  return `<optgroup label="Cucciolate intere">${ls.map(([lid,l])=>{const n=Object.values(D.dogs).filter(d=>d.litter===lid).length;return `<option value="L:${lid}">Tutti e ${n} i cuccioli · ${esc(dn(l.dam))} × ${esc(dn(l.sire))} (${fmt(l.date)})</option>`}).join("")}</optgroup>
+  ${grp("Cuccioli della cucciolata attuale",own.filter(k=>D.dogs[k].litter===curLitter()))}${grp("I miei cani",own.filter(k=>isMine(D.dogs[k])&&D.dogs[k].litter!==curLitter()))}${grp("Ceduti e prenotati",own.filter(k=>!isMine(D.dogs[k])&&D.dogs[k].litter!==curLitter()))}`}
+function qh(preset){hFile=null;
+  if(preset)QH.target=preset;else if(view&&D.dogs[view]&&!D.dogs[view].ext)QH.target="D:"+view;else{const c=curLitter();QH.target=c?"L:"+c:""}
+  qhRender()}
+function qhRender(){const k=QH.k,today=new Date().toISOString().slice(0,10);
+  const chip=(v,l)=>`<button type="button" class="chip" aria-pressed="${k===v}" data-a="qhK" data-v="${v}">${l}</button>`;
+  const f={vacc:`<label class="f">Data<input type="date" id="hd" value="${today}"></label><label class="f">Vaccino<input id="hp" placeholder="Nome del vaccino"></label><label class="f">Prossimo richiamo<input type="date" id="hn"></label><label class="f full">Allegato <small>(foto o PDF del libretto o del referto, facoltativo)</small><input type="file" id="hf" accept="application/pdf,image/*"></label>`,
+    verm:`<label class="f">Dal<input type="date" id="hd" value="${today}"></label><label class="f">Al <small>(se più giorni)</small><input type="date" id="he"></label><label class="f full">Prodotto<input id="hp" placeholder="Es. Panacur"></label><label class="f full">Allegato <small>(foto o PDF del libretto o del referto, facoltativo)</small><input type="file" id="hf" accept="application/pdf,image/*"></label>`,
+    feci:`<label class="f">Data<input type="date" id="hd" value="${today}"></label><label class="f full">Esito<input id="hp" placeholder="Es. negativo"></label><label class="f full">Referto (PDF o foto)<input type="file" id="hf" accept="application/pdf,image/*"></label>`}[k];
+  sheet(`<h2 style="margin-top:0">Salute</h2>
+  <div class="toolbar" style="margin:0 0 14px">${chip("vacc","Vaccinazione")}${chip("verm","Sverminazione")}${chip("feci","Esame delle feci")}</div>
+  <div class="form"><label class="f full">Per chi<select id="qht">${qhTargets()}</select></label>${f}
+  <label class="f full">In inglese <small>(facoltativo, per i proprietari esteri)</small><input id="hpen"></label></div>
+  <div class="actions"><button class="btn" data-a="qhSave">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
+  const sel=$("#qht");if(QH.target&&[...sel.options].some(o=>o.value===QH.target))sel.value=QH.target;sel.onchange=()=>QH.target=sel.value}
+function qhSave(){const k=QH.k,t=$("#qht").value,date=$("#hd").value,prod=$("#hp").value.trim();if(!t)return;if(!date||!prod){(!date?$("#hd"):$("#hp")).focus();return}
+  const to=k==="verm"?($("#he").value||""):"";if(to&&to<date){$("#he").focus();return}
+  const en=$("#hpen").value.trim();
+  const att=hFile?{file:hFile.data,fname:hFile.name}:{};const e=Object.assign(k==="vacc"?{date,prod,prod_en:en,next:$("#hn").value||""}:k==="verm"?{date,to,prod,prod_en:en}:{date,res:prod,res_en:en,file:"",fname:""},att);
+  const ids=t.startsWith("L:")?Object.keys(D.dogs).filter(x=>D.dogs[x].litter===t.slice(2)):[t.slice(2)];
+  ids.forEach(x=>H(D.dogs[x])[k].push(Object.assign({},e)));QH.target=t;closeSheet();render();
+  toast(`${{vacc:"Vaccinazione",verm:"Sverminazione",feci:"Esame"}[k]} salvat${k==="feci"?"o":"a"} per ${ids.length===1?esc(dn(ids[0])):ids.length+" cani"}.`)}
+function toast(m){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.innerHTML=m;t.className="show";clearTimeout(t._h);t._h=setTimeout(()=>t.className="",2600)}
+
+/* ---------- Referti e documenti ---------- */
+const docHref=f=>f.startsWith("doc:")?(DOCF[f.slice(4)]||""):f.startsWith("ref:")?(FILES[f.slice(4)]||""):f;
+const dfmt=v=>/^\d{4}$/.test(v||"")?v:fmt(v);
+function docsHtml(id,ro,owner){const d=D.dogs[id],L=(d.docs||[]).map((x,i)=>[x,i]).filter(([x])=>!(owner&&x.private)).sort((a,b)=>(b[0].date||"").localeCompare(a[0].date||""));
+  const HL={vacc:T("Vaccinazione","Vaccination"),verm:T("Sverminazione","Deworming"),feci:T("Esame delle feci","Faecal examination")};
+  const fec=["feci","vacc","verm"].flatMap(kk=>((d.health||{})[kk]||[]).filter(v=>v.file).map(v=>Object.assign({_k:kk},v))).map(v=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span><a class="dna-pdf" href="${docHref(v.file)}" download="${esc(v.fname||"referto.pdf")}" target="_blank">📎 ${esc(LANG==="en"?(v.fname_en||v.fname):v.fname)}</a><small>${HL[v._k]}${owner?"":" · si gestisce da Salute"}</small></span><span></span></div>`).join("");
+  const rowsH=fec+L.map(([x,i])=>`<div class="hrow"><span class="hd">${x.date?dfmt(x.date):"—"}</span><span><a class="dna-pdf" href="${docHref(x.file)}" download="${esc(x.fname||"documento.pdf")}" target="_blank">📎 ${esc(LANG==="en"&&x.title_en?x.title_en:x.title)}</a>${x.private&&!owner?`<small>Solo per te: non compare nella pagina del proprietario</small>`:""}</span>${ro?"<span></span>":`<button class="hx" data-a="docDel" data-v="${id}|${i}" title="Elimina">×</button>`}</div>`).join("");
+  return `<div class="hsec">${ro?"":`<div class="hhead"><h3>Referti e documenti</h3><button class="btn ghost small" data-a="docForm" data-v="${id}">Aggiungi</button></div>`}${rowsH?`<div class="hlist">${rowsH}</div>`:`<p class="empty">${T("Nessun documento.","No documents.")}</p>`}</div>`}
+function parentDocsHtml(id){const d=D.dogs[id];const out=[];
+  const add=(k,role)=>{const x=D.dogs[k];if(!x)return;const ok=(x.docs||[]).filter(z=>!z.private);
+    if(ok.length)out.push(`<p class="pd-h">${role}: <strong>${esc(x.name)}</strong></p>${docsHtml(k,true,true)}`);
+    else{[x.sire,x.dam].forEach((g,j)=>g&&D.dogs[g]&&(D.dogs[g].docs||[]).some(z=>!z.private)&&out.push(`<p class="pd-h">${role} ${esc(x.name)} – ${T(j?"sua madre":"suo padre",j?"its dam":"its sire")}: <strong>${esc(D.dogs[g].name)}</strong></p>${docsHtml(g,true,true)}`))}};
+  add(d.sire,T("Padre","Sire"));add(d.dam,T("Madre","Dam"));return out.join("")}
+let docFile=null;
+function docForm(id){docFile=null;const d=D.dogs[id];const sib=d.litter?Object.keys(D.dogs).filter(x=>x!==id&&D.dogs[x].litter===d.litter):[];
+  sheet(`<h2 style="margin-top:0">Nuovo documento · ${esc(d.name)}</h2><div class="form">
+  <label class="f full">Titolo<input id="dt" placeholder="Es. Test genetici L2HGA e HC"></label>
+  <label class="f">Data<input type="date" id="dd"></label><label class="f">Titolo in inglese <small>(facoltativo)</small><input id="dten"></label>
+  <label class="f full">File (PDF o foto)<input type="file" id="dfile" accept="application/pdf,image/*"></label>
+  <label class="f full chk"><input type="checkbox" id="dpriv"> Solo per me (non mostrarlo al proprietario)</label>
+  ${sib.length?`<label class="f full chk"><input type="checkbox" id="dall"> Uguale per tutti i ${sib.length+1} cuccioli della cucciolata</label>`:""}</div>
+  <div class="actions"><button class="btn" data-a="docSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
+document.addEventListener("change",e=>{if(e.target.id==="dfile"){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{docFile={data:r.result,name:f.name}};r.readAsDataURL(f)}});
+function docSave(id){const t=$("#dt").value.trim();if(!t){$("#dt").focus();return}if(!docFile){$("#dfile").focus();return}const d=D.dogs[id];
+  const o={title:t,title_en:$("#dten").value.trim(),date:$("#dd").value,file:docFile.data,fname:docFile.name,private:$("#dpriv").checked};
+  const ids=$("#dall")&&$("#dall").checked?Object.keys(D.dogs).filter(x=>D.dogs[x].litter===d.litter):[id];
+  ids.forEach(x=>(D.dogs[x].docs=D.dogs[x].docs||[]).push(Object.assign({},o)));closeSheet();render();toast("Documento salvato.")}
+function docDel(v){const [id,i]=v.split("|");if(!confirm("Eliminare questo documento?"))return;D.dogs[id].docs.splice(+i,1);render()}
+
+/* ---------- Dati del cane: lettura / modifica con Salva ---------- */
+const BREEDER_ME="Paolo Boldrini · Del Piccolo Diavolo";
+function dogFacts(d,id,st,own){
+  if(EDIT===id){const sel=(n,opts,v)=>`<select id="${n}">${opts.map(([k,l])=>`<option value="${k}" ${v===k?"selected":""}>${l}</option>`).join("")}</select>`;
+    const L=(t,inner,full)=>`<label class="f${full?" full":""}">${t}${inner}</label>`;
+    return `<div class="editbox"><p class="edit-h">Stai modificando i dati: niente viene salvato finché non premi <strong>Salva</strong>.</p><div class="form">
+    ${L("Nome completo",`<input id="ef_name" value="${esc(d.name)}">`,1)}${L("Soprannome",`<input id="ef_nick" value="${esc(d.nick||"")}">`)}
+    ${L("Sesso",sel("ef_sex",[["M","Maschio"],["F","Femmina"],["","Da definire"]],d.sex||""))}${L("Nascita",`<input type="date" id="ef_birth" value="${esc(d.birth||"")}">`)}
+    ${L("Colore",`<input id="ef_color" value="${esc(d.color||"")}">`)}${L("LOI",`<input id="ef_loi" value="${esc(d.loi||"")}">`)}${L("Microchip",`<input id="ef_chip" inputmode="numeric" value="${esc(d.chip||"")}">`)}
+    <div class="f"><span>Padre</span>${combo("ef_sire","M",d.sire)}</div><div class="f"><span>Madre</span>${combo("ef_dam","F",d.dam)}</div>
+    ${L("Stato",sel("ef_status",Object.entries(STATUS).map(([k,x])=>[k,x[0]]).concat([["ext","Esterno (antenato o stallone)"]]),d.ext?"ext":(d.status||"")))}
+    ${L("Allevatore",sel("ef_bred",[["me","Io – "+BREEDER_ME],["other","Un altro allevatore"]],d.bred?"me":"other")+`<input id="ef_breeder" placeholder="Nome dell'allevatore" value="${esc(d.breeder||"")}" style="margin-top:6px;${d.bred?"display:none":""}">`)}
+    ${L("Proprietario",`<select id="ef_owner"><option value="">Paolo Boldrini (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${d.owner===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>
+    <div id="ef_newown" class="newown" style="display:none"><input id="no_name" placeholder="Nome e cognome (obbligatorio)"><input id="no_country" placeholder="Paese"><input id="no_phone" type="tel" placeholder="Telefono"><input id="no_email" type="email" placeholder="Email">
+    <select id="no_lang"><option value="it">Pagina privata in italiano</option><option value="en">Pagina privata in inglese</option></select></div>`)}
+    ${L("COI 8 generazioni SBT (%)",`<input id="ef_coi" inputmode="decimal" placeholder="es. 6,924" value="${esc(d.coiSbt||"")}">`)}
+    </div><div class="actions savebar"><button class="btn save" data-a="editSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`}
+  const ins=f=>`<span class="empty">da inserire</span>`;
+  const F=(l,v,f)=>`<div class="fact"><dt>${l}</dt><dd>${v||(f?ins(f):'<span class="empty">—</span>')}</dd></div>`;
+  return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",esc(d.loi||""),"loi")}${F("Microchip",esc(d.chip||""),"chip")}
+  ${F("Padre",d.sire?dlink(d.sire):"","sire")}${F("Madre",d.dam?dlink(d.dam):"","dam")}${F("Stato",esc(st||""),"status")}
+  ${F("Allevatore",d.bred?esc(BREEDER_ME):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:"Paolo Boldrini")}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":"","coiSbt")}</dl>`}
+function ownSave(id){const o=D.owners[id],v=k=>$("#"+k).value.trim();if(!v("eo_name")){$("#eo_name").focus();return}
+  Object.assign(o,{name:v("eo_name"),country:v("eo_country"),phone:v("eo_phone"),email:v("eo_email"),addr:v("eo_addr"),lang:v("eo_lang"),notes:v("eo_notes")});EDIT=null;EDIRTY=false;render();toast("Dati salvati.")}
+function editOn(v){const [id,f]=v.split("|");EDIT=id;EDIRTY=false;render();
+  const map={sex:"ef_sex",birth:"ef_birth",color:"ef_color",loi:"ef_loi",chip:"ef_chip",status:"ef_status",breeder:"ef_breeder",coiSbt:"ef_coi",sire:"",dam:""};
+  const tgt=f&&(f==="sire"||f==="dam"?document.querySelector(`[data-for="ef_${f}"] .cbi`):document.getElementById(map[f]||""));
+  if(f==="breeder"){$("#ef_bred").value="other";$("#ef_breeder").style.display=""}
+  const box=document.querySelector(".editbox");if(box)box.scrollIntoView({block:"start",behavior:"smooth"});if(tgt)setTimeout(()=>tgt.focus(),250)}
+document.addEventListener("change",e=>{if(e.target.id==="ef_bred")$("#ef_breeder").style.display=e.target.value==="me"?"none":"";if(e.target.id==="ef_owner"){const nw=e.target.value==="__new";$("#ef_newown").style.display=nw?"":"none";if(nw)$("#no_name").focus()}});
+function editSave(id){const d=D.dogs[id],v=k=>($("#"+k)||{value:""}).value.trim();
+  const name=v("ef_name");if(!name){$("#ef_name").focus();return}
+  const sire=v("ef_sire")||null,dam=v("ef_dam")||null;if(sire===id||dam===id){alert("Un cane non può essere genitore di sé stesso.");return}
+  let own=v("ef_owner");
+  if(own==="__new"){const nm=v("no_name");if(!nm){$("#no_name").focus();return}own=newId("o");
+    D.owners[own]={name:nm,country:v("no_country"),phone:v("no_phone"),email:v("no_email"),lang:v("no_lang")}}
+  const stv=v("ef_status");
+  Object.assign(d,{name,nick:v("ef_nick"),sex:v("ef_sex"),birth:v("ef_birth"),color:v("ef_color"),loi:v("ef_loi"),chip:v("ef_chip"),sire,dam,
+    ext:stv==="ext",status:stv==="ext"?"":stv,bred:v("ef_bred")==="me",breeder:v("ef_bred")==="me"?"":v("ef_breeder"),owner:own,coiSbt:v("ef_coi").replace("%","")});
+  EDIT=null;EDIRTY=false;resetCalc();render();toast("Dati salvati.")}
+
+/* ---------- Modifica diretta di un campo ---------- */
+const PEN='<svg class="pen" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+function factE(l,html,kind,id,field){const empty=!html;
+  return `<button class="fact fact-e" data-a="edf" data-v="${kind}|${id}|${field}" title="Tocca per ${empty?"inserire":"modificare"}"><span class="dt">${l}${PEN}</span><span class="dd">${empty?'<span class="ins">+ inserisci</span>':html}</span></button>`}
+const EDF={sex:["Sesso","sel"],birth:["Data di nascita","date"],color:["Colore","text"],loi:["LOI","text"],chip:["Microchip","text"],sire:["Padre","dogM"],dam:["Madre","dogF"],
+  status:["Stato","status"],owner:["Proprietario","owner"],coiSbt:["COI 8 generazioni SBT (%)","text"],phone:["Telefono","tel"],email:["Email","email"],addr:["Indirizzo","text"],country:["Paese","text"],nick:["Soprannome","text"]};
+function edf(v){const [kind,id,f]=v.split("|"),o=kind==="dog"?D.dogs[id]:D.owners[id],[lab,t]=EDF[f],val=f==="status"?(o.ext?"ext":o.status||""):(o[f]||"");
+  let inp;
+  if(t==="sel")inp=`<select id="edv"><option value="M" ${val==="M"?"selected":""}>Maschio</option><option value="F" ${val==="F"?"selected":""}>Femmina</option><option value="" ${!val?"selected":""}>Da definire</option></select>`;
+  else if(t==="status")inp=`<select id="edv">${Object.entries(STATUS).map(([k,x])=>`<option value="${k}" ${val===k?"selected":""}>${x[0]}</option>`).join("")}<option value="ext" ${val==="ext"?"selected":""}>Esterno (antenato o stallone)</option></select>`;
+  else if(t==="owner")inp=`<select id="edv"><option value="">Paolo Boldrini (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${val===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>`;
+  else if(t==="dogM"||t==="dogF")inp=combo("edv",t==="dogM"?"M":"F",val);
+  else inp=`<input id="edv" type="${t}" value="${esc(val)}" ${f==="coiSbt"?'inputmode="decimal" placeholder="es. 6,924"':""}>`;
+  sheet(`<h2 style="margin-top:0">${lab}</h2><p class="row-meta" style="margin:-6px 0 12px">${esc(o.name)}</p><div class="form"><div class="f full">${inp}</div></div>
+  <div class="actions"><button class="btn" data-a="edfSave" data-v="${v}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
+  const e=$("#sheet #edv");if(e&&e.focus&&e.tagName!=="INPUT"||(e&&e.type!=="hidden"))e.focus()}
+function edfSave(v){const [kind,id,f]=v.split("|"),o=kind==="dog"?D.dogs[id]:D.owners[id];let x=($("#edv").value||"").trim();
+  if(f==="owner"&&x==="__new"){closeSheet();ownerForm();return}
+  if(f==="status"){if(x==="ext"){o.ext=true;o.status=""}else{o.ext=false;o.status=x}}
+  else if(f==="coiSbt")o.coiSbt=x.replace("%","").trim();
+  else if((f==="sire"||f==="dam")&&x===id){alert("Un cane non può essere genitore di sé stesso.");return}
+  else o[f]=x||(f==="sire"||f==="dam"?null:"");
+  resetCalc();closeSheet();render();toast(EDF[f][0]+" salvato.")}
+
+/* ---------- Profilo genetico ---------- */
+function dnaHtml(d){const x=d.dna;if(!x)return"";
+  return `<div class="dna"><p class="row-meta" style="margin:0 0 8px">${T(`Genefast srl, Forlì · referto n. ${esc(x.lab)} del ${fmt(x.date)} · 18 microsatelliti (pannello ISAG 2008) + amelogenina · campione: ${esc(x.matrix)} · prelievo: ${esc(x.vet)}`,
+  `Genefast srl, Forlì (Italy) · report no. ${esc(x.lab)} of ${fmt(x.date)} · 18 microsatellites (ISAG 2008 panel) + amelogenin · sample: ${esc({"Sangue intero EDTA":"EDTA whole blood","DNA":"DNA"}[x.matrix]||x.matrix)} · sampled by: ${esc(x.vet)}`)}</p>
+  ${x.parent?`<p class="dna-ok">✓ ${esc(LANG==="en"?x.parent.replace(/^Figlio di parentela certificata: madre (.*?) \(microchip (\d+)\), padre (.*?) \(microchip (\d+)\)$/,"Parentage verified: dam $1 (microchip $2), sire $3 (microchip $4)"):(d.sex==="F"?x.parent.replace(/^Figlio/,"Figlia"):x.parent))}</p>`:""}
+  <div class="dna-grid">${x.markers.map(([m,a,b])=>`<div class="dna-c"><span>${esc(m)}</span><b>${esc(a)} · ${esc(b)}</b></div>`).join("")}</div>
+  <p style="margin:10px 0 0"><a class="dna-pdf" href="${x.pdf}" download="${esc(x.fname)}" target="_blank">📎 ${T("Apri il referto originale (PDF)","Open the original report (PDF, in Italian)")}</a></p></div>`}
+
+/* ---------- Vista proprietario ---------- */
+function ownerPreview(id){
+  const d=D.dogs[id];if(typeof ownerPreview.lang==="undefined")ownerPreview.lang={};
+  const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
+  const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
+  const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>
+  <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi)}</dl>
+  ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
+  <h2>Pedigree</h2>${pedigree(id).replace(/data-a="open" data-v="[^"]*"/g,"disabled")}
+  <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
+   return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
+   :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
+  ${d.tests?`<h2>${T("Test genetici","Genetic tests")}</h2><div class="note">${esc(LANG==="en"&&d.tests_en?d.tests_en:d.tests)}</div>`:""}
+  ${!d.ext?`<h2>${T("Salute","Health")}</h2>${healthHtml(id,true)}`:""}
+  ${(d.docs||[]).some(z=>!z.private)?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
+  ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
+  ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
+  <p class="row-meta">${d.sbt?sbtLink(d):""}</p><h2>${T("L'allevatore","The breeder")}</h2><div class="note">Paolo Boldrini · ${T("raggiungibile per telefono e WhatsApp","available by phone and WhatsApp")}</div></div>`;
+  LANG="it";
+  sheet(`${html}
+  <p class="lead" style="margin-top:14px">${o._none?`Questo cane non ha ancora un proprietario: è un'anteprima. Lingua: <button class="chip" aria-pressed="${o.lang!=="en"}" data-a="ovLang" data-v="${id}|it">Italiano</button> <button class="chip" aria-pressed="${o.lang==="en"}" data-a="ovLang" data-v="${id}|en">English</button>`:`Il proprietario vede solo questa scheda${o.lang==="en"?", <strong>in inglese</strong>":""}: niente note private, niente altri cani, niente altri proprietari.`}</p>
+  ${d.owner?ownLink(d.owner):""}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+}
+
+/* ---------- Cucciolate ---------- */
+/* simboli maschio / femmina */
+const ICO_M='<svg class="sx-ico sx-m" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-label="maschio"><circle cx="9.5" cy="14.5" r="6"/><path d="M14 10 20.5 3.5M14.5 3.5h6v6"/></svg>';
+const ICO_F='<svg class="sx-ico sx-f" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-label="femmina"><circle cx="12" cy="8.5" r="6"/><path d="M12 14.5v8M8 18.5h8"/></svg>';
+const sexIco=x=>x==="M"?ICO_M:x==="F"?ICO_F:"";
+const sexH=x=>x==="M"?ICO_M+" "+T("Maschio","Male"):x==="F"?ICO_F+" "+T("Femmina","Female"):"";
+function pupSummary(ids){
+  const m=ids.filter(k=>D.dogs[k].sex==="M").length,f=ids.filter(k=>D.dogs[k].sex==="F").length,u=ids.length-m-f;
+  return [m&&m+" "+ICO_M+(m===1?" maschio":" maschi"),f&&f+" "+ICO_F+(f===1?" femmina":" femmine"),u&&u+" da definire"].filter(Boolean).join(", ");
+}
+let LV="B";
+function litterList(){
+  const ls=Object.entries(D.litters).sort((a,b)=>{const pa=a[1].state==="pianificata",pb=b[1].state==="pianificata";if(pa!==pb)return pa?-1:1;return (b[1].date||"").localeCompare(a[1].date||"")});
+  const ph=k=>{const d=D.dogs[k];return d&&d.photo?`<img src="${d.photo}" alt="">`:`<span>${esc(((d&&(d.nick||d.name))||"?").trim()[0])}</span>`};
+  const card=([lid,l])=>{const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid);
+    const sbL=(()=>{const m=mateSbt(l.sire,l.dam);if(!isNaN(m))return m;const p=Object.values(D.dogs).find(x=>x.sire===l.sire&&x.dam===l.dam&&x.coiSbt);return p?pc(p.coiSbt):NaN})(),hs=!isNaN(sbL),c=hs?sbL:coi8(l.sire,l.dam)*100,bb=band(c);
+    const own=pups.filter(k=>D.dogs[k].owner).length,m=pups.filter(k=>D.dogs[k].sex==="M").length,f=pups.filter(k=>D.dogs[k].sex==="F").length;
+    const plan=l.state==="pianificata";
+    const dl=k=>k?`<button class="plink" data-a="open" data-v="${k}">${esc(dn(k))}</button>`:'<span class="empty">padre da inserire</span>';
+    const chips=[`<span class="lchip coi-${bb[1]||"low"}" title="${bb[0]}">COI ${hs?"SBT":"gestionale"} <b>${c.toFixed(2).replace(".",",")}%</b></span>`,
+      pups.length?`<span class="lchip">${pups.length} cuccioli · ${m} ${ICO_M} ${f} ${ICO_F}</span>`:"",
+      pups.length?`<span class="lchip ${own===pups.length?"ok":""}">${own} di ${pups.length} con proprietario</span>`:""].join("");
+    return `<article class="lcard ${plan?"lplan":""}">
+      <div class="lhead"><div class="lpics"><span class="lpic fe">${ph(l.dam)}</span><span class="lpic m">${ph(l.sire)}</span></div>
+        <div class="ltit"><div class="lnames">${dl(l.dam)} <span class="lx">×</span> ${dl(l.sire)}</div>
+        <div class="ldate">${plan?"Pianificata":"Nata il <b>"+fmt(l.date)+"</b>"}</div></div>
+        <span class="badge ${plan?"warn":"ok"} lstate">${plan?"Pianificata":"Nata"}</span></div>
+      <div class="lchips">${chips}</div>
+      ${l.notes?`<p class="lnotes">${esc(l.notes)}</p>`:""}
+      ${pups.length?`<details class="pups lpups"><summary><span>Vedi i cuccioli (${pups.length})</span><span class="row-meta">${pupSummary(pups)}</span></summary><div class="list">${rows(pups)}</div></details>
+      <div class="actions" style="margin:10px 0 0"><button class="btn ghost small" data-a="qh" data-v="L:${lid}">Vaccino · sverminazione · esame per la cucciolata</button></div>`:""}
+    </article>`};
+  let body="",cur=null;
+  ls.forEach(e=>{const g=e[1].state==="pianificata"?"In programma":(e[1].date||"").slice(0,4)||"Senza data";if(g!==cur){body+=`<h2 class="lyear">${g}</h2>`;cur=g}body+=card(e)});
+  return `<h1>Cucciolate</h1><p class="lead">Quelle in programma in cima, poi le nate dalla più recente.</p>
+  <div class="toolbar"><button class="btn" data-a="litterForm">Aggiungi cucciolata</button></div><div class="lwrap lv-${LV}">${body}</div>`;
+}
+function litterForm(){
+  sheet(`<h2 style="margin-top:0">Nuova cucciolata</h2><div class="form">
+  <label class="f">Madre<select id="lm">${opts("F")}</select></label>
+  <label class="f">Padre<select id="lp">${opts("M")}</select></label>
+  <label class="f">Data di nascita<input type="date" id="ld"></label>
+  <label class="f">Numero cuccioli<input type="number" id="ln" min="0" max="15" value="0"></label>
+  <label class="f full">Note<textarea id="lno" rows="2"></textarea></label></div>
+  <p class="lead">Senza data resta “pianificata”. Se indichi i cuccioli, li creo già collegati ai genitori.</p>
+  <div class="actions"><button class="btn" data-a="saveLitter">Salva cucciolata</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
+}
+function saveLitter(){
+  const dam=$("#lm").value;if(!dam){alert("Scegli la madre.");return}
+  const lid=newId("l"),date=$("#ld").value,n=+$("#ln").value||0;
+  D.litters[lid]={dam,sire:$("#lp").value||null,date:date||null,state:date?"nata":"pianificata",notes:$("#lno").value.trim()};
+  for(let i=1;i<=n;i++)D.dogs[newId("d")]={name:"Cucciolo "+i+" ("+dn(dam).split(" ")[0]+")",sex:"",status:"casa",bred:true,dam,sire:D.litters[lid].sire,birth:date,litter:lid};
+  closeSheet();render();
+}
+
+/* ---------- Proprietari ---------- */
+let OWNV="A";
+function ownerList(){
+  const groups={},nodog=[];
+  Object.keys(D.owners).forEach(id=>{const dogs=Object.keys(D.dogs).filter(k=>D.dogs[k].owner===id);if(!dogs.length){nodog.push(id);return}
+    dogs.forEach(k=>{const d=D.dogs[k];const key=d.litter&&D.litters[d.litter]?"L:"+d.litter:"P:"+(d.sire||"")+"|"+(d.dam||"");(groups[key]=groups[key]||[]).push([id,k])})});
+  const gdate=key=>key.startsWith("L:")?(D.litters[key.slice(2)].date||""):(()=>{const ds=groups[key].map(([,k])=>D.dogs[k].birth||"").sort();return ds[ds.length-1]||""})();
+  const keys=Object.keys(groups).sort((a,b)=>gdate(b).localeCompare(gdate(a)));
+  const first=keys[0];
+  const head=key=>{const [s0,d0]=key.startsWith("L:")?[D.litters[key.slice(2)].sire,D.litters[key.slice(2)].dam]:key.slice(2).split("|");
+    const dt=gdate(key);return `<span class="og-t">${esc(dn(d0)||"madre ?")} × ${esc(dn(s0)||"padre ?")}</span><span class="row-meta">${dt?(key.startsWith("L:")?"cucciolata del ":"nati il ")+fmt(dt):"data da inserire"} · ${groups[key].length} ${groups[key].length===1?"proprietario":"proprietari"}</span>`};
+  const row=([id,k])=>{const o=D.owners[id],d=D.dogs[k];return `<button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(o.name)}</span><span class="row-meta">${sexIco(d.sex)} ${esc(d.nick||d.name)}${d.nick?` · <span class="ofull">${esc(d.name)}</span>`:""}</span></span><span class="badge">${esc(o.country||"")}</span></button>`};
+  const body=keys.map(key=>{const rows=groups[key].sort((a,b)=>D.owners[a[0]].name.localeCompare(D.owners[b[0]].name)).map(row).join("");
+    return OWNV==="A"?`<h2 class="og-h">${head(key)}</h2><div class="list">${rows}</div>`
+      :`<details class="pups og" ${key===first?"open":""}><summary>${head(key)}</summary><div class="list">${rows}</div></details>`}).join("");
+  const nd=nodog.length?`<h2 class="og-h"><span class="og-t">Senza cane collegato</span></h2><div class="list">${nodog.map(id=>`<button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(D.owners[id].name)}</span><span class="row-meta">${esc(D.owners[id].notes||"")}</span></span><span class="badge">${esc(D.owners[id].country||"")}</span></button>`).join("")}</div>`:"";
+  return `<h1>Proprietari</h1><p class="lead">Raggruppati per cucciolata (madre × padre), dalla più recente.</p>
+  <div class="toolbar"><button class="btn" data-a="ownerForm">Aggiungi proprietario</button></div>${body}${nd}`;
+}
+function ownerDetail(id){
+  const o=D.owners[id];const dogs=Object.keys(D.dogs).filter(k=>D.dogs[k].owner===id);
+  return `<button class="back" data-a="back">‹ Tutti i proprietari</button><h1>${esc(o.name)}</h1><p class="nick">${esc(o.country||"")}</p>
+  ${EDIT==="own:"+id?`<div class="editbox"><p class="edit-h">Stai modificando i dati: niente viene salvato finché non premi <strong>Salva</strong>.</p><div class="form">
+  <label class="f full">Nome<input id="eo_name" value="${esc(o.name)}"></label><label class="f">Paese<input id="eo_country" value="${esc(o.country||"")}"></label>
+  <label class="f">Telefono<input id="eo_phone" type="tel" value="${esc(o.phone||"")}"></label><label class="f">Email<input id="eo_email" type="email" value="${esc(o.email||"")}"></label>
+  <label class="f">Indirizzo<input id="eo_addr" value="${esc(o.addr||"")}"></label><label class="f">Lingua della pagina privata<select id="eo_lang"><option value="it" ${o.lang!=="en"?"selected":""}>Italiano</option><option value="en" ${o.lang==="en"?"selected":""}>English</option></select></label>
+  <label class="f full">Note<textarea id="eo_notes" rows="3">${esc(o.notes||"")}</textarea></label></div>
+  <div class="actions savebar"><button class="btn save" data-a="ownSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`
+ :`<dl class="facts">${[["Paese",o.country],["Telefono",o.phone],["Email",o.email],["Indirizzo",o.addr],["Lingua pagina",o.lang==="en"?"English":"Italiano"]].map(([l,x])=>`<div class="fact"><dt>${l}</dt><dd>${x?esc(x):`<span class="empty">da inserire</span>`}</dd></div>`).join("")}</dl>`}
+  <h2>Cani</h2>${dogs.length?`<div class="list">${rows(dogs)}</div>`:'<p class="empty">Nessun cane collegato.</p>'}
+  ${o.notes?`<h2>Note</h2><div class="note">${esc(o.notes)}</div>`:""}
+  ${EDIT==="own:"+id?"":ownLink(id)+`<div class="actions"><button class="btn" data-a="ownEdit" data-v="${id}">Modifica</button></div>`}`;
+}
+function ownerForm(id){
+  const o=id?D.owners[id]:{};
+  sheet(`<h2 style="margin-top:0">${id?"Modifica proprietario":"Nuovo proprietario"}</h2><div class="form">
+  <label class="f full">Nome<input id="on" value="${esc(o.name)}"></label>
+  <label class="f">Paese<input id="oc" value="${esc(o.country)}"></label>
+  <label class="f">Telefono<input id="op" type="tel" value="${esc(o.phone)}"></label>
+  <label class="f">Email<input id="oe" type="email" value="${esc(o.email)}"></label>
+  <label class="f">Indirizzo<input id="oa" value="${esc(o.addr)}"></label>
+  <label class="f">Lingua della pagina privata<select id="olang"><option value="it" ${o.lang!=="en"?"selected":""}>Italiano</option><option value="en" ${o.lang==="en"?"selected":""}>English</option></select></label>
+  <label class="f full">Note<textarea id="ono" rows="3">${esc(o.notes)}</textarea></label></div>
+  <div class="actions"><button class="btn" data-a="saveOwner" data-v="${id||""}">Salva proprietario</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
+}
+function saveOwner(id){
+  const name=$("#on").value.trim();if(!name){$("#on").focus();return}
+  const nid=id||newId("o");
+  D.owners[nid]={name,country:$("#oc").value.trim(),phone:$("#op").value.trim(),email:$("#oe").value.trim(),addr:$("#oa").value.trim(),notes:$("#ono").value.trim(),lang:$("#olang").value};
+  closeSheet();tab="proprietari";view=nid;render();
+}
+
+/* ---------- Accoppiamento di prova ---------- */
+let mateS="forever",mateD="queen";
+function mating(){
+  return `<h1>Accoppiamento di prova</h1><p class="lead">Scrivi o scegli maschio e femmina: il COI dei cuccioli si calcola prima di farlo. Se un cane non c’è, lo aggiungi da qui.</p>
+  <div class="mate"><div class="f"><span>Maschio</span>${combo("ms","M",mateS)}</div>
+  <div class="f"><span>Femmina</span>${combo("md","F",mateD)}</div></div>
+  <div id="mateOut"></div>
+  <p class="lead" style="margin-top:24px">Pedigree dei tuoi cani ancora incompleti? <button class="btn ghost small" data-a="loadDemo">Carica un esempio didattico</button></p>`;
+}
+function gensOf(root,x,depth=7){const g=[];if(root===x)g.push(1);ancestors(root,depth).forEach((c,i)=>c.forEach(y=>{if(y===x)g.push(i+2)}));return g}
+function ancList(com){if(!com.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
+  const ord=n=>n+"ª";
+  const items=com.map(x=>{const a=gensOf(mateS,x),b=gensOf(mateD,x);return{x,a,b,n:a.length+b.length,min:Math.min(...a,...b)}})
+    .sort((p,q)=>q.n-p.n||p.min-q.min||dn(p.x).localeCompare(dn(q.x)));
+  return `<h3 class="anc-h">Antenati in comune <span>${items.length}</span></h3><p class="row-meta" style="margin:0 0 8px">Generazioni contate dai cuccioli: 1ª = genitori, 2ª = nonni, 3ª = bisnonni…</p>
+  <div class="anc-list">${items.map(({x,a,b,n})=>{const d=D.dogs[x];
+    return `<div class="anc-row">${thumb(d)}<div class="anc-t"><button class="plink anc-n" data-a="open" data-v="${x}">${esc(d.name)}</button>
+    <span class="row-meta">Lato padre: ${a.map(ord).join(", ")} gen. · Lato madre: ${b.map(ord).join(", ")} gen.</span></div>
+    <div class="anc-r"><span class="anc-c" title="Volte nel pedigree">${n}×</span>${d.sbt?`<a href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(d.sbt)}" target="_blank" rel="noopener">SBT ↗</a>`:""}</div></div>`}).join("")}</div>`}
+const pc=v=>v?parseFloat(String(v).replace(",",".")):NaN;
+const pf=n=>n.toFixed(2).replace(".",",");
+function mateSbt(s,d){const m=D.matings&&D.matings[s+"|"+d];return m&&m.coiSbt?pc(m.coiSbt):NaN}
+function setMateSbt(v){D.matings=D.matings||{};const k=mateS+"|"+mateD;const t=v.trim().replace("%","");
+  if(t&&isNaN(pc(t)))return;D.matings[k]=Object.assign(D.matings[k]||{},{coiSbt:t});calcMate()}
+function calcMate(){
+  const o=$("#mateOut");if(!o)return;
+  if(!mateS||!mateD){o.innerHTML='<p class="empty">Scegli entrambi i cani.</p>';return}
+  const c=coi8(mateS,mateD)*100,cov=coverage(mateS,mateD),b=band(c),com=commonAnc(mateS,mateD);
+  const miss=[mateS,mateD].map(k=>{const c=pedCount(k);return `<div class="pmiss"><span><strong>${esc(dn(k))}</strong> · antenati inseriti ${c.k} di ${c.t}</span>${c.k<c.t?`<button class="btn ${c.k<c.t/2?"":"ghost"} small" data-a="pedForm" data-v="${k}">Completa il pedigree</button>`:'<span class="badge ok">Completo</span>'}</div>`}).join("");
+  const sb=mateSbt(mateS,mateD),hs=!isNaN(sb),bs=hs?band(sb):null,m=(D.matings||{})[mateS+"|"+mateD]||{};
+  o.innerHTML=`<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
+   <div class="coi-band">${hs?`<span class="badge ${bs[1]}">${bs[0]}</span>`:'<span class="badge">COI SBT non ancora inserito</span>'}</div>
+   <div class="coi-cov"><strong>COI 8 generazioni SBT</strong> (test mating) · <label class="sbt-in">valore: <input id="mateSbt" inputmode="decimal" placeholder="es. 6,17" value="${esc(m.coiSbt||"")}">%</label></div></div>
+   <div class="coi2"><span>Calcolo del gestionale (Wright, 8 generazioni): <strong>${pf(c)}%</strong></span><span class="row-meta">Antenati noti ${cov.known} di ${cov.tot}. Di solito un po' più basso di SBT, che usa il suo database completo.</span></div>
+   <div class="anc">${ancList(com)}</div>
+   <div class="pmiss-box"><strong>Per un COI affidabile servono gli antenati di entrambi (4 generazioni):</strong>${miss}</div>`;
+}
+function loadDemo(){
+  if(D.dogs.ex_cap){mateS="ex_x";mateD="ex_y";render();return}
+  const add=(id,name,sex,sire,dam)=>D.dogs[id]={name:"Esempio · "+name,sex,sire,dam,ext:true};
+  add("ex_cap","Capostipite","M");add("ex_m1","Madre 1","F");add("ex_m2","Madre 2","F");
+  add("ex_a","Figlio A","M","ex_cap","ex_m1");add("ex_b","Figlia B","F","ex_cap","ex_m2");
+  add("ex_x2","Femmina esterna","F");add("ex_y2","Maschio esterno","M");
+  add("ex_x","Maschio X","M","ex_a","ex_x2");add("ex_y","Femmina Y","F","ex_y2","ex_b");
+  mateS="ex_x";mateD="ex_y";render();
+  setTimeout(()=>alert("Esempio caricato: X e Y sono figli di due mezzi fratelli (stesso padre). Prova anche Figlio A × Figlia B."),50);
+}
+
+
+/* ---------- Comandi (senza codice inline, funziona in ogni visualizzatore) ---------- */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]");if(!el||el.disabled)return;
+  const a=el.dataset.a,v=el.dataset.v||"";
+  switch(a){
+    case "close":closeSheet();break;
+    case "cancelDog":cancelSheet();break;
+    case "pedDone":cancelSheet();break;
+    case "pedForm":pedForm(v);break;
+    case "back":view=null;render();break;
+    case "open":closeSheet();openItem(v);break;
+    case "openDog":tab="cani";openItem(v);break;
+    case "openOwner":tab="proprietari";openItem(v);break;
+    case "openLitterDog":tab="cani";openItem(v);break;
+    case "go":go(v);break;
+    case "filter":filter=v;render();break;
+    case "dogForm":dogForm(v||undefined);break;
+    case "saveDog":saveDog(v);break;
+    case "ownerForm":ownerForm(v||undefined);break;
+    case "saveOwner":saveOwner(v);break;
+    case "ownerPreview":ownerPreview(v);break;
+    case "ovLang":{const [i,l]=v.split("|");ownerPreview.lang=ownerPreview.lang||{};ownerPreview.lang[i]=l;ownerPreview(i);break}
+    case "hForm":hForm(v);break;
+    case "hSave":hSave(v);break;
+    case "qh":qh(v||"");break;
+    case "qhK":QH.k=v;QH.target=$("#qht").value;qhRender();break;
+    case "qhSave":qhSave();break;
+    case "edf":edf(v);break;
+    case "editOn":editOn(v);break;
+    case "editSave":editSave(v);break;
+    case "editCancel":EDIT=null;EDIRTY=false;render();toast("Modifiche annullate: nulla è stato cambiato.");break;
+    case "ownEdit":EDIT="own:"+v;EDIRTY=false;render();setTimeout(()=>{const b=document.querySelector(".editbox");b&&b.scrollIntoView({block:"start",behavior:"smooth"})},50);break;
+    case "ownSave":ownSave(v);break;
+    case "edfSave":edfSave(v);break;
+    case "docForm":docForm(v);break;
+    case "docSave":docSave(v);break;
+    case "docDel":docDel(v);break;
+    case "hDel":hDel(v);break;
+    case "litterForm":litterForm();break;
+    case "saveLitter":saveLitter();break;
+    case "loadDemo":loadDemo();break;
+    case "rmPhoto":tmpPhoto="";$("#fphPrev").innerHTML='<span class="thumb ph" style="width:72px;height:72px;border-radius:8px">?</span>';break;
+    case "mate":{const d=D.dogs[v];if(d.sex==="M")mateS=v;else mateD=v;tab="coi";view=null;render();break}
+    case "mateWith":{const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
+  }
+});
+document.addEventListener("input",e=>{if(e.target.id==="srch"){q=e.target.value;rerenderList()}});
+document.addEventListener("change",e=>{if(e.target.id==="mateSbt")setMateSbt(e.target.value)});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.id==="fph")pickPhoto(t);
+  if(t.id==="ms"){mateS=t.value;calcMate()}
+  if(t.id==="md"){mateD=t.value;calcMate()}
+});
+
+/* ---------- Sheet ---------- */
+function sheet(h){$("#sheet").innerHTML=h;$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
+function closeSheet(){$("#sheetBg").classList.remove("open")}
+$("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelSheet()});
+addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
+
+
+/* ---------- Pagina privata del proprietario ---------- */
+function bannerHtml(){return ""}
+function ownLink(){return ""}
+(async()=>{const m=document.getElementById("main");
+  const tok=location.pathname.split("/").filter(Boolean).pop()||"";
+  let j=null;try{const r=await fetch("/api/public/"+encodeURIComponent(tok));if(r.ok)j=await r.json()}catch(e){}
+  if(!j){m.innerHTML=`<h1>Pagina non disponibile</h1><p class="lead">Il link non è valido oppure è stato sostituito. Chiedi all'allevatore il link aggiornato.<br><em>This link is not valid or has been replaced: please ask the breeder for the new one.</em></p>`;return}
+  Object.assign(D,j.data);resetCalc();
+  const en=(D.owners[j.owner]||{}).lang==="en";document.documentElement.lang=en?"en":"it";
+  if(!j.dogs.length){m.innerHTML=en?"<h1>No dogs yet</h1>":"<h1>Nessun cane collegato</h1>";return}
+  let html="";sheet=h=>{html+=`<section class="ov-dog">${h}</section>`};closeSheet=()=>{};
+  j.dogs.forEach(id=>ownerPreview(id));m.innerHTML=html;
+  document.title=(j.dogs.length===1?D.dogs[j.dogs[0]].name+" · ":"")+"Del Piccolo Diavolo";
+  m.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&b.dataset.a!=="ovLang"){e.stopPropagation()}},true)})();
+
+</script>
+</body>
+</html>
