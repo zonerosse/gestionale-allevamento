@@ -148,3 +148,4 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   insieme alla guida per il proprietario; per tutti gli altri cani resta com'era ("Leishmania e filaria" sui suoi cani).
   Ogni sezione compare comunque se ha già delle voci. Il proprietario non riceve un registro ma
   la "Guida al primo anno" con i promemoria: il libretto lo aggiorna il suo veterinario, dopo il primo anno non arriva più nulla.
+- Pagina del proprietario larga fino a 1240px su computer e tablet (prima 900px), dati del cane su una riga; telefono invariato.

@@ -215,7 +215,8 @@ h2{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:32px 0 12px}
 .ownlink{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:14px 0 0}
 .ownlink input{width:100%;margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.85rem;background:var(--bg)}
 .owner-mode nav.side,.owner-mode nav.bottom,.owner-mode .hfab,.owner-mode #main>.lead,.owner-mode #main>.actions,.owner-mode .ownlink{display:none!important}
-.owner-mode .app{grid-template-columns:minmax(0,1fr)}.owner-mode main{margin:0 auto;max-width:900px}
+.owner-mode .app{grid-template-columns:minmax(0,1fr)}.owner-mode main{margin:0 auto;max-width:1240px;padding-left:clamp(16px,3vw,40px);padding-right:clamp(16px,3vw,40px)}
+@media (min-width:1100px){.owner-mode .facts{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .owner-mode .owner-view{border:0;padding:0;background:none}
 /* Pedigree: l'elemento forte */
 .ped-wrap{overflow-x:auto;padding-bottom:6px;margin:0 -4px}
