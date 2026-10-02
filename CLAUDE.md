@@ -194,3 +194,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   precedente va all'elenco.
 - Le tendine (`details`) dell'elenco restano aperte o chiuse come lasciate (`DOPEN`, chiave tab+cane+filtro+titolo),
   anche tornando indietro; il tasto in alto dice anche il filtro (es. "‹ Prenotati").
+- "Calori e monte" è un riquadro a tendina (`details.hs.c-rep`), chiuso: da chiuso mostra "In gravidanza · giorno … ·
+  parto previsto …" oppure "Prossimo calore previsto: …".
+
+## Nascita e peso dei cuccioli (ottobre 2026)
+- Cucciolata: `l.birth={type,start,note}`; cucciolo: `birthOrder, birthTime, collar (colore), birthWeight, weights:[{date,g}]`.
+- Scheda della cucciolata → "Nascita e crescita": tabella, "Modifica la nascita" (`bForm`), "⚖️ Pesata" (`wForm`: tutti i
+  cuccioli in una schermata, giorno scelto, differenza dall'ultima pesata, rosso se cala) e grafico (`growthSvg`, linee col
+  colore del collarino). Scheda del cucciolo e pagina del proprietario: grafico solo di quel cucciolo (`growthDog`).
+- Il grafico compare solo con almeno 3 pesi (nascita compresa): con meno dati non si mostra, né a Paolo né al proprietario.
