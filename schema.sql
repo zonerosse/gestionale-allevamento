@@ -4,3 +4,6 @@ CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEX
 
 -- Contratti firmati dai proprietari (la tabella si crea anche da sola)
 CREATE TABLE IF NOT EXISTS contracts (dog TEXT PRIMARY KEY, owner TEXT, json TEXT, signed_at TEXT);
+
+-- Richieste dal modulo del sito (la tabella si crea anche da sola)
+CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, json TEXT, created TEXT);

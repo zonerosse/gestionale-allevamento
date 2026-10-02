@@ -56,6 +56,11 @@ export async function ensureContracts(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS contracts (dog TEXT PRIMARY KEY, owner TEXT, json TEXT, signed_at TEXT)").run();
 }
 
+// Richieste dal modulo del sito: la tabella si crea da sola la prima volta
+export async function ensureRequests(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, json TEXT, created TEXT)").run();
+}
+
 export async function loadData(env) {
   const row = await env.DB.prepare("SELECT version, json, updated FROM store WHERE id = 'main'").first();
   return row ? { version: row.version, data: JSON.parse(row.json), updated: row.updated } : null;

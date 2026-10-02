@@ -210,3 +210,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   "Foto della cucciolata": scegli più foto e per ognuna il cucciolo o "Tutta la cucciolata" (`wpAssign`).
 - Settimana di vita = giorni dalla nascita / 7 + 1 (`weekOf`). Pagina del proprietario: "<nome> settimana per
   settimana" con le sue foto e quelle di gruppo ("Con i fratelli"), dalla più recente; foto a tutto schermo.
+
+## Lista d'attesa (ottobre 2026)
+- Scheda del menu "Attesa" (`tab="attesa"`, `waitList`): `D.waitlist=[{id,created,name,email,phone,city,country,sex,exp,note,
+  source,litter,status,depDate,dog,lang}]`, divisa per cucciolata (pianificate/nate da poco + "Prossima cucciolata,
+  qualsiasi"). Stati: new, contacted, deposit, assigned, dropped. "Assegna un cucciolo" crea il proprietario (con link
+  privato) e lo collega al cucciolo come prenotato. Caparra: solo la data.
+- Modulo del sito (repo delpiccolodiavolo-hugo, `layouts/partials/prenota.html`): oltre allo script Google manda una copia a
+  `POST /api/public/richiesta` (pubblico, solo aggiunta, anti-spam col campo "azienda") → tabella D1 `requests`.
+  All'apertura il gestionale legge `GET /api/requests` e aggiunge le nuove come "Nuovo" (`wlSync`, id = rid, mai doppie).
