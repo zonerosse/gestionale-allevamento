@@ -1303,6 +1303,13 @@ function contractBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const s
     <button class="btn go" id="ctGoBtn" data-a="ctGo" data-v="${id}" disabled>3. Firma e manda a ${nm}</button>
     <p class="small">Tutto il resto (tuoi dati, cane, genitori, dati di ${nm}, caparra, consegna) è già scritto. <button class="plink" data-a="ctView" data-v="${id}">Vedi il contratto</button></p></div>`}
 function ctSellerSig(){return D.settings&&D.settings.sellerSig||""}
+// "Importa modifiche" con {nascite:[{dog,name,bplace,bdate}]}: trova il proprietario dal nome del cane (o dal suo nome) e scrive dove e quando è nato
+function importNascite(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/\s+/).filter(Boolean).sort().join(" ");
+  const ok=[],miss=[];L.forEach(x=>{let oid=null;const dk=Object.keys(D.dogs).find(k=>nn(D.dogs[k].name)===nn(x.dog));if(dk&&D.dogs[dk].owner&&D.owners[D.dogs[dk].owner])oid=D.dogs[dk].owner;
+    if(!oid)oid=Object.keys(D.owners).find(k=>nn(D.owners[k].name)===nn(x.name))||null;(oid?ok:miss).push([x,oid])});
+  if(!ok.length){alert("Non trovo nessuno di questi proprietari nel gestionale.");return}
+  if(!confirm("Luogo e data di nascita per "+ok.length+" proprietari:\n\n"+ok.map(([x,o])=>"• "+D.owners[o].name+": "+x.bplace+", "+fmt(x.bdate)).join("\n")+(miss.length?"\n\nNon trovati: "+miss.map(([x])=>x.name).join(", "):"")+"\n\nProcedere?"))return;
+  ok.forEach(([x,o])=>{D.owners[o].bplace=x.bplace;D.owners[o].bdate=x.bdate});render();typeof saveNow==="function"&&saveNow();alert("Fatto: "+ok.length+" proprietari aggiornati.")}
 /* ---------- Passaggio di proprietà (modulo del Comune di Ostellato) e consegna del cucciolo ---------- */
 // Il modulo è la scansione del Comune (public/modulo-cessione.jpg): il gestionale ci scrive sopra dati e firme.
 // d.pp={date,at}. I dati dell'acquirente NON si salvano nel gestionale: stanno solo nel PDF (documento con pp:true).
@@ -1315,7 +1322,7 @@ const PP_POS={cn:[145,203,250],ccf:[478,203,150],cna:[110,232,390],cil:[520,232,
   bmail:[447,806,193],d2:[80,897,216],note:[90,945,560]};
 function ppOn(id){const d=D.dogs[id];return !!(d&&d.bred&&d.owner&&!d.ext)}
 function ppDoc(d){return (d.docs||[]).find(x=>x.pp)}
-function ppBuyer(id){const G=CONTR[id],b=G?G.buyer:ctBuyer(id);return{name:b.name||"",cf:b.cf||"",res:[b.cap,b.via].filter(Boolean).join(", "),cell:b.tel||"",mail:b.mail||""}}
+function ppBuyer(id){const G=CONTR[id],b=G?G.buyer:ctBuyer(id),o=D.owners[D.dogs[id].owner]||{};return{name:b.name||"",cf:b.cf||"",res:[b.cap,b.via].filter(Boolean).join(", "),cell:b.tel||"",mail:b.mail||"",bplace:o.bplace||"",bdate:o.bdate||""}}
 function ppBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";const d=D.dogs[id],x=ppDoc(d),nm=esc(((D.owners[d.owner]||{}).name||"").split(" ")[0]||"il proprietario");
   const top=(ico,t,sub)=>`<div class="cs-top"><div class="cs-ico">${ico}</div><div><b>${t}</b><span>${sub}</span></div></div>`;
   if(x&&d.pp)return `<h2>Passaggio di proprietà</h2><div class="cs cs-st-done">${top("✅","Firmato il "+fmt(d.pp.date),"Il PDF è nei documenti del cucciolo (lo vede anche "+nm+"). Va all'anagrafe canina entro 15 giorni, con le fotocopie dei documenti d'identità.")}
@@ -1328,7 +1335,7 @@ function ppForm(id){const d=D.dogs[id],b=ppBuyer(id),me=(D.settings||{}).ppMe||{
   sheet(`<h2 style="margin-top:0">🏛️ Passaggio di proprietà · ${esc(d.nick||d.name)}</h2>
   <div class="form">${I("date","Data della cessione (va anche nelle due “Data” del modulo)",today,"date",1)}</div>
   ${me.cf?`<details class="pp-me"><summary>I tuoi dati: cod. fisc. ${esc(me.cf)} · tocca per correggere</summary>${meF}</details>`:`<h3>I tuoi dati (solo la prima volta, poi restano salvati)</h3>${meF}`}
-  <h3>Acquirente: ${esc(b.name)}</h3><div class="form">${I("bna","Nato a","")}${I("bil","Il","","date")}${I("bcf","Codice fiscale",b.cf)}${I("bcell","Cellulare",b.cell)}${I("bres","Residente in (CAP, città, via)",b.res,"",1)}${I("bmail","Email",b.mail,"",1)}${I("note","Note (facoltative)","","",1)}</div>
+  <h3>Acquirente: ${esc(b.name)}</h3><div class="form">${I("bna","Nato a",b.bplace)}${I("bil","Il",b.bdate,"date")}${I("bcf","Codice fiscale",b.cf)}${I("bcell","Cellulare",b.cell)}${I("bres","Residente in (CAP, città, via)",b.res,"",1)}${I("bmail","Email",b.mail,"",1)}${I("note","Note (facoltative)","","",1)}</div>
   <h3>Firme</h3><div class="pp-sig"><div>${ctSellerSig()?`<div class="saved-sig"><img src="${esc(ctSellerSig())}" alt="La tua firma"><span class="small">La tua firma salvata</span></div>`:ctPad("ppMe","La tua firma (resta salvata)")}</div><div>${ctPad("ppB","Firma dell'acquirente, con il dito")}</div></div>
   <p class="small" id="ppErr" style="color:var(--accent);min-height:1.2em"></p>
   <div class="actions"><button class="btn" data-a="ppGo" data-v="${id}">Firma e crea il PDF</button><button class="btn ghost" data-a="close">Annulla</button></div>`);setTimeout(initPads,0)}
@@ -1629,6 +1636,8 @@ function ownerForm(id){
   <label class="f">Telefono<input id="op" type="tel" value="${esc(o.phone)}"></label>
   <label class="f">Email<input id="oe" type="email" value="${esc(o.email)}"></label>
   <label class="f">Indirizzo<input id="oa" value="${esc(o.addr)}"></label>
+  <label class="f">Nato a<input id="obp" value="${esc(o.bplace)}" placeholder="es. Ferrara (FE)"></label>
+  <label class="f">Il<input id="obd" type="date" value="${esc(o.bdate)}"></label>
   <label class="f">Lingua della pagina privata<select id="olang"><option value="it" ${o.lang!=="en"?"selected":""}>Italiano</option><option value="en" ${o.lang==="en"?"selected":""}>English</option></select></label>
   <label class="f full">Note<textarea id="ono" rows="3">${esc(o.notes)}</textarea></label></div>
   <div class="actions"><button class="btn" data-a="saveOwner" data-v="${id||""}">Salva proprietario</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
@@ -1636,7 +1645,8 @@ function ownerForm(id){
 function saveOwner(id){
   const name=$("#on").value.trim();if(!name){$("#on").focus();return}
   const nid=id||newId("o");
-  D.owners[nid]={name,country:$("#oc").value.trim(),phone:$("#op").value.trim(),email:$("#oe").value.trim(),addr:$("#oa").value.trim(),notes:$("#ono").value.trim(),lang:$("#olang").value};
+  D.owners[nid]=Object.assign(D.owners[nid]||{},{name,country:$("#oc").value.trim(),phone:$("#op").value.trim(),email:$("#oe").value.trim(),addr:$("#oa").value.trim(),bplace:$("#obp").value.trim(),bdate:$("#obd").value,notes:$("#ono").value.trim(),lang:$("#olang").value});
+  typeof saveNow==="function"&&saveNow();
   closeSheet();tab="proprietari";view=nid;render();
 }
 
@@ -1851,6 +1861,7 @@ function importSbt(x){const S=findDogByName(x.sire),M=findDogByName(x.dam);
 document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;
       if(o.analisiSbt){importSbt(o.analisiSbt);return}
+      if(o.nascite){importNascite(o.nascite);return}
       if(o.patch)n=applyP(D,o.patch,false);else if(o.data&&o.data.dogs){if(!confirm("Questo file è una copia di sicurezza completa: sostituisce tutti i dati attuali. Procedere?"))return;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,o.data);n=1}else throw 0;
       resetCalc();render();saveNow();alert("Fatto: "+n+" modifiche unite. Il salvataggio online parte da solo.")}catch(err){alert("Questo file non contiene dati del gestionale.")}};r.readAsText(f)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;

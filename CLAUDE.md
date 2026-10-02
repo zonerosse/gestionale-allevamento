@@ -241,3 +241,9 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   e i documenti `pp`. Fotocopie dei documenti d'identità: fuori dal gestionale (regola 6), le allega Paolo.
 - "Consegna" (`kitBox`, solo Paolo): spunte `d.kit=[bool×3]` per `KIT` (Kit puppy Farmina, libretto veterinario, certificato di
   buona salute). Pagina del proprietario: "Cosa ricevi con <nome>" (`kitOwner`), sempre l'elenco completo (scelta C).
+- Proprietario: campi `bplace` (luogo di nascita) e `bdate` (data di nascita), nel modulo "Modifica proprietario"; precompilano
+  "Nato a / Il" dell'acquirente nel passaggio di proprietà. Non vanno nella pagina del proprietario né a chi consulta.
+  "Importa modifiche" con `{nascite:[{dog,name,bplace,bdate}]}` (`importNascite`): trova il proprietario dal nome del cane, se no
+  dal suo nome (anche con nome e cognome invertiti), chiede conferma e scrive i due campi.
+- `saveOwner` ora **unisce** i campi (`Object.assign`) invece di ricreare il proprietario: prima perdeva `token` (link privato),
+  `cf` e `doc` a ogni "Salva proprietario".
