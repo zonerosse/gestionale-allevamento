@@ -1070,7 +1070,7 @@ function dogFacts(d,id,st,own){
     </div><div class="actions savebar"><button class="btn save" data-a="editSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`}
   const ins=f=>`<span class="empty">da inserire</span>`;
   const F=(l,v,f)=>`<div class="fact"><dt>${l}</dt><dd>${v||(f?ins(f):'<span class="empty">—</span>')}</dd></div>`;
-  return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",esc(d.loi||""),"loi")}${F("Microchip",esc(d.chip||""),"chip")}
+  return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",d.loi?esc(d.loi):d.bred&&!d.ext?'<i class="row-meta">In attesa N. LOI</i>':"","loi")}${F("Microchip",esc(d.chip||""),"chip")}
   ${F("Padre",d.sire?dlink(d.sire):"","sire")}${F("Madre",d.dam?dlink(d.dam):"","dam")}${F("Stato",esc(st||""),"status")}
   ${F("Allevatore",d.bred?esc(BREEDER_ME):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:"Paolo Boldrini")}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":(litA(id)?esc(litA(id).c8)+"% · dalla cucciolata":""),"coiSbt")}</dl>`}
 function ownSave(id){const o=D.owners[id],v=k=>$("#"+k).value.trim();if(!v("eo_name")){$("#eo_name").focus();return}
@@ -1140,7 +1140,7 @@ function ownerPreview(id){
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
   ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
-  <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi)}</dl>
+  <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${ovParents(id)}
   <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";

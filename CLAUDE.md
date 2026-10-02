@@ -307,3 +307,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   man mano…"; il proprietario la vede in inglese nella sua pagina ("Costs for taking <nome> abroad", `abroadOwner`).
   Scelte di Paolo: solo la frase (niente elenco di importi), visibile anche al proprietario, solo per chi va all'estero.
 - `d.abroad={it,en}` solo se Paolo cambia la frase ("Modifica la frase", `abEdit`/`abSave`); se manca valgono le frasi di base (`abTxt`).
+- LOI mancante sui cani allevati da Paolo (non esterni): nella scheda "In attesa N. LOI" (si tocca per inserirlo, come prima);
+  nella pagina del proprietario "In attesa N. LOI" / in inglese "Pending – available after ENCI registration". Appena si scrive il
+  numero in Modifica, compare quello.
