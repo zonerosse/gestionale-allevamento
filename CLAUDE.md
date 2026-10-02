@@ -111,9 +111,9 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 
 ## Contratto di cessione (ottobre 2026)
 - Testo dei contratti di Paolo (maschio/femmina, scelto dal sesso) in `CT`/`V32`/`C36`/`CL1341` nel blocco comune, con traduzione
-  inglese: per i proprietari con `lang:"en"` il contratto è bilingue a fianco, **fa fede l'italiano**. Caparra: "già versata
-  dall'acquirente, da detrarre dal prezzo alla consegna", senza importo. Punto 1.4 invariato (scelta di Paolo).
-- `D.dogs[id].contract = {price, depDate, delivery, marks, meSig, visible}`: lo compila Paolo nella scheda del cucciolo
+  inglese: per i proprietari con `lang:"en"` il contratto è bilingue a fianco, **fa fede l'italiano**. Caparra e presa in consegna con
+  formula fissa senza importi né date (consegna presso l'allevamento a Ostellato); niente "segni particolari". Punto 1.4 invariato (scelta di Paolo).
+- `D.dogs[id].contract = {price, meSig, visible}`: lo compila Paolo nella scheda del cucciolo
   (`contractBox`); quando è `visible` i dati sono bloccati. `D.owners[id].cf` e `.doc` (codice fiscale, documento) precompilano.
 - Firma **solo con il dito/mouse** (firma elettronica semplice): niente servizi a pagamento, scelta di Paolo.
 - Il proprietario firma dalla sua pagina (`ctOwnerBox`) → `POST /api/public/<token>/contract`: unica scrittura possibile dalla

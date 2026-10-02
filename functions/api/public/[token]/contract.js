@@ -22,8 +22,8 @@ export async function onRequestPost({ request, env, params }) {
   // Le condizioni le ricostruisce il server dai dati di Paolo: il browser non può cambiarle.
   const pn = k => { const x = D.dogs[k]; return x ? x.name + (x.chip ? " · " + x.chip : "") : ""; };
   const snap = { ver: s(b.ver, 20), sex: d.sex, bi: (D.owners[d.owner] || {}).lang === "en",
-    dog: { name: d.name || "", chip: d.chip || "", birth: d.birth || "", color: d.color || "", marks: c.marks || "" },
-    sire: pn(d.sire), dam: pn(d.dam), price: c.price || "", depDate: c.depDate || "", delivery: c.delivery || "" };
+    dog: { name: d.name || "", chip: d.chip || "", birth: d.birth || "", color: d.color || "" },
+    sire: pn(d.sire), dam: pn(d.dam), price: c.price || "" };
   await ensureContracts(env);
   const ex = await env.DB.prepare("SELECT dog FROM contracts WHERE dog = ?").bind(id).first();
   if (ex) return json({ error: "Contratto già firmato" }, 409);
