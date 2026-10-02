@@ -1,9 +1,11 @@
-import { json, isAdmin, deny, loadData } from "../_lib.js";
+import { json, isAdmin, deny, loadData, role, viewerData } from "../_lib.js";
 
 export async function onRequestGet({ request, env }) {
-  if (!(await isAdmin(request, env))) return deny();
+  const r = await role(request, env);
+  if (!r) return deny();
   const cur = await loadData(env);
-  return json(cur || { version: 0, data: null });
+  if (r === "viewer") return json(cur ? { version: cur.version, updated: cur.updated, data: viewerData(cur.data), role: r } : { version: 0, data: null, role: r });
+  return json(Object.assign(cur || { version: 0, data: null }, { role: r }));
 }
 
 // Salva tutto il gestionale. Ogni salvataggio resta anche nello storico (ultimi 200).

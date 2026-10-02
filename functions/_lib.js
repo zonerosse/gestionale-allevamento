@@ -12,27 +12,42 @@ function cookie(req, name) {
   return m ? m[1] : null;
 }
 
-// Verifica che la richiesta arrivi da Paolo, già autenticato da Cloudflare Access
-export async function isAdmin(request, env) {
-  if (env.DEV_BYPASS === "1") return true; // solo per prove in locale: MAI in produzione
+// Chi sta usando il gestionale: email verificata da Cloudflare Access (null = nessun accesso)
+export async function accessEmail(request, env) {
+  if (env.DEV_BYPASS === "1") return env.DEV_EMAIL || "dev"; // solo per prove in locale: MAI in produzione
   const jwt = request.headers.get("Cf-Access-Jwt-Assertion") || cookie(request, "CF_Authorization");
-  if (!jwt || !env.TEAM_DOMAIN || !env.POLICY_AUD) return false;
+  if (!jwt || !env.TEAM_DOMAIN || !env.POLICY_AUD) return null;
   try {
     const [h, p, s] = jwt.split(".");
     const head = JSON.parse(new TextDecoder().decode(b64u(h)));
     const pay = JSON.parse(new TextDecoder().decode(b64u(p)));
     const aud = Array.isArray(pay.aud) ? pay.aud : [pay.aud];
-    if (!aud.includes(env.POLICY_AUD)) return false;
-    if (pay.exp && pay.exp * 1000 < Date.now()) return false;
+    if (!aud.includes(env.POLICY_AUD)) return null;
+    if (pay.exp && pay.exp * 1000 < Date.now()) return null;
     if (!CERTS || Date.now() - CERTS_AT > 3600e3) {
       const r = await fetch(env.TEAM_DOMAIN.replace(/\/$/, "") + "/cdn-cgi/access/certs");
       CERTS = (await r.json()).keys; CERTS_AT = Date.now();
     }
     const jwk = CERTS.find(k => k.kid === head.kid);
-    if (!jwk) return false;
+    if (!jwk) return null;
     const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-    return await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p));
-  } catch (e) { return false; }
+    const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p));
+    return ok ? String(pay.email || "").toLowerCase() : null;
+  } catch (e) { return null; }
+}
+// Ruolo: "viewer" se l'email è nella variabile VIEWERS (solo consultazione), altrimenti "admin" (Paolo)
+export async function role(request, env) {
+  const e = await accessEmail(request, env); if (e === null) return null;
+  const V = String(env.VIEWERS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+  return V.includes(e) ? "viewer" : "admin";
+}
+export async function isAdmin(request, env) { return (await role(request, env)) === "admin"; }
+// Dati per chi consulta: niente dati personali dei proprietari, contratti, documenti privati, firma di Paolo
+export function viewerData(data) {
+  const d = JSON.parse(JSON.stringify(data));
+  for (const k of Object.keys(d.owners || {})) d.owners[k] = { name: d.owners[k].name || "" };
+  for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct); }
+  delete d.settings; return d;
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
 

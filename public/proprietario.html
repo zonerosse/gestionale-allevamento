@@ -364,6 +364,18 @@ h2.cz::before{content:attr(data-ic);width:34px;height:34px;border-radius:9px;dis
 .addsbt{background:var(--paper);border:1px dashed var(--muted);border-radius:12px;padding:12px 14px;margin:0 0 16px}.addsbt input{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px}
 .res{background:var(--paper);border:2px solid var(--accent);border-radius:16px;padding:18px}.res .cnum{font-family:var(--serif);font-size:2.2rem;line-height:1}.res .cnum small{font-size:.5em}
 .twrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:12px 0}.tcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem;min-width:0}
+body.ro .hfab{display:none!important}
+#lbx{position:fixed;inset:0;z-index:1000;background:rgba(10,10,15,.92);display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
+#lbx img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.lbx-x{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#111;font-size:1.2rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.par{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pc{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;border-top:4px solid var(--c)}
+.pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc center/cover no-repeat;font-size:1.6rem;color:#a99}
+.pc .tx{padding:10px 12px}.pc .r{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
+.pc .n{font-family:var(--serif);font-size:1.05rem;margin:2px 0}.pc .m{font-size:.82rem;color:var(--muted);margin-top:2px}
+.sbtl{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid #efd9bf;text-decoration:none;color:inherit}
+.sbtl b{font-family:var(--serif);font-weight:400;font-size:1.05rem;display:block;color:#9a5a16}.sbtl span span{color:var(--muted);font-size:.86rem}.sbtl .go{margin-left:auto;font-size:1.3rem;color:#9a5a16}
+.sbtrow{margin:8px 0 4px;display:flex;flex-direction:column;gap:6px}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -466,6 +478,28 @@ document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".ed
 function leaveOk(){if(!EDIT)return true;if(EDIRTY&&!confirm("Hai cambiato dei dati senza premere Salva.\n\nOK = esci e lascia perdere le modifiche\nAnnulla = resta qui per salvarle"))return false;EDIT=null;EDIRTY=false;return true}
 function go(t){if(!leaveOk())return;tab=t;view=null;render();scrollTo(0,0)}
 function openItem(id){if(!leaveOk())return;if(D.dogs[id]&&!(tab==="proprietari"&&D.owners[id]))tab="cani";view=id;render();scrollTo(0,0)}
+/* Navigazione: il tasto "indietro" del telefono/browser torna alla pagina precedente del gestionale e chiude i riquadri */
+let NAVLOCK=false,lastNav="";
+function navPush(){if(typeof OWNER_MODE!=="undefined")return;const k=tab+"|"+(view||"");if(k===lastNav)return;
+  try{if(lastNav&&!NAVLOCK)history.pushState({tab,view},"");else history.replaceState({tab,view},"")}catch(e){}lastNav=k}
+function sheetOpen(){const b=document.getElementById("sheetBg");return !!(b&&b.classList.contains("open"))}
+window.addEventListener("popstate",e=>{if(typeof OWNER_MODE!=="undefined"){lbClose(true);return}
+  if(lbClose(true))return;if(sheetOpen()){closeSheetRaw();if(e.state&&!e.state.sheet&&e.state.tab===tab&&(e.state.view||null)===(view||null))return}
+  const st=e.state||{tab:"cani",view:null};if(st.sheet)return;if(typeof leaveOk==="function"&&!leaveOk()){history.pushState({tab,view},"");return}
+  NAVLOCK=true;tab=st.tab||"cani";view=st.view||null;render();NAVLOCK=false;window.scrollTo(0,0)});
+/* Foto: si aprono sopra la pagina, con la X o il tasto indietro per tornare */
+function lbClose(fromPop){const l=document.getElementById("lbx");if(!l)return false;l.remove();if(!fromPop&&history.state&&history.state.lb)history.back();return true}
+document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
+  const fn=a.getAttribute("download")||"",im=/\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i;if(!(im.test(h)||im.test(fn)||h.startsWith("data:image/")))return;e.preventDefault();
+  const l=document.createElement("div");l.id="lbx";l.innerHTML=`<button class="lbx-x" aria-label="Chiudi">✕</button><img src="${h.replace(/"/g,"&quot;")}" alt="">`;
+  l.addEventListener("click",ev=>{if(ev.target.tagName!=="IMG"||ev.target.closest(".lbx-x"))lbClose(false)});document.body.appendChild(l);
+  try{history.pushState(Object.assign({},history.state||{},{lb:1}),"")}catch(err){}},true);
+/* Solo consultazione (VIEWERS su Cloudflare): si vede tutto tranne i dati dei proprietari, non si può cambiare niente */
+var RO=window.RO||false;
+const RO_OK=new Set(["open","close","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
+function roClean(root){if(!RO||!root)return;root.querySelectorAll("[data-a]").forEach(el=>{if(!RO_OK.has(el.dataset.a))el.remove()});
+  root.querySelectorAll(".hfab,.addsbt,.sbt-in,.editbox,.k-box,.cs,.olink-a,#impData").forEach(el=>el.remove())}
+document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[data-a]");if(b&&!RO_OK.has(b.dataset.a)){e.preventDefault();e.stopImmediatePropagation()}},true);
 /* Colori delle sezioni (scheda del cane e pagina del proprietario): icona e colore secondo il titolo */
 const CZ=[[["Dati"],"📋","z-dati"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
   [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
@@ -483,7 +517,7 @@ function render(){resetCalc();nav();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
   if(tab==="coi")calcMate();
-  colorize(m);
+  colorize(m);roClean(document);navPush();
 }
 
 /* ---------- Cani ---------- */
@@ -943,6 +977,13 @@ function dnaHtml(d){const x=d.dna;if(!x)return"";
   <p style="margin:10px 0 0"><a class="dna-pdf" href="${x.pdf}" download="${esc(x.fname)}" target="_blank">📎 ${T("Apri il referto originale (PDF)","Open the original report (PDF, in Italian)")}</a></p></div>`}
 
 /* ---------- Vista proprietario ---------- */
+/* Pagina del proprietario: genitori con la foto e link alla cucciolata su SBTpedigree (al posto dell'albero) */
+function ovParents(id){const d=D.dogs[id],l=d.litter&&D.litters[d.litter];
+  const card=(k,r,re,c)=>{const p=D.dogs[k];if(!p)return `<div class="pc" style="--c:${c}"><div class="ph"></div><div class="tx"><div class="r">${T(r,re)}</div><div class="n">${T("da inserire","not available")}</div></div></div>`;
+    const t=LANG==="en"&&p.tests_en?p.tests_en:p.tests,col=LANG==="en"&&p.color_en?p.color_en:p.color,m=[p.loi,col,(p.birth||String(p.year||"")).slice(0,4)].filter(Boolean).map(esc).join(" · ");
+    return `<div class="pc" style="--c:${c}">${p.photo?`<a href="${p.photo}" class="ph" style="background-image:url('${p.photo}')" download="${esc(p.name)}.jpg"></a>`:`<div class="ph">🐾</div>`}<div class="tx"><div class="r">${T(r,re)}</div><div class="n">${esc(p.name)}</div>${m?`<div class="m">${m}</div>`:""}${t?`<div class="m">🧪 ${esc(t)}</div>`:""}</div></div>`};
+  return `<div class="par">${card(d.sire,"Padre","Sire","#34507a")}${card(d.dam,"Madre","Dam","#8c2b23")}</div>
+  ${l&&l.sbtUrl?`<a class="sbtl" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener"><span style="font-size:1.6rem">🔗</span><span><b>${T("La cucciolata su SBTpedigree","The litter on SBTpedigree")}</b><span>${T("Pedigree completo, fratelli e consanguineità","Full pedigree, littermates and inbreeding")}</span></span><span class="go">↗</span></a>`:""}`}
 function ownerPreview(id){
   const d=D.dogs[id];if(typeof ownerPreview.lang==="undefined")ownerPreview.lang={};
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
@@ -951,7 +992,7 @@ function ownerPreview(id){
   ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi)}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
-  <h2>Pedigree</h2>${pedigree(id).replace(/data-a="open" data-v="[^"]*"/g,"disabled")}
+  <h2>Pedigree</h2>${ovParents(id)}
   <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
    :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
@@ -1131,7 +1172,7 @@ function padData(id){const c=document.getElementById(id);return c&&c.dataset.use
 function ctState(id){const d=D.dogs[id];if(!d||!d.bred||!d.owner||!(d.sex==="M"||d.sex==="F"))return null;if(CONTR[id])return"done";if(d.contract&&d.contract.visible)return"sent";return"todo"}
 function ctBadge(id){const d=D.dogs[id],s=ctState(id);if(!s||(d.status!=="prenotato"&&!d.contract&&!CONTR[id]))return"";
   return `<span class="stb ${s}">${{todo:"✍️ Contratto da fare",sent:"⏳ Attesa firma",done:"✅ Firmato"}[s]}</span>`}
-function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const s=ctState(id);if(!s)return"";const d=D.dogs[id],c=d.contract||{},o=D.owners[d.owner]||{},G=CONTR[id],nm=esc((o.name||"").split(" ")[0]||"il proprietario");
+function contractBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const s=ctState(id);if(!s)return"";const d=D.dogs[id],c=d.contract||{},o=D.owners[d.owner]||{},G=CONTR[id],nm=esc((o.name||"").split(" ")[0]||"il proprietario");
   const top=(ico,t,sub)=>`<div class="cs-top"><div class="cs-ico">${ico}</div><div><b>${t}</b><span>${sub}</span></div></div>`;
   const LIB=[["Foto: va bene anche con le persone","Puoi pubblicare foto in cui compaiono il proprietario o la sua famiglia."],["Foto: va bene il nome di battesimo","Puoi citare il suo nome di battesimo insieme al cane."],["Foto: solo il cane, niente persone né nomi","Puoi pubblicare solo foto del cane, senza persone e senza il suo nome."]];
   if(s==="done")return `<h2>Contratto di cessione</h2><div class="cs cs-st-done">${top("✅","Firmato da "+esc(G.buyer.name),"il "+ctWhen(G.at)+" · "+((d.docs||[]).some(x=>x.ct===G.hash)?"il PDF è già nei documenti del cucciolo":"sto salvando il PDF nei documenti…"))}
@@ -1183,6 +1224,8 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   <h1 style="margin:0 0 4px">${dlink(dm)||"madre ?"} <span class="lx">×</span> ${dlink(s)||'<span class="empty">padre da inserire</span>'}</h1>
   <p class="nick" style="margin:0 0 12px">${l.state==="pianificata"?"Pianificata":"Nata il "+(fmt(l.date)||"?")}${pups.length?` · ${pups.length} cuccioli (${pupSummary(pups)})`:""}</p>
   ${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}
+  <div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small></label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="https://sbtpedigree.com/…" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn ghost small" data-a="litSbt" data-v="${lid}">Salva link</button>${l.sbtUrl?`<a class="btn ghost small" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener">Apri ↗</a>`:""}</div></div>
   <h2 style="margin-top:18px">Consanguineità</h2>${coiH}
   <div class="ca-mine">${bb?`<span class="badge ${bb[1]}">${bb[0]}</span>`:""}${isNaN(w)?"":`<span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(w)}%</strong> · antenati noti ${cov.known} di ${cov.tot}</span>`}</div>
   ${s&&dm?`<h2>Su chi cade la consanguineità</h2><p class="row-meta" style="margin:0 0 8px">Antenati comuni a padre e madre, in ordine di peso: quanto ognuno porta al COI calcolato dal gestionale (${isNaN(w)?"—":pf(w)+"%"}, 8 generazioni, solo cani inseriti). Il COI di SBT può differire un po'.</p><div class="anc">${ancWeight(s,dm)}</div>`:""}
@@ -1347,6 +1390,7 @@ function calcMate(){
    <div class="tcard"><b>🧪 Test genetici</b><p style="margin:6px 0 0"><b>${esc(dd.nick||dd.name)}:</b> ${esc(dd.tests||"non inseriti")}</p><p style="margin:6px 0 0"><b>${esc(ds.name)}:</b> ${esc(ds.tests||"non inseriti")}</p></div></div>
    <div class="actions">${lit?`<button class="btn" data-a="litterSheet" data-v="${lit[0]}">Scheda della cucciolata</button>`:`<button class="btn" data-a="planLitter">🐾 Pianifica la cucciolata</button>`}
    ${ds.sbt?`<a class="btn ghost" href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(ds.sbt)}" target="_blank" rel="noopener">${esc(ds.name.split(" ")[0])} su SBT ↗</a>`:""}${miss}</div></div>`;
+  roClean(o);
 }
 function loadDemo(){
   if(D.dogs.ex_cap){mateS="ex_x";mateD="ex_y";render();return}
@@ -1374,6 +1418,7 @@ document.addEventListener("click",e=>{
     case "ctView":{const d=D.dogs[v],G=CONTR[v];sheet(`${ctHtml(G?G.snap:ctSnap(v),G?G.buyer:ctBuyer(v),G||null,G?G.meSig:(d.contract||{}).meSig)}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);break}
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
+    case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");litterSheet(v);break}
     case "cancelDog":cancelSheet();break;
     case "pedDone":cancelSheet();break;
     case "pedForm":pedForm(v);break;
@@ -1425,8 +1470,9 @@ document.addEventListener("change",e=>{
 });
 
 /* ---------- Sheet ---------- */
-function sheet(h){$("#sheet").innerHTML=h;colorize($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
-function closeSheet(){$("#sheetBg").classList.remove("open")}
+function sheet(h){if(!sheetOpen()){try{history.pushState({tab,view,sheet:1},"")}catch(e){}}$("#sheet").innerHTML=h;colorize($("#sheet"));roClean($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
+function closeSheetRaw(){$("#sheetBg").classList.remove("open")}
+function closeSheet(){const was=sheetOpen();closeSheetRaw();if(was&&history.state&&history.state.sheet){try{history.replaceState({tab,view},"")}catch(e){}}}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelSheet()});
 addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
 

@@ -168,3 +168,17 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Sotto: la coppia (COI, fascia, su chi cade, test genetici, "Pianifica la cucciolata" o "Scheda della cucciolata").
 - "Aggiungi un maschio da SBT": `GET /api/sbt?id=` (solo Paolo) prova a leggere nome, nascita e genitori dalla meta
   description della pagina SBT; se SBT blocca, il gestionale chiede solo il nome e salva il link (`sbtAdded:true`).
+
+## Solo consultazione (ottobre 2026)
+- Variabile Cloudflare Pages `VIEWERS` = email separate da virgola: chi entra con quelle email (e passa Cloudflare Access)
+  è "viewer": `GET /api/data` gli dà `viewerData` (proprietari solo col nome, niente contratti, documenti privati,
+  firma) e `role:"viewer"`; PUT dati, upload, contratti, SBT, import rispondono 403. I file (foto, PDF) li può leggere.
+- Nell'interfaccia (`RO`): niente scheda Proprietari, niente tasti che modificano (`RO_OK` = azioni permesse:
+  aprire, filtrare, simulare accoppiamenti), banner "Solo consultazione", `saveNow` non salva. `roClean()` dopo ogni render.
+- Paolo resta "admin" perché la sua email non è in `VIEWERS`.
+- Navigazione: `navPush()` alla fine di `render()` mette ogni pagina (tab+cane) nella cronologia del browser; aprire un
+  riquadro (`sheet`) aggiunge un passo; il tasto "indietro" chiude prima il riquadro, poi torna alla pagina precedente
+  (`popstate`). Le foto (link a immagini) si aprono sopra la pagina (`#lbx`) e si chiudono con la X o con "indietro".
+- Pagina del proprietario, Pedigree (scelta A di Paolo): niente albero con le foto, ma le schede di Padre e Madre con la
+  loro foto (`d.photo`), LOI, colore, anno e test (`ovParents`) e il riquadro "La cucciolata su SBTpedigree" se la
+  cucciolata ha `sbtUrl` (si inserisce dalla Scheda della cucciolata). Nella scheda di Paolo l'albero resta.
