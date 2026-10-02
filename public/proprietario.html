@@ -320,6 +320,7 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .cs .lbl{font-weight:600;margin:0 0 6px}.cs .go{width:100%;padding:16px;font-size:1.05rem;border-radius:12px}.cs .go[disabled]{opacity:.45;cursor:not-allowed}
 .cs .small,.cs p.small{color:var(--muted);font-size:.85rem;margin:0}.cs .row2{display:flex;gap:8px;flex-wrap:wrap}
 .cs .k-grid{margin:6px 0 0}.ct-read{border:1px solid var(--line);border-radius:10px;padding:10px 14px}.ct-read summary{cursor:pointer;font-weight:600}.ct-read .k-read{margin-top:10px}
+.saved-sig{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}.saved-sig img{height:60px;max-width:220px;background:#fff;border:1px solid var(--line);border-radius:8px}
 .stcol{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .stb{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
 .stb.todo{background:var(--warn-soft);color:#8a5a00}.stb.sent{background:var(--accent-soft);color:var(--accent)}.stb.done{background:var(--ok-soft);color:var(--ok)}
@@ -1032,10 +1033,12 @@ function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const s=ctS
   setTimeout(()=>{initPads();ctCheck()},0);
   return `<h2>Contratto di cessione</h2><div class="cs cs-st-todo">${top("✍️","Contratto da fare",`Per ${esc(o.name||"")} · versione ${d.sex==="M"?"Maschio":"Femmina"}`)}
     <label class="big">1. Prezzo<input id="ctPrice" inputmode="decimal" placeholder="es. 1.400 €" value="${esc(c.price||"")}" oninput="ctCheck()"></label>
-    <div><p class="lbl">2. La tua firma</p>${ctPad("ctMe","Con il dito sul telefono, o con il mouse.")}</div>
+    <div><p class="lbl">2. La tua firma</p>${ctSellerSig()?`<div class="saved-sig"><img src="${esc(ctSellerSig())}" alt="La tua firma"><span class="small">Firma salvata</span><button class="btn ghost small" data-a="ctSigReset" data-v="${id}">Cambia firma</button></div>`
+      :`${ctPad("ctMe","Con il dito sul telefono, o con il mouse.")}<p class="small" style="margin-top:4px">La firma resta salvata: dai prossimi contratti non dovrai rifarla.</p>`}</div>
     <button class="btn go" id="ctGoBtn" data-a="ctGo" data-v="${id}" disabled>3. Firma e manda a ${nm}</button>
     <p class="small">Tutto il resto (tuoi dati, cane, genitori, dati di ${nm}, caparra, consegna) è già scritto. <button class="plink" data-a="ctView" data-v="${id}">Vedi il contratto</button></p></div>`}
-function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&c&&c.dataset.used)}
+function ctSellerSig(){return D.settings&&D.settings.sellerSig||""}
+function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&(ctSellerSig()||(c&&c.dataset.used)))}
 // Proprietario: contratto nella pagina privata
 function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return"";const T=(a,b)=>LANG==="en"?b:a,TT=(a,b)=>LANG==="en"?`${b} <span style="color:var(--muted);font-weight:400">/ ${a}</span>`:a;
   const G=d.ctSigned,h=`<h2>${TT("Contratto di cessione","Sale agreement")}</h2>`;
@@ -1237,7 +1240,9 @@ document.addEventListener("click",e=>{
   const a=el.dataset.a,v=el.dataset.v||"";
   switch(a){
     case "close":closeSheet();break;
-    case "ctGo":{const d=D.dogs[v],p=$("#ctPrice"),s=padData("ctMe");if(!p||!p.value.trim()||!s)break;
+    case "ctSigReset":{if(D.settings)delete D.settings.sellerSig;render();typeof saveNow==="function"&&saveNow();break}
+    case "ctGo":{const d=D.dogs[v],p=$("#ctPrice"),nw=padData("ctMe"),s=nw||ctSellerSig();if(!p||!p.value.trim()||!s)break;
+      if(nw){D.settings=D.settings||{};D.settings.sellerSig=nw}
       d.contract=Object.assign(d.contract||{},{price:p.value.trim(),meSig:s,visible:true});render();typeof saveNow==="function"&&saveNow();toast("Mandato: ora lo trova nella sua pagina. Avvisalo su WhatsApp.");break}
     case "ctUndo":{const c=D.dogs[v].contract;c.visible=false;delete c.meSig;render();typeof saveNow==="function"&&saveNow();toast("Ritirato: correggi e firma di nuovo.");break}
     case "ctView":{const d=D.dogs[v],G=CONTR[v];sheet(`${ctHtml(G?G.snap:ctSnap(v),G?G.buyer:ctBuyer(v),G||null,G?G.meSig:(d.contract||{}).meSig)}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);break}

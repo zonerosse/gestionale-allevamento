@@ -126,3 +126,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   "Ritira e correggi"; infine "Firmato" con PDF. Etichetta dello stato nelle righe dell'elenco (`ctBadge`): sempre per i
   prenotati, per gli altri solo se il contratto è iniziato. Il proprietario vede prima i dati, il contratto completo è
   in un riquadro da aprire, la scelta foto/nome è scritta in parole semplici (nel PDF resta il testo del punto 3.6).
+- Firma di Paolo salvata una volta sola in `D.settings.sellerSig` (la prima che fa); "Firma e manda" la copia in
+  `contract.meSig` di quel contratto. "Cambia firma" vale solo per i contratti futuri.
