@@ -111,7 +111,7 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 
 ## Contratto di cessione (ottobre 2026)
 - Testo dei contratti di Paolo (maschio/femmina, scelto dal sesso) in `CT`/`V32`/`C36`/`CL1341` nel blocco comune, con traduzione
-  inglese: per i proprietari con `lang:"en"` il contratto è bilingue a fianco, **fa fede l'italiano**. Caparra e presa in consegna con
+  inglese: per i proprietari con `lang:"en"` il contratto è **tutto in inglese**, con in fondo il testo italiano che **fa fede** (scelta di Paolo). Caparra e presa in consegna con
   formula fissa senza importi né date (consegna presso l'allevamento a Ostellato); niente "segni particolari". Punto 1.4 invariato (scelta di Paolo).
 - `D.dogs[id].contract = {price, meSig, visible}`: lo compila Paolo nella scheda del cucciolo
   (`contractBox`); quando è `visible` i dati sono bloccati. `D.owners[id].cf` e `.doc` (codice fiscale, documento) precompilano.
@@ -128,3 +128,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   in un riquadro da aprire, la scelta foto/nome è scritta in parole semplici (nel PDF resta il testo del punto 3.6).
 - Firma di Paolo salvata una volta sola in `D.settings.sellerSig` (la prima che fa); "Firma e manda" la copia in
   `contract.meSig` di quel contratto. "Cambia firma" vale solo per i contratti futuri.
+- Pagina del proprietario: se c'è un contratto da firmare, in cima (sotto il nome) l'avviso rosso "Hai un contratto da firmare"
+  con "Firma ora" e **subito sotto il modulo da firmare** (`ctTop`, scelta C di Paolo); dopo la firma in cima resta solo
+  una riga verde con il PDF, e il riquadro "firmato" torna in fondo.

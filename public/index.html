@@ -324,6 +324,12 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .stcol{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .stb{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
 .stb.todo{background:var(--warn-soft);color:#8a5a00}.stb.sent{background:var(--accent-soft);color:var(--accent)}.stb.done{background:var(--ok-soft);color:var(--ok)}
+.alert-ct{display:flex;gap:14px;align-items:center;background:var(--accent);color:#fff;border-radius:16px;padding:16px 18px;margin:0 0 18px}
+.alert-ct .i{font-size:1.8rem}.alert-ct b{font-family:var(--serif);font-weight:400;font-size:1.2rem;display:block}.alert-ct span{opacity:.92;font-size:.9rem}
+.alert-ct .btn{background:#fff;color:var(--accent);margin-left:auto;white-space:nowrap;text-decoration:none}
+.ct-topwrap{margin:0 0 22px}.ct-topwrap h2{margin-top:0}
+.ok-ct{display:flex;gap:10px;align-items:center;background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:10px 14px;margin:0 0 18px;font-weight:600;flex-wrap:wrap}.ok-ct .btn{margin-left:auto}
+@media (max-width:520px){.alert-ct{flex-wrap:wrap}.alert-ct .btn{margin-left:0;width:100%;text-align:center}}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -856,7 +862,7 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi)}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${pedigree(id).replace(/data-a="open" data-v="[^"]*"/g,"disabled")}
@@ -868,7 +874,7 @@ function ownerPreview(id){
   ${(d.docs||[]).some(z=>!z.private)?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
   ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
   ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
-  <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">Paolo Boldrini</p><span class="row-meta">${T("Allevamento Del Piccolo Diavolo · Ostellato (FE)","Del Piccolo Diavolo kennel · Ostellato (FE), Italy")}</span>
+  <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">Paolo Boldrini</p><span class="row-meta">${T("Allevamento Del Piccolo Diavolo · Ostellato (FE)","Del Piccolo Diavolo kennel · Ostellato (FE), Italy")}</span>
   <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+393924635584">+39 392 463 5584</a></span><span>Email: <a href="mailto:zonerosse@gmail.com">zonerosse@gmail.com</a></span></div>
   <div class="brd-b"><a class="btn small" href="tel:+393924635584">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/393924635584" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:zonerosse@gmail.com">Email</a></div></div></div>`;
   LANG="it";
@@ -952,61 +958,69 @@ function ctSnap(id){const d=D.dogs[id],c=d.contract||{},o=D.owners[d.owner]||{};
   return{ver:CT_VER,sex:d.sex,bi:o.lang==="en",dog:{name:d.name||"",chip:d.chip||"",birth:d.birth||"",color:d.color||""},sire:ctPn(d.sire),dam:ctPn(d.dam),price:c.price||""}}
 function ctBuyer(id){const d=D.dogs[id],o=D.owners[d.owner]||{},a=ctAddr(o);return{name:o.name||"",cf:o.cf||"",doc:o.doc||"",via:a.via,cap:a.cap,tel:o.phone||"",mail:o.email||""}}
 function ctFill(s,sex){const v=V32[sex]||V32.M;return s.replace("{T32}",v[0]).replace("{T32EN}",v[1]).replace("{P32}",v[2]).replace("{P32EN}",v[3])}
-function ctWhen(iso){const x=new Date(iso);return x.toLocaleDateString("it-IT")+" alle "+x.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}
-// il contratto come pagina (anteprima a schermo)
-function ctHtml(S,B,G,meSig){const bi=S.bi,L=(it,en)=>bi?`<div class="bi"><div>${it}</div><div class="en">${en}</div></div>`:it;
-  const F=(a,b,v)=>`<span>${a}${bi?` <i style="color:#999">/ ${b}</i>`:""}</span><span>${v?esc(v):'<span class="blank">______________________</span>'}</span>`;
-  const c36=k=>C36.map((c,i)=>(G&&G.c36===i?"☒ ":"☐ ")+c[k]).join("<br>");
-  const fix=(s,k)=>ctFill(s,S.sex).replace("{C36}",c36(0)).replace("{C36EN}",c36(1));
-  const sig=(src)=>src?`<img src="${esc(src)}" alt="">`:"";
+function ctWhen(iso,en){const x=new Date(iso);return x.toLocaleDateString("it-IT")+(en?" at ":" alle ")+x.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}
+// formule fisse per caparra e consegna
+const CT_DEP=["già versata dall'acquirente secondo gli accordi intercorsi; viene detratta dal prezzo alla consegna","already paid by the buyer as agreed; deducted from the price at delivery"];
+const CT_DEL=["presso l'allevamento del cedente a Ostellato (FE), nella data concordata tra le parti, non prima dei 60 giorni di vita del cucciolo (punto 1.5)","at the seller's kennel in Ostellato (FE), on the date agreed between the parties, not before the puppy is 60 days old (point 1.5)"];
+// il contratto come pagina (anteprima a schermo). Stranieri (bi): tutto in inglese, in fondo il testo italiano che fa fede.
+function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${esc(src)}" alt="">`:"";
+  const F=(a,b,v)=>`<span>${en?b:a}</span><span>${v?esc(v):'<span class="blank">______________________</span>'}</span>`;
+  const c36=i=>C36.map((c,j)=>(G&&G.c36===j?"☒ ":"☐ ")+c[i]).join("<br>");
+  const fix=(s,i)=>ctFill(s,S.sex).replace("{C36}",c36(0)).replace("{C36EN}",c36(1));
+  const body=i=>CT.map(x=>`<h5>${fix(x[i])}</h5>${x[2].map(p=>`<p>${fix(p[i])}</p>`).join("")}`).join("");
+  const sx=S.sex==="M";
   return `<div class="k-doc"><div class="hd">Allevamento Del Piccolo Diavolo – Ostellato (FE) – delpiccolodiavolo.it</div>
-  <h3>Contratto di cessione – Cucciolo ${S.sex==="M"?"MASCHIO":"FEMMINA"}</h3>${bi?`<p style="color:#555;font-style:italic;margin-top:-2px">Sale agreement – ${S.sex==="M"?"MALE":"FEMALE"} puppy · English translation for convenience: the Italian text is the binding version.</p>`:""}
-  <h4>Cedente${bi?" / Seller":""}</h4><div class="fld">${F("Nome","Name","Boldrini Paolo")}${F("Via / N.","Address","Via A. Chierici 12")}${F("CAP / località","Postcode / town","44020 Ostellato (FE)")}${F("Telefono","Phone","392 4635584")}${F("Mail","Email","zonerosse@gmail.com")}</div>
-  <h4>Acquirente${bi?" / Buyer":""}</h4><div class="fld">${F("Nome","Name",B.name)}${F("Codice fiscale","Tax code",B.cf)}${F("Documento d'identità n.","ID document no.",B.doc)}${F("Via / N.","Address",B.via)}${F("CAP / località","Postcode / town",B.cap)}${F("Telefono","Phone",B.tel)}${F("Mail","Email",B.mail)}</div>
-  <h4>Dati del cane${bi?" / The dog":""}</h4><div class="fld">${F("Nome del cane","Dog's name",S.dog.name)}${F("Codice del microchip","Microchip",S.dog.chip)}${F("Nato il","Born on",fmt(S.dog.birth))}${F("Razza","Breed","Staffordshire Bull Terrier")}${F("Colore","Colour",S.dog.color)}${F("Sesso","Sex",S.sex==="M"?"Maschio":"Femmina")}${F("Padre (nome e microchip)","Sire (name and microchip)",S.sire)}${F("Madre (nome e microchip)","Dam (name and microchip)",S.dam)}</div>
-  <h4>Condizioni economiche${bi?" / Financial terms":""}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit","già versata dall'acquirente secondo gli accordi intercorsi; viene detratta dal prezzo alla consegna"+(bi?" / already paid by the buyer as agreed; deducted from the price at delivery":""))}${F("Presa in consegna","Delivery","presso l'allevamento del cedente a Ostellato (FE), nella data concordata tra le parti, non prima dei 60 giorni di vita del cucciolo (punto 1.5)"+(bi?" / at the seller's kennel in Ostellato (FE), on the date agreed between the parties, not before the puppy is 60 days old (point 1.5)":""))}</div>
-  ${L("Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:","The above parties have entered into a sale agreement with the following content:")}
-  ${CT.map(([t,te,ps])=>`${L(`<h5>${fix(t)}</h5>`,`<h5>${fix(te)}</h5>`)}${ps.map(([a,b])=>L(`<p>${fix(a)}</p>`,`<p>${fix(b)}</p>`)).join("")}`).join("")}
-  <p>Luogo e data: ${G?"Ostellato, "+ctWhen(G.at):'<span class="blank">______________________</span>'}</p>
-  <div class="k-sig"><div>Firma del cedente${sig(meSig)}</div><div>Firma dell'acquirente${sig(G&&G.sig1)}</div></div>
-  <h5 style="margin-top:22px">Approvazione specifica delle clausole${bi?" / Specific approval of clauses":""}</h5>${L(`<p>${fix(CL1341.it)}</p>`,`<p>${fix(CL1341.en)}</p>`)}
-  <div class="k-sig"><div>Firma del cedente${sig(meSig)}</div><div>Firma dell'acquirente${sig(G&&G.sig2)}</div></div>
-  ${G?`<p style="font-size:.75rem;color:#777;margin-top:16px">Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il ${ctWhen(G.at)}. Impronta (SHA-256): ${esc(G.hash||"")}</p>`:""}</div>`}
+  <h3>${en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`}</h3>
+  ${en?`<p style="color:#555;font-style:italic">This agreement is written in English for the buyer's convenience. The Italian text at the end of the document is the binding version and prevails in case of doubt.</p>`:""}
+  <h4>${en?"Seller":"Cedente"}</h4><div class="fld">${F("Nome","Name","Boldrini Paolo")}${F("Via / N.","Address","Via A. Chierici 12")}${F("CAP / località","Postcode / town","44020 Ostellato (FE), Italy".replace(en?"#":", Italy",""))}${F("Telefono","Phone",en?"+39 392 4635584":"392 4635584")}${F("Mail","Email","zonerosse@gmail.com")}</div>
+  <h4>${en?"Buyer":"Acquirente"}</h4><div class="fld">${F("Nome","Name",B.name)}${F("Codice fiscale","Tax code / ID code",B.cf)}${F("Documento d'identità n.","ID document no.",B.doc)}${F("Via / N.","Address",B.via)}${F("CAP / località","Postcode / town",B.cap)}${F("Telefono","Phone",B.tel)}${F("Mail","Email",B.mail)}</div>
+  <h4>${en?"The dog":"Dati del cane"}</h4><div class="fld">${F("Nome del cane","Dog's name",S.dog.name)}${F("Codice del microchip","Microchip",S.dog.chip)}${F("Nato il","Born on",fmt(S.dog.birth))}${F("Razza","Breed","Staffordshire Bull Terrier")}${F("Colore","Colour",S.dog.color)}${F("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"))}${F("Padre (nome e microchip)","Sire (name and microchip)",S.sire)}${F("Madre (nome e microchip)","Dam (name and microchip)",S.dam)}</div>
+  <h4>${en?"Financial terms":"Condizioni economiche"}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit",CT_DEP[k])}${F("Presa in consegna","Delivery",CT_DEL[k])}</div>
+  <p>${en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:"}</p>
+  ${body(k)}
+  ${en?`<div style="border-top:2px solid #333;margin:22px 0 10px;padding-top:10px"><h4 style="margin-top:0">Testo italiano – fa fede / Italian text – binding version</h4>
+   <div class="fld">${`<span>Caparra</span><span>${CT_DEP[0]}</span><span>Presa in consegna</span><span>${CT_DEL[0]}</span>`}</div>${body(0)}</div>`:""}
+  <p>${en?"Place and date":"Luogo e data"}: ${G?"Ostellato, "+ctWhen(G.at,en):'<span class="blank">______________________</span>'}</p>
+  <div class="k-sig"><div>${en?"Seller's signature / Firma del cedente":"Firma del cedente"}${sig(meSig)}</div><div>${en?"Buyer's signature / Firma dell'acquirente":"Firma dell'acquirente"}${sig(G&&G.sig1)}</div></div>
+  <h5 style="margin-top:22px">${en?"Specific approval of clauses / Approvazione specifica delle clausole":"Approvazione specifica delle clausole"}</h5><p>${fix(en?CL1341.en:CL1341.it)}</p>${en?`<p>${fix(CL1341.it)}</p>`:""}
+  <div class="k-sig"><div>${en?"Seller's signature / Firma del cedente":"Firma del cedente"}${sig(meSig)}</div><div>${en?"Buyer's signature / Firma dell'acquirente":"Firma dell'acquirente"}${sig(G&&G.sig2)}</div></div>
+  ${G?`<p style="font-size:.75rem;color:#777;margin-top:16px">${en?"Signed with an electronic signature (finger signature) on the private page of the Del Piccolo Diavolo kennel system on":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il"} ${ctWhen(G.at,en)}. ${en?"Fingerprint":"Impronta"} (SHA-256): ${esc(G.hash||"")}</p>`:""}</div>`}
 // PDF: jsPDF caricato solo quando serve
 let JSPDF=null;
 async function jspdf(){if(JSPDF)return JSPDF;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});return JSPDF=window.jspdf.jsPDF}
 async function toDataURL(u){if(!u||u.startsWith("data:"))return u;const b=await(await fetch(u)).blob();return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
-async function ctPdf(S,B,G,meSig){const J=await jspdf(),doc=new J({unit:"mm",format:"a4"}),bi=S.bi,M=16,CW=178,colW=bi?(CW-6)/2:CW;let y=22;
+async function ctPdf(S,B,G,meSig){const J=await jspdf(),doc=new J({unit:"mm",format:"a4"}),en=S.bi,k=en?1:0,M=16,CW=178,sx=S.sex==="M";let y=22;
   const me=await toDataURL(meSig);
   const clean=s=>String(s).replace(/<br>/g,"\n").replace(/<[^>]+>/g,"").replace(/☐/g,"[  ]").replace(/☒/g,"[X]");
   const head=()=>{doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(120);doc.text("Allevamento Del Piccolo Diavolo – Ostellato (FE) – delpiccolodiavolo.it",M,11);doc.setDrawColor(200);doc.line(M,13,M+CW,13);doc.setTextColor(20)};
   const need=h=>{if(y+h>280){doc.addPage();head();y=21}};
-  const para=(it,en,o={})=>{const fs=o.size||9,lh=fs*.43,st=o.bold?"bold":"normal",ist=o.bold?"bolditalic":"italic";
-    doc.setFontSize(fs);doc.setFont("helvetica",st);const a=doc.splitTextToSize(clean(it),bi?colW:CW);let b=[];
-    if(bi&&en!=null){doc.setFont("helvetica",ist);b=doc.splitTextToSize(clean(en),colW)}
-    for(let i=0;i<Math.max(a.length,b.length);i++){need(lh);if(a[i]){doc.setFont("helvetica",st);doc.setTextColor(20);doc.text(a[i],M,y)}
-      if(b[i]){doc.setFont("helvetica",ist);doc.setTextColor(95);doc.text(b[i],M+colW+6,y)}y+=lh}y+=o.after==null?1.8:o.after};
-  const fld=(a,b,v)=>{doc.setFontSize(8.8);const lab=a+(bi?" / "+b:"")+":",val=v||"______________________";need(4.2);
-    doc.setFont("helvetica","normal");doc.setTextColor(90);const lw=bi?78:56;const L=doc.splitTextToSize(lab,lw-2);doc.text(L,M,y);
+  const para=(t,o={})=>{const fs=o.size||9,lh=fs*.43,st=o.bold?"bold":o.it?"italic":"normal";doc.setFontSize(fs);doc.setFont("helvetica",st);
+    const a=doc.splitTextToSize(clean(t),CW);for(const l of a){need(lh);doc.setFont("helvetica",st);doc.setTextColor(o.grey?95:20);doc.text(l,M,y);y+=lh}y+=o.after==null?1.8:o.after};
+  const fld=(a,b,v)=>{doc.setFontSize(8.8);const lab=(en?b:a)+":",val=v||"______________________";need(4.2);
+    doc.setFont("helvetica","normal");doc.setTextColor(90);const lw=56,L=doc.splitTextToSize(lab,lw-2);doc.text(L,M,y);
     doc.setTextColor(20);const V=doc.splitTextToSize(clean(val),CW-lw);doc.text(V,M+lw,y);y+=Math.max(L.length,V.length)*3.8+.6};
-  const h4=(t,te)=>{y+=2;need(8);doc.setFont("helvetica","bold");doc.setFontSize(10.5);doc.setTextColor(20);doc.text(t+(bi?" / "+te:""),M,y);y+=5};
-  const sigs=(s1)=>{need(30);y+=4;const w=(CW-10)/2;doc.setDrawColor(60);
-    [["Firma del cedente",me],["Firma dell'acquirente",s1]].forEach(([l,img],i)=>{const x=M+i*(w+10);if(img){try{doc.addImage(img,"PNG",x,y,Math.min(w,60),20)}catch(e){}}
-      doc.line(x,y+21,x+w,y+21);doc.setFontSize(8);doc.setTextColor(90);doc.setFont("helvetica","normal");doc.text(l+(bi?(i?" / Buyer's signature":" / Seller's signature"):""),x,y+25)});y+=30};
-  head();doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("Contratto di cessione – Cucciolo "+(S.sex==="M"?"MASCHIO":"FEMMINA"),M,y);y+=6;
-  if(bi){doc.setFont("helvetica","italic");doc.setFontSize(9);doc.setTextColor(95);doc.text(doc.splitTextToSize("Sale agreement – "+(S.sex==="M"?"MALE":"FEMALE")+" puppy · English translation for convenience: the Italian text is the binding version.",CW),M,y);y+=8;doc.setTextColor(20)}
-  h4("Cedente","Seller");fld("Nome","Name","Boldrini Paolo");fld("Via / N.","Address","Via A. Chierici 12");fld("CAP / località","Postcode / town","44020 Ostellato (FE)");fld("Telefono","Phone","392 4635584");fld("Mail","Email","zonerosse@gmail.com");
-  h4("Acquirente","Buyer");fld("Nome","Name",B.name);fld("Codice fiscale","Tax code",B.cf);fld("Documento d'identità n.","ID document no.",B.doc);fld("Via / N.","Address",B.via);fld("CAP / località","Postcode / town",B.cap);fld("Telefono","Phone",B.tel);fld("Mail","Email",B.mail);
-  h4("Dati del cane","The dog");fld("Nome del cane","Dog's name",S.dog.name);fld("Codice del microchip","Microchip",S.dog.chip);fld("Nato il","Born on",fmt(S.dog.birth));fld("Razza","Breed","Staffordshire Bull Terrier");fld("Colore","Colour",S.dog.color);fld("Sesso","Sex",S.sex==="M"?"Maschio":"Femmina");fld("Padre (nome e microchip)","Sire (name and microchip)",S.sire);fld("Madre (nome e microchip)","Dam (name and microchip)",S.dam);
-  h4("Condizioni economiche","Financial terms");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit","già versata dall'acquirente secondo gli accordi intercorsi; viene detratta dal prezzo alla consegna"+(bi?" / already paid by the buyer as agreed; deducted from the price at delivery":""));fld("Presa in consegna","Delivery","presso l'allevamento del cedente a Ostellato (FE), nella data concordata tra le parti, non prima dei 60 giorni di vita del cucciolo (punto 1.5)"+(bi?" / at the seller's kennel in Ostellato (FE), on the date agreed between the parties, not before the puppy is 60 days old (point 1.5)":""));
-  y+=2;para("Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:","The above parties have entered into a sale agreement with the following content:");
-  const c36=k=>C36.map((c,i)=>(G&&G.c36===i?"☒ ":"☐ ")+c[k]).join("<br>");
+  const h4=t=>{y+=2;need(8);doc.setFont("helvetica","bold");doc.setFontSize(10.5);doc.setTextColor(20);doc.text(t,M,y);y+=5};
+  const sigs=s1=>{need(30);y+=4;const w=(CW-10)/2;doc.setDrawColor(60);
+    [[en?"Seller's signature / Firma del cedente":"Firma del cedente",me],[en?"Buyer's signature / Firma dell'acquirente":"Firma dell'acquirente",s1]].forEach(([l,img],i)=>{const x=M+i*(w+10);if(img){try{doc.addImage(img,"PNG",x,y,Math.min(w,60),20)}catch(e){}}
+      doc.line(x,y+21,x+w,y+21);doc.setFontSize(8);doc.setTextColor(90);doc.setFont("helvetica","normal");doc.text(l,x,y+25)});y+=30};
+  const c36=i=>C36.map((c,j)=>(G&&G.c36===j?"☒ ":"☐ ")+c[i]).join("<br>");
   const fix=s=>ctFill(s,S.sex).replace("{C36}",c36(0)).replace("{C36EN}",c36(1));
-  CT.forEach(([t,te,ps])=>{y+=1;need(10);para(fix(t),fix(te),{bold:true,size:9.6,after:1});ps.forEach(([a,b])=>para(fix(a),fix(b)))});
-  y+=2;para("Luogo e data: "+(G?"Ostellato, "+ctWhen(G.at):"______________________"),bi?"Place and date: "+(G?"Ostellato, "+ctWhen(G.at):"______________________"):null);sigs(G&&G.sig1);
-  y+=2;para("Approvazione specifica delle clausole","Specific approval of clauses",{bold:true,size:9.6,after:1});para(fix(CL1341.it),fix(CL1341.en));sigs(G&&G.sig2);
-  if(G){need(10);doc.setFontSize(7.5);doc.setTextColor(110);doc.setFont("helvetica","normal");doc.text(doc.splitTextToSize("Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il "+ctWhen(G.at)+". Impronta (SHA-256): "+(G.hash||""),CW),M,y)}
-  const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(7.5);doc.setTextColor(120);doc.text("Pag. "+i+" di "+n,M+CW,290,{align:"right"})}
+  const body=i=>CT.forEach(x=>{y+=1;need(10);para(fix(x[i]),{bold:true,size:9.6,after:1});x[2].forEach(p=>para(fix(p[i])))});
+  head();doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text(en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`,M,y);y+=7;
+  if(en)para("This agreement is written in English for the buyer's convenience. The Italian text at the end of the document is the binding version and prevails in case of doubt.",{it:true,grey:true});
+  h4(en?"Seller":"Cedente");fld("Nome","Name","Boldrini Paolo");fld("Via / N.","Address","Via A. Chierici 12");fld("CAP / località","Postcode / town",en?"44020 Ostellato (FE), Italy":"44020 Ostellato (FE)");fld("Telefono","Phone",en?"+39 392 4635584":"392 4635584");fld("Mail","Email","zonerosse@gmail.com");
+  h4(en?"Buyer":"Acquirente");fld("Nome","Name",B.name);fld("Codice fiscale","Tax code / ID code",B.cf);fld("Documento d'identità n.","ID document no.",B.doc);fld("Via / N.","Address",B.via);fld("CAP / località","Postcode / town",B.cap);fld("Telefono","Phone",B.tel);fld("Mail","Email",B.mail);
+  h4(en?"The dog":"Dati del cane");fld("Nome del cane","Dog's name",S.dog.name);fld("Codice del microchip","Microchip",S.dog.chip);fld("Nato il","Born on",fmt(S.dog.birth));fld("Razza","Breed","Staffordshire Bull Terrier");fld("Colore","Colour",S.dog.color);fld("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"));fld("Padre (nome e microchip)","Sire (name and microchip)",S.sire);fld("Madre (nome e microchip)","Dam (name and microchip)",S.dam);
+  h4(en?"Financial terms":"Condizioni economiche");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit",CT_DEP[k]);fld("Presa in consegna","Delivery",CT_DEL[k]);
+  y+=2;para(en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:");
+  body(k);
+  if(en){y+=4;need(14);doc.setDrawColor(40);doc.line(M,y,M+CW,y);y+=6;h4("Testo italiano – fa fede / Italian text – binding version");
+    const sv=en;fld("Caparra","Caparra",CT_DEP[0]);fld("Presa in consegna","Presa in consegna",CT_DEL[0]);
+    para("Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:");body(0)}
+  y+=2;para((en?"Place and date: ":"Luogo e data: ")+(G?"Ostellato, "+ctWhen(G.at,en):"______________________"));sigs(G&&G.sig1);
+  y+=2;para(en?"Specific approval of clauses / Approvazione specifica delle clausole":"Approvazione specifica delle clausole",{bold:true,size:9.6,after:1});para(fix(en?CL1341.en:CL1341.it));if(en)para(fix(CL1341.it));sigs(G&&G.sig2);
+  if(G){need(10);doc.setFontSize(7.5);doc.setTextColor(110);doc.setFont("helvetica","normal");doc.text(doc.splitTextToSize((en?"Signed with an electronic signature (finger signature) on the private page of the Del Piccolo Diavolo kennel system on ":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il ")+ctWhen(G.at,en)+". "+(en?"Fingerprint":"Impronta")+" (SHA-256): "+(G.hash||""),CW),M,y)}
+  const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(7.5);doc.setTextColor(120);doc.text((en?"Page ":"Pag. ")+i+(en?" of ":" di ")+n,M+CW,290,{align:"right"})}
   return doc}
 function ctFile(S){return "contratto-"+String(S.dog.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
 // riquadri per la firma con il dito
@@ -1038,15 +1052,19 @@ function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const s=ctS
     <p class="small">Tutto il resto (tuoi dati, cane, genitori, dati di ${nm}, caparra, consegna) è già scritto. <button class="plink" data-a="ctView" data-v="${id}">Vedi il contratto</button></p></div>`}
 function ctSellerSig(){return D.settings&&D.settings.sellerSig||""}
 function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&(ctSellerSig()||(c&&c.dataset.used)))}
+// avviso in cima alla pagina del proprietario: contratto da firmare / firmato
+function ctTop(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return"";const T=(a,b)=>LANG==="en"?b:a,G=d.ctSigned;
+  if(G)return `<div class="ok-ct">✅ ${T("Contratto firmato il","Agreement signed on")} ${new Date(G.at).toLocaleDateString(LANG==="en"?"en-GB":"it-IT")}${typeof OWNER_MODE!=="undefined"?`<button class="btn small" data-ct="pdf" data-v="${id}">${T("Scarica il PDF","Download the PDF")}</button>`:""}</div>`;
+  return `<div class="ct-topwrap"><div class="alert-ct"><span class="i">✍️</span><div><b>${T("Hai un contratto da firmare","You have an agreement to sign")}</b><span>${T("Il contratto di cessione di","The sale agreement for")} ${esc(d.nick||d.name)}: ${T("ci vogliono due minuti.","it takes two minutes.")}</span></div><a class="btn" href="#ct_${id}" onclick="var e=document.getElementById('ct_${id}');if(e){e.scrollIntoView({behavior:'smooth'})}return false">${T("Firma ora","Sign now")}</a></div>${ctOwnerBox(id)}</div>`}
 // Proprietario: contratto nella pagina privata
-function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return"";const T=(a,b)=>LANG==="en"?b:a,TT=(a,b)=>LANG==="en"?`${b} <span style="color:var(--muted);font-weight:400">/ ${a}</span>`:a;
-  const G=d.ctSigned,h=`<h2>${TT("Contratto di cessione","Sale agreement")}</h2>`;
+function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return"";const T=(a,b)=>LANG==="en"?b:a,TT=T;
+  const G=d.ctSigned,h=`<h2 id="ct_${id}">${TT("Contratto di cessione","Sale agreement")}</h2>`;
   if(G)return h+`<div class="k-box"><p style="margin:0"><span class="badge ok">${T("Firmato","Signed")}</span> ${T("il","on")} ${ctWhen(G.at)}.</p><div class="actions"><button class="btn" data-ct="pdf" data-v="${id}">${T("Scarica il contratto firmato (PDF)","Download the signed agreement (PDF)")}</button></div></div>`;
   if(typeof OWNER_MODE==="undefined")return h+`<p class="row-meta">Il proprietario qui legge il contratto, completa i suoi dati e firma con il dito.</p>`;
   setTimeout(initPads,0);const B=ctBuyer(id),I=(k,a,b,v,x="")=>`<label>${TT(a,b)}${x}<input id="ctb_${k}" value="${esc(v)}"></label>`,P=t=>`<p style="font-weight:600;margin:0 0 6px">${t}</p>`;
   const C36S=[["Va bene anche con me o la mia famiglia","Photos with me or my family are fine"],["Va bene il mio nome di battesimo insieme al cane","My first name may be mentioned with the dog"],["Solo foto del cane, senza persone né nomi","Only photos of the dog, no people or names"]];
   return h+`<div class="cs" id="ctbox_${id}"><div class="cs-top"><div class="cs-ico" style="background:var(--accent-soft)">✍️</div><div><b>${T("Il contratto da firmare","The agreement to sign")}</b><span>${T("Ci vogliono un paio di minuti","It takes a couple of minutes")}</span></div></div>
-  ${LANG==="en"?`<p class="small"><b>The Italian text is the legally binding version; the English translation is provided for convenience.</b></p>`:""}
+  ${LANG==="en"?`<p class="small">The agreement is in English; the Italian text at the end of the document is the binding version.</p>`:""}
   <details class="ct-read"><summary>${T("Leggi il contratto completo","Read the full agreement")}</summary><div class="k-read">${ctHtml(ctSnap(id),B,null,c.meSig)}</div></details>
   <div>${P(T("I tuoi dati","Your details"))}<p class="small">${T("Paolo li ha già inseriti: controlla e completa.","Paolo has already filled them in: please check and complete.")}</p>
   <div class="k-grid">${I("name","Nome e cognome","Full name",B.name)}${I("cf","Codice fiscale","Tax code",B.cf,LANG==="en"?" <small>(or equivalent)</small>":"")}${I("doc","Documento d'identità","ID document",B.doc)}${I("via","Indirizzo","Address",B.via)}${I("cap","CAP / località","Postcode / town",B.cap)}${I("tel","Telefono","Phone",B.tel)}${I("mail","Mail","Email",B.mail)}</div></div>
