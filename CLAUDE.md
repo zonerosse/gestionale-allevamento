@@ -324,3 +324,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   ("View" / "Download"). Scelta B di Paolo. Prima i link scaricavano soltanto.
 - Chiudere una foto con la X fa `history.back()`: `LB_BACK` fa ignorare quel `popstate`, altrimenti la regola del passo doppio
   riportava alla pagina precedente.
+- Testi delle firme (scelta di Paolo): ovunque si firma c'è scritto "col dito dal telefono, col mouse dal computer" (contratto per
+  Paolo e per il proprietario, prima e seconda firma, passaggio di proprietà, messaggio WhatsApp del contratto; in inglese "with your
+  finger on a phone, with the mouse on a computer"). La frase nel PDF dei contratti firmati ("firma con il dito") non è cambiata.
