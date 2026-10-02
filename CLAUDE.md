@@ -152,3 +152,9 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Contratto versione `2026-10b`: nuovo punto **4-bis** "Pagamento del saldo e riserva di proprietà" (artt. 1376, 1523, 1460,
   1385 c. 2 c.c.), anche tra le clausole approvate (1341–1342). I contratti hanno `snap.ver`: le voci di `CT` con 4° elemento
   (versione minima) compaiono solo dalla versione indicata in poi (`ctCT`), così i contratti già firmati non cambiano testo.
+- Salute a riquadri colorati che si aprono (`details.hs.c-<voce>`): da chiusi mostrano icona, titolo, numero di voci,
+  ultima data e prossima scadenza; dentro l'elenco e "Aggiungi". Uguale nella pagina del proprietario (senza "Aggiungi").
+  I riquadri aperti restano aperti dopo un aggiornamento (`hsOpen`).
+- Colori ovunque (scelta di Paolo): `colorize(root)` dopo ogni render, nei riquadri (sheet) e nella pagina del proprietario
+  dà a ogni titolo h2 un'icona e un colore secondo il testo (tabella `CZ`, IT/EN) e una striscia colorata al riquadro sotto.
+  Nuove sezioni: aggiungerle a `CZ`.

@@ -342,6 +342,23 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .cal .ev .d{font-weight:600;font-variant-numeric:tabular-nums}.cal .ev small{display:block;color:var(--muted)}
 .cal .go{width:100%;padding:15px;font-size:1.02rem;border-radius:12px;text-align:center;text-decoration:none;box-sizing:border-box}
 .gcal summary{cursor:pointer;color:var(--accent);font-size:.88rem}.gcal a{display:block;padding:6px 0;color:var(--accent);font-size:.9rem}
+.hs{border-radius:14px;margin:0 0 10px;overflow:hidden;border:1px solid var(--c2);background:var(--paper)}
+.hs>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 14px;background:var(--c1)}
+.hs>summary::-webkit-details-marker{display:none}
+.hs .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:1.3rem;background:var(--c2)}
+.hs .tt b{display:block;font-size:1.02rem;color:var(--c3)}.hs .tt span{font-size:.84rem;color:var(--muted)}
+.hs .n{font-size:.78rem;font-weight:700;color:#fff;background:var(--c3);border-radius:999px;padding:2px 9px}
+.hs .ar{transition:transform .2s;color:var(--c3);font-size:1.1rem}.hs[open] .ar{transform:rotate(180deg)}
+.hs .body{padding:6px 14px 12px;border-top:1px solid var(--c2)}.hs .add{display:flex;justify-content:flex-end;padding:6px 0}
+.hs .hrow{border-left:3px solid var(--c2);padding-left:10px}
+.c-vacc{--c1:#eaf2fb;--c2:#c8dcf3;--c3:#1f5fa8}.c-verm{--c1:#ebf6ec;--c2:#c7e6ca;--c3:#2e7d32}
+.c-pz{--c1:#fff3e6;--c2:#ffd9ad;--c3:#c05d00}.c-lf{--c1:#f3eefb;--c2:#dccdf2;--c3:#6a3fb0}.c-feci{--c1:#f7f1ea;--c2:#e6d6c3;--c3:#8a5a2b}
+h2.cz{display:flex;align-items:center;gap:10px;color:var(--c3)}
+h2.cz::before{content:attr(data-ic);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--c2);font-size:1.1rem;flex:none}
+.cz-card{border-top:4px solid var(--c3)!important}.facts.cz-card,.note.cz-card{background-image:linear-gradient(var(--c1),transparent 70px)}
+.z-dati{--c1:#eef2f8;--c2:#d6deec;--c3:#34507a}.z-own{--c1:#eef7f5;--c2:#cfe8e2;--c3:#1f7a68}.z-ped{--c1:#fbf3ea;--c2:#efd9bf;--c3:#9a5a16}
+.z-coi{--c1:#fbeeee;--c2:#f0cfcf;--c3:#8c2b23}.z-sal{--c1:#eaf2fb;--c2:#c8dcf3;--c3:#1f5fa8}.z-test{--c1:#f3eefb;--c2:#dccdf2;--c3:#6a3fb0}
+.z-dna{--c1:#ebf6ec;--c2:#c7e6ca;--c3:#2e7d32}.z-all{--c1:#fff3e6;--c2:#ffd9ad;--c3:#c05d00}.z-ct{--c1:#fbeeee;--c2:#f0cfcf;--c3:#8c2b23}.z-doc{--c1:#f1f3f5;--c2:#dde2e7;--c3:#4b5563}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -444,6 +461,15 @@ document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".ed
 function leaveOk(){if(!EDIT)return true;if(EDIRTY&&!confirm("Hai cambiato dei dati senza premere Salva.\n\nOK = esci e lascia perdere le modifiche\nAnnulla = resta qui per salvarle"))return false;EDIT=null;EDIRTY=false;return true}
 function go(t){if(!leaveOk())return;tab=t;view=null;render();scrollTo(0,0)}
 function openItem(id){if(!leaveOk())return;if(D.dogs[id]&&!(tab==="proprietari"&&D.owners[id]))tab="cani";view=id;render();scrollTo(0,0)}
+/* Colori delle sezioni (scheda del cane e pagina del proprietario): icona e colore secondo il titolo */
+const CZ=[[["Dati"],"📋","z-dati"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
+  [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
+  [["Profilo genetico","Genetic profile"],"🔬","z-dna"],[["Test sanitari","Health tests"],"🩻","z-test"],[["Titoli","Titles"],"🏆","z-all"],[["Cucciolata di nascita","Litter"],"🐾","z-ped"],
+  [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"]];
+function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{if(h.closest(".k-doc")||h.classList.contains("cz")||h.classList.contains("og-h"))return;const t=h.textContent.trim();
+  const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
+  let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
+  const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
 function render(){resetCalc();nav();
   const m=$("#main");
   const banner=bannerHtml();
@@ -452,6 +478,7 @@ function render(){resetCalc();nav();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
   if(tab==="coi")calcMate();
+  colorize(m);
 }
 
 /* ---------- Cani ---------- */
@@ -734,12 +761,17 @@ function calBox(id){const ev=calEvents(id);if(!ev.length)return"";const L=LANG==
   <p style="margin:0">${T("Questi promemoria valgono per il primo anno; poi ci pensa il tuo veterinario. Per qualsiasi dubbio, io ci sono sempre.","These reminders cover the first year; after that your vet takes over. For any question, I'm always here.")}</p></div>`}
 /* cuccioli che cedo, fino al primo anno di vita: Pulci e zecche (Frontline) e la guida per il proprietario */
 function pupYear(d){if(isMine(d)||!d.birth)return false;const b=new Date(d.birth+"T12:00:00Z");b.setUTCFullYear(b.getUTCFullYear()+1);return b>new Date()}
+const hsOpen=new Set();document.addEventListener("toggle",e=>{const t=e.target;if(t.dataset&&t.dataset.hs){t.open?hsOpen.add(t.dataset.hs):hsOpen.delete(t.dataset.hs)}},true);
 function healthHtml(id,ro){const d=D.dogs[id],h=H(d);
   const del=(k,i)=>ro?"":`<button class="hx" data-a="hDel" data-v="${id}|${k}|${i}" title="Elimina">×</button>`;
   const sortd=a=>a.map((x,i)=>[x,i]).sort((p,q)=>(q[0].date||"").localeCompare(p[0].date||""));
   const next=h.vacc.filter(v=>v.next).sort((a,b)=>a.next.localeCompare(b.next)).find(v=>new Date(v.next+"T12:00")>=new Date(Date.now()-864e5*60));
-  const sec=(k,body,empty)=>`<div class="hsec"><div class="hhead"><h3>${T(HK[k],HKen[k])}</h3>${ro?"":`<button class="btn ghost small" data-a="hForm" data-v="${id}|${k}">Aggiungi</button>`}</div>${body||`<p class="empty">${empty}</p>`}</div>`;
-  return `${ro?calBox(id):""}${next?`<div class="hnext"><strong>${T("Prossimo richiamo","Next booster")}:</strong> ${esc(tx(next,"prod"))} · ${fmt(next.next)} ${dueTag(next.next)}</div>`:""}
+  const HI={vacc:"💉",verm:"🪱",pz:"🐜",lf:"🦟",feci:"🔬"};
+  const sec=(k,body,empty)=>{const L=h[k]||[],last=L.map(v=>v.date||"").sort().pop(),nx=L.map(v=>v.next).filter(x=>x&&new Date(x+"T12:00")>=new Date(Date.now()-864e5*60)).sort()[0];
+    const sub=L.length?`${T("Ultima","Last")} ${fmt(last)}${nx?` · ${k==="vacc"?T("prossimo richiamo","next booster"):T("prossima","next")} ${fmt(nx)}`:""}`:T("Nessuna voce","Nothing recorded");
+    return `<details class="hs c-${k}" ${hsOpen.has(id+k)?"open":""} data-hs="${id+k}"><summary><span class="ic">${HI[k]}</span><span class="tt"><b>${T(HK[k],HKen[k])}</b><span>${sub}</span></span>${L.length?`<span class="n">${L.length}</span>`:"<span></span>"}<span class="ar">▾</span></summary>
+    <div class="body">${ro?"":`<div class="add"><button class="btn ghost small" data-a="hForm" data-v="${id}|${k}">Aggiungi</button></div>`}${body||`<p class="empty">${empty}</p>`}</div></details>`};
+  return `${ro?calBox(id):""}
   ${sec("vacc",h.vacc.length?`<div class="hlist">${sortd(h.vacc).map(([v,i])=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span>${esc(tx(v,"prod"))}${v.next?`<small>${T("Richiamo","Booster")}: ${fmt(v.next)} ${dueTag(v.next)}</small>`:""}${v.file?`<small><a href="${docHref(v.file)}" download="${esc(v.fname||"allegato")}" target="_blank">📎 ${esc(v.fname||T("Allegato","Attachment"))}</a></small>`:""}</span>${del("vacc",i)}</div>`).join("")}</div>`:"",T("Nessuna vaccinazione inserita.","No vaccinations recorded yet."))}
   ${sec("verm",h.verm.length?`<div class="hlist">${sortd(h.verm).map(([v,i])=>{const n=v.to?Math.round((new Date(v.to+"T12:00")-new Date(v.date+"T12:00"))/864e5)+1:1;
    return `<div class="hrow"><span class="hd">${fmt(v.date)}${v.to&&v.to!==v.date?`<br>→ ${fmt(v.to)}`:""}</span><span>${esc(tx(v,"prod"))}${n>1?`<small>${n} ${T("giorni di trattamento","days of treatment")}</small>`:""}${v.file?`<small><a href="${docHref(v.file)}" download="${esc(v.fname||"allegato")}" target="_blank">📎 ${esc(v.fname||T("Allegato","Attachment"))}</a></small>`:""}</span>${del("verm",i)}</div>`}).join("")}</div>`:"",T("Nessun trattamento inserito.","No treatments recorded yet."))}
@@ -1375,7 +1407,7 @@ document.addEventListener("change",e=>{
 });
 
 /* ---------- Sheet ---------- */
-function sheet(h){$("#sheet").innerHTML=h;$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
+function sheet(h){$("#sheet").innerHTML=h;colorize($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
 function closeSheet(){$("#sheetBg").classList.remove("open")}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelSheet()});
 addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
@@ -1392,7 +1424,7 @@ function ownLink(){return ""}
   const en=(D.owners[j.owner]||{}).lang==="en";document.documentElement.lang=en?"en":"it";
   if(!j.dogs.length){m.innerHTML=en?"<h1>No dogs yet</h1>":"<h1>Nessun cane collegato</h1>";return}
   let html="";sheet=h=>{html+=`<section class="ov-dog">${h}</section>`};closeSheet=()=>{};
-  j.dogs.forEach(id=>ownerPreview(id));m.innerHTML=html;
+  j.dogs.forEach(id=>ownerPreview(id));m.innerHTML=html;colorize(m);
   document.title=(j.dogs.length===1?D.dogs[j.dogs[0]].name+" · ":"")+"Del Piccolo Diavolo";
   m.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&b.dataset.a!=="ovLang"){e.stopPropagation()}},true)})();
 /* Contratto: il proprietario firma con il dito */
