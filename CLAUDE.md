@@ -255,7 +255,7 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   poi le cucciolate di quell'anno (della fattrice di Paolo, non esterne) e "Spese generali". `view` = id cucciolata o `"gen"`.
 - Dati: `D.litters[lid].acc={prices:{<id cucciolo>:numero},exp:[{id,date,cat,txt,amt,file}]}`, `D.accGen=[…]` (spese generali).
   Entrate = una riga per cucciolo (`litPups`), prezzo scritto a mano (scelta di Paolo, non dai contratti). Spese con voce
-  (`AC_CAT`), descrizione, importo e foto della ricevuta facoltativa (immagine ridotta con `shrink`, o PDF; va su R2 al salvataggio).
+  (`AC_CAT`; nelle Spese generali `AC_GEN`: Crocchette, Vaccini, Visite, Terapie, Altro), descrizione, importo e foto della ricevuta facoltativa (immagine ridotta con `shrink`, o PDF; va su R2 al salvataggio).
   Anno di una cucciolata = data di nascita, se no prima spesa, se no oggi.
 - Riservati: `ownerSubset` toglie `acc` dalle cucciolate, `viewerData` toglie `acc` e `accGen`; per chi consulta la voce "Conti"
   non c'è.

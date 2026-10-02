@@ -1336,6 +1336,7 @@ function ctSellerSig(){return D.settings&&D.settings.sellerSig||""}
 /* ---------- Conti delle cucciolate (solo Paolo) ---------- */
 // D.litters[lid].acc={prices:{<id cucciolo>:numero},exp:[{id,date,cat,txt,amt,file}]} · D.accGen=[{id,date,cat,txt,amt,file}] (spese generali)
 // Non vanno al proprietario (ownerSubset toglie acc) né a chi consulta (viewerData toglie acc e accGen).
+const AC_GEN=["Crocchette","Vaccini","Visite","Terapie","Altro"]; // voci delle Spese generali (scelte da Paolo)
 const AC_CAT=["Monta / stallone","Veterinario","Ecografia e radiografia","Vaccini e sverminazioni","Microchip","Pedigree ENCI","Test genetici","Cibo","Kit Farmina","Viaggi","Altro"];
 let AC_Y=String(new Date().getFullYear()),AC_FILE=null;
 const eur=n=>{n=+n||0;const d=Number.isInteger(n)?0:2;return n.toLocaleString("it-IT",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d})};
@@ -1375,7 +1376,7 @@ function acList2(src){return src==="gen"?(D.accGen=D.accGen||[]):acL(src).exp}
 function acExpForm(v){const [src,id]=v.split("|"),x=id?(src==="gen"?(D.accGen||[]):((D.litters[src].acc||{}).exp||[])).find(e=>e.id===id)||{}:{};AC_FILE=null;
   sheet(`<h2 style="margin-top:0">${id?"Spesa":"＋ Nuova spesa"} · ${src==="gen"?"Spese generali":acLitLab(src)}</h2><div class="form">
   <label class="f">Data<input type="date" id="acd" value="${esc(x.date||todayS())}"></label><label class="f">Importo (€)<input id="acv" inputmode="decimal" value="${x.amt!=null?esc(String(x.amt).replace(".",",")):""}" placeholder="es. 60"></label>
-  <label class="f">Voce<select id="acc">${AC_CAT.map(c=>`<option ${c===(x.cat||"")?"selected":""}>${c}</option>`).join("")}</select></label><label class="f">Descrizione<input id="act" value="${esc(x.txt||"")}" placeholder="es. Ecografia"></label>
+  <label class="f">Voce<select id="acc">${(()=>{const C=src==="gen"?AC_GEN:AC_CAT;return(x.cat&&!C.includes(x.cat)?[x.cat,...C]:C).map(c=>`<option ${c===(x.cat||"")?"selected":""}>${esc(c)}</option>`).join("")})()}</select></label><label class="f">Descrizione<input id="act" value="${esc(x.txt||"")}" placeholder="es. Ecografia"></label>
   <label class="f full">Foto della ricevuta (facoltativa)<input type="file" id="acf" accept="image/*,application/pdf"></label>
   <div class="full" id="acfp">${x.file?`<a href="${esc(docHref(x.file))}" target="_blank">📎 Ricevuta allegata</a> <span class="row-meta">(scegli un file per sostituirla)</span>`:""}</div></div>
   <p class="small" id="acerr" style="color:var(--accent)"></p>
