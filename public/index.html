@@ -370,7 +370,8 @@ body.ro .hfab{display:none!important}
 .lbx-x{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#111;font-size:1.2rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .par{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pc{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;border-top:4px solid var(--c)}
-.pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc center 30%/cover no-repeat;font-size:1.6rem;color:#a99}
+.pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc;font-size:1.6rem;color:#a99}
+.pc .phi{display:flex;align-items:center;justify-content:center;background:#f1ede6}.pc .phi img{display:block;width:100%;height:auto;max-height:520px;object-fit:contain}
 .pc .tx{padding:10px 12px}.pc .r{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
 .pc .n{font-family:var(--serif);font-size:1.05rem;margin:2px 0}.pc .m{font-size:.82rem;color:var(--muted);margin-top:2px}
 .sbtl{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid #efd9bf;text-decoration:none;color:inherit}
@@ -982,8 +983,10 @@ function dnaHtml(d){const x=d.dna;if(!x)return"";
 function ovParents(id,me){const d=D.dogs[id],l=d.litter&&D.litters[d.litter];
   const card=(k,r,re,c)=>{const p=D.dogs[k];if(!p)return `<div class="pc" style="--c:${c}"><div class="ph"></div><div class="tx"><div class="r">${T(r,re)}</div><div class="n">${T("da inserire","not available")}</div></div></div>`;
     const t=LANG==="en"&&p.tests_en?p.tests_en:p.tests,col=LANG==="en"&&p.color_en?p.color_en:p.color,m=[p.loi,col,(p.birth||String(p.year||"")).slice(0,4)].filter(Boolean).map(esc).join(" · ");
-    return `<div class="pc" style="--c:${c}">${p.photo?`<a href="${p.photo}" class="ph" style="background-image:url('${p.photo}')" download="${esc(p.name)}.jpg"></a>`:`<div class="ph">🐾</div>`}<div class="tx"><div class="r">${T(r,re)}</div><div class="n">${me?`<button class="plink" data-a="open" data-v="${k}">${esc(p.name)}</button>`:esc(p.name)}</div>${m?`<div class="m">${m}</div>`:""}${t?`<div class="m">🧪 ${esc(t)}</div>`:""}</div></div>`};
+    return `<div class="pc" style="--c:${c}">${p.photo?`<a href="${p.photo}" class="phi" download="${esc(p.name)}.jpg"><img src="${p.photo}" alt="${esc(p.name)}" loading="lazy"></a>`:`<div class="ph">🐾</div>`}<div class="tx"><div class="r">${T(r,re)}</div><div class="n">${me?`<button class="plink" data-a="open" data-v="${k}">${esc(p.name)}</button>`:esc(p.name)}</div>${m?`<div class="m">${m}</div>`:""}${t?`<div class="m">🧪 ${esc(t)}</div>`:""}</div></div>`};
   return `<div class="par">${card(d.sire,"Padre","Sire","#34507a")}${card(d.dam,"Madre","Dam","#8c2b23")}</div>
+  ${me&&l?`<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small></label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="Incolla qui il link della cucciolata su SBT" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn small" data-a="litSbt" data-v="${d.litter}">Salva link</button></div></div>`:""}
   ${l&&l.sbtUrl?`<a class="sbtl" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener"><span style="font-size:1.6rem">🔗</span><span><b>${T("La cucciolata su SBTpedigree","The litter on SBTpedigree")}</b><span>${T("Pedigree completo, fratelli e consanguineità","Full pedigree, littermates and inbreeding")}</span></span><span class="go">↗</span></a>`:""}`}
 function ownerPreview(id){
   const d=D.dogs[id];if(typeof ownerPreview.lang==="undefined")ownerPreview.lang={};
@@ -1419,7 +1422,7 @@ document.addEventListener("click",e=>{
     case "ctView":{const d=D.dogs[v],G=CONTR[v];sheet(`${ctHtml(G?G.snap:ctSnap(v),G?G.buyer:ctBuyer(v),G||null,G?G.meSig:(d.contract||{}).meSig)}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);break}
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
-    case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");litterSheet(v);break}
+    case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
     case "pedDone":cancelSheet();break;
     case "pedForm":pedForm(v);break;
