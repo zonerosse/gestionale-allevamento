@@ -427,7 +427,7 @@ nav.bottom{display:none}
 @media (max-width:760px){
   .app{grid-template-columns:minmax(0,1fr)}
   nav.side{display:none}
-  nav.bottom{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:6px 4px env(safe-area-inset-bottom,0px);z-index:10}
+  nav.bottom{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:6px 4px env(safe-area-inset-bottom,0px);z-index:10}
   nav.bottom .navbtn{flex-direction:column;gap:2px;font-size:.72rem;padding:6px 2px;justify-content:center;text-align:center}
   .mate,.form{grid-template-columns:1fr}
   .coi-num{font-size:2.4rem}
@@ -513,8 +513,9 @@ const TABS=[
 ];
 let tab="cani",view=null,filter="miei",q="";
 function nav(){
-  const h=TABS.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>${l}</button>`).join("");
-  $("#navSide").innerHTML=h;$("#navBottom").innerHTML=h;
+  // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
+  const B=(sh)=>TABS.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>${sh&&k==="coi"?"Coppie":l}</button>`).join("");
+  $("#navSide").innerHTML=B(false);$("#navBottom").innerHTML=B(true);
 }
 let EDIT=null,EDIRTY=false;
 document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});

@@ -247,3 +247,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   dal suo nome (anche con nome e cognome invertiti), chiede conferma e scrive i due campi.
 - `saveOwner` ora **unisce** i campi (`Object.assign`) invece di ricreare il proprietario: prima perdeva `token` (link privato),
   `cf` e `doc` a ogni "Salva proprietario".
+- Barra in basso sul telefono: 5 voci su una riga (`repeat(5,minmax(0,1fr))`); lì "Accoppiamenti" si chiama **"Coppie"**
+  (scelta B di Paolo), nella barra laterale del computer resta "Accoppiamenti". Nuove sezioni: ripensare la barra.
