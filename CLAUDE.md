@@ -310,3 +310,9 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - LOI mancante sui cani allevati da Paolo (non esterni): nella scheda "In attesa N. LOI" (si tocca per inserirlo, come prima);
   nella pagina del proprietario "In attesa N. LOI" / in inglese "Pending – available after ENCI registration". Appena si scrive il
   numero in Modifica, compare quello.
+
+## Link ai proprietari (ottobre 2026)
+- Scheda della cucciolata → "Link ai proprietari" (`linkBox`): per ogni cucciolo con proprietario i bottoni **WhatsApp** (wa.me con
+  il numero e il messaggio già scritto), **Email** (mailto con oggetto e testo) e "Copia link"; messaggio in inglese per i proprietari
+  `lang:"en"` (`lkMsg`). Dopo l'invio `owners[id].linkSent` = data → "✔ mandato il …". Scelte A B A di Paolo.
+  Numero: `lkPhone` (toglie + e 00, aggiunge 39 ai numeri italiani senza prefisso). Bottone disattivato se manca telefono o email.

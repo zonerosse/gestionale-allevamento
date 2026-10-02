@@ -255,6 +255,8 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .pp-en{border:1px solid #c8dcf3;background:#f3f8fe;border-radius:12px;margin:12px 0}.pp-en summary{cursor:pointer;padding:10px 14px;font-weight:600;color:#1f5fa8}
 .pp-en-in{padding:0 14px 12px;font-size:.92rem}.pp-en-in p{margin:0 0 8px}
 .hrow small{display:block;color:var(--muted);font-size:.82rem}
+.hrow.lk{grid-template-columns:auto minmax(0,1fr) auto}.lk-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.lk-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
+@media (max-width:640px){.hrow.lk{grid-template-columns:auto minmax(0,1fr)}.hrow.lk .lk-b{grid-column:1/-1;justify-content:flex-start}}
 .ab-note{background:#f3f8fe;border-left:4px solid #1f5fa8;border-radius:8px;padding:10px 12px;font-size:.95rem;font-weight:600}
 nav.bottom{position:fixed}nav.bottom .more-pop{display:none;position:absolute;right:6px;bottom:calc(100% + 6px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;min-width:170px;flex-direction:column;gap:2px}
 nav.bottom.more-on .more-pop{display:flex}nav.bottom .more-pop .navbtn{flex-direction:row!important;gap:10px!important;font-size:.95rem!important;padding:10px 12px!important;justify-content:flex-start!important}
@@ -592,7 +594,7 @@ document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[d
 const CZ=[[["Dati"],"📋","z-dati"],[["Calori e monte"],"🌸","z-rep"],[["Nascita e crescita","Crescita","Growth"],"📈","z-dna"],[["Foto della crescita","Foto della cucciolata","settimana per settimana","week by week"],"📸","z-own"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
   [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
   [["Profilo genetico","Genetic profile"],"🔬","z-dna"],[["Test sanitari","Health tests"],"🩻","z-test"],[["Titoli","Titles"],"🏆","z-all"],[["Cucciolata di nascita","Litter"],"🐾","z-ped"],
-  [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"],[["Passaggio di proprietà","Transfer of ownership"],"🏛️","z-ct"],[["Consegna","Cosa ricevi","What you receive"],"📦","z-all"],[["Documenti d'identità"],"🪪","z-test"],[["Passaggi di proprietà"],"🏛️","z-ct"],[["Iscrizione all'anagrafe"],"📋","z-dna"],[["Certificati","Certificates"],"📜","z-all"],[["Spese per l'espatrio","Costs for taking"],"🌍","z-own"]];
+  [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"],[["Passaggio di proprietà","Transfer of ownership"],"🏛️","z-ct"],[["Consegna","Cosa ricevi","What you receive"],"📦","z-all"],[["Documenti d'identità"],"🪪","z-test"],[["Passaggi di proprietà"],"🏛️","z-ct"],[["Iscrizione all'anagrafe"],"📋","z-dna"],[["Certificati","Certificates"],"📜","z-all"],[["Spese per l'espatrio","Costs for taking"],"🌍","z-own"],[["Link ai proprietari"],"🔗","z-own"]];
 function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{if(h.closest(".k-doc")||h.classList.contains("cz")||h.classList.contains("og-h"))return;const t=h.textContent.trim();
   const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
@@ -1367,6 +1369,22 @@ function importIds(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").r
   render();typeof saveNow==="function"&&saveNow();alert("Fatto: documenti aggiunti a "+ok.length+" proprietari. Il salvataggio online parte da solo (con file grandi ci vuole qualche secondo).")}
 /* ---------- Passaggi di proprietà della cucciolata: due PDF (passaggi firmati + documenti d'identità) ed email all'anagrafe ---------- */
 let PP_LIT=null;
+/* ---------- Link ai proprietari (Scheda della cucciolata): WhatsApp o email con il messaggio già scritto ----------
+   owners[id].linkSent = data dell'ultimo invio ("✔ mandato il …"). Scelte A B A di Paolo. */
+function lkUrl(o){if(!o.token){const a=new Uint8Array(18);crypto.getRandomValues(a);o.token=btoa(String.fromCharCode(...a)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}return location.origin+"/p/"+o.token}
+function lkMsg(k){const d=D.dogs[k],o=D.owners[d.owner],en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,u=lkUrl(o);
+  return en?{s:`${nm}'s private page – Del Piccolo Diavolo`,t:`Hi ${fn}, here is ${nm}'s private page: photos, growth, health, certificates and documents, always up to date. Save it, you'll use it often:\n${u}\n\nPaolo – Del Piccolo Diavolo`}
+    :{s:`La pagina privata di ${nm} – Del Piccolo Diavolo`,t:`Ciao ${fn}, ecco la pagina privata di ${nm}: foto, crescita, salute, certificati e documenti, sempre aggiornati. Salvala, ti servirà spesso:\n${u}\n\nPaolo – Del Piccolo Diavolo`}}
+function lkPhone(o){let ph=String(o.phone||"").replace(/[^\d+]/g,"");if(ph.startsWith("+"))ph=ph.slice(1);else if(ph.startsWith("00"))ph=ph.slice(2);else if(ph&&(o.country||"Italia")==="Italia")ph="39"+ph;return ph}
+function linkBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]);if(!P.length)return"";
+  return `<h2>Link ai proprietari</h2><div class="cs" style="gap:10px"><div class="hlist">${P.map(k=>{const d=D.dogs[k],o=D.owners[d.owner],ph=lkPhone(o);
+    return `<div class="hrow lk"><span class="hd">🐶</span><span><b>${esc(o.name)}${o.lang==="en"?" 🌍":""}</b><small>${esc(d.name)}${o.linkSent?` · <span style="color:var(--ok);font-weight:600">✔ mandato il ${fmt(o.linkSent)}</span>`:""}</small></span>
+    <span class="lk-b"><button class="btn small lk-wa" data-a="lkWa" data-v="${k}" ${ph?"":'disabled title="Manca il telefono"'}>WhatsApp</button><button class="btn ghost small" data-a="lkMail" data-v="${k}" ${o.email?"":'disabled title="Manca l’email"'}>Email</button><button class="btn ghost small" data-a="copyLink" data-v="${d.owner}">Copia link</button></span></div>`}).join("")}</div>
+  <p class="small">Tocca WhatsApp o Email: si apre il messaggio già scritto con il link alla sua pagina privata, tu premi Invia. Ad Andrej e agli altri proprietari esteri arriva in inglese.</p></div>`}
+function lkSend(k,how){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const m=lkMsg(k);
+  if(how==="wa"){const ph=lkPhone(o);if(!ph){toast("Manca il telefono di "+esc(o.name)+".");return}window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(m.t),"_blank","noopener")}
+  else{if(!o.email){toast("Manca l'email di "+esc(o.name)+".");return}location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(m.s)+"&body="+encodeURIComponent(m.t)}
+  o.linkSent=todayS();typeof saveNow==="function"&&saveNow();if(sheetOpen()&&PP_LIT)litterSheet(PP_LIT)}
 /* ---------- Spese per l'espatrio (solo cuccioli che vanno all'estero: proprietario con lang "en") ----------
    d.abroad={it,en}: la frase si può cambiare; se manca valgono le frasi di base. Paolo la vede sotto il contratto,
    il proprietario straniero nella sua pagina, in inglese (scelte A B A di Paolo). */
@@ -1766,6 +1784,7 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   ${birthHtml(lid)}
   ${gphotosHtml(lid)}
   ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}
+  ${linkBox(lid)}
   ${iscBox(lid)}
   ${ppLitBox(lid)}
   <div class="actions">${s&&dm?`<button class="btn ghost" data-a="mateWith" data-v="${s}|${dm}">Apri in Accoppiamenti</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
@@ -1961,7 +1980,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
+    case "idDel":idDel(v);break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
