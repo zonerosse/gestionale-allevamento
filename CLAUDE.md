@@ -149,3 +149,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   Ogni sezione compare comunque se ha già delle voci. Il proprietario non riceve un registro ma
   la "Guida al primo anno" con i promemoria: il libretto lo aggiorna il suo veterinario, dopo il primo anno non arriva più nulla.
 - Pagina del proprietario larga fino a 1240px su computer e tablet (prima 900px), dati del cane su una riga; telefono invariato.
+- Contratto versione `2026-10b`: nuovo punto **4-bis** "Pagamento del saldo e riserva di proprietà" (artt. 1376, 1523, 1460,
+  1385 c. 2 c.c.), anche tra le clausole approvate (1341–1342). I contratti hanno `snap.ver`: le voci di `CT` con 4° elemento
+  (versione minima) compaiono solo dalla versione indicata in poi (`ctCT`), così i contratti già firmati non cambiano testo.
