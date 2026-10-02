@@ -283,3 +283,20 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - jsPDF si carica con `loadJsPDF()`: prima la funzione si chiamava `jspdf` e lo script di jsPDF la sovrascriveva
   (`window.jspdf`), così dal secondo PDF nella stessa sessione (contratti o passaggi) non funzionava più.
 - La firma salvata (`settings.sellerSig`) dopo il salvataggio è un file `/files/…`: per i PDF va passata da `toDataURL`.
+
+## Certificati di iscrizione all'anagrafe (ottobre 2026)
+- Il veterinario accreditato iscrive i cuccioli in ARAA e rilascia per ognuno la "Dichiarazione / Certificato di identificazione e
+  registrazione" (Comune di Ostellato). Non si mandano all'anagrafe con i passaggi (l'iscrizione l'hanno già).
+- Scheda della cucciolata → "Iscrizione all'anagrafe" (`iscBox`): cuccioli con microchip e ✅ Iscritto / Manca il certificato;
+  "Carica certificati" (più file) → per ogni file il cucciolo o "Tutta la cucciolata" (`iscSave`). Nei documenti del cucciolo:
+  `{title:"Certificato di iscrizione all'anagrafe",isc:true,private:false}`: **li vede il proprietario** (scelta B di Paolo),
+  non chi consulta (`viewerData` toglie `isc`).
+- "Importa modifiche" con `{certificatiIscrizione:[{name,owner,chip,sex,date,fname,file}]}` (`importIsc`): cerca il cucciolo dal
+  microchip, poi dal proprietario, poi dal nome di chiamata nel nome o nel soprannome; scrive il microchip dove manca e avvisa se
+  sesso o microchip non tornano.
+- "Importa modifiche" con `{aggiungiAlCane:[{chip,name,owner,vacc:[…],docs:[…]}]}` (`importAdd`): aggiunge vaccinazioni
+  (`health.vacc`, con `HA`) e documenti al cane trovato come in `importIsc`, senza doppioni (vaccino: data+prodotto; documento: fname).
+  Usato per libretti e certificati di buona salute fotografati da Paolo.
+- Riquadro "Certificati" (`certHtml`, `isCert`: `isc`, `cert` o titolo che inizia con "Certificat…") prima di "Referti e
+  documenti", nella scheda di Paolo e nella pagina del proprietario. "Referti e documenti" non mostra più i certificati né i file
+  delle vaccinazioni (restano in Salute → Vaccinazioni; scelta A di Paolo); sverminazioni ed esami delle feci con file sì.

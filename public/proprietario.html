@@ -592,7 +592,7 @@ document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[d
 const CZ=[[["Dati"],"📋","z-dati"],[["Calori e monte"],"🌸","z-rep"],[["Nascita e crescita","Crescita","Growth"],"📈","z-dna"],[["Foto della crescita","Foto della cucciolata","settimana per settimana","week by week"],"📸","z-own"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
   [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
   [["Profilo genetico","Genetic profile"],"🔬","z-dna"],[["Test sanitari","Health tests"],"🩻","z-test"],[["Titoli","Titles"],"🏆","z-all"],[["Cucciolata di nascita","Litter"],"🐾","z-ped"],
-  [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"],[["Passaggio di proprietà","Transfer of ownership"],"🏛️","z-ct"],[["Consegna","Cosa ricevi","What you receive"],"📦","z-all"],[["Documenti d'identità"],"🪪","z-test"],[["Passaggi di proprietà"],"🏛️","z-ct"]];
+  [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"],[["Passaggio di proprietà","Transfer of ownership"],"🏛️","z-ct"],[["Consegna","Cosa ricevi","What you receive"],"📦","z-all"],[["Documenti d'identità"],"🪪","z-test"],[["Passaggi di proprietà"],"🏛️","z-ct"],[["Iscrizione all'anagrafe"],"📋","z-dna"],[["Certificati","Certificates"],"📜","z-all"]];
 function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{if(h.closest(".k-doc")||h.classList.contains("cz")||h.classList.contains("og-h"))return;const t=h.textContent.trim();
   const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
@@ -722,6 +722,7 @@ function dogDetail(id){
   ${wSeries(id).length>=3?`<h2>Crescita</h2>${growthDog(id)}`:""}
   ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${wphotosHtml(id)}`:""}
   ${!d.ext?`<h2>Salute</h2>${healthHtml(id,false)}`:""}
+  ${certHtml(id,false,false)}
   <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
   ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
   ${d.dna?`<h2>Profilo genetico (DNA)</h2>${dnaHtml(d)}`:""}
@@ -1019,9 +1020,13 @@ function toast(m){let t=document.getElementById("toast");if(!t){t=document.creat
 /* ---------- Referti e documenti ---------- */
 const docHref=f=>f.startsWith("doc:")?(DOCF[f.slice(4)]||""):f.startsWith("ref:")?(FILES[f.slice(4)]||""):f;
 const dfmt=v=>/^\d{4}$/.test(v||"")?v:fmt(v);
-function docsHtml(id,ro,owner){const d=D.dogs[id],L=(d.docs||[]).map((x,i)=>[x,i]).filter(([x])=>!(owner&&x.private)).sort((a,b)=>(b[0].date||"").localeCompare(a[0].date||""));
+// Certificati (iscrizione all'anagrafe, buona salute…): riquadro a parte, fuori da "Referti e documenti"
+const isCert=x=>!!(x&&(x.isc||x.cert||/^certificat/i.test(x.title||"")));
+function certHtml(id,ro,owner){const d=D.dogs[id],L=(d.docs||[]).map((x,i)=>[x,i]).filter(([x])=>isCert(x)&&!(owner&&x.private)).sort((a,b)=>(b[0].date||"").localeCompare(a[0].date||""));if(!L.length)return"";
+  return `<h2>${T("Certificati","Certificates")}</h2><div class="hsec"><div class="hlist">${L.map(([x,i])=>`<div class="hrow"><span class="hd">${x.date?dfmt(x.date):"—"}</span><span><a class="dna-pdf" href="${docHref(x.file)}" download="${esc(x.fname||"certificato")}" target="_blank">📎 ${esc(LANG==="en"&&x.title_en?x.title_en:x.title)}</a>${x.private&&!owner?`<small>Solo per te: non compare nella pagina del proprietario</small>`:""}</span>${ro?"<span></span>":`<button class="hx" data-a="docDel" data-v="${id}|${i}" title="Elimina">×</button>`}</div>`).join("")}</div></div>`}
+function docsHtml(id,ro,owner){const d=D.dogs[id],L=(d.docs||[]).map((x,i)=>[x,i]).filter(([x])=>!(owner&&x.private)&&!isCert(x)).sort((a,b)=>(b[0].date||"").localeCompare(a[0].date||""));
   const HL={vacc:T("Vaccinazione","Vaccination"),verm:T("Sverminazione","Deworming"),feci:T("Esame delle feci","Faecal examination")};
-  const fec=["feci","vacc","verm"].flatMap(kk=>((d.health||{})[kk]||[]).filter(v=>v.file).map(v=>Object.assign({_k:kk},v))).map(v=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span><a class="dna-pdf" href="${docHref(v.file)}" download="${esc(v.fname||"referto.pdf")}" target="_blank">📎 ${esc(LANG==="en"?(v.fname_en||v.fname):v.fname)}</a><small>${HL[v._k]}${owner?"":" · si gestisce da Salute"}</small></span><span></span></div>`).join("");
+  const fec=["feci","verm"].flatMap(kk=>((d.health||{})[kk]||[]).filter(v=>v.file).map(v=>Object.assign({_k:kk},v))).map(v=>`<div class="hrow"><span class="hd">${fmt(v.date)}</span><span><a class="dna-pdf" href="${docHref(v.file)}" download="${esc(v.fname||"referto.pdf")}" target="_blank">📎 ${esc(LANG==="en"?(v.fname_en||v.fname):v.fname)}</a><small>${HL[v._k]}${owner?"":" · si gestisce da Salute"}</small></span><span></span></div>`).join("");
   const rowsH=fec+L.map(([x,i])=>`<div class="hrow"><span class="hd">${x.date?dfmt(x.date):"—"}</span><span><a class="dna-pdf" href="${docHref(x.file)}" download="${esc(x.fname||"documento.pdf")}" target="_blank">📎 ${esc(LANG==="en"&&x.title_en?x.title_en:x.title)}</a>${x.private&&!owner?`<small>Solo per te: non compare nella pagina del proprietario</small>`:""}</span>${ro?"<span></span>":`<button class="hx" data-a="docDel" data-v="${id}|${i}" title="Elimina">×</button>`}</div>`).join("");
   return `<div class="hsec">${ro?"":`<div class="hhead"><h3>Referti e documenti</h3><button class="btn ghost small" data-a="docForm" data-v="${id}">Aggiungi</button></div>`}${rowsH?`<div class="hlist">${rowsH}</div>`:`<p class="empty">${T("Nessun documento.","No documents.")}</p>`}</div>`}
 function parentDocsHtml(id){const d=D.dogs[id];const out=[];
@@ -1145,7 +1150,8 @@ function ownerPreview(id){
   ${wSeries(id).length>=3?`<h2>${T("Crescita","Growth")}</h2>${growthDog(id)}`:""}
   ${!d.ext?`<h2>${T("Salute","Health")}</h2>${healthHtml(id,true)}`:""}
   ${kitOwner(id)}
-  ${(d.docs||[]).some(z=>!z.private)?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
+  ${certHtml(id,true,true)}
+  ${(d.docs||[]).some(z=>!z.private&&!isCert(z))?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
   ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
   ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
   <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">Paolo Boldrini</p><span class="row-meta">${T("Allevamento Del Piccolo Diavolo · Ostellato (FE)","Del Piccolo Diavolo kennel · Ostellato (FE), Italy")}</span>
@@ -1359,6 +1365,46 @@ function importIds(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").r
   render();typeof saveNow==="function"&&saveNow();alert("Fatto: documenti aggiunti a "+ok.length+" proprietari. Il salvataggio online parte da solo (con file grandi ci vuole qualche secondo).")}
 /* ---------- Passaggi di proprietà della cucciolata: due PDF (passaggi firmati + documenti d'identità) ed email all'anagrafe ---------- */
 let PP_LIT=null;
+/* ---------- Certificati di iscrizione all'anagrafe (ARAA), uno per cucciolo ----------
+   Nei documenti del cucciolo: {title:"Certificato di iscrizione all'anagrafe",isc:true,private:false} (scelta B di Paolo: li vede
+   anche il proprietario; non chi consulta). Si caricano dalla Scheda della cucciolata, scegliendo il cucciolo per ogni file. */
+const ISC_T=["Certificato di iscrizione all'anagrafe","Certificate of registration in the dog registry (ARAA)"];
+let ISC_PEND=[];
+function iscBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=litPups(lid);if(!P.length)return"";const n=P.filter(k=>(D.dogs[k].docs||[]).some(x=>x.isc)).length;
+  return `<h2>Iscrizione all'anagrafe</h2><div class="cs" style="gap:10px"><div class="hlist">${P.map(k=>{const d=D.dogs[k],x=(d.docs||[]).find(z=>z.isc);
+    return `<div class="hrow"><span class="hd">🐶</span><span><b>${esc(d.name)}</b><small>${d.chip?"Microchip "+esc(d.chip):"microchip da inserire"}${x?` · <a href="${esc(docHref(x.file))}" target="_blank">📎 certificato${x.date?" del "+fmt(x.date):""}</a>`:""}</small></span><span>${x?'<span class="stb done">✅ Iscritto</span>':'<span class="stb todo">Manca il certificato</span>'}</span></div>`}).join("")}</div>
+  <div class="row2"><label class="btn ghost" style="cursor:pointer">＋ Carica certificati<input type="file" class="iscIn" data-l="${lid}" accept="image/*,application/pdf" multiple hidden></label></div>
+  <p class="small">${n} iscritti su ${P.length}. Puoi caricare più file insieme: per ognuno scegli il cucciolo, oppure "Tutta la cucciolata" se hai un unico file per tutti. Ogni proprietario vede il certificato del suo cucciolo.</p></div>`}
+document.addEventListener("change",async e=>{const t=e.target;if(!t.classList||!t.classList.contains("iscIn"))return;const lid=t.dataset.l,F=[...t.files];if(!F.length)return;toast("Preparo i file…");ISC_PEND=[];
+  for(const f of F){let data=null;if(f.type.startsWith("image/")){const r=await shrink(f);data=r&&r.data}else data=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f)});if(data)ISC_PEND.push({data,name:f.name,pdf:!f.type.startsWith("image/")})}
+  t.value="";const P=litPups(lid);
+  sheet(`<h2 style="margin-top:0">📋 ${ISC_PEND.length} ${ISC_PEND.length===1?"file":"file"} da sistemare</h2><div class="wpas">${ISC_PEND.map((x,i)=>`<div class="wpa">${x.pdf?'<span style="font-size:2rem;text-align:center">📄</span>':`<img class="wpi" src="${x.data}" alt="">`}<div><small class="row-meta">${esc(x.name)}</small>
+  <select id="isc_${i}"><option value="">— scegli il cucciolo —</option><option value="*">Tutta la cucciolata</option>${P.map(k=>`<option value="${k}">${esc(D.dogs[k].name)}</option>`).join("")}</select></div></div>`).join("")}</div>
+  <div class="actions"><button class="btn" data-a="iscSave" data-v="${lid}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)});
+function iscAdd(k,file,fname,date){const d=D.dogs[k];d.docs=d.docs||[];if(d.docs.some(x=>x.isc&&x.fname===fname))return false;d.docs.push({title:ISC_T[0],title_en:ISC_T[1],date:date||todayS(),file,fname,private:false,isc:true});return true}
+function iscSave(lid){const P=litPups(lid);let n=0,skip=0;ISC_PEND.forEach((x,i)=>{const v=($("#isc_"+i)||{}).value;if(!v){skip++;return}(v==="*"?P:[v]).forEach(k=>{if(iscAdd(k,x.data,x.name))n++})});
+  if(skip&&!confirm(skip+" file senza cucciolo non verranno salvati. Procedere?"))return;ISC_PEND=[];litterSheet(lid);typeof saveNow==="function"&&saveNow();toast(n?"Certificati salvati.":"Nessun certificato salvato.")}
+// "Importa modifiche" con {aggiungiAlCane:[{chip,name,owner,vacc:[{date,prod,prod_en,next,file,fname}],docs:[{title,title_en,date,file,fname,private}]}]}:
+// aggiunge vaccinazioni e documenti al cucciolo giusto (stessa ricerca dei certificati), senza doppioni
+function importAdd(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const pick=x=>{const K=Object.keys(D.dogs).filter(k=>!D.dogs[k].ext);let k=K.find(k=>x.chip&&String(D.dogs[k].chip||"").replace(/\D/g,"")===x.chip);if(k)return k;
+    if(x.owner){const o=Object.keys(D.owners).filter(o=>nn(D.owners[o].name).includes(nn(x.owner)));const c=K.filter(k=>o.includes(D.dogs[k].owner)&&D.dogs[k].bred);if(c.length===1)return c[0]}
+    const c=K.filter(k=>{const d=D.dogs[k];return nn(d.nick)===nn(x.name)||(" "+nn(d.name)+" ").includes(" "+nn(x.name)+" ")});return c.length===1?c[0]:null};
+  const ok=[],miss=[];L.forEach(x=>{const k=pick(x);(k?ok:miss).push([x,k])});if(!ok.length){alert("Non trovo il cucciolo nel gestionale.");return}
+  if(!confirm(ok.map(([x,k])=>"• "+D.dogs[k].name+":"+(x.vacc||[]).map(v=>"\n   vaccinazione "+fmt(v.date)+" – "+v.prod).join("")+(x.docs||[]).map(z=>"\n   documento: "+z.title).join("")).join("\n\n")+(miss.length?"\n\nNon trovati: "+miss.map(p=>p[0].name).join(", "):"")+"\n\nProcedere?"))return;
+  let n=0;ok.forEach(([x,k])=>{const d=D.dogs[k];(x.vacc||[]).forEach(v=>{const L2=HA(d,"vacc");if(!L2.some(y=>y.date===v.date&&y.prod===v.prod)){L2.push(v);n++}});
+    d.docs=d.docs||[];(x.docs||[]).forEach(z=>{if(!d.docs.some(y=>y.fname===z.fname)){d.docs.push(z);n++}})});
+  render();typeof saveNow==="function"&&saveNow();alert("Fatto: "+n+" voci aggiunte. Il salvataggio online parte da solo.")}
+// "Importa modifiche" con {certificatiIscrizione:[{name,owner,chip,sex,date,fname,file}]}: trova il cucciolo dal microchip, dal proprietario o dal nome
+function importIsc(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const pick=x=>{const K=Object.keys(D.dogs).filter(k=>D.dogs[k].bred&&!D.dogs[k].ext);let k=K.find(k=>x.chip&&String(D.dogs[k].chip||"").replace(/\D/g,"")===x.chip);if(k)return k;
+    if(x.owner){const o=Object.keys(D.owners).filter(o=>nn(D.owners[o].name).includes(nn(x.owner)));const c=K.filter(k=>o.includes(D.dogs[k].owner));if(c.length===1)return c[0]}
+    const c=K.filter(k=>{const d=D.dogs[k];return nn(d.nick)===nn(x.name)||(" "+nn(d.name)+" ").includes(" "+nn(x.name)+" ")});return c.length===1?c[0]:null};
+  const ok=[],miss=[];L.forEach(x=>{const k=pick(x);(k?ok:miss).push([x,k])});if(!ok.length){alert("Non trovo nessuno di questi cuccioli nel gestionale.");return}
+  const w=([x,k])=>{const d=D.dogs[k],a=[];if(x.sex&&d.sex&&x.sex!==d.sex)a.push("⚠️ sesso diverso");if(x.chip&&d.chip&&String(d.chip).replace(/\D/g,"")!==x.chip)a.push("⚠️ nel gestionale il microchip è "+d.chip);return a.length?" "+a.join(" "):""};
+  if(!confirm("Certificati di iscrizione per "+ok.length+" cuccioli:\n\n"+ok.map(p=>"• "+p[0].name+" → "+D.dogs[p[1]].name+(D.dogs[p[1]].chip?"":" (scrivo il microchip)")+w(p)).join("\n")+(miss.length?"\n\nNon trovati: "+miss.map(p=>p[0].name).join(", "):"")+"\n\nProcedere?"))return;
+  let n=0;ok.forEach(([x,k])=>{const d=D.dogs[k];if(!d.chip&&x.chip)d.chip=x.chip;if(iscAdd(k,x.file,x.fname,x.date))n++});
+  render();typeof saveNow==="function"&&saveNow();alert("Fatto: "+n+" certificati aggiunti. Il salvataggio online parte da solo (con file grandi ci vuole qualche secondo).")}
 const ppAddr=()=>(D.settings&&D.settings.anagrafeEmail)||"p.toselli@comune.ostellato.fe.it";
 function ppLitRows(lid){return litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]).map(k=>{const d=D.dogs[k],o=D.owners[d.owner];return{k,d,o,doc:ppDoc(d),ids:(o.ids||[]).length}})}
 function ppLitBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";PP_LIT=lid;const R=ppLitRows(lid);if(!R.length)return"";const me=((D.settings||{}).myIds||[]),ok=R.filter(r=>r.doc);
@@ -1701,6 +1747,7 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   ${birthHtml(lid)}
   ${gphotosHtml(lid)}
   ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}
+  ${iscBox(lid)}
   ${ppLitBox(lid)}
   <div class="actions">${s&&dm?`<button class="btn ghost" data-a="mateWith" data-v="${s}|${dm}">Apri in Accoppiamenti</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
 
@@ -1895,7 +1942,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
+    case "idDel":idDel(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
