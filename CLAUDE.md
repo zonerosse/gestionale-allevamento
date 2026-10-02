@@ -133,3 +133,18 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   una riga verde con il PDF, e il riquadro "firmato" torna in fondo.
 - Liberatoria foto (punto 3.6): dopo la firma la scelta si vede nella scheda di Paolo (riga "📷 Foto: …"), in prima pagina
   del contratto (riquadro verde) e al punto 3.6 (voci su righe separate, scelta in grassetto "SCELTA DELL'ACQUIRENTE").
+
+## Antiparassitari e calendario del primo anno (ottobre 2026)
+- Salute: due sezioni nuove `health.pz` (Pulci e zecche) e `health.lf` (Leishmania e filaria, con `kind`: ple/pfi/vle/test),
+  campi `date, prod, prod_en, next, file`. Anche nell'inserimento rapido (siringa). `HA(d,k)` crea la lista se manca.
+- Calendario deciso da Paolo: richiamo vaccino a 3 mesi e annuale a 1 anno; 1° aprile avviso "stagione a rischio";
+  antirabbica, leishmania e sverminazione a discrezione del proprietario e del suo veterinario (non in calendario).
+  In più le "prossime dosi" che Paolo scrive (vaccini, pz, lf) che cadono nel primo anno. Solo per il proprietario.
+- Pagina del proprietario, in cima alla Salute: `calBox` con le scadenze future e il tasto che apre
+  `GET /api/public/<token>/cal?dog=<id>` → file .ics con due avvisi per evento (giorno prima 9:00, giorno stesso 9:00).
+  La logica delle scadenze è in `calEvents()` (pagina) e in `functions/api/public/[token]/cal.js` (server): tenerle uguali.
+  Per Android senza import .ics: link Google Calendar uno per uno.
+- Scelta di Paolo: "Pulci e zecche" solo per i cuccioli che cede fino al primo anno di vita (`pupYear`: Frontline spray),
+  insieme alla guida per il proprietario; per tutti gli altri cani resta com'era ("Leishmania e filaria" sui suoi cani).
+  Ogni sezione compare comunque se ha già delle voci. Il proprietario non riceve un registro ma
+  la "Guida al primo anno" con i promemoria: il libretto lo aggiorna il suo veterinario, dopo il primo anno non arriva più nulla.
