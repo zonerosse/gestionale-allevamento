@@ -300,3 +300,10 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Riquadro "Certificati" (`certHtml`, `isCert`: `isc`, `cert` o titolo che inizia con "Certificat…") prima di "Referti e
   documenti", nella scheda di Paolo e nella pagina del proprietario. "Referti e documenti" non mostra più i certificati né i file
   delle vaccinazioni (restano in Salute → Vaccinazioni; scelta A di Paolo); sverminazioni ed esami delle feci con file sì.
+
+## Spese per l'espatrio (ottobre 2026)
+- Solo per i cuccioli che vanno all'estero (`abOn`: allevati, con proprietario `lang:"en"`): nella scheda di Paolo, sotto il
+  contratto, riquadro "Spese per l'espatrio" (`abroadBox`) con la frase "Costi aggiuntivi per l'espatrio a parte, da quantificare
+  man mano…"; il proprietario la vede in inglese nella sua pagina ("Costs for taking <nome> abroad", `abroadOwner`).
+  Scelte di Paolo: solo la frase (niente elenco di importi), visibile anche al proprietario, solo per chi va all'estero.
+- `d.abroad={it,en}` solo se Paolo cambia la frase ("Modifica la frase", `abEdit`/`abSave`); se manca valgono le frasi di base (`abTxt`).
