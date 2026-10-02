@@ -312,6 +312,17 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 @media (max-width:640px){.k-doc .bi{grid-template-columns:1fr}.k-doc .bi .en{border-left:2px solid #ddd;padding-left:10px}.k-doc .fld{grid-template-columns:1fr}}
 .k-sig{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}.k-sig div{border-top:1px solid #333;padding-top:4px;font-size:.8rem;color:#555;min-height:70px;min-width:0}
 .k-sig img{max-height:60px;max-width:100%;display:block}
+.cs{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.cs-top{display:flex;align-items:center;gap:12px}.cs-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;flex:none;background:var(--bg)}
+.cs-top b{font-family:var(--serif);font-weight:400;font-size:1.15rem;display:block}.cs-top span{color:var(--muted);font-size:.9rem}
+.cs-st-todo .cs-ico{background:var(--warn-soft)}.cs-st-sent .cs-ico{background:var(--accent-soft)}.cs-st-done .cs-ico{background:var(--ok-soft)}
+.cs label.big{display:flex;flex-direction:column;gap:6px;font-weight:600}.cs label.big input{font:inherit;font-size:1.15rem;padding:12px 14px;border:1px solid var(--line);border-radius:10px;max-width:260px}
+.cs .lbl{font-weight:600;margin:0 0 6px}.cs .go{width:100%;padding:16px;font-size:1.05rem;border-radius:12px}.cs .go[disabled]{opacity:.45;cursor:not-allowed}
+.cs .small,.cs p.small{color:var(--muted);font-size:.85rem;margin:0}.cs .row2{display:flex;gap:8px;flex-wrap:wrap}
+.cs .k-grid{margin:6px 0 0}.ct-read{border:1px solid var(--line);border-radius:10px;padding:10px 14px}.ct-read summary{cursor:pointer;font-weight:600}.ct-read .k-read{margin-top:10px}
+.stcol{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.stb{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.stb.todo{background:var(--warn-soft);color:#8a5a00}.stb.sent{background:var(--accent-soft);color:var(--accent)}.stb.done{background:var(--ok-soft);color:var(--ok)}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -486,7 +497,7 @@ function rows(ids){
     const showP=(d.sire||d.dam)&&!d.ext;
     const pn=k=>k&&D.dogs[k]?esc(D.dogs[k].name):'<i>non inserito</i>';
     const par=!showP?"":`<span class="row-par2"><span class="pm">${pn(d.sire)}</span><span class="pf">${pn(d.dam)}</span></span>`;
-    return `<button class="row" data-a="open" data-v="${id}"><span class="rowwrap">${thumb(d)}<span><span class="row-name" style="display:block">${esc(d.name)}</span><span class="row-meta">${meta||"&nbsp;"}</span>${par}</span></span>${st[0]?`<span class="badge ${st[1]}">${st[0]}</span>`:"<span></span>"}</button>`}).join("");
+    return `<button class="row" data-a="open" data-v="${id}"><span class="rowwrap">${thumb(d)}<span><span class="row-name" style="display:block">${esc(d.name)}</span><span class="row-meta">${meta||"&nbsp;"}</span>${par}</span></span>${st[0]||ctBadge(id)?`<span class="stcol">${st[0]?`<span class="badge ${st[1]}">${st[0]}</span>`:""}${ctBadge(id)}</span>`:"<span></span>"}</button>`}).join("");
 }
 function rerenderList(){const s=$("#srch"),p=s.selectionStart;$("#main").innerHTML=bannerHtml()+dogList();const n=$("#srch");n.focus();n.setSelectionRange(p,p)}
 
@@ -1002,48 +1013,46 @@ function ctPad(id,label){return `<div class="pad-w"><canvas class="pad" id="${id
 function initPads(){document.querySelectorAll("canvas.pad:not([data-ready])").forEach(c=>{c.dataset.ready="1";const x=c.getContext("2d");x.lineWidth=2.6;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#1a1a2e";let dn=false;
   const P=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};
   c.addEventListener("pointerdown",e=>{dn=true;c.setPointerCapture(e.pointerId);const[a,b]=P(e);x.beginPath();x.moveTo(a,b);e.preventDefault()});
-  c.addEventListener("pointermove",e=>{if(!dn)return;const[a,b]=P(e);x.lineTo(a,b);x.stroke();c.dataset.used="1"});
+  c.addEventListener("pointermove",e=>{if(!dn)return;const[a,b]=P(e);x.lineTo(a,b);x.stroke();if(!c.dataset.used){c.dataset.used="1";typeof ctCheck==="function"&&ctCheck()}});
   c.addEventListener("pointerup",()=>{dn=false})})}
-document.addEventListener("click",e=>{const b=e.target.closest("[data-pad-clear]");if(!b)return;const c=document.getElementById(b.dataset.padClear);if(c){c.getContext("2d").clearRect(0,0,c.width,c.height);delete c.dataset.used}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-pad-clear]");if(!b)return;const c=document.getElementById(b.dataset.padClear);if(c){c.getContext("2d").clearRect(0,0,c.width,c.height);delete c.dataset.used;typeof ctCheck==="function"&&ctCheck()}});
 function padData(id){const c=document.getElementById(id);return c&&c.dataset.used?c.toDataURL("image/png"):null}
-// Paolo: riquadro nella scheda del cucciolo
-function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const d=D.dogs[id];if(!d||!d.bred||!d.owner||!(d.sex==="M"||d.sex==="F"))return"";
-  const c=d.contract||{},G=CONTR[id];setTimeout(initPads,0);
-  if(G)return `<h2>Contratto di cessione</h2><div class="k-box"><p style="margin:0 0 6px"><span class="badge ok">Firmato</span> da <strong>${esc(G.buyer.name)}</strong> il ${ctWhen(G.at)}.</p>
-    <p class="row-meta" style="margin:0">${(d.docs||[]).some(x=>x.ct===G.hash)?"Il PDF firmato è nei “Referti e documenti” del cucciolo, visibile anche al proprietario.":"Sto salvando il PDF firmato nei documenti del cucciolo…"}</p>
-    <div class="actions"><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button><button class="btn ghost" data-a="ctDl" data-v="${id}">Scarica il PDF</button></div></div>`;
-  const ok=c.price&&c.meSig;
-  return `<h2>Contratto di cessione</h2><div class="k-box">
-  <p class="row-meta" style="margin:0 0 6px">Versione <b>${d.sex==="M"?"Maschio":"Femmina"}</b>, scelta dal sesso del cucciolo. Cedente, cane, genitori e proprietario sono compilati dal gestionale; nel contratto caparra e presa in consegna sono scritte con una formula fissa, senza importi né date (consegna presso l'allevamento).</p>
-  <div class="k-grid"><label>Prezzo di cessione (totale)<input id="ctPrice" value="${esc(c.price||"")}" placeholder="es. 1.500 €" ${c.visible?"disabled":""}></label></div>
-  ${c.visible?"":`<div class="actions" style="margin:0 0 6px"><button class="btn ghost small" data-a="ctSave" data-v="${id}">Salva i dati del contratto</button></div>`}
-  <p class="k-h">La tua firma da cedente</p>
-  ${c.meSig?`<div class="k-mysig"><img src="${esc(c.meSig)}" alt="La tua firma">${c.visible?"":`<button class="btn ghost small" data-a="ctResign" data-v="${id}">Rifai la firma</button>`}</div>`
-   :`${ctPad("ctMe","Firma con il dito dal cellulare, o con il mouse: va su tutte e due le pagine di firma")}<div class="actions" style="margin:6px 0 0"><button class="btn small" data-a="ctMeSave" data-v="${id}">Salva la mia firma</button></div>`}
-  <div class="actions"><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button>${c.visible?`<button class="btn ghost" data-a="ctHide" data-v="${id}">Nascondi al proprietario</button>`:`<button class="btn" data-a="ctShow" data-v="${id}" ${ok?"":"disabled"}>Rendi visibile al proprietario</button>`}</div>
-  ${ok||c.visible?"":`<p class="row-meta" style="margin:6px 0 0">Per renderlo visibile servono il prezzo e la tua firma.</p>`}
-  <ol class="k-steps"><li class="${c.price&&c.meSig?"ok":"now"}"><i>${c.price&&c.meSig?"✓":"1"}</i>Dati e tua firma</li><li class="${c.visible?"ok":ok?"now":""}"><i>${c.visible?"✓":"2"}</i>Visibile al proprietario${c.visible?" (dati bloccati: per cambiarli nascondilo)":""}</li><li class="${c.visible?"now":""}"><i>3</i>Il proprietario completa i suoi dati e firma con il dito</li><li><i>4</i>Il PDF firmato si salva da solo nei “Referti e documenti”</li></ol></div>`}
+// Paolo: riquadro nella scheda del cucciolo (3 stati: da fare → mandato → firmato)
+function ctState(id){const d=D.dogs[id];if(!d||!d.bred||!d.owner||!(d.sex==="M"||d.sex==="F"))return null;if(CONTR[id])return"done";if(d.contract&&d.contract.visible)return"sent";return"todo"}
+function ctBadge(id){const d=D.dogs[id],s=ctState(id);if(!s||(d.status!=="prenotato"&&!d.contract&&!CONTR[id]))return"";
+  return `<span class="stb ${s}">${{todo:"✍️ Contratto da fare",sent:"⏳ Attesa firma",done:"✅ Firmato"}[s]}</span>`}
+function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const s=ctState(id);if(!s)return"";const d=D.dogs[id],c=d.contract||{},o=D.owners[d.owner]||{},G=CONTR[id],nm=esc((o.name||"").split(" ")[0]||"il proprietario");
+  const top=(ico,t,sub)=>`<div class="cs-top"><div class="cs-ico">${ico}</div><div><b>${t}</b><span>${sub}</span></div></div>`;
+  if(s==="done")return `<h2>Contratto di cessione</h2><div class="cs cs-st-done">${top("✅","Firmato da "+esc(G.buyer.name),"il "+ctWhen(G.at)+" · "+((d.docs||[]).some(x=>x.ct===G.hash)?"il PDF è già nei documenti del cucciolo":"sto salvando il PDF nei documenti…"))}
+    <div class="row2"><button class="btn" data-a="ctDl" data-v="${id}">Scarica il PDF</button><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button></div></div>`;
+  if(s==="sent")return `<h2>Contratto di cessione</h2><div class="cs cs-st-sent">${top("⏳",`Mandato a ${nm}: aspettiamo la sua firma`,`Prezzo ${esc(c.price||"—")} · lo trova nella sua pagina privata`)}
+    <div class="row2"><button class="btn" data-a="ctWa" data-v="${id}">Avvisa ${nm} su WhatsApp</button><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button><button class="btn ghost" data-a="ctUndo" data-v="${id}">Ritira e correggi</button></div>
+    <p class="small">“Avvisa su WhatsApp” apre WhatsApp con il messaggio e il link già pronti.</p></div>`;
+  setTimeout(()=>{initPads();ctCheck()},0);
+  return `<h2>Contratto di cessione</h2><div class="cs cs-st-todo">${top("✍️","Contratto da fare",`Per ${esc(o.name||"")} · versione ${d.sex==="M"?"Maschio":"Femmina"}`)}
+    <label class="big">1. Prezzo<input id="ctPrice" inputmode="decimal" placeholder="es. 1.400 €" value="${esc(c.price||"")}" oninput="ctCheck()"></label>
+    <div><p class="lbl">2. La tua firma</p>${ctPad("ctMe","Con il dito sul telefono, o con il mouse.")}</div>
+    <button class="btn go" id="ctGoBtn" data-a="ctGo" data-v="${id}" disabled>3. Firma e manda a ${nm}</button>
+    <p class="small">Tutto il resto (tuoi dati, cane, genitori, dati di ${nm}, caparra, consegna) è già scritto. <button class="plink" data-a="ctView" data-v="${id}">Vedi il contratto</button></p></div>`}
+function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&c&&c.dataset.used)}
 // Proprietario: contratto nella pagina privata
 function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return"";const T=(a,b)=>LANG==="en"?b:a,TT=(a,b)=>LANG==="en"?`${b} <span style="color:var(--muted);font-weight:400">/ ${a}</span>`:a;
   const G=d.ctSigned,h=`<h2>${TT("Contratto di cessione","Sale agreement")}</h2>`;
   if(G)return h+`<div class="k-box"><p style="margin:0"><span class="badge ok">${T("Firmato","Signed")}</span> ${T("il","on")} ${ctWhen(G.at)}.</p><div class="actions"><button class="btn" data-ct="pdf" data-v="${id}">${T("Scarica il contratto firmato (PDF)","Download the signed agreement (PDF)")}</button></div></div>`;
   if(typeof OWNER_MODE==="undefined")return h+`<p class="row-meta">Il proprietario qui legge il contratto, completa i suoi dati e firma con il dito.</p>`;
-  setTimeout(initPads,0);const B=ctBuyer(id),I=(k,a,b,v,x="")=>`<label>${TT(a,b)}${x}<input id="ctb_${k}" value="${esc(v)}"></label>`;
-  return h+`<div class="k-box" id="ctbox_${id}">
-  <p class="row-meta" style="margin:0">${T("Paolo ha preparato il contratto. Completa i tuoi dati e firma con il dito: riceverai una copia in PDF.","Paolo has prepared the agreement. Fill in your details and sign with your finger: you will receive a PDF copy.")}${LANG==="en"?" <b>The Italian text is the legally binding version; the English translation is provided for convenience.</b>":""}</p>
-  <p class="k-h"><span class="k-n">1</span>${TT("Leggi il contratto","Read the agreement")}</p><div class="k-read">${ctHtml(ctSnap(id),B,null,c.meSig)}</div>
-  <p class="k-h"><span class="k-n">2</span>${TT("I tuoi dati","Your details")}</p><p class="row-meta" style="margin:0 0 4px">${T("Quello che Paolo ha già è compilato: controlla e completa.","What Paolo already has is filled in: check and complete.")}</p>
-  <div class="k-grid">${I("name","Nome e cognome","Full name",B.name)}${I("cf","Codice fiscale","Tax code",B.cf,LANG==="en"?" <small>(or equivalent)</small>":"")}${I("doc","Documento d'identità n.","ID document no.",B.doc)}${I("via","Via / N.","Address",B.via)}${I("cap","CAP / località","Postcode / town",B.cap)}${I("tel","Telefono","Phone",B.tel)}${I("mail","Mail","Email",B.mail)}</div>
-  <p class="k-h"><span class="k-n">3</span>${TT("Foto e nome (punto 3.6)","Photos and name (point 3.6)")}</p>
-  <div class="k-opt">${C36.map((x,i)=>`<label><input type="radio" name="c36_${id}" value="${i}">${LANG==="en"?`${x[1]}<small>${x[0]}</small>`:x[0]}</label>`).join("")}</div>
-  <p class="k-h"><span class="k-n">4</span>${TT("Firma con il dito","Sign with your finger")}</p>
-  ${ctPad("ctB1_"+id,T("Firma con il dito dal cellulare, o con il mouse","Sign with your finger on your phone, or with the mouse"))}
-  <p class="k-h" style="font-size:1rem">${TT("Approvazione specifica delle clausole (artt. 1341–1342 c.c.)","Specific approval of clauses (Arts. 1341–1342 Italian Civil Code)")}</p>
-  <p class="row-meta" style="margin:0 0 6px">${ctFill(LANG==="en"?CL1341.en:CL1341.it,d.sex)}</p>
-  ${ctPad("ctB2_"+id,T("Seconda firma, per le clausole: con il dito o con il mouse","Second signature, for the clauses: finger or mouse"))}
-  <label class="row-meta" style="display:flex;gap:8px;align-items:flex-start;margin:10px 0"><input type="checkbox" id="ctok_${id}"> ${T("Ho letto il contratto e approvo specificamente le clausole elencate.","I have read the agreement and specifically approve the listed clauses.")}</label>
-  <p class="row-meta" id="cterr_${id}" style="color:var(--accent);margin:0 0 8px"></p>
-  <div class="actions" style="margin:0"><button class="btn" data-ct="sign" data-v="${id}">${T("Firma il contratto","Sign the agreement")}</button></div></div>`}
+  setTimeout(initPads,0);const B=ctBuyer(id),I=(k,a,b,v,x="")=>`<label>${TT(a,b)}${x}<input id="ctb_${k}" value="${esc(v)}"></label>`,P=t=>`<p style="font-weight:600;margin:0 0 6px">${t}</p>`;
+  const C36S=[["Va bene anche con me o la mia famiglia","Photos with me or my family are fine"],["Va bene il mio nome di battesimo insieme al cane","My first name may be mentioned with the dog"],["Solo foto del cane, senza persone né nomi","Only photos of the dog, no people or names"]];
+  return h+`<div class="cs" id="ctbox_${id}"><div class="cs-top"><div class="cs-ico" style="background:var(--accent-soft)">✍️</div><div><b>${T("Il contratto da firmare","The agreement to sign")}</b><span>${T("Ci vogliono un paio di minuti","It takes a couple of minutes")}</span></div></div>
+  ${LANG==="en"?`<p class="small"><b>The Italian text is the legally binding version; the English translation is provided for convenience.</b></p>`:""}
+  <details class="ct-read"><summary>${T("Leggi il contratto completo","Read the full agreement")}</summary><div class="k-read">${ctHtml(ctSnap(id),B,null,c.meSig)}</div></details>
+  <div>${P(T("I tuoi dati","Your details"))}<p class="small">${T("Paolo li ha già inseriti: controlla e completa.","Paolo has already filled them in: please check and complete.")}</p>
+  <div class="k-grid">${I("name","Nome e cognome","Full name",B.name)}${I("cf","Codice fiscale","Tax code",B.cf,LANG==="en"?" <small>(or equivalent)</small>":"")}${I("doc","Documento d'identità","ID document",B.doc)}${I("via","Indirizzo","Address",B.via)}${I("cap","CAP / località","Postcode / town",B.cap)}${I("tel","Telefono","Phone",B.tel)}${I("mail","Mail","Email",B.mail)}</div></div>
+  <div>${P(T("Foto e nome sui siti dell'allevamento","Photos and name on the kennel's websites"))}<div class="k-opt">${C36S.map((x,i)=>`<label><input type="radio" name="c36_${id}" value="${i}">${LANG==="en"?x[1]:x[0]}</label>`).join("")}</div></div>
+  <div>${P(T("Firma con il dito","Sign with your finger"))}${ctPad("ctB1_"+id,T("Con il dito sul telefono, o con il mouse","With your finger on your phone, or with the mouse"))}</div>
+  <div>${P(T("Seconda firma: approvo le clausole più importanti","Second signature: I approve the key clauses"))}<p class="small">${T("Penale, sterilizzazione, foro e le altre elencate nel contratto (artt. 1341–1342 c.c.)","Penalty, neutering, jurisdiction and the others listed in the agreement (Arts. 1341–1342 Italian Civil Code)")}</p>${ctPad("ctB2_"+id,T("Seconda firma","Second signature"))}</div>
+  <label class="small" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="ctok_${id}"> ${T("Ho letto il contratto e approvo specificamente le clausole elencate.","I have read the agreement and specifically approve the listed clauses.")}</label>
+  <p class="small" id="cterr_${id}" style="color:var(--accent)"></p>
+  <button class="btn go" data-ct="sign" data-v="${id}">${T("Firma il contratto","Sign the agreement")}</button></div>`}
 
 /* ---------- Scheda della cucciolata (solo allevatore) ---------- */
 function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
@@ -1227,14 +1236,9 @@ document.addEventListener("click",e=>{
   const a=el.dataset.a,v=el.dataset.v||"";
   switch(a){
     case "close":closeSheet();break;
-    case "ctSave":case "ctMeSave":case "ctShow":{const d=D.dogs[v];d.contract=d.contract||{};const g=s=>{const x=$(s);return x?x.value.trim():null};
-      if($("#ctPrice")&&!d.contract.visible)Object.assign(d.contract,{price:g("#ctPrice")});
-      if(a==="ctMeSave"){const s=padData("ctMe");if(!s){toast("Prima firma nel riquadro, con il dito o con il mouse.");break}d.contract.meSig=s}
-      if(a==="ctShow"){if(!d.contract.price||!d.contract.meSig){toast("Servono il prezzo e la tua firma.");break}d.contract.visible=true;toast("Ora il proprietario vede il contratto nella sua pagina.")}
-      else if(a==="ctSave")toast("Dati del contratto salvati.");
-      render();typeof saveNow==="function"&&saveNow();break}
-    case "ctResign":{delete D.dogs[v].contract.meSig;render();typeof saveNow==="function"&&saveNow();break}
-    case "ctHide":{D.dogs[v].contract.visible=false;render();typeof saveNow==="function"&&saveNow();break}
+    case "ctGo":{const d=D.dogs[v],p=$("#ctPrice"),s=padData("ctMe");if(!p||!p.value.trim()||!s)break;
+      d.contract=Object.assign(d.contract||{},{price:p.value.trim(),meSig:s,visible:true});render();typeof saveNow==="function"&&saveNow();toast("Mandato: ora lo trova nella sua pagina. Avvisalo su WhatsApp.");break}
+    case "ctUndo":{const c=D.dogs[v].contract;c.visible=false;delete c.meSig;render();typeof saveNow==="function"&&saveNow();toast("Ritirato: correggi e firma di nuovo.");break}
     case "ctView":{const d=D.dogs[v],G=CONTR[v];sheet(`${ctHtml(G?G.snap:ctSnap(v),G?G.buyer:ctBuyer(v),G||null,G?G.meSig:(d.contract||{}).meSig)}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);break}
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
@@ -1365,6 +1369,10 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
       resetCalc();render();saveNow();alert("Fatto: "+n+" modifiche unite. Il salvataggio online parte da solo.")}catch(err){alert("Questo file non contiene dati del gestionale.")}};r.readAsText(f)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
   if(a==="exportData")download("gestionale-copia-di-sicurezza_"+stamp()+".json",JSON.stringify({tipo:"copia di sicurezza del gestionale Del Piccolo Diavolo",at:nowS(),version:VERSION,data:D}));
+  if(a==="ctWa"){const d=D.dogs[v],o=D.owners[d.owner];if(!o.token){o.token=randTok();saveNow()}const url=location.origin+"/p/"+o.token,en=o.lang==="en",first=(o.name||"").split(" ")[0];
+    const msg=en?`Hi ${first}, the sale agreement for ${d.name} is ready. You can read it and sign it with your finger on your private page: ${url}`:`Ciao ${first}, il contratto di cessione di ${d.name} è pronto. Lo leggi e lo firmi con il dito nella tua pagina privata: ${url}`;
+    let ph=String(o.phone||"").replace(/[^\d+]/g,"");if(ph.startsWith("+"))ph=ph.slice(1);else if(ph.startsWith("00"))ph=ph.slice(2);else if(ph&&(o.country||"Italia")==="Italia")ph="39"+ph;
+    window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(msg),"_blank","noopener");return}
   if(a==="copyLink"){try{await navigator.clipboard.writeText(location.origin+"/p/"+D.owners[v].token);toast("Link copiato: incollalo su WhatsApp o in una email.")}catch(err){prompt("Copia il link:",location.origin+"/p/"+D.owners[v].token)}}
   if(a==="newToken"){const o=D.owners[v];if(o.token&&!confirm("Il link attuale smetterà di funzionare e dovrai mandare quello nuovo. Procedere?"))return;o.token=randTok();
     if(document.querySelector("#sheet .owner-view")){const dog=Object.keys(D.dogs).find(k=>D.dogs[k].owner===v);closeSheet();render();dog&&ownerPreview(dog)}else render();saveNow();toast("Link privato pronto.")}
