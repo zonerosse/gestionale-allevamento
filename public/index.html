@@ -493,13 +493,19 @@ function openItem(id){if(!leaveOk())return;if(D.dogs[id]&&!(tab==="proprietari"&
 /* Navigazione: il tasto "indietro" del telefono/browser torna alla pagina precedente del gestionale e chiude i riquadri */
 let NAVLOCK=false,lastNav="";
 const NAVSTACK=[];
+/* Riquadri a tendina (es. "Cucciolata attuale" nei Prenotati, "Vedi i cuccioli" in Cucciolate): restano aperti come li hai lasciati */
+const DOPEN=new Map();
+function dKey(el){const s=el.querySelector(":scope>summary");return tab+"|"+(view||"")+"|"+(typeof filter!=="undefined"?filter:"")+"|"+(s?s.textContent.replace(/\s+/g," ").trim().slice(0,60):"")}
+document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.closest("#main")&&!t.dataset.hs)DOPEN.set(dKey(t),t.open)},true);
+function dRestore(){document.querySelectorAll("#main details:not([data-hs])").forEach(el=>{const k=dKey(el);if(DOPEN.has(k))el.open=DOPEN.get(k)})}
 function navLabel(st){if(!st)return"Cani";const T0={cani:"Cani",cucciolate:"Cucciolate",proprietari:"Proprietari",coi:"Accoppiamenti"};
   if(st.view){if(st.tab==="proprietari"&&D.owners[st.view])return D.owners[st.view].name;const d=D.dogs[st.view];if(d)return d.nick||d.name}
+  if(st.tab==="cani"&&st.f){const F={miei:"I miei cani",ceduto:"Ceduti",prenotato:"Prenotati",tutti:"Tutti i cani",fattrici:"Fattrici",fattrice:"Fattrici",esterni:"Esterni",ext:"Esterni"};if(F[st.f])return F[st.f]}
   return T0[st.tab]||"Cani"}
 function navBackLabel(){const p=NAVSTACK[NAVSTACK.length-2];return p?navLabel(p):(tab==="proprietari"?"Tutti i proprietari":"Tutti i cani")}
-function navPush(){if(typeof OWNER_MODE!=="undefined")return;const k=tab+"|"+(view||"");if(k===lastNav)return;
-  try{if(lastNav&&!NAVLOCK){history.replaceState(Object.assign({},history.state||{},{y:window.scrollY}),"");history.pushState({tab,view},"");NAVSTACK.push({tab,view})}
-    else{history.replaceState({tab,view},"");if(!NAVSTACK.length)NAVSTACK.push({tab,view});else NAVSTACK[NAVSTACK.length-1]={tab,view}}}catch(e){}lastNav=k;
+function navPush(){if(typeof OWNER_MODE!=="undefined")return;const k=tab+"|"+(view||"");if(k===lastNav){if(NAVSTACK.length&&typeof filter!=="undefined")NAVSTACK[NAVSTACK.length-1].f=filter;return}
+  try{if(lastNav&&!NAVLOCK){history.replaceState(Object.assign({},history.state||{},{y:window.scrollY}),"");history.pushState({tab,view},"");NAVSTACK.push({tab,view,f:typeof filter!=="undefined"?filter:""})}
+    else{history.replaceState({tab,view},"");const e0={tab,view,f:typeof filter!=="undefined"?filter:""};if(!NAVSTACK.length)NAVSTACK.push(e0);else NAVSTACK[NAVSTACK.length-1]=e0}}catch(e){}lastNav=k;
   const b=document.querySelector("#main .back");if(b)b.textContent="‹ "+navBackLabel()}
 function sheetOpen(){const b=document.getElementById("sheetBg");return !!(b&&b.classList.contains("open"))}
 window.addEventListener("popstate",e=>{if(typeof OWNER_MODE!=="undefined"){lbClose(true);return}
@@ -536,7 +542,7 @@ function render(){resetCalc();nav();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
   if(tab==="coi")calcMate();
-  colorize(m);roClean(document);navPush();
+  colorize(m);roClean(document);dRestore();navPush();
 }
 
 /* ---------- Cani ---------- */

@@ -192,3 +192,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Il tasto "‹ …" in cima alle schede torna alla pagina da cui si è arrivati (`NAVSTACK` + `history.back()`), con la
   scritta giusta (es. "‹ Cucciolate", "‹ Laran") e lo stesso punto di scorrimento e filtro; se non c'è una pagina
   precedente va all'elenco.
+- Le tendine (`details`) dell'elenco restano aperte o chiuse come lasciate (`DOPEN`, chiave tab+cane+filtro+titolo),
+  anche tornando indietro; il tasto in alto dice anche il filtro (es. "‹ Prenotati").
