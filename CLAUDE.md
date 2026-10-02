@@ -189,3 +189,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   nata dopo, entro 75 giorni): parto previsto = monta + 63, tappe ecografia +25, radiografia +55, cassa parto +56,
   finestra +58→+68. Fuori gravidanza: prossimo calore = ultimo + media degli intervalli (default 180 giorni).
   In Cucciolate la cucciolata pianificata mostra la riga della gravidanza (`pregLine`).
+- Il tasto "‹ …" in cima alle schede torna alla pagina da cui si è arrivati (`NAVSTACK` + `history.back()`), con la
+  scritta giusta (es. "‹ Cucciolate", "‹ Laran") e lo stesso punto di scorrimento e filtro; se non c'è una pagina
+  precedente va all'elenco.
