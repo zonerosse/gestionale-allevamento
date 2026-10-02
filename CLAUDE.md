@@ -182,3 +182,10 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Pagina del proprietario, Pedigree (scelta A di Paolo): niente albero con le foto, ma le schede di Padre e Madre con la
   loro foto (`d.photo`), LOI, colore, anno e test (`ovParents`) e il riquadro "La cucciolata su SBTpedigree" se la
   cucciolata ha `sbtUrl` (si inserisce dalla Scheda della cucciolata). Anche nella scheda di Paolo: genitori + link SBT, e l'albero a 4 generazioni dentro un riquadro richiudibile (per completare gli antenati).
+
+## Calori, monte e parto previsto (ottobre 2026)
+- Solo fattrici di Paolo (`isFattrice`): `d.repro=[{t:"heat"|"prog"|"mating"|"visit",date,val,sire,kind,note}]`, sezione
+  "Calori e monte" (`reproHtml`) prima della Salute. In gravidanza (prima monta dopo l'ultimo calore, nessuna cucciolata
+  nata dopo, entro 75 giorni): parto previsto = monta + 63, tappe ecografia +25, radiografia +55, cassa parto +56,
+  finestra +58→+68. Fuori gravidanza: prossimo calore = ultimo + media degli intervalli (default 180 giorni).
+  In Cucciolate la cucciolata pianificata mostra la riga della gravidanza (`pregLine`).
