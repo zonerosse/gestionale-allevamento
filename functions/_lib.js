@@ -36,6 +36,11 @@ export async function isAdmin(request, env) {
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
 
+// Tabella dei contratti firmati: si crea da sola la prima volta
+export async function ensureContracts(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS contracts (dog TEXT PRIMARY KEY, owner TEXT, json TEXT, signed_at TEXT)").run();
+}
+
 export async function loadData(env) {
   const row = await env.DB.prepare("SELECT version, json, updated FROM store WHERE id = 'main'").first();
   return row ? { version: row.version, data: JSON.parse(row.json), updated: row.updated } : null;
@@ -58,14 +63,14 @@ export function ownerSubset(data, token) {
   const dogs = {};
   for (const [k, g] of Object.entries(depth)) {
     const d = data.dogs[k], own = mine.includes(k), o = {};
-    if (own) { Object.assign(o, d); delete o.notes; o.owner = oid; }
+    if (own) { Object.assign(o, d); delete o.notes; o.owner = oid; if (o.contract && !o.contract.visible) delete o.contract; }
     else { PUB.forEach(f => { if (d[f] !== undefined) o[f] = d[f]; }); if (g <= 3 && d.photo) o.photo = d.photo; }
     if (g <= 2) o.docs = (d.docs || []).filter(x => !x.private); else delete o.docs;
     if (own) o.docs = (d.docs || []).filter(x => !x.private);
     dogs[k] = o;
   }
   const ow = data.owners[oid];
-  const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it" } };
+  const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it", cf: ow.cf || "", doc: ow.doc || "" } };
   const litters = {};
   mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) litters[l] = data.litters[l]; });
   let txt = JSON.stringify({ dogs, owners, litters, matings: {} });
