@@ -131,3 +131,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Pagina del proprietario: se c'è un contratto da firmare, in cima (sotto il nome) l'avviso rosso "Hai un contratto da firmare"
   con "Firma ora" e **subito sotto il modulo da firmare** (`ctTop`, scelta C di Paolo); dopo la firma in cima resta solo
   una riga verde con il PDF, e il riquadro "firmato" torna in fondo.
+- Liberatoria foto (punto 3.6): dopo la firma la scelta si vede nella scheda di Paolo (riga "📷 Foto: …"), in prima pagina
+  del contratto (riquadro verde) e al punto 3.6 (voci su righe separate, scelta in grassetto "SCELTA DELL'ACQUIRENTE").

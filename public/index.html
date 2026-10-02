@@ -330,6 +330,9 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .ct-topwrap{margin:0 0 22px}.ct-topwrap h2{margin-top:0}
 .ok-ct{display:flex;gap:10px;align-items:center;background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:10px 14px;margin:0 0 18px;font-weight:600;flex-wrap:wrap}.ok-ct .btn{margin-left:auto}
 @media (max-width:520px){.alert-ct{flex-wrap:wrap}.alert-ct .btn{margin-left:0;width:100%;text-align:center}}
+.lib{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--bg)}.lib .t{font-weight:600}.lib .s{color:var(--muted);font-size:.88rem}
+.k-doc .ch{display:flex;gap:10px;align-items:flex-start;padding:6px 10px;border-radius:6px;margin:4px 0}.k-doc .ch.on{background:#eef7ee;font-weight:700}.k-doc .ch.off{color:#999}.k-doc .ch i{font-style:normal;font-family:monospace}
+.k-doc .ct-sum{border:2px solid #2e7d32;border-radius:6px;padding:8px 12px;margin:10px 0}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -967,7 +970,9 @@ function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${es
   const F=(a,b,v)=>`<span>${en?b:a}</span><span>${v?esc(v):'<span class="blank">______________________</span>'}</span>`;
   const c36=i=>C36.map((c,j)=>(G&&G.c36===j?"☒ ":"☐ ")+c[i]).join("<br>");
   const fix=(s,i)=>ctFill(s,S.sex).replace("{C36}",c36(0)).replace("{C36EN}",c36(1));
-  const body=i=>CT.map(x=>`<h5>${fix(x[i])}</h5>${x[2].map(p=>`<p>${fix(p[i])}</p>`).join("")}`).join("");
+  const opts=i=>C36.map((c,j)=>{const on=G&&G.c36===j;return `<div class="ch ${G?(on?"on":"off"):""}"><i>${on?"☒":"☐"}</i><span>${esc(c[i])}${on?` — <u>${i?"BUYER'S CHOICE":"SCELTA DELL'ACQUIRENTE"}</u>`:""}</span></div>`}).join("");
+  const body=i=>CT.map(x=>`<h5>${fix(x[i])}</h5>${x[2].map(p=>/^\{C36(EN)?\}$/.test(p[i])?opts(i):`<p>${fix(p[i])}</p>`).join("")}`).join("");
+  const sum=i=>G&&G.c36!=null?`<div class="ct-sum"><b>${i?"Photos and name (point 3.6):":"Foto e nome (punto 3.6):"}</b> ☒ ${esc(C36[G.c36][i])}</div>`:"";
   const sx=S.sex==="M";
   return `<div class="k-doc"><div class="hd">Allevamento Del Piccolo Diavolo – Ostellato (FE) – delpiccolodiavolo.it</div>
   <h3>${en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`}</h3>
@@ -975,7 +980,7 @@ function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${es
   <h4>${en?"Seller":"Cedente"}</h4><div class="fld">${F("Nome","Name","Boldrini Paolo")}${F("Via / N.","Address","Via A. Chierici 12")}${F("CAP / località","Postcode / town","44020 Ostellato (FE), Italy".replace(en?"#":", Italy",""))}${F("Telefono","Phone",en?"+39 392 4635584":"392 4635584")}${F("Mail","Email","zonerosse@gmail.com")}</div>
   <h4>${en?"Buyer":"Acquirente"}</h4><div class="fld">${F("Nome","Name",B.name)}${F("Codice fiscale","Tax code / ID code",B.cf)}${F("Documento d'identità n.","ID document no.",B.doc)}${F("Via / N.","Address",B.via)}${F("CAP / località","Postcode / town",B.cap)}${F("Telefono","Phone",B.tel)}${F("Mail","Email",B.mail)}</div>
   <h4>${en?"The dog":"Dati del cane"}</h4><div class="fld">${F("Nome del cane","Dog's name",S.dog.name)}${F("Codice del microchip","Microchip",S.dog.chip)}${F("Nato il","Born on",fmt(S.dog.birth))}${F("Razza","Breed","Staffordshire Bull Terrier")}${F("Colore","Colour",S.dog.color)}${F("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"))}${F("Padre (nome e microchip)","Sire (name and microchip)",S.sire)}${F("Madre (nome e microchip)","Dam (name and microchip)",S.dam)}</div>
-  <h4>${en?"Financial terms":"Condizioni economiche"}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit",CT_DEP[k])}${F("Presa in consegna","Delivery",CT_DEL[k])}</div>
+  <h4>${en?"Financial terms":"Condizioni economiche"}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit",CT_DEP[k])}${F("Presa in consegna","Delivery",CT_DEL[k])}</div>${sum(k)}
   <p>${en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:"}</p>
   ${body(k)}
   ${en?`<div style="border-top:2px solid #333;margin:22px 0 10px;padding-top:10px"><h4 style="margin-top:0">Testo italiano – fa fede / Italian text – binding version</h4>
@@ -1005,13 +1010,18 @@ async function ctPdf(S,B,G,meSig){const J=await jspdf(),doc=new J({unit:"mm",for
       doc.line(x,y+21,x+w,y+21);doc.setFontSize(8);doc.setTextColor(90);doc.setFont("helvetica","normal");doc.text(l,x,y+25)});y+=30};
   const c36=i=>C36.map((c,j)=>(G&&G.c36===j?"☒ ":"☐ ")+c[i]).join("<br>");
   const fix=s=>ctFill(s,S.sex).replace("{C36}",c36(0)).replace("{C36EN}",c36(1));
-  const body=i=>CT.forEach(x=>{y+=1;need(10);para(fix(x[i]),{bold:true,size:9.6,after:1});x[2].forEach(p=>para(fix(p[i])))});
+  const opts=i=>{C36.forEach((c,j)=>{const on=G&&G.c36===j;const t=(on?"[X] ":"[  ] ")+c[i]+(on?"  —  "+(i?"BUYER'S CHOICE":"SCELTA DELL'ACQUIRENTE"):"");
+      doc.setFontSize(9);doc.setFont("helvetica",on?"bold":"normal");const L=doc.splitTextToSize(t,CW-6);
+      for(const l of L){need(4);doc.setFont("helvetica",on?"bold":"normal");doc.setTextColor(G&&!on?150:20);doc.text(l,M+4,y);y+=3.9}y+=1});y+=1};
+  const body=i=>CT.forEach(x=>{y+=1;need(10);para(fix(x[i]),{bold:true,size:9.6,after:1});x[2].forEach(p=>/^\{C36(EN)?\}$/.test(p[i])?opts(i):para(fix(p[i])))});
+  const sum=i=>{if(!G||G.c36==null)return;y+=2;need(12);const t=(i?"Photos and name (point 3.6): ":"Foto e nome (punto 3.6): ")+"[X] "+C36[G.c36][i];
+    doc.setFontSize(9);doc.setFont("helvetica","bold");const L=doc.splitTextToSize(t,CW-8);const h=L.length*3.9+4;doc.setDrawColor(46,125,50);doc.setLineWidth(.6);doc.rect(M,y-3.5,CW,h);doc.setLineWidth(.2);doc.setTextColor(20);doc.text(L,M+4,y+.5);y+=h+1};
   head();doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text(en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`,M,y);y+=7;
   if(en)para("This agreement is written in English for the buyer's convenience. The Italian text at the end of the document is the binding version and prevails in case of doubt.",{it:true,grey:true});
   h4(en?"Seller":"Cedente");fld("Nome","Name","Boldrini Paolo");fld("Via / N.","Address","Via A. Chierici 12");fld("CAP / località","Postcode / town",en?"44020 Ostellato (FE), Italy":"44020 Ostellato (FE)");fld("Telefono","Phone",en?"+39 392 4635584":"392 4635584");fld("Mail","Email","zonerosse@gmail.com");
   h4(en?"Buyer":"Acquirente");fld("Nome","Name",B.name);fld("Codice fiscale","Tax code / ID code",B.cf);fld("Documento d'identità n.","ID document no.",B.doc);fld("Via / N.","Address",B.via);fld("CAP / località","Postcode / town",B.cap);fld("Telefono","Phone",B.tel);fld("Mail","Email",B.mail);
   h4(en?"The dog":"Dati del cane");fld("Nome del cane","Dog's name",S.dog.name);fld("Codice del microchip","Microchip",S.dog.chip);fld("Nato il","Born on",fmt(S.dog.birth));fld("Razza","Breed","Staffordshire Bull Terrier");fld("Colore","Colour",S.dog.color);fld("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"));fld("Padre (nome e microchip)","Sire (name and microchip)",S.sire);fld("Madre (nome e microchip)","Dam (name and microchip)",S.dam);
-  h4(en?"Financial terms":"Condizioni economiche");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit",CT_DEP[k]);fld("Presa in consegna","Delivery",CT_DEL[k]);
+  h4(en?"Financial terms":"Condizioni economiche");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit",CT_DEP[k]);fld("Presa in consegna","Delivery",CT_DEL[k]);sum(k);
   y+=2;para(en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:");
   body(k);
   if(en){y+=4;need(14);doc.setDrawColor(40);doc.line(M,y,M+CW,y);y+=6;h4("Testo italiano – fa fede / Italian text – binding version");
@@ -1038,7 +1048,9 @@ function ctBadge(id){const d=D.dogs[id],s=ctState(id);if(!s||(d.status!=="prenot
   return `<span class="stb ${s}">${{todo:"✍️ Contratto da fare",sent:"⏳ Attesa firma",done:"✅ Firmato"}[s]}</span>`}
 function contractBox(id){if(typeof OWNER_MODE!=="undefined")return"";const s=ctState(id);if(!s)return"";const d=D.dogs[id],c=d.contract||{},o=D.owners[d.owner]||{},G=CONTR[id],nm=esc((o.name||"").split(" ")[0]||"il proprietario");
   const top=(ico,t,sub)=>`<div class="cs-top"><div class="cs-ico">${ico}</div><div><b>${t}</b><span>${sub}</span></div></div>`;
+  const LIB=[["Foto: va bene anche con le persone","Puoi pubblicare foto in cui compaiono il proprietario o la sua famiglia."],["Foto: va bene il nome di battesimo","Puoi citare il suo nome di battesimo insieme al cane."],["Foto: solo il cane, niente persone né nomi","Puoi pubblicare solo foto del cane, senza persone e senza il suo nome."]];
   if(s==="done")return `<h2>Contratto di cessione</h2><div class="cs cs-st-done">${top("✅","Firmato da "+esc(G.buyer.name),"il "+ctWhen(G.at)+" · "+((d.docs||[]).some(x=>x.ct===G.hash)?"il PDF è già nei documenti del cucciolo":"sto salvando il PDF nei documenti…"))}
+    ${G.c36!=null&&LIB[G.c36]?`<div class="lib"><span style="font-size:1.4rem">📷</span><div><div class="t">${LIB[G.c36][0]}</div><div class="s">${LIB[G.c36][1]}</div></div></div>`:""}
     <div class="row2"><button class="btn" data-a="ctDl" data-v="${id}">Scarica il PDF</button><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button></div></div>`;
   if(s==="sent")return `<h2>Contratto di cessione</h2><div class="cs cs-st-sent">${top("⏳",`Mandato a ${nm}: aspettiamo la sua firma`,`Prezzo ${esc(c.price||"—")} · lo trova nella sua pagina privata`)}
     <div class="row2"><button class="btn" data-a="ctWa" data-v="${id}">Avvisa ${nm} su WhatsApp</button><button class="btn ghost" data-a="ctView" data-v="${id}">Vedi il contratto</button><button class="btn ghost" data-a="ctUndo" data-v="${id}">Ritira e correggi</button></div>
