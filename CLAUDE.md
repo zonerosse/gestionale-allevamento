@@ -316,3 +316,11 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   il numero e il messaggio già scritto), **Email** (mailto con oggetto e testo) e "Copia link"; messaggio in inglese per i proprietari
   `lang:"en"` (`lkMsg`). Dopo l'invio `owners[id].linkSent` = data → "✔ mandato il …". Scelte A B A di Paolo.
   Numero: `lkPhone` (toglie + e 00, aggiunge 39 ai numeri italiani senza prefisso). Bottone disattivato se manca telefono o email.
+
+## Visualizza / Scarica (ottobre 2026)
+- Ogni file (voci di Salute, Certificati, Referti e documenti, referto DNA, documenti d'identità, certificati di iscrizione,
+  passaggio di proprietà) ha due bottoni (`fBtns`): **Visualizza** (foto sopra la pagina con `#lbx`, PDF in una scheda) e
+  **Scarica** (`class="fb-dl"`, con `download`; il visualizzatore di foto la lascia passare). Anche nella pagina del proprietario
+  ("View" / "Download"). Scelta B di Paolo. Prima i link scaricavano soltanto.
+- Chiudere una foto con la X fa `history.back()`: `LB_BACK` fa ignorare quel `popstate`, altrimenti la regola del passo doppio
+  riportava alla pagina precedente.
