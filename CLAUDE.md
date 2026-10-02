@@ -85,7 +85,9 @@ Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondar
 5. **I dati inseriti non devono mai andare persi**: nessuna modifica al programma deve toccare D1/R2,
    cambiare il formato dei dati in modo incompatibile o richiedere di ricaricare i dati.
    Se serve un nuovo campo: si aggiunge, con valore vuoto di default.
-6. **Codici fiscali e documenti d'identità dei proprietari non vanno nel gestionale** (né online): restano nei PDF stampati.
+6. **Codici fiscali e documenti d'identità dei proprietari** (regola cambiata da Paolo, ottobre 2026): si tengono nel gestionale
+   **solo per Paolo** (`owners[id].cf`, `.doc`, `.bplace`, `.bdate`, `.ids`; i suoi in `settings`): mai nella pagina del proprietario,
+   mai a chi consulta (`ownerSubset` manda solo i campi elencati, `viewerData` riduce i proprietari al nome e toglie `settings`).
 7. Lingua: italiano, testi semplici e diretti; date `gg/mm/aaaa`; simboli ♂ azzurro / ♀ rosa (icone SVG spesse).
 8. Scelte grafiche già fatte: Proprietari raggruppati per cucciolata, tutti aperti; Cucciolate come linea del tempo
    con foto dei genitori; Salute con bottone siringa fisso;
@@ -236,7 +238,7 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   (quella salvata, `D.settings.sellerSig`) e dell'acquirente **con il dito sul telefono di Paolo alla consegna** (scelta A).
 - `ppGo` crea il PDF (jsPDF) e lo mette nei documenti del cucciolo `{title:"Passaggio di proprietà firmato",pp:true,private:false}`:
   **lo vede anche il proprietario** (scelta di Paolo). "Rifai" sostituisce il PDF precedente. `d.pp={date,at}`.
-- I dati dell'acquirente (cod. fisc., nascita) **non** si salvano nel gestionale: stanno solo nel PDF.
+- I dati dell'acquirente scritti nel modulo non si salvano a parte: stanno nel PDF (nascita: da `owners[id].bplace/bdate`).
   I dati di Paolo per il modulo (`D.settings.ppMe={cf,bplace,bdate}`) si scrivono la prima volta; `viewerData` toglie `settings`
   e i documenti `pp`. Fotocopie dei documenti d'identità: fuori dal gestionale (regola 6), le allega Paolo.
 - "Consegna" (`kitBox`, solo Paolo): spunte `d.kit=[bool×3]` per `KIT` (Kit puppy Farmina, libretto veterinario, certificato di
@@ -263,3 +265,21 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   e le prossime): scelta di Paolo. Sul computer la barra a sinistra le mostra tutte.
 - Tasto indietro: chiudere un riquadro (sheet) lasciava un passo doppio nella cronologia e "‹" sembrava non funzionare; ora il
   passo doppio si salta da solo (`popstate`).
+
+## Documenti d'identità e invio all'anagrafe (ottobre 2026)
+- Proprietario: riquadro "Documenti d'identità" nella sua scheda (`idsHtml("o:"+id)`), foto (ridotte con `shrink`) o PDF in
+  `owners[id].ids=[{id,title,fname,date,file}]`; quello di Paolo in `settings.myIds` (riquadro nella Scheda della cucciolata).
+  "Importa modifiche" con `{documentiIdentita:[{dog,name,files:[{title,fname,file}]}]}` (`importIds`, stessa ricerca di `importNascite`).
+- Scheda della cucciolata → "Passaggi di proprietà" (`ppLitBox`): cuccioli con proprietario, stato (firmato / da firmare),
+  documenti presenti o no, avviso se manca qualcosa. "Scarica i 2 PDF" / "Prepara l'email all'anagrafe" (`ppPack`): con pdf-lib
+  (`public/pdf-lib.min.js`, servito dal gestionale, niente CDN) unisce tutti i passaggi firmati in un PDF e fa un secondo PDF con i
+  documenti (Paolo per primo, poi gli acquirenti nello stesso ordine; pagina "non ancora caricato" se manca).
+  Sul telefono: `navigator.share` con i 2 PDF e il testo (l'indirizzo viene copiato negli appunti: la condivisione non può
+  riempire il destinatario). Sul computer: scarica i 2 PDF e apre `mailto:` con oggetto e testo.
+  Indirizzo: `settings.anagrafeEmail`, di base p.toselli@comune.ostellato.fe.it (dal sito del Comune), "cambia" nel riquadro.
+- Proprietari stranieri (`lang:"en"`): firmano solo il modulo italiano (scelta di Paolo). In "Compila e firma" c'è il riquadro
+  "🇬🇧 For …" con la spiegazione (`PP_WHY`); dopo la firma nei documenti del cucciolo va anche la traduzione inglese
+  (`ppEnPdf`, `pp_en:true`, "not to be signed"), visibile al proprietario, non a chi consulta.
+- jsPDF si carica con `loadJsPDF()`: prima la funzione si chiamava `jspdf` e lo script di jsPDF la sovrascriveva
+  (`window.jspdf`), così dal secondo PDF nella stessa sessione (contratti o passaggi) non funzionava più.
+- La firma salvata (`settings.sellerSig`) dopo il salvataggio è un file `/files/…`: per i PDF va passata da `toDataURL`.
