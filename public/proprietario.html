@@ -359,6 +359,11 @@ h2.cz::before{content:attr(data-ic);width:34px;height:34px;border-radius:9px;dis
 .z-dati{--c1:#eef2f8;--c2:#d6deec;--c3:#34507a}.z-own{--c1:#eef7f5;--c2:#cfe8e2;--c3:#1f7a68}.z-ped{--c1:#fbf3ea;--c2:#efd9bf;--c3:#9a5a16}
 .z-coi{--c1:#fbeeee;--c2:#f0cfcf;--c3:#8c2b23}.z-sal{--c1:#eaf2fb;--c2:#c8dcf3;--c3:#1f5fa8}.z-test{--c1:#f3eefb;--c2:#dccdf2;--c3:#6a3fb0}
 .z-dna{--c1:#ebf6ec;--c2:#c7e6ca;--c3:#2e7d32}.z-all{--c1:#fff3e6;--c2:#ffd9ad;--c3:#c05d00}.z-ct{--c1:#fbeeee;--c2:#f0cfcf;--c3:#8c2b23}.z-doc{--c1:#f1f3f5;--c2:#dde2e7;--c3:#4b5563}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:0 0 14px}
+.pick label{display:flex;flex-direction:column;gap:6px;font-weight:600}.pick select{font:inherit;font-weight:400;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);max-width:100%}
+.addsbt{background:var(--paper);border:1px dashed var(--muted);border-radius:12px;padding:12px 14px;margin:0 0 16px}.addsbt input{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px}
+.res{background:var(--paper);border:2px solid var(--accent);border-radius:16px;padding:18px}.res .cnum{font-family:var(--serif);font-size:2.2rem;line-height:1}.res .cnum small{font-size:.5em}
+.twrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:12px 0}.tcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem;min-width:0}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -1296,13 +1301,22 @@ function saveOwner(id){
 
 /* ---------- Accoppiamento di prova ---------- */
 let mateS="forever",mateD="queen";
-function mating(){
-  return `<h1>Accoppiamento di prova</h1><p class="lead">Scrivi o scegli maschio e femmina: il COI dei cuccioli si calcola prima di farlo. Se un cane non c’è, lo aggiungi da qui.</p>
-  <div class="mate"><div class="f"><span>Maschio</span>${combo("ms","M",mateS)}</div>
-  <div class="f"><span>Femmina</span>${combo("md","F",mateD)}</div></div>
-  <div id="mateOut"></div>
-  <p class="lead" style="margin-top:24px">Pedigree dei tuoi cani ancora incompleti? <button class="btn ghost small" data-a="loadDemo">Carica un esempio didattico</button></p>`;
-}
+function mateFemales(){return Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];return d.sex==="F"&&!d.ext&&(d.status==="fattrice"||d.fattr)&&d.status!=="sterilizzata"&&d.status!=="deceduto"}).sort((a,b)=>dn(a).localeCompare(dn(b)))}
+function dogAge(d){const y=d.birth?new Date(d.birth):d.year?new Date(d.year+"-06-01"):null;return y?(Date.now()-y)/3.156e10:null}
+function mateMales(){return Object.keys(D.dogs).filter(k=>{const d=D.dogs[k],a=dogAge(d);return d.sex==="M"&&d.status!=="deceduto"&&(d.sbtAdded||(a!==null&&a>=1&&a<=12))}).sort((a,b)=>dn(a).localeCompare(dn(b)))}
+// COI della coppia: SBT se c'è (analisi della cucciolata o valore inserito), altrimenti Wright solo se affidabile
+function pairCoi(s,d){const l=Object.values(D.litters).find(x=>x.sire===s&&x.dam===d&&x.sbtA&&x.sbtA.c8);if(l)return{v:pc(l.sbtA.c8),src:"sbt"};
+  const m=mateSbt(s,d);if(!isNaN(m))return{v:m,src:"sbt"};const cv=coverage(s,d),r=cv.tot?cv.known/cv.tot:0;return{v:coi8(s,d)*100,src:r>=.7?"wright":"low",cov:Math.round(r*100)}}
+function mating(){const F=mateFemales();if(!F.includes(mateD))mateD=F[0]||null;const M=mateMales();
+  const lab=k=>{const d=D.dogs[k];let t=`${d.name}${d.nick?" (“"+d.nick+"”)":""}${d.birth||d.year?" · "+String(d.birth||d.year).slice(0,4):""}`;if(!mateD)return t;
+    const p=pairCoi(k,mateD),ic=p.src==="low"?"⚪":p.v<6?"🔵":p.v<=9?"🟢":"🔴";return `${ic} ${t} — ${p.src==="sbt"?"COI SBT "+pf(p.v)+"%":p.src==="wright"?"COI "+pf(p.v)+"%":"COI non affidabile"}`};
+  const og=(t,ks)=>ks.length?`<optgroup label="${t}">${ks.map(k=>`<option value="${k}" ${k===mateS?"selected":""}>${esc(lab(k))}</option>`).join("")}</optgroup>`:"";
+  return `<h1>Accoppiamenti</h1><p class="lead">Scegli la fattrice e il maschio. Accanto a ogni maschio c'è già il COI con la fattrice scelta: 🟢 nella tua fascia 6–9% · 🔵 sotto · 🔴 sopra · ⚪ non affidabile (pedigree incompleto).</p>
+  <div class="pick"><label>Femmina<select id="md">${F.map(k=>`<option value="${k}" ${k===mateD?"selected":""}>${esc((D.dogs[k].nick?D.dogs[k].nick+" – ":"")+D.dogs[k].name)}</option>`).join("")}</select></label>
+  <label>Maschio<select id="ms"><option value="">— scegli il maschio —</option>${og("I tuoi maschi",M.filter(k=>!D.dogs[k].ext))}${og("Stalloni in archivio",M.filter(k=>D.dogs[k].ext))}</select></label></div>
+  <div class="addsbt"><b>➕ Aggiungi un maschio da SBTpedigree</b><p class="row-meta" style="margin:4px 0 0">Incolla il link della sua pagina su SBT: provo a leggere nome, nascita e genitori. Se SBT non lo lascia leggere, ti chiedo solo il nome.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><input id="sbtUrl" placeholder="https://sbtpedigree.com/dog_details?dogs_id=…" style="flex:1;min-width:220px"><button class="btn small" data-a="sbtAdd">Aggiungi</button></div></div>
+  <div id="mateOut"></div>`}
 function gensOf(root,x,depth=7){const g=[];if(root===x)g.push(1);ancestors(root,depth).forEach((c,i)=>c.forEach(y=>{if(y===x)g.push(i+2)}));return g}
 function ancList(com,S=mateS,M=mateD){if(!com.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
   const ord=n=>n+"ª";
@@ -1320,16 +1334,19 @@ function setMateSbt(v){D.matings=D.matings||{};const k=mateS+"|"+mateD;const t=v
   if(t&&isNaN(pc(t)))return;D.matings[k]=Object.assign(D.matings[k]||{},{coiSbt:t});calcMate()}
 function calcMate(){
   const o=$("#mateOut");if(!o)return;
-  if(!mateS||!mateD){o.innerHTML='<p class="empty">Scegli entrambi i cani.</p>';return}
-  const c=coi8(mateS,mateD)*100,cov=coverage(mateS,mateD),b=band(c),com=commonAnc(mateS,mateD);
-  const miss=[mateS,mateD].map(k=>{const c=pedCount(k);return `<div class="pmiss"><span><strong>${esc(dn(k))}</strong> · antenati inseriti ${c.k} di ${c.t}</span>${c.k<c.t?`<button class="btn ${c.k<c.t/2?"":"ghost"} small" data-a="pedForm" data-v="${k}">Completa il pedigree</button>`:'<span class="badge ok">Completo</span>'}</div>`}).join("");
-  const sb=mateSbt(mateS,mateD),hs=!isNaN(sb),bs=hs?band(sb):null,m=(D.matings||{})[mateS+"|"+mateD]||{};
-  o.innerHTML=`<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
-   <div class="coi-band">${hs?`<span class="badge ${bs[1]}">${bs[0]}</span>`:'<span class="badge">COI SBT non ancora inserito</span>'}</div>
-   <div class="coi-cov"><strong>COI 8 generazioni SBT</strong> (test mating) · <label class="sbt-in">valore: <input id="mateSbt" inputmode="decimal" placeholder="es. 6,17" value="${esc(m.coiSbt||"")}">%</label></div></div>
-   <div class="coi2"><span>Calcolo del gestionale (Wright, 8 generazioni): <strong>${pf(c)}%</strong></span><span class="row-meta">Antenati noti ${cov.known} di ${cov.tot}. Di solito un po' più basso di SBT, che usa il suo database completo.</span></div>
-   <div class="anc">${ancList(com)}</div>
-   <div class="pmiss-box"><strong>Per un COI affidabile servono gli antenati di entrambi (4 generazioni):</strong>${miss}</div>`;
+  if(!mateS||!mateD||!D.dogs[mateS]||!D.dogs[mateD]){o.innerHTML='<p class="empty">Scegli la femmina e il maschio.</p>';return}
+  const p=pairCoi(mateS,mateD),w=coi8(mateS,mateD)*100,cov=coverage(mateS,mateD),b=p.src==="low"?["Pedigree incompleto: COI poco affidabile",""]:band(p.v),m=(D.matings||{})[mateS+"|"+mateD]||{};
+  const lit=Object.entries(D.litters).find(([,l])=>l.sire===mateS&&l.dam===mateD),ds=D.dogs[mateS],dd=D.dogs[mateD];
+  const miss=[mateS,mateD].map(k=>{const c=pedCount(k);return c.k<c.t*.9?`<button class="btn ghost small" data-a="pedForm" data-v="${k}">Completa il pedigree di ${esc(dn(k).split(" ")[0])} (${c.k}/${c.t})</button>`:""}).join("");
+  o.innerHTML=`<div class="res"><p class="row-meta" style="margin:0">Coppia${lit?" · 🐾 già "+(lit[1].state==="pianificata"?"pianificata":"fatta"):""}</p><h2 style="margin:2px 0 8px">${esc(dd.nick||dd.name)} × ${esc(ds.name)}</h2>
+   <div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap"><span class="cnum">${pf(p.v)}<small>%</small></span><span class="badge ${b[1]}">${b[0]}</span>
+   <span class="row-meta">${p.src==="sbt"?"COI SBT 8 generazioni":`COI del gestionale (Wright, 8 gen.) · antenati inseriti ${cov.known} di ${cov.tot}`}</span></div>
+   ${p.src==="sbt"?`<p class="row-meta" style="margin:6px 0 0">Calcolo del gestionale: ${pf(w)}% · antenati inseriti ${cov.known} di ${cov.tot}</p>`:""}
+   <p class="row-meta" style="margin:8px 0 0"><label class="sbt-in">COI SBT del test mating: <input id="mateSbt" inputmode="decimal" placeholder="es. 6,17" value="${esc(m.coiSbt||"")}">%</label></p>
+   <div class="twrap"><div class="tcard"><b>Su chi cade la consanguineità</b>${ancWeight(mateS,mateD)}</div>
+   <div class="tcard"><b>🧪 Test genetici</b><p style="margin:6px 0 0"><b>${esc(dd.nick||dd.name)}:</b> ${esc(dd.tests||"non inseriti")}</p><p style="margin:6px 0 0"><b>${esc(ds.name)}:</b> ${esc(ds.tests||"non inseriti")}</p></div></div>
+   <div class="actions">${lit?`<button class="btn" data-a="litterSheet" data-v="${lit[0]}">Scheda della cucciolata</button>`:`<button class="btn" data-a="planLitter">🐾 Pianifica la cucciolata</button>`}
+   ${ds.sbt?`<a class="btn ghost" href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(ds.sbt)}" target="_blank" rel="noopener">${esc(ds.name.split(" ")[0])} su SBT ↗</a>`:""}${miss}</div></div>`;
 }
 function loadDemo(){
   if(D.dogs.ex_cap){mateS="ex_x";mateD="ex_y";render();return}
@@ -1394,6 +1411,7 @@ document.addEventListener("click",e=>{
     case "loadDemo":loadDemo();break;
     case "rmPhoto":tmpPhoto="";$("#fphPrev").innerHTML='<span class="thumb ph" style="width:72px;height:72px;border-radius:8px">?</span>';break;
     case "mate":{const d=D.dogs[v];if(d.sex==="M")mateS=v;else mateD=v;tab="coi";view=null;render();break}
+    case "planLitter":{const lid=newId("l");D.litters[lid]={dam:mateD,sire:mateS,date:null,state:"pianificata",notes:""};typeof saveNow==="function"&&saveNow();toast("Cucciolata pianificata: la trovi in Cucciolate.");calcMate();break}
     case "mateWith":{closeSheet();const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
   }
 });
@@ -1403,7 +1421,7 @@ document.addEventListener("change",e=>{
   const t=e.target;
   if(t.id==="fph")pickPhoto(t);
   if(t.id==="ms"){mateS=t.value;calcMate()}
-  if(t.id==="md"){mateD=t.value;calcMate()}
+  if(t.id==="md"){mateD=t.value;render()}
 });
 
 /* ---------- Sheet ---------- */

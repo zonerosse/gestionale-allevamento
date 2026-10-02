@@ -158,3 +158,13 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Colori ovunque (scelta di Paolo): `colorize(root)` dopo ogni render, nei riquadri (sheet) e nella pagina del proprietario
   dà a ogni titolo h2 un'icona e un colore secondo il testo (tabella `CZ`, IT/EN) e una striscia colorata al riquadro sotto.
   Nuove sezioni: aggiungerle a `CZ`.
+
+## Accoppiamenti (ottobre 2026)
+- Due tendine: Femmina = fattrici attuali (`mateFemales`: F, non esterne, fattrice o `fattr`, non sterilizzate/decedute);
+  Maschio = maschi vivi in archivio (`mateMales`: non deceduti, 1–12 anni, o aggiunti da SBT), in ordine alfabetico,
+  divisi "I tuoi maschi"/"Stalloni in archivio". Accanto a ogni maschio il COI con la femmina scelta (`pairCoi`):
+  SBT se c'è (analisi della cucciolata o valore inserito), altrimenti Wright solo se antenati inseriti ≥70%, se no
+  "COI non affidabile". Pallini: 🟢 6–9% · 🔵 sotto · 🔴 sopra · ⚪ non affidabile.
+- Sotto: la coppia (COI, fascia, su chi cade, test genetici, "Pianifica la cucciolata" o "Scheda della cucciolata").
+- "Aggiungi un maschio da SBT": `GET /api/sbt?id=` (solo Paolo) prova a leggere nome, nascita e genitori dalla meta
+  description della pagina SBT; se SBT blocca, il gestionale chiede solo il nome e salva il link (`sbtAdded:true`).
