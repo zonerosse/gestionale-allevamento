@@ -219,3 +219,25 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Modulo del sito (repo delpiccolodiavolo-hugo, `layouts/partials/prenota.html`): oltre allo script Google manda una copia a
   `POST /api/public/richiesta` (pubblico, solo aggiunta, anti-spam col campo "azienda") → tabella D1 `requests`.
   All'apertura il gestionale legge `GET /api/requests` e aggiunge le nuove come "Nuovo" (`wlSync`, id = rid, mai doppie).
+
+## Lista d'attesa (ottobre 2026)
+- `D.waitlist=[{id,created,name,email,phone,city,country,sex,exp,note,source,litter,status,depDate,dog,lang}]`, menu "Attesa".
+- Il modulo del sito (`layouts/partials/prenota.html` in `zonerosse/delpiccolodiavolo-hugo`) manda ogni richiesta sia al foglio Google
+  (Apps Script) sia a `POST /api/public/richiesta` → tabella D1 `requests`; all'apertura il gestionale le prende (`wlSync`, `GET /api/requests`).
+- Le richieste vecchie del foglio Google sono state importate una volta (ottobre 2026) con un file "Importa modifiche" (`patch.waitlist.$add`).
+
+## Passaggio di proprietà e consegna (ottobre 2026)
+- Modulo **del Comune di Ostellato** (= modulo regionale ER): scansione in `public/modulo-cessione.jpg` (1240×1754, 150 dpi).
+  Scelta di Paolo: si usa il foglio vero del Comune, il gestionale ci scrive sopra dati e firme (`PP_POS`: posizioni in pixel
+  dell'immagine a 827×1169 + larghezza utile; il testo si rimpicciolisce da solo se non ci sta).
+- Scheda del cucciolo (allevato, con proprietario, non esterno: `ppOn`): riquadro "Passaggio di proprietà" (`ppBox`) →
+  "Compila e firma" (`ppForm`): data della cessione (va anche nelle due "Data"), dati dell'acquirente presi dal contratto firmato
+  (`CONTR[id].buyer`, se no dal proprietario) e modificabili, luogo e data di nascita dell'acquirente a mano, firma di Paolo
+  (quella salvata, `D.settings.sellerSig`) e dell'acquirente **con il dito sul telefono di Paolo alla consegna** (scelta A).
+- `ppGo` crea il PDF (jsPDF) e lo mette nei documenti del cucciolo `{title:"Passaggio di proprietà firmato",pp:true,private:false}`:
+  **lo vede anche il proprietario** (scelta di Paolo). "Rifai" sostituisce il PDF precedente. `d.pp={date,at}`.
+- I dati dell'acquirente (cod. fisc., nascita) **non** si salvano nel gestionale: stanno solo nel PDF.
+  I dati di Paolo per il modulo (`D.settings.ppMe={cf,bplace,bdate}`) si scrivono la prima volta; `viewerData` toglie `settings`
+  e i documenti `pp`. Fotocopie dei documenti d'identità: fuori dal gestionale (regola 6), le allega Paolo.
+- "Consegna" (`kitBox`, solo Paolo): spunte `d.kit=[bool×3]` per `KIT` (Kit puppy Farmina, libretto veterinario, certificato di
+  buona salute). Pagina del proprietario: "Cosa ricevi con <nome>" (`kitOwner`), sempre l'elenco completo (scelta C).

@@ -46,7 +46,7 @@ export async function isAdmin(request, env) { return (await role(request, env)) 
 export function viewerData(data) {
   const d = JSON.parse(JSON.stringify(data));
   for (const k of Object.keys(d.owners || {})) d.owners[k] = { name: d.owners[k].name || "" };
-  for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct); }
+  for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct && !z.pp); }
   delete d.settings; return d;
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
