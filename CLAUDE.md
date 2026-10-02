@@ -203,3 +203,10 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   cuccioli in una schermata, giorno scelto, differenza dall'ultima pesata, rosso se cala) e grafico (`growthSvg`, linee col
   colore del collarino). Scheda del cucciolo e pagina del proprietario: grafico solo di quel cucciolo (`growthDog`).
 - Il grafico compare solo con almeno 3 pesi (nascita compresa): con meno dati non si mostra, né a Paolo né al proprietario.
+
+## Foto settimana per settimana (ottobre 2026)
+- Cucciolo: `d.wphotos=[{file,date,cap}]` (sezione "Foto della crescita" nella scheda: "Aggiungi foto", anche più insieme;
+  tocco = modifica data/frase o elimina). Cucciolata: `l.gphotos` = foto di gruppo; nella Scheda della cucciolata
+  "Foto della cucciolata": scegli più foto e per ognuna il cucciolo o "Tutta la cucciolata" (`wpAssign`).
+- Settimana di vita = giorni dalla nascita / 7 + 1 (`weekOf`). Pagina del proprietario: "<nome> settimana per
+  settimana" con le sue foto e quelle di gruppo ("Con i fratelli"), dalla più recente; foto a tutto schermo.

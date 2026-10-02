@@ -399,6 +399,12 @@ table.nb input,table.nb select{font:inherit;padding:6px 8px;border:1px solid var
 .wgrid{display:grid;grid-template-columns:minmax(0,1fr) 110px 90px;gap:6px 10px;align-items:center;margin:10px 0}
 .wgrid input{font:inherit;padding:9px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;text-align:right}.wgrid input.bad{border-color:#c0392b;background:#fdecea}
 .wdiff{font-size:.82rem}.wdiff.up{color:#2e7d32}.wdiff.dn{color:#c0392b;font-weight:600}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px}
+.wpt{display:block;border-radius:12px;overflow:hidden;background:var(--paper);border:1px solid var(--line);padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;text-decoration:none}
+.wpi{display:block;aspect-ratio:1;background:#e9e4dc center/cover no-repeat}.wpc{display:block;padding:6px 8px;font-size:.8rem;color:var(--muted)}.wpc b{display:block;color:var(--ink);font-size:.86rem}
+.wk{font-family:var(--serif);font-size:1.02rem;margin:14px 0 0;color:#1f7a68}
+.wpas{display:flex;flex-direction:column;gap:10px}.wpa{display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start}.wpa .wpi{border-radius:8px}
+.wpa select,.wpa input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;margin-bottom:6px}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
 .banner{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.9rem;margin:0 0 20px}
@@ -536,12 +542,12 @@ function roClean(root){if(!RO||!root)return;root.querySelectorAll("[data-a]").fo
   root.querySelectorAll(".hfab,.addsbt,.sbt-in,.editbox,.k-box,.cs,.olink-a,#impData").forEach(el=>el.remove())}
 document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[data-a]");if(b&&!RO_OK.has(b.dataset.a)){e.preventDefault();e.stopImmediatePropagation()}},true);
 /* Colori delle sezioni (scheda del cane e pagina del proprietario): icona e colore secondo il titolo */
-const CZ=[[["Dati"],"📋","z-dati"],[["Calori e monte"],"🌸","z-rep"],[["Nascita e crescita","Crescita","Growth"],"📈","z-dna"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
+const CZ=[[["Dati"],"📋","z-dati"],[["Calori e monte"],"🌸","z-rep"],[["Nascita e crescita","Crescita","Growth"],"📈","z-dna"],[["Foto della crescita","Foto della cucciolata","settimana per settimana","week by week"],"📸","z-own"],[["Proprietario","Owner"],"👤","z-own"],[["Contratto di cessione","Sale agreement"],"✍️","z-ct"],[["Pedigree"],"🌳","z-ped"],
   [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
   [["Profilo genetico","Genetic profile"],"🔬","z-dna"],[["Test sanitari","Health tests"],"🩻","z-test"],[["Titoli","Titles"],"🏆","z-all"],[["Cucciolata di nascita","Litter"],"🐾","z-ped"],
   [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"]];
 function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{if(h.closest(".k-doc")||h.classList.contains("cz")||h.classList.contains("og-h"))return;const t=h.textContent.trim();
-  const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
+  const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
   const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
 function render(){resetCalc();nav();
@@ -663,6 +669,7 @@ function dogDetail(id){
   ${contractBox(id)}
   ${isFattrice(d)?`<h2>Calori e monte</h2>${reproHtml(id)}`:""}
   ${wSeries(id).length>=3?`<h2>Crescita</h2>${growthDog(id)}`:""}
+  ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${wphotosHtml(id)}`:""}
   ${!d.ext?`<h2>Salute</h2>${healthHtml(id,false)}`:""}
   <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
   ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
@@ -1083,6 +1090,7 @@ function ownerPreview(id){
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
    :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
   ${d.tests?`<h2>${T("Test genetici","Genetic tests")}</h2><div class="note">${esc(LANG==="en"&&d.tests_en?d.tests_en:d.tests)}</div>`:""}
+  ${ovPhotos(id)}
   ${wSeries(id).length>=3?`<h2>${T("Crescita","Growth")}</h2>${growthDog(id)}`:""}
   ${!d.ext?`<h2>${T("Salute","Health")}</h2>${healthHtml(id,true)}`:""}
   ${(d.docs||[]).some(z=>!z.private)?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
@@ -1353,6 +1361,42 @@ function wSave(lid){const dt=$("#wd").value;if(!dt)return;let n=0;litPups(lid).f
 function growthDog(id){const d=D.dogs[id];if(!wSeries(id).length)return"";const l=D.litters[d.litter],S=wSeries(id),last=S[S.length-1];
   const info=[d.birthTime?T("nato alle ","born at ")+esc(d.birthTime):"",d.birthWeight?d.birthWeight+" g "+T("alla nascita","at birth"):"",d.birthOrder&&l?T(`${d.birthOrder}° della cucciolata`,`no. ${d.birthOrder} in the litter`):"",T("ultima pesata ","last weighed ")+fmt(last.date)+": "+last.g+" g"].filter(Boolean).join(" · ");
   return `<div class="nbox">${growthSvg([id])}<p class="row-meta" style="margin:8px 0 0">${d.collar?dot(d.collar):""}${info}</p></div>`}
+/* ---------- Foto settimana per settimana ---------- */
+// cucciolo: d.wphotos=[{file,date,cap}]; cucciolata: l.gphotos=[{file,date,cap}] (foto di gruppo, le vedono tutti i proprietari)
+function weekOf(bd,dt){if(!bd||!dt)return 0;return Math.max(1,Math.floor(dDiff(dt,bd)/7)+1)}
+function shrink(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res({data:c.toDataURL("image/jpeg",.85),date:new Date(file.lastModified||Date.now()).toISOString().slice(0,10)})};im.onerror=()=>res(null);im.src=r.result};r.readAsDataURL(file)})}
+function wpTile(p,wk,act,lab){return `<${act?"button":"a"} class="wpt" ${act?`data-a="${act}"`:`href="${p.file}" download="foto.jpg"`}><span class="wpi" style="background-image:url('${p.file}')"></span><span class="wpc"><b>${lab||T(wk+"ª settimana","Week "+wk)}</b>${fmt(p.date)}${p.cap?" · "+esc(p.cap):""}</span></${act?"button":"a"}>`}
+function wphotosHtml(id){const d=D.dogs[id];if(!d.bred||!d.litter)return"";const bd=d.birth||(D.litters[d.litter]||{}).date,P=(d.wphotos||[]).map((p,i)=>[p,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date));
+  return `<div class="nbox"><label class="btn small" style="cursor:pointer">📷 Aggiungi foto<input type="file" accept="image/*" multiple hidden class="wpIn" data-v="d|${id}"></label><span class="row-meta" style="margin-left:8px">la settimana di vita si calcola dalla data della foto</span>
+  ${P.length?`<div class="gal">${P.map(([p,i])=>wpTile(p,weekOf(bd,p.date),`wpEdit" data-v="d|${id}|${i}`)).join("")}</div>`:""}</div>`}
+function gphotosHtml(lid){const l=D.litters[lid];if(l.state!=="nata")return"";const P=litPups(lid),G=(l.gphotos||[]).map((p,i)=>[p,i]);
+  const all=[];P.forEach(k=>(D.dogs[k].wphotos||[]).forEach((p,i)=>all.push({p,lab:D.dogs[k].nick||D.dogs[k].name,v:`d|${k}|${i}`})));G.forEach(([p,i])=>all.push({p,lab:"Tutta la cucciolata",v:`l|${lid}|${i}`}));
+  all.sort((a,b)=>b.p.date.localeCompare(a.p.date));const wk=x=>weekOf(l.date,x.p.date),weeks=[...new Set(all.map(wk))];
+  return `<h2>Foto della cucciolata</h2><div class="nbox"><label class="btn small" style="cursor:pointer">📷 Aggiungi foto<input type="file" accept="image/*" multiple hidden class="wpIn" data-v="l|${lid}"></label><span class="row-meta" style="margin-left:8px">poi per ogni foto scegli il cucciolo, o “tutta la cucciolata”</span>
+  ${weeks.map(w=>`<div class="wk">${w}ª settimana</div><div class="gal">${all.filter(x=>wk(x)===w).map(x=>wpTile(x.p,w,`wpEdit" data-v="${x.v}`,x.lab)).join("")}</div>`).join("")}</div>`}
+let WPNEW=null;
+document.addEventListener("change",async e=>{const t=e.target;if(!t.classList||!t.classList.contains("wpIn"))return;const files=[...t.files];if(!files.length)return;toast("Preparo le foto…");
+  const ph=(await Promise.all(files.map(shrink))).filter(Boolean);const [kind,id]=t.dataset.v.split("|");
+  if(kind==="d"){const d=D.dogs[id];d.wphotos=(d.wphotos||[]).concat(ph.map(p=>({file:p.data,date:p.date})));render();typeof saveNow==="function"&&saveNow();toast(ph.length+" foto aggiunte.");return}
+  WPNEW={lid:id,ph};const P=litPups(id);
+  sheet(`<h2 style="margin-top:0">📷 Di chi è ogni foto?</h2><div class="wpas">${ph.map((p,i)=>`<div class="wpa"><span class="wpi" style="background-image:url('${p.data}')"></span><div><select id="wpw_${i}"><option value="">— scegli —</option>${P.map(k=>`<option value="${k}">${esc(D.dogs[k].nick||D.dogs[k].name)}</option>`).join("")}<option value="__all">Tutta la cucciolata</option><option value="__no">Non salvarla</option></select>
+  <input type="date" id="wpd_${i}" value="${p.date}"><input id="wpc_${i}" placeholder="Frase (facoltativa)"></div></div>`).join("")}</div>
+  <div class="actions"><button class="btn" data-a="wpAssign">Salva</button><button class="btn ghost" data-a="litterSheet" data-v="${id}">Annulla</button></div>`)});
+function wpAssign(){if(!WPNEW)return;const l=D.litters[WPNEW.lid];let miss=0,n=0;WPNEW.ph.forEach((p,i)=>{const w=$("#wpw_"+i).value,e={file:p.data,date:$("#wpd_"+i).value||p.date},c=($("#wpc_"+i).value||"").trim();if(c)e.cap=c;
+  if(!w){miss++;return}if(w==="__no")return;if(w==="__all")(l.gphotos=l.gphotos||[]).push(e);else{const d=D.dogs[w];(d.wphotos=d.wphotos||[]).push(e)}n++});
+  if(miss){toast("Scegli il cucciolo per ogni foto (o “Non salvarla”).");return}const lid=WPNEW.lid;WPNEW=null;typeof saveNow==="function"&&saveNow();toast(n+" foto salvate.");litterSheet(lid)}
+function wpRef(v){const [k,id,i]=v.split("|");const arr=k==="d"?D.dogs[id].wphotos:D.litters[id].gphotos;return{arr,i:+i,p:arr[+i],k,id}}
+function wpEdit(v){const r=wpRef(v);if(!r.p)return;sheet(`<img src="${r.p.file}" alt="" style="width:100%;max-height:70vh;object-fit:contain;border-radius:10px;background:#111">
+  <div class="form" style="margin-top:10px"><label class="f">Data<input type="date" id="wpe_d" value="${r.p.date}"></label><label class="f full">Frase<input id="wpe_c" value="${esc(r.p.cap||"")}"></label></div>
+  <div class="actions"><button class="btn" data-a="wpSave" data-v="${v}">Salva</button><button class="btn ghost" data-a="wpDel" data-v="${v}">Elimina</button><button class="btn ghost" data-a="close">Chiudi</button></div>`)}
+function wpBack(r){if(r.k==="l")litterSheet(r.id);else{closeSheet();render()}}
+function wpSave(v){const r=wpRef(v);r.p.date=$("#wpe_d").value||r.p.date;const c=$("#wpe_c").value.trim();if(c)r.p.cap=c;else delete r.p.cap;typeof saveNow==="function"&&saveNow();wpBack(r)}
+function wpDel(v){const r=wpRef(v);if(!confirm("Eliminare questa foto?"))return;r.arr.splice(r.i,1);typeof saveNow==="function"&&saveNow();wpBack(r)}
+// pagina del proprietario: foto del suo cucciolo + foto di gruppo, per settimana
+function ovPhotos(id){const d=D.dogs[id],l=d.litter&&D.litters[d.litter],bd=d.birth||(l||{}).date;
+  const all=(d.wphotos||[]).map(p=>({p,lab:""})).concat(((l&&l.gphotos)||[]).map(p=>({p,lab:T("Con i fratelli","With the littermates")})));if(!all.length)return"";
+  all.sort((a,b)=>b.p.date.localeCompare(a.p.date));const wk=x=>weekOf(bd,x.p.date),weeks=[...new Set(all.map(wk))];
+  return `<h2>${T(esc(d.nick||d.name)+" settimana per settimana",esc(d.nick||d.name)+" week by week")}</h2><div class="nbox">${weeks.map(w=>`<div class="wk">${T(w+"ª settimana","Week "+w)}</div><div class="gal">${all.filter(x=>wk(x)===w).map(x=>wpTile(x.p,w,null,x.lab||null)).join("")}</div>`).join("")}</div>`}
 function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
   const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).sort((x,y)=>D.dogs[x].name.localeCompare(D.dogs[y].name));
   const w=s&&dm?coi8(s,dm)*100:NaN,cov=s&&dm?coverage(s,dm):{known:0,tot:0};
@@ -1369,6 +1413,7 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   <div class="ca-mine">${bb?`<span class="badge ${bb[1]}">${bb[0]}</span>`:""}${isNaN(w)?"":`<span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(w)}%</strong> · antenati noti ${cov.known} di ${cov.tot}</span>`}</div>
   ${s&&dm?`<h2>Su chi cade la consanguineità</h2><p class="row-meta" style="margin:0 0 8px">Antenati comuni a padre e madre, in ordine di peso: quanto ognuno porta al COI calcolato dal gestionale (${isNaN(w)?"—":pf(w)+"%"}, 8 generazioni, solo cani inseriti). Il COI di SBT può differire un po'.</p><div class="anc">${ancWeight(s,dm)}</div>`:""}
   ${birthHtml(lid)}
+  ${gphotosHtml(lid)}
   ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}
   <div class="actions">${s&&dm?`<button class="btn ghost" data-a="mateWith" data-v="${s}|${dm}">Apri in Accoppiamenti</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
 
@@ -1558,6 +1603,7 @@ document.addEventListener("click",e=>{
     case "ctView":{const d=D.dogs[v],G=CONTR[v];sheet(`${ctHtml(G?G.snap:ctSnap(v),G?G.buyer:ctBuyer(v),G||null,G?G.meSig:(d.contract||{}).meSig)}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);break}
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
+    case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
