@@ -181,4 +181,4 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   (`popstate`). Le foto (link a immagini) si aprono sopra la pagina (`#lbx`) e si chiudono con la X o con "indietro".
 - Pagina del proprietario, Pedigree (scelta A di Paolo): niente albero con le foto, ma le schede di Padre e Madre con la
   loro foto (`d.photo`), LOI, colore, anno e test (`ovParents`) e il riquadro "La cucciolata su SBTpedigree" se la
-  cucciolata ha `sbtUrl` (si inserisce dalla Scheda della cucciolata). Nella scheda di Paolo l'albero resta.
+  cucciolata ha `sbtUrl` (si inserisce dalla Scheda della cucciolata). Anche nella scheda di Paolo: genitori + link SBT, e l'albero a 4 generazioni dentro un riquadro richiudibile (per completare gli antenati).

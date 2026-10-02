@@ -370,11 +370,12 @@ body.ro .hfab{display:none!important}
 .lbx-x{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#111;font-size:1.2rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .par{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pc{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;border-top:4px solid var(--c)}
-.pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc center/cover no-repeat;font-size:1.6rem;color:#a99}
+.pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc center 30%/cover no-repeat;font-size:1.6rem;color:#a99}
 .pc .tx{padding:10px 12px}.pc .r{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
 .pc .n{font-family:var(--serif);font-size:1.05rem;margin:2px 0}.pc .m{font-size:.82rem;color:var(--muted);margin-top:2px}
 .sbtl{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid #efd9bf;text-decoration:none;color:inherit}
 .sbtl b{font-family:var(--serif);font-weight:400;font-size:1.05rem;display:block;color:#9a5a16}.sbtl span span{color:var(--muted);font-size:.86rem}.sbtl .go{margin-left:auto;font-size:1.3rem;color:#9a5a16}
+.ped-more{margin-top:14px}.ped-more>summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:6px 0}
 .sbtrow{margin:8px 0 4px;display:flex;flex-direction:column;gap:6px}
 .owner-view .ov-top{color:var(--muted);font-size:.85rem;margin:0 0 6px}
 
@@ -631,7 +632,8 @@ function dogDetail(id){
   ${d.dna?`<h2>Profilo genetico (DNA)</h2>${dnaHtml(d)}`:""}
   <h2>Test sanitari</h2>${d.tests?`<div class="note">${esc(d.tests)}</div>`:'<p class="empty">Nessun test inserito.</p>'}
   <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:'<p class="empty">Nessun titolo inserito.</p>'}
-  <h2>Pedigree</h2>${pedigree(id)}
+  <h2>Pedigree</h2>${(()=>{const L0=LANG;LANG="it";const h=ovParents(id,true);LANG=L0;return h})()}
+  <details class="ped-more"><summary>Albero a 4 generazioni (per controllare e completare gli antenati)</summary>${pedigree(id)}</details>
   <h2>Consanguineità</h2>
   ${litA(id)?(()=>{const a=litA(id),bb=band(pc(a.c8));return coiScale(a,true)+`<div class="ca-mine"><span class="badge ${bb[1]}">${bb[0]}</span><span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(f)}%</strong> · antenati noti ${cov.known} di ${cov.tot} · solo per te</span></div>`})():(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
    return `<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
@@ -977,10 +979,10 @@ function dnaHtml(d){const x=d.dna;if(!x)return"";
 
 /* ---------- Vista proprietario ---------- */
 /* Pagina del proprietario: genitori con la foto e link alla cucciolata su SBTpedigree (al posto dell'albero) */
-function ovParents(id){const d=D.dogs[id],l=d.litter&&D.litters[d.litter];
+function ovParents(id,me){const d=D.dogs[id],l=d.litter&&D.litters[d.litter];
   const card=(k,r,re,c)=>{const p=D.dogs[k];if(!p)return `<div class="pc" style="--c:${c}"><div class="ph"></div><div class="tx"><div class="r">${T(r,re)}</div><div class="n">${T("da inserire","not available")}</div></div></div>`;
     const t=LANG==="en"&&p.tests_en?p.tests_en:p.tests,col=LANG==="en"&&p.color_en?p.color_en:p.color,m=[p.loi,col,(p.birth||String(p.year||"")).slice(0,4)].filter(Boolean).map(esc).join(" · ");
-    return `<div class="pc" style="--c:${c}">${p.photo?`<a href="${p.photo}" class="ph" style="background-image:url('${p.photo}')" download="${esc(p.name)}.jpg"></a>`:`<div class="ph">🐾</div>`}<div class="tx"><div class="r">${T(r,re)}</div><div class="n">${esc(p.name)}</div>${m?`<div class="m">${m}</div>`:""}${t?`<div class="m">🧪 ${esc(t)}</div>`:""}</div></div>`};
+    return `<div class="pc" style="--c:${c}">${p.photo?`<a href="${p.photo}" class="ph" style="background-image:url('${p.photo}')" download="${esc(p.name)}.jpg"></a>`:`<div class="ph">🐾</div>`}<div class="tx"><div class="r">${T(r,re)}</div><div class="n">${me?`<button class="plink" data-a="open" data-v="${k}">${esc(p.name)}</button>`:esc(p.name)}</div>${m?`<div class="m">${m}</div>`:""}${t?`<div class="m">🧪 ${esc(t)}</div>`:""}</div></div>`};
   return `<div class="par">${card(d.sire,"Padre","Sire","#34507a")}${card(d.dam,"Madre","Dam","#8c2b23")}</div>
   ${l&&l.sbtUrl?`<a class="sbtl" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener"><span style="font-size:1.6rem">🔗</span><span><b>${T("La cucciolata su SBTpedigree","The litter on SBTpedigree")}</b><span>${T("Pedigree completo, fratelli e consanguineità","Full pedigree, littermates and inbreeding")}</span></span><span class="go">↗</span></a>`:""}`}
 function ownerPreview(id){
