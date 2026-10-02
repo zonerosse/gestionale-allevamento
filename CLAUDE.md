@@ -249,3 +249,17 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   `cf` e `doc` a ogni "Salva proprietario".
 - Barra in basso sul telefono: 5 voci su una riga (`repeat(5,minmax(0,1fr))`); lì "Accoppiamenti" si chiama **"Coppie"**
   (scelta B di Paolo), nella barra laterale del computer resta "Accoppiamenti". Nuove sezioni: ripensare la barra.
+
+## Conti delle cucciolate (ottobre 2026, solo Paolo)
+- Menu "Conti" (`tab="conti"`, `contiPage`): in cima totali dell'anno (entrate, spese, saldo; anni da scegliere se più d'uno),
+  poi le cucciolate di quell'anno (della fattrice di Paolo, non esterne) e "Spese generali". `view` = id cucciolata o `"gen"`.
+- Dati: `D.litters[lid].acc={prices:{<id cucciolo>:numero},exp:[{id,date,cat,txt,amt,file}]}`, `D.accGen=[…]` (spese generali).
+  Entrate = una riga per cucciolo (`litPups`), prezzo scritto a mano (scelta di Paolo, non dai contratti). Spese con voce
+  (`AC_CAT`), descrizione, importo e foto della ricevuta facoltativa (immagine ridotta con `shrink`, o PDF; va su R2 al salvataggio).
+  Anno di una cucciolata = data di nascita, se no prima spesa, se no oggi.
+- Riservati: `ownerSubset` toglie `acc` dalle cucciolate, `viewerData` toglie `acc` e `accGen`; per chi consulta la voce "Conti"
+  non c'è.
+- Barra in basso sul telefono: se le voci sono più di 5, le prime 4 + **"Altro"** con menu a tendina per le altre (Attesa, Conti
+  e le prossime): scelta di Paolo. Sul computer la barra a sinistra le mostra tutte.
+- Tasto indietro: chiudere un riquadro (sheet) lasciava un passo doppio nella cronologia e "‹" sembrava non funzionare; ora il
+  passo doppio si salta da solo (`popstate`).

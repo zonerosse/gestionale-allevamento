@@ -252,6 +252,26 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 @media (min-width:760px){.sheet-bg{align-items:center}.sheet{border-radius:16px}}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form .full{grid-column:1/-1}
+nav.bottom{position:fixed}nav.bottom .more-pop{display:none;position:absolute;right:6px;bottom:calc(100% + 6px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;min-width:170px;flex-direction:column;gap:2px}
+nav.bottom.more-on .more-pop{display:flex}nav.bottom .more-pop .navbtn{flex-direction:row!important;gap:10px!important;font-size:.95rem!important;padding:10px 12px!important;justify-content:flex-start!important}
+.ac-year{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 16px}.ac-year div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ac-year small{display:block;color:var(--muted);font-size:.8rem}.ac-year b{font-size:1.15rem}
+.ac-pos{color:var(--ok)}.ac-neg{color:var(--accent)}
+.ac-lit{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;cursor:pointer}
+.ac-lit h3{font-family:var(--serif);font-weight:400;font-size:1.1rem;margin:0}.ac-lit .m{color:var(--muted);font-size:.85rem}
+.ac-nums{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:.92rem}.ac-nums span{color:var(--muted)}
+.ac-sec{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin:0 0 14px;overflow:hidden}
+.ac-sec h3{margin:0;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:var(--serif);font-weight:400;font-size:1.05rem}
+.ac-sec.in h3{background:var(--ok-soft);color:var(--ok)}.ac-sec.out h3{background:var(--accent-soft);color:var(--accent)}
+.ac-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 14px;border:0;border-top:1px solid var(--line);font:inherit;font-size:.93rem;color:inherit;background:none;width:100%;text-align:left}
+button.ac-r{cursor:pointer}.ac-r .d{color:var(--muted);font-size:.82rem;min-width:74px}.ac-r .v{font-weight:600;white-space:nowrap}.ac-r.e{color:var(--muted);font-style:italic}
+.ac-tag{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted);margin-right:4px}
+.ac-tot{display:flex;justify-content:space-between;padding:12px 14px;font-weight:700;border-top:2px solid var(--line)}
+.ac-bal{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.ac-bal small{display:block;color:var(--muted);font-size:.8rem}.ac-bal b{font-size:1.25rem}
+.ac-bars{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+.ac-bar{display:grid;grid-template-columns:150px 1fr 80px;gap:8px;align-items:center;font-size:.85rem;margin:6px 0}.ac-bar i{display:block;height:10px;border-radius:5px;background:#c9837c}
+@media (max-width:640px){.ac-year b,.ac-bal b{font-size:1rem}.ac-bar{grid-template-columns:100px 1fr 66px}}
 .kit label{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}.kit label:first-child{border-top:0}
 .kit input{width:20px;height:20px;flex:none}.kit .ki{padding:7px 0;border-top:1px solid var(--line)}.kit .ki:first-child{border-top:0}
 .kit .small{color:var(--muted);font-size:.85rem;margin:8px 0 0}
@@ -510,13 +530,20 @@ const TABS=[
  ["cucciolate","Cucciolate",'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'],
  ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
- ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>']
+ ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
+ ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>']
 ];
 let tab="cani",view=null,filter="miei",q="";
 function nav(){
   // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
-  const B=(sh)=>TABS.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>${sh&&k==="coi"?"Coppie":l}</button>`).join("");
-  $("#navSide").innerHTML=B(false);$("#navBottom").innerHTML=B(true);
+  const ico=ic=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>`;
+  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}</button>`).join("");
+  $("#navSide").innerHTML=B(TABS,false);$("#navBottom").classList.remove("more-on");
+  // sul telefono: le prime 4 voci, poi "Altro" con un menu a tendina per le altre (Attesa, Conti e quelle che verranno)
+  if(TABS.length<=5){$("#navBottom").innerHTML=B(TABS,true);return}
+  const rest=TABS.slice(4),on=rest.some(t=>t[0]===tab);
+  $("#navBottom").innerHTML=B(TABS.slice(0,4),true)+`<button class="navbtn" aria-current="${on}" data-a="more">${ico('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>')}Altro</button>
+  <div class="more-pop">${rest.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${l}</button>`).join("")}</div>`;
 }
 let EDIT=null,EDIRTY=false;
 document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});
@@ -531,7 +558,7 @@ const DOPEN=new Map();
 function dKey(el){const s=el.querySelector(":scope>summary");return tab+"|"+(view||"")+"|"+(typeof filter!=="undefined"?filter:"")+"|"+(s?s.textContent.replace(/\s+/g," ").trim().slice(0,60):"")}
 document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.closest("#main")&&!t.dataset.hs)DOPEN.set(dKey(t),t.open)},true);
 function dRestore(){document.querySelectorAll("#main details:not([data-hs])").forEach(el=>{const k=dKey(el);if(DOPEN.has(k))el.open=DOPEN.get(k)})}
-function navLabel(st){if(!st)return"Cani";const T0={cani:"Cani",cucciolate:"Cucciolate",proprietari:"Proprietari",coi:"Accoppiamenti",attesa:"Lista d'attesa"};
+function navLabel(st){if(!st)return"Cani";const T0={cani:"Cani",cucciolate:"Cucciolate",proprietari:"Proprietari",coi:"Accoppiamenti",attesa:"Lista d'attesa",conti:"Conti"};
   if(st.view){if(st.tab==="proprietari"&&D.owners[st.view])return D.owners[st.view].name;const d=D.dogs[st.view];if(d)return d.nick||d.name}
   if(st.tab==="cani"&&st.f){const F={miei:"I miei cani",ceduto:"Ceduti",prenotato:"Prenotati",tutti:"Tutti i cani",fattrici:"Fattrici",fattrice:"Fattrici",esterni:"Esterni",ext:"Esterni"};if(F[st.f])return F[st.f]}
   return T0[st.tab]||"Cani"}
@@ -543,7 +570,7 @@ function navPush(){if(typeof OWNER_MODE!=="undefined")return;const k=tab+"|"+(vi
 function sheetOpen(){const b=document.getElementById("sheetBg");return !!(b&&b.classList.contains("open"))}
 window.addEventListener("popstate",e=>{if(typeof OWNER_MODE!=="undefined"){lbClose(true);return}
   if(lbClose(true))return;if(sheetOpen()){closeSheetRaw();if(e.state&&!e.state.sheet&&e.state.tab===tab&&(e.state.view||null)===(view||null))return}
-  const st=e.state||{tab:"cani",view:null};if(st.sheet)return;if((st.tab||"cani")===tab&&(st.view||null)===(view||null))return;if(typeof leaveOk==="function"&&!leaveOk()){history.pushState({tab,view},"");return}
+  const st=e.state||{tab:"cani",view:null};if(st.sheet)return;if((st.tab||"cani")===tab&&(st.view||null)===(view||null)){if(NAVSTACK.length>1&&!e.state.lb)history.back();return} // passo doppio lasciato da un riquadro chiuso: salto alla pagina precedenteif(typeof leaveOk==="function"&&!leaveOk()){history.pushState({tab,view},"");return}
   NAVLOCK=true;tab=st.tab||"cani";view=st.view||null;if(NAVSTACK.length>1)NAVSTACK.pop();render();NAVLOCK=false;window.scrollTo(0,st.y||0)});
 /* Foto: si aprono sopra la pagina, con la X o il tasto indietro per tornare */
 function lbClose(fromPop){const l=document.getElementById("lbx");if(!l)return false;l.remove();if(!fromPop&&history.state&&history.state.lb)history.back();return true}
@@ -554,7 +581,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)
   try{history.pushState(Object.assign({},history.state||{},{lb:1}),"")}catch(err){}},true);
 /* Solo consultazione (VIEWERS su Cloudflare): si vede tutto tranne i dati dei proprietari, non si può cambiare niente */
 var RO=window.RO||false;
-const RO_OK=new Set(["open","close","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
+const RO_OK=new Set(["more","open","close","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
 function roClean(root){if(!RO||!root)return;root.querySelectorAll("[data-a]").forEach(el=>{if(!RO_OK.has(el.dataset.a))el.remove()});
   root.querySelectorAll(".hfab,.addsbt,.sbt-in,.editbox,.k-box,.cs,.olink-a,#impData").forEach(el=>el.remove())}
 document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[data-a]");if(b&&!RO_OK.has(b.dataset.a)){e.preventDefault();e.stopImmediatePropagation()}},true);
@@ -575,6 +602,7 @@ function render(){resetCalc();nav();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
   if(tab==="attesa")m.innerHTML=banner+waitList();
+  if(tab==="conti")m.innerHTML=banner+contiPage();
   if(tab==="coi")calcMate();
   colorize(m);roClean(document);dRestore();navPush();
 }
@@ -1305,6 +1333,61 @@ function contractBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const s
     <button class="btn go" id="ctGoBtn" data-a="ctGo" data-v="${id}" disabled>3. Firma e manda a ${nm}</button>
     <p class="small">Tutto il resto (tuoi dati, cane, genitori, dati di ${nm}, caparra, consegna) è già scritto. <button class="plink" data-a="ctView" data-v="${id}">Vedi il contratto</button></p></div>`}
 function ctSellerSig(){return D.settings&&D.settings.sellerSig||""}
+/* ---------- Conti delle cucciolate (solo Paolo) ---------- */
+// D.litters[lid].acc={prices:{<id cucciolo>:numero},exp:[{id,date,cat,txt,amt,file}]} · D.accGen=[{id,date,cat,txt,amt,file}] (spese generali)
+// Non vanno al proprietario (ownerSubset toglie acc) né a chi consulta (viewerData toglie acc e accGen).
+const AC_CAT=["Monta / stallone","Veterinario","Ecografia e radiografia","Vaccini e sverminazioni","Microchip","Pedigree ENCI","Test genetici","Cibo","Kit Farmina","Viaggi","Altro"];
+let AC_Y=String(new Date().getFullYear()),AC_FILE=null;
+const eur=n=>{n=+n||0;const d=Number.isInteger(n)?0:2;return n.toLocaleString("it-IT",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d})};
+const acNum=s=>{s=String(s||"").trim().replace(/[€\s]/g,"");if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,"").replace(",",".");else s=s.replace(/[.,](?=\d{3}(\D|$))/g,"");return +s||0};
+function acL(lid){const l=D.litters[lid];l.acc=l.acc||{};l.acc.prices=l.acc.prices||{};l.acc.exp=l.acc.exp||[];return l.acc}
+function acLits(){return Object.keys(D.litters).filter(k=>{const d=D.dogs[D.litters[k].dam];return d&&!d.ext}).sort((a,b)=>(acYearOf(b)+(D.litters[b].date||"9")).localeCompare(acYearOf(a)+(D.litters[a].date||"9")))}
+function acYearOf(lid){const l=D.litters[lid],e=((l.acc||{}).exp||[]).map(x=>x.date).filter(Boolean).sort();return String(l.date||e[0]||todayS()).slice(0,4)}
+function acIn(lid){const a=D.litters[lid].acc||{},P=a.prices||{};return litPups(lid).reduce((s,k)=>s+(+P[k]||0),0)}
+function acOut(L){return (L||[]).reduce((s,x)=>s+(+x.amt||0),0)}
+function acLitLab(lid){const l=D.litters[lid];return `${esc(dn(l.dam))} × ${esc(dn(l.sire)||"da scegliere")}`}
+function contiPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(view)return view==="gen"?acGenDetail():D.litters[view]?acDetail(view):acList();return acList()}
+function acList(){const L=acLits(),G=D.accGen||[];const ys=[...new Set([...L.map(acYearOf),...G.map(x=>String(x.date||"").slice(0,4)).filter(Boolean),String(new Date().getFullYear())])].sort().reverse();if(!ys.includes(AC_Y))AC_Y=ys[0];
+  const LY=L.filter(k=>acYearOf(k)===AC_Y),GY=G.filter(x=>String(x.date||"").slice(0,4)===AC_Y),ti=LY.reduce((s,k)=>s+acIn(k),0),to=LY.reduce((s,k)=>s+acOut((D.litters[k].acc||{}).exp),0)+acOut(GY);
+  return `<h1 style="margin-bottom:4px">Conti</h1><p class="lead" style="margin-top:0">Solo per te: entrate e spese di ogni cucciolata.</p>
+  ${ys.length>1?`<div class="chips" style="display:flex;gap:6px;margin:0 0 12px">${ys.map(y=>`<button class="chip" aria-pressed="${y===AC_Y}" data-a="acYear" data-v="${y}">${y}</button>`).join("")}</div>`:""}
+  <div class="ac-year"><div><small>Entrate ${AC_Y}</small><b class="ac-pos">${eur(ti)}</b></div><div><small>Spese ${AC_Y}</small><b class="ac-neg">${eur(to)}</b></div><div><small>Saldo ${AC_Y}</small><b class="${ti-to>=0?"ac-pos":"ac-neg"}">${eur(ti-to)}</b></div></div>
+  ${LY.map(k=>{const l=D.litters[k],i=acIn(k),u=acOut((l.acc||{}).exp),n=litPups(k).length;return `<button class="ac-lit" data-a="acOpen" data-v="${k}"><h3>${acLitLab(k)}</h3><div class="m">${l.state==="pianificata"?"pianificata":"nata il "+fmt(l.date)}${n?` · ${n} cuccioli`:""}</div>
+    <div class="ac-nums"><div><span>Entrate</span> <b class="ac-pos">${eur(i)}</b></div><div><span>Spese</span> <b class="ac-neg">${eur(u)}</b></div><div><span>Saldo</span> <b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b></div></div></button>`}).join("")||`<p class="empty">Nessuna cucciolata nel ${AC_Y}.</p>`}
+  <button class="ac-lit" data-a="acOpen" data-v="gen"><h3>Spese generali</h3><div class="m">Non legate a una cucciolata (cibo e visite delle fattrici, test genetici…)</div><div class="ac-nums"><div><span>Spese ${AC_Y}</span> <b class="ac-neg">${eur(acOut(GY))}</b></div></div></button>`}
+function acRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.length?S.map(x=>`<button class="ac-r" data-a="acExp" data-v="${src}|${x.id}"><span class="d">${fmt(x.date)||"—"}</span><span><span class="ac-tag">${esc(x.cat||"Altro")}</span>${esc(x.txt||"")}${x.file?" · 📎":""}</span><span class="v">${eur(x.amt)}</span></button>`).join(""):'<div class="ac-r e"><span></span><span>Nessuna spesa.</span><span></span></div>'}
+function acBars(L){const by={};(L||[]).forEach(x=>by[x.cat||"Altro"]=(by[x.cat||"Altro"]||0)+(+x.amt||0));const E=Object.entries(by).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);if(!E.length)return"";const mx=E[0][1];
+  return `<div class="ac-bars"><b style="font-family:var(--serif);font-weight:400">Dove vanno i soldi</b>${E.map(([c,v])=>`<div class="ac-bar"><span>${esc(c)}</span><i style="width:${Math.max(2,v/mx*100)}%"></i><span style="text-align:right">${eur(v)}</span></div>`).join("")}</div>`}
+function acDetail(lid){const l=D.litters[lid],a=l.acc||{},P=a.prices||{},pups=litPups(lid),i=acIn(lid),u=acOut(a.exp);
+  return `<button class="back" data-a="back">‹ Conti</button><h1>${acLitLab(lid)}</h1><p class="nick">${l.state==="pianificata"?"Cucciolata pianificata":"Nata il "+fmt(l.date)}</p>
+  <div class="ac-bal"><div><small>Entrate</small><b class="ac-pos">${eur(i)}</b></div><div><small>Spese</small><b class="ac-neg">${eur(u)}</b></div><div><small>Saldo</small><b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b></div></div>
+  <div class="ac-sec in"><h3>Entrate</h3>${pups.length?pups.map(k=>{const d=D.dogs[k];return `<button class="ac-r" data-a="acPrice" data-v="${lid}|${k}"><span class="d">🐶</span><span>${esc(d.name)}${d.owner&&D.owners[d.owner]?` <span class="row-meta">· ${esc(D.owners[d.owner].name)}</span>`:""}</span><span class="v">${P[k]!=null&&P[k]!==""?eur(P[k]):'<span class="btn ghost small">Scrivi prezzo</span>'}</span></button>`}).join(""):'<div class="ac-r e"><span></span><span>I cuccioli compaiono quando la cucciolata è nata.</span><span></span></div>'}
+  <div class="ac-tot"><span>Totale entrate</span><span class="ac-pos">${eur(i)}</span></div></div>
+  <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="${lid}|">＋ Aggiungi spesa</button></h3>${acRows(a.exp,lid)}<div class="ac-tot"><span>Totale spese</span><span class="ac-neg">${eur(u)}</span></div></div>
+  ${acBars(a.exp)}`}
+function acGenDetail(){const G=D.accGen||[];return `<button class="back" data-a="back">‹ Conti</button><h1>Spese generali</h1><p class="nick">Non legate a una cucciolata</p>
+  <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="gen|">＋ Aggiungi spesa</button></h3>${acRows(G,"gen")}<div class="ac-tot"><span>Totale</span><span class="ac-neg">${eur(acOut(G))}</span></div></div>${acBars(G)}`}
+function acPriceForm(v){const [lid,k]=v.split("|"),P=(D.litters[lid].acc||{}).prices||{},d=D.dogs[k];
+  sheet(`<h2 style="margin-top:0">💶 Prezzo di ${esc(d.nick||d.name)}</h2><div class="form"><label class="f full">Prezzo (€)<input id="acp" inputmode="decimal" value="${P[k]!=null?esc(String(P[k]).replace(".",",")):""}" placeholder="es. 1.400"></label></div>
+  <div class="actions"><button class="btn" data-a="acPriceSave" data-v="${v}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
+function acPriceSave(v){const [lid,k]=v.split("|"),s=$("#acp").value.trim(),P=acL(lid).prices;if(s)P[k]=acNum(s);else delete P[k];closeSheet();render();typeof saveNow==="function"&&saveNow()}
+function acList2(src){return src==="gen"?(D.accGen=D.accGen||[]):acL(src).exp}
+function acExpForm(v){const [src,id]=v.split("|"),x=id?(src==="gen"?(D.accGen||[]):((D.litters[src].acc||{}).exp||[])).find(e=>e.id===id)||{}:{};AC_FILE=null;
+  sheet(`<h2 style="margin-top:0">${id?"Spesa":"＋ Nuova spesa"} · ${src==="gen"?"Spese generali":acLitLab(src)}</h2><div class="form">
+  <label class="f">Data<input type="date" id="acd" value="${esc(x.date||todayS())}"></label><label class="f">Importo (€)<input id="acv" inputmode="decimal" value="${x.amt!=null?esc(String(x.amt).replace(".",",")):""}" placeholder="es. 60"></label>
+  <label class="f">Voce<select id="acc">${AC_CAT.map(c=>`<option ${c===(x.cat||"")?"selected":""}>${c}</option>`).join("")}</select></label><label class="f">Descrizione<input id="act" value="${esc(x.txt||"")}" placeholder="es. Ecografia"></label>
+  <label class="f full">Foto della ricevuta (facoltativa)<input type="file" id="acf" accept="image/*,application/pdf"></label>
+  <div class="full" id="acfp">${x.file?`<a href="${esc(docHref(x.file))}" target="_blank">📎 Ricevuta allegata</a> <span class="row-meta">(scegli un file per sostituirla)</span>`:""}</div></div>
+  <p class="small" id="acerr" style="color:var(--accent)"></p>
+  <div class="actions"><button class="btn" data-a="acExpSave" data-v="${v}">Salva</button>${id?`<button class="btn ghost" data-a="acExpDel" data-v="${v}">Elimina</button>`:""}<button class="btn ghost" data-a="close">Annulla</button></div>`)}
+document.addEventListener("change",async e=>{if(e.target.id!=="acf")return;const f=e.target.files[0];if(!f)return;const p=$("#acfp");
+  if(f.type.startsWith("image/")){const r=await shrink(f);AC_FILE=r?r.data:null;if(p&&AC_FILE)p.innerHTML=`<img src="${AC_FILE}" style="max-width:140px;border-radius:8px">`}
+  else{AC_FILE=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f)});if(p)p.textContent="📎 "+f.name}});
+function acExpSave(v){const [src,id]=v.split("|"),amt=acNum($("#acv").value);if(!amt){$("#acerr").textContent="Scrivi l'importo.";return}
+  const L=acList2(src);let x=id?L.find(e=>e.id===id):null;if(!x){x={id:newId("x")};L.push(x)}
+  Object.assign(x,{date:$("#acd").value,amt,cat:$("#acc").value,txt:$("#act").value.trim()});if(AC_FILE)x.file=AC_FILE;AC_FILE=null;closeSheet();render();typeof saveNow==="function"&&saveNow()}
+function acExpDel(v){if(!confirm("Eliminare questa spesa?"))return;const [src,id]=v.split("|"),L=acList2(src),i=L.findIndex(e=>e.id===id);if(i>=0)L.splice(i,1);closeSheet();render();typeof saveNow==="function"&&saveNow()}
+document.addEventListener("click",e=>{const n=document.getElementById("navBottom");if(n&&n.classList.contains("more-on")&&!e.target.closest("#navBottom"))n.classList.remove("more-on")});
 // "Importa modifiche" con {nascite:[{dog,name,bplace,bdate}]}: trova il proprietario dal nome del cane (o dal suo nome) e scrive dove e quando è nato
 function importNascite(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/\s+/).filter(Boolean).sort().join(" ");
   const ok=[],miss=[];L.forEach(x=>{let oid=null;const dk=Object.keys(D.dogs).find(k=>nn(D.dogs[k].name)===nn(x.dog));if(dk&&D.dogs[dk].owner&&D.owners[D.dogs[dk].owner])oid=D.dogs[dk].owner;
@@ -1729,6 +1812,10 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
+    case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
+    case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
+    case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;
+    case "acExp":acExpForm(v);break;case "acExpSave":acExpSave(v);break;case "acExpDel":acExpDel(v);break;
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}

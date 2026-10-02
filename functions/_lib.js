@@ -47,7 +47,8 @@ export function viewerData(data) {
   const d = JSON.parse(JSON.stringify(data));
   for (const k of Object.keys(d.owners || {})) d.owners[k] = { name: d.owners[k].name || "" };
   for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct && !z.pp); }
-  delete d.settings; return d;
+  for (const l of Object.values(d.litters || {})) delete l.acc;
+  delete d.accGen; delete d.settings; return d;
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
 
@@ -92,7 +93,7 @@ export function ownerSubset(data, token) {
   const ow = data.owners[oid];
   const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it", cf: ow.cf || "", doc: ow.doc || "" } };
   const litters = {};
-  mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) litters[l] = data.litters[l]; });
+  mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) { litters[l] = Object.assign({}, data.litters[l]); delete litters[l].acc; } }); // i conti restano solo a Paolo
   let txt = JSON.stringify({ dogs, owners, litters, matings: {} });
   const allowed = new Set([...txt.matchAll(/\/files\/([A-Za-z0-9._-]+)/g)].map(m => m[1]));
   txt = txt.split("/files/").join("/api/public/" + token + "/f/");
