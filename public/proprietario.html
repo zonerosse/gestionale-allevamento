@@ -934,7 +934,7 @@ function enciCheck(dam,sire,mate){const d=D.dogs[dam],s=sire&&D.dogs[sire],parto
   else add("ok","Prima cucciolata","");
   const n=L.length;if(n>=5)add("warn","Cucciolate fatte: "+n+" · questa sarebbe la "+(n+1)+"ª","serve il certificato veterinario di idoneità prima della monta; il codice etico ENCI consiglia al massimo 5 cucciolate nella vita");
   else if(L.length)add("ok","Cucciolate fatte: "+n+" · questa sarebbe la "+(n+1)+"ª","certificato veterinario dalla 6ª; il codice etico consiglia al massimo 5");
-  if(s){const rel=d.sire===sire||s.dam===dam?"genitore e figlio":(d.sire&&d.sire===s.sire&&d.dam&&d.dam===s.dam)?"fratelli pieni":((d.sire&&d.sire===s.sire)||(d.dam&&d.dam===s.dam))?"mezzi fratelli":"";
+  if(s){const rel=enciRel(dam,sire);
     if(rel)add("bad","Parentela vietata: "+rel,"dal 2023 i cuccioli non sono iscrivibili al Libro genealogico");else add("ok","Nessuna parentela vietata","non sono genitore/figlio, fratelli o mezzi fratelli")}
   const H=(d.repro||[]).filter(x=>x.t==="heat"&&x.date<=mate);
   if(!(d.repro||[]).some(x=>x.t==="heat"))add("info","2° calore: non controllabile","nel riquadro \"Calori e monte\" non ci sono calori registrati");
@@ -943,6 +943,12 @@ function enciCheck(dam,sire,mate){const d=D.dogs[dam],s=sire&&D.dogs[sire],parto
   return R}
 const EN_I={ok:"🟢",warn:"🟠",bad:"🔴",info:"ℹ️"};
 function enciRows(R){return R.map(r=>`<div class="en-r en-${r.lvl}"><span>${EN_I[r.lvl]}</span><span>${esc(r.t)}${r.s?`<small>${esc(r.s)}</small>`:""}</span></div>`).join("")}
+// parentele vietate dall'ENCI (DM 116130/2023): genitore/figlio, fratelli pieni, mezzi fratelli. Nessun limite di COI.
+function enciRel(dam,sire){const d=D.dogs[dam],s=D.dogs[sire];if(!d||!s)return"";
+  if(d.sire===sire)return"è il padre di "+(d.nick||d.name);if(s.dam===dam)return"figlio di "+(d.nick||d.name);
+  if(d.sire&&d.sire===s.sire&&d.dam&&d.dam===s.dam)return"fratelli pieni";
+  if(d.sire&&d.sire===s.sire)return"mezzi fratelli (stesso padre, "+dn(d.sire)+")";if(d.dam&&d.dam===s.dam)return"mezzi fratelli (stessa madre, "+dn(d.dam)+")";return""}
+let MATE_NO=false;
 function enciWorst(R){return R.some(r=>r.lvl==="bad")?"bad":R.some(r=>r.lvl==="warn")?"warn":"ok"}
 function enciFattr(id){const d=D.dogs[id],L=enciLits(id),last=L[L.length-1],td=todayS();const rows=[];
   if(d.birth){const mo=Math.floor(dDiff(td,d.birth)/30.44);rows.push(["Età",(mo<24?mo+" mesi":Math.floor(mo/12)+" anni")+" (nata il "+fmt(d.birth)+")"])}
@@ -2183,9 +2189,12 @@ function mating(){const F=mateFemales();if(!F.includes(mateD))mateD=F[0]||null;c
   const lab=k=>{const d=D.dogs[k];let t=`${d.name}${d.nick?" (“"+d.nick+"”)":""}${d.birth||d.year?" · "+String(d.birth||d.year).slice(0,4):""}`;if(!mateD)return t;
     const p=pairCoi(k,mateD),ic=p.src==="low"?"⚪":p.v<6?"🔵":p.v<=9?"🟢":"🔴";return `${ic} ${t} — ${p.src==="sbt"?"COI SBT "+pf(p.v)+"%":p.src==="wright"?"COI "+pf(p.v)+"%":"COI non affidabile"}`};
   const og=(t,ks)=>ks.length?`<optgroup label="${t}">${ks.map(k=>`<option value="${k}" ${k===mateS?"selected":""}>${esc(lab(k))}</option>`).join("")}</optgroup>`:"";
+  const NO=mateD?M.filter(k=>enciRel(mateD,k)):[],MS=M.filter(k=>!NO.includes(k)||(k===mateS&&!MATE_NO));
+  const ogNo=NO.length&&MATE_NO?`<optgroup label="🚫 Non permessi dall'ENCI">${NO.map(k=>`<option value="${k}" ${k===mateS?"selected":""}>🚫 ${esc(D.dogs[k].name)} — ${esc(enciRel(mateD,k))}</option>`).join("")}</optgroup>`:"";
   return `<h1>Accoppiamenti</h1><p class="lead">Scegli la fattrice e il maschio. Accanto a ogni maschio c'è già il COI con la fattrice scelta: 🟢 nella tua fascia 6–9% · 🔵 sotto · 🔴 sopra · ⚪ non affidabile (pedigree incompleto).</p>
   <div class="pick"><label>Femmina<select id="md">${F.map(k=>`<option value="${k}" ${k===mateD?"selected":""}>${esc((D.dogs[k].nick?D.dogs[k].nick+" – ":"")+D.dogs[k].name)}</option>`).join("")}</select></label>
-  <label>Maschio<select id="ms"><option value="">— scegli il maschio —</option>${og("I tuoi maschi",M.filter(k=>!D.dogs[k].ext))}${og("Stalloni in archivio",M.filter(k=>D.dogs[k].ext))}</select></label></div>
+  <label>Maschio<select id="ms"><option value="">— scegli il maschio —</option>${og("I tuoi maschi",MS.filter(k=>!D.dogs[k].ext))}${og("Stalloni in archivio",MS.filter(k=>D.dogs[k].ext))}${ogNo}</select></label></div>
+  ${NO.length?`<p class="row-meta en-no">🚫 ${NO.length} ${NO.length===1?"maschio non permesso":"maschi non permessi"} dall'ENCI per parentela con ${esc(D.dogs[mateD].nick||D.dogs[mateD].name)} ${MATE_NO?"sono in fondo all'elenco":"non compaiono nell'elenco"} · <button class="plink" data-a="mateNo">${MATE_NO?"nascondili":"mostrali"}</button></p>`:""}
   <div class="addsbt"><b>➕ Aggiungi un maschio da SBTpedigree</b><p class="row-meta" style="margin:4px 0 0">Incolla il link della sua pagina su SBT: provo a leggere nome, nascita e genitori. Se SBT non lo lascia leggere, ti chiedo solo il nome.</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><input id="sbtUrl" placeholder="https://sbtpedigree.com/dog_details?dogs_id=…" style="flex:1;min-width:220px"><button class="btn small" data-a="sbtAdd">Aggiungi</button></div></div>
   <div id="mateOut"></div>`}
@@ -2251,7 +2260,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
+    case "idDel":idDel(v);break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;

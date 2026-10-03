@@ -382,3 +382,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   parto possibile, certificato), **cucciolate pianificate** (`enciLitLine`, con la monta in corso o "se la monta fosse oggi"),
   **Scadenze**: Modello A (nascita + 25) e Modello B (nascita + 90) per le cucciolate nate negli ultimi 180 giorni; "Fatto:
   consegnato oggi" scrive `l.enciA` / `l.enciB`.
+- Accoppiamenti: i maschi **non permessi dall'ENCI** per parentela con la fattrice (`enciRel`: genitore/figlio, fratelli pieni, mezzi
+  fratelli) non compaiono nell'elenco "Maschio"; una riga dice quanti sono, con "mostrali" (`MATE_NO`) che li mette in fondo nel
+  gruppo "🚫 Non permessi dall'ENCI" con il motivo. Nessun filtro sul COI (l'ENCI non ha limiti di COI; restano i colori). Scelte A A.
