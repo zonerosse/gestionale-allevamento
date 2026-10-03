@@ -407,3 +407,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   proprietari; niente cuccioli singoli né prenotazioni (scelte di Paolo). `cuItems()` nella pagina = stessa logica di `siteLitters()`.
 - Finestre (`.sheet`): sul computer larghe fino a 880 px (94% dello schermo); i campi dei moduli si stringono (`min-width:0`,
   `width:100%`) invece di far scorrere la finestra di lato (prima un elenco con nomi lunghi la allargava e tagliava i campi).
+- "Importa modifiche" con `{coiTestMating:[{sire:{sbt,name},dam:{sbt,name},coi:"16,139"}]}`: trova i cani dal numero SBT (o dal
+  nome) e scrive `D.matings["maschio|femmina"].coiSbt`, come la casella "COI SBT del test mating" in Accoppiamenti.

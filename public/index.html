@@ -2449,6 +2449,10 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
       if(o.documentiIdentita){importIds(o.documentiIdentita);return}
       if(o.certificatiIscrizione){importIsc(o.certificatiIscrizione);return}
       if(o.aggiungiAlCane){importAdd(o.aggiungiAlCane);return}
+      if(o.coiTestMating){const by=x=>Object.keys(D.dogs).find(k=>(x.sbt&&String(D.dogs[k].sbt||"")===String(x.sbt))||(x.name&&(D.dogs[k].name||"").trim().toLowerCase()===x.name.trim().toLowerCase()));
+        let n=0,miss=[];o.coiTestMating.forEach(c=>{const S=by(c.sire),M=by(c.dam);if(!S||!M){miss.push((c.sire.name||c.sire.sbt)+" × "+(c.dam.name||c.dam.sbt));return}
+          D.matings=D.matings||{};D.matings[S+"|"+M]=Object.assign(D.matings[S+"|"+M]||{},{coiSbt:c.coi});n++});
+        resetCalc();render();saveNow();alert(n?"Fatto: COI SBT inserito per "+n+" coppia/e."+(miss.length?"\nNon trovati: "+miss.join(", "):""):"Non trovo i cani: "+miss.join(", "));return}
       if(o.patch)n=applyP(D,o.patch,false);else if(o.data&&o.data.dogs){if(!confirm("Questo file è una copia di sicurezza completa: sostituisce tutti i dati attuali. Procedere?"))return;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,o.data);n=1}else throw 0;
       resetCalc();render();saveNow();alert("Fatto: "+n+" modifiche unite. Il salvataggio online parte da solo.")}catch(err){alert("Questo file non contiene dati del gestionale.")}};r.readAsText(f)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
