@@ -489,6 +489,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   **`private:true`** (scelta A di Paolo: NON compare nella pagina del proprietario; se e quando mandarla lo decide lui con WhatsApp/Email)
   e in Drive nella cartella per tipo "Ricevute caparra". Le ricevute fatte prima (private:false) diventano private da sole all apertura del gestionale (`loadAll`).
 
+## PDF fatti con jsPDF: lettere speciali (ottobre 2026)
+- I caratteri standard di jsPDF coprono solo l'Europa occidentale: con š, č, ž, ł (es. "Hriberšek", "davčna številka") il testo usciva
+  spaziato e fuori pagina. `loadJsPDF()` restituisce un jsPDF "protetto": `text`, `splitTextToSize`, `getTextWidth` ricevono il
+  testo senza segni (š→s, č→c, ł→l…). Vale per contratti, passaggi di proprietà (anche la traduzione) e ricevute di caparra.
+- Ricevuta: per i proprietari stranieri "codice fiscale estero …" invece di "C.F." (in inglese "tax ID").
+
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
 - Prima di ogni modifica all'interfaccia: anteprima HTML autonoma, poi il codice solo dopo il suo ok. Le scelte le fa Paolo (opzioni

@@ -1392,7 +1392,13 @@ function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${es
   ${G?`<p style="font-size:.75rem;color:#777;margin-top:16px">${en?"Signed with an electronic signature (finger signature) on the private page of the Del Piccolo Diavolo kennel system on":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il"} ${ctWhen(G.at,en)}. ${en?"Fingerprint":"Impronta"} (SHA-256): ${esc(G.hash||"")}</p>`:""}</div>`}
 // PDF: jsPDF caricato solo quando serve
 let JSPDF=null;
-async function loadJsPDF(){if(JSPDF)return JSPDF;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});return JSPDF=window.jspdf.jsPDF}
+async function loadJsPDF(){if(JSPDF)return JSPDF;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});
+  /* i caratteri dei PDF standard sono solo quelli dell'Europa occidentale: lettere come š, č, ž, ł (es. Hriberšek, davčna) mandavano il
+     testo fuori pagina con le lettere spaziate. Le scrivo senza segni (s, c, z, l): vale per contratti, passaggi, ricevute. */
+  const MAP={"Ł":"L","ł":"l","Đ":"D","đ":"d","Ø":"O","ø":"o","ı":"i","Ő":"O","ő":"o","Ű":"U","ű":"u","ß":"ss"};
+  const fix=t=>typeof t==="string"?t.replace(/[^\x00-\xff€–—‘’“”•…]/g,c=>{const n=c.normalize("NFD").replace(/[\u0300-\u036f]/g,"");return /^[\x00-\xff]*$/.test(n)&&n?n:(MAP[c]||"?")}):Array.isArray(t)?t.map(fix):t;
+  const JS=window.jspdf.jsPDF;JSPDF=function(...a){const d=new JS(...a);["text","splitTextToSize","getTextWidth","getStringUnitWidth"].forEach(m=>{const o=d[m];if(o)d[m]=function(t,...r){return o.call(this,fix(t),...r)}});return d};
+  return JSPDF}
 async function toDataURL(u){if(!u||u.startsWith("data:"))return u;const b=await(await fetch(u)).blob();return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
 async function ctPdf(S,B,G,meSig){const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),en=S.bi,k=en?1:0,M=16,CW=178,sx=S.sex==="M";let y=22;
   const me=await toDataURL(meSig);
@@ -1628,7 +1634,7 @@ async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(
       `as a confirmatory deposit under Article 1385 of the Italian Civil Code for the Staffordshire Bull Terrier puppy ${d.name}, ${sx}, born on ${fmt(d.birth||l.date)}${par?" out of "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `The deposit is deducted from the price at the time of handover. If the buyer withdraws, the sum paid will not be refunded. If the puppy dies or becomes seriously ill before handover, the deposit is refunded in full or, if the buyer prefers, remains valid for another puppy.`]
      :[`Io sottoscritto Paolo Boldrini, nato a Comacchio (FE) il 12/09/1970, residente in Via Amerigo Chierici 12, 44020 Ostellato (FE), C.F. ${me.cf||"BLDPLA70P12C912O"},`,
-      `dichiaro di aver ricevuto da ${o.name}${o.cf?", C.F. "+o.cf:""}${o.addr?", residente in "+o.addr:""},`,
+      `dichiaro di aver ricevuto da ${o.name}${o.cf?(/^[A-Z0-9]{16}$/.test(o.cf)?", C.F. ":", codice fiscale estero ")+o.cf:""}${o.addr?", residente in "+o.addr:""},`,
       `la somma complessiva di ${eu(tot)} (${numIt(tot)}/${String(Math.round(tot*100)%100).padStart(2,"0")})${P.length>1?", di cui "+pay.join(" e "):" "+pay[0].replace(eu(P[0].amt)+" ","")},`,
       `a titolo di caparra confirmatoria ai sensi dell'art. 1385 del Codice Civile per il cucciolo di Staffordshire Bull Terrier ${d.name}, ${sx}, nato il ${fmt(d.birth||l.date)}${par?" da "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `La caparra viene detratta dal prezzo di cessione al momento della consegna. In caso di rinuncia da parte dell'acquirente, la somma versata non viene restituita. Se il cucciolo muore o si ammala gravemente prima della consegna, la caparra viene restituita per intero oppure, se l'acquirente preferisce, resta valida per un altro cucciolo.`];
