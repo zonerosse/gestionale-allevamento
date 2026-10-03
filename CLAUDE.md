@@ -458,6 +458,11 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   `/api/public/scadenze/<calToken>/ev?id=…&al=prima|giorno|tutte` (functions/api/public/scadenze/[token]/ev.js): un file .ics con un
   solo evento, che l'iPhone apre nel Calendario ("Aggiungi"). Campanello giallo + "🔔 sul telefono" se già messa.
   In alto resta "Aggiungi tutto al telefono" (abbonamento a tutto il calendario): usando tutti e due i modi gli eventi si doppiano.
+- **Preavviso e ripetizione per ogni voce** (scelta A di Paolo, solo per quella voce): nel campanello si sceglie "Primo avviso"
+  (il giorno stesso, 1, 3, 7, 14, 20, 30 giorni prima o un numero) e "Poi ripeti ogni" (mai, 1, 2, 3, 4, 7 giorni); la finestra mostra
+  l'elenco degli avvisi. `settings.alarms[id]={pre,every}` (`alCfg`, `alDates`); ogni avviso è un evento a sé alle 9 ("⏰ …: mancano N
+  giorni"), perché l'iPhone tiene al massimo due avvisi per evento. Vale per il campanello (`ev?id=&pre=&every=`) e per "Aggiungi
+  tutto" (`scSync`). Se il Modello B ha un'impostazione sua, sostituisce il conto alla rovescia automatico ogni 4 giorni.
 
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
@@ -484,7 +489,8 @@ Scadenze e regole
   avvisi anche del codice etico (2° calore, massimo 5 cucciolate). Maschi non permessi per parentela nascosti in Accoppiamenti
   (con "mostrali"); nessun filtro sul COI (fascia di Paolo 6–9% solo come colori).
 - Recensione: bottone "Chiedi recensione" + promemoria 4 settimane dopo i 60 giorni.
-- Allarmi sul telefono: per ogni scadenza col campanello 🔔 (chiede ogni volta quando avvisare), oppure tutto insieme.
+- Allarmi sul telefono: per ogni scadenza col campanello 🔔, con giorni di preavviso e ripetizione scelti voce per voce (es. Modello B
+  e vaccini con anticipo, perché servono appuntamenti); oppure tutto insieme.
 Sito delpiccolodiavolo.it
 - Esposizioni: interruttori "Proprietario" (parte spento) e "Sul sito"; sul sito niente giudizi né foto; titoli presi anche in "Titoli".
   Pagine: Palmarès e sotto ogni cane in Femmine/Maschi, IT/EN/DE.
