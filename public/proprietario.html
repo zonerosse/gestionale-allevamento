@@ -1611,7 +1611,7 @@ function depBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const d=D.do
   return `<h2>Caparra</h2><div class="cs" style="gap:8px"><div class="form dep-f">${row("bon","Bonifico")}${row("cash","Contanti")}</div>
   <p class="row-meta" style="margin:0">${tot?"Totale caparra: <b>"+eu(tot)+"</b>":"Scrivi l'importo del bonifico, dei contanti o di tutti e due."}${has?" · ricevuta del "+fmt(has.date):""}</p>
   ${o?`<div class="row2"><button class="btn" data-a="depGo" data-v="${id}|view">Visualizza</button><button class="btn ghost" data-a="depGo" data-v="${id}|dl">Scarica</button><button class="btn dep-wa" data-a="depGo" data-v="${id}|wa">WhatsApp</button><button class="btn ghost" data-a="depGo" data-v="${id}|mail">✉️ Email</button></div>
-  <p class="small" style="margin:0">La ricevuta, con la tua firma, va anche tra i documenti del cucciolo (la vede ${esc((o.name||"").split(" ")[0])} nella sua pagina) e in Drive con "Salva in Drive".</p>`:`<p class="small" style="margin:0">Per la ricevuta assegna prima il proprietario al cucciolo.</p>`}</div>`}
+  <p class="small" style="margin:0">La ricevuta, con la tua firma, resta tra i tuoi documenti del cucciolo e in Drive ("Salva in Drive"): ${esc((o.name||"").split(" ")[0])} non la vede nella sua pagina. Se e quando mandargliela lo decidi tu, con WhatsApp o Email.</p>`:`<p class="small" style="margin:0">Per la ricevuta assegna prima il proprietario al cucciolo.</p>`}</div>`}
 async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(d),tot=P.reduce((a,x)=>a+x.amt,0),me=(D.settings||{}).ppMe||{},l=D.litters[d.litter]||{},en=o.lang==="en";
   const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),M=20,W=170;let sig=null;try{if((D.settings||{}).sellerSig)sig=await toDataURL(D.settings.sellerSig)}catch(e){}
   const last=P.map(x=>x.date).filter(Boolean).sort().pop()||todayS(),dt=x=>fmt(x||last);/* la data dei contanti si può lasciare vuota */
@@ -1642,7 +1642,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   if(depParts(d).some(x=>x.k==="bon"&&!x.date)){toast("Scrivi anche la data del bonifico.");return}
   toast("Preparo la ricevuta…");let doc;try{doc=await depPdf(id)}catch(e){console.error(e);toast("Non riesco a preparare la ricevuta.");return}
   const slug=String(d.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),name="ricevuta-caparra-"+slug+".pdf",tot=depParts(d).reduce((a,x)=>a+x.amt,0);
-  d.docs=(d.docs||[]).filter(x=>!x.dep);d.docs.push({title:"Ricevuta di caparra",title_en:"Deposit receipt",date:depParts(d).map(x=>x.date).filter(Boolean).sort().pop()||todayS(),file:"data:application/pdf;base64,"+btoa(doc.output()),fname:name,private:false,dep:true});
+  d.docs=(d.docs||[]).filter(x=>!x.dep);d.docs.push({title:"Ricevuta di caparra",title_en:"Deposit receipt",date:depParts(d).map(x=>x.date).filter(Boolean).sort().pop()||todayS(),file:"data:application/pdf;base64,"+btoa(doc.output()),fname:name,private:true,dep:true});/* solo per Paolo: non va nella pagina del proprietario (scelta A) */
   render();typeof saveNow==="function"&&saveNow();
   const blob=doc.output("blob"),url=URL.createObjectURL(blob),en=o.lang==="en",fn=(o.name||"").split(" ")[0];
   const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! Paolo – Del Piccolo Diavolo`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! Paolo – Del Piccolo Diavolo`;

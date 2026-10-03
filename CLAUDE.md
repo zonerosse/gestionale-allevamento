@@ -481,8 +481,9 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   contratto): dati di Paolo e dell'acquirente, totale in cifre e lettere (`numIt`), "di cui € … tramite bonifico il … e € … in
   contanti il …", cucciolo (nome, sesso, nascita, genitori, microchip), "In caso di rinuncia da parte dell'acquirente, la somma
   versata non viene restituita" + eccezione del cucciolo morto o malato (come l'art. 4), firma salvata, "Ricevuta tra privati: non è
-  un documento fiscale". Proprietari `lang:"en"`: seconda pagina in inglese. La ricevuta va in `d.docs` (`dep:true`, la vede il
-  proprietario) e in Drive nella cartella per tipo "Ricevute caparra".
+  un documento fiscale". Proprietari `lang:"en"`: seconda pagina in inglese. La ricevuta va in `d.docs` con `dep:true` e
+  **`private:true`** (scelta A di Paolo: NON compare nella pagina del proprietario; se e quando mandarla lo decide lui con WhatsApp/Email)
+  e in Drive nella cartella per tipo "Ricevute caparra".
 
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
@@ -517,8 +518,8 @@ Sito delpiccolodiavolo.it
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
-- Ricevuta della caparra: "caparra confirmatoria", non restituita in caso di rinuncia; bonifico e contanti anche insieme; firma salvata;
-  solo dalla scheda del cucciolo.
+- Ricevuta della caparra: "caparra confirmatoria", non restituita in caso di rinuncia; bonifico e contanti anche insieme (data dei
+  contanti facoltativa); firma salvata; solo dalla scheda del cucciolo; resta privata (non va nella pagina del proprietario).
 Accessi e copie
 - Documenti firmati in Google Drive col bottone "Salva in Drive" (tutti i tipi, cartelle per cucciolata/cucciolo + collegamenti per tipo).
 - Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
