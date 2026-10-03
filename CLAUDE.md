@@ -475,6 +475,15 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   "Del Piccolo Diavolo – Documenti/<AAAA-MM> <madre> × <padre>/<cucciolo> (<proprietario>)/", collegamento (shortcut) nelle cartelle
   per tipo. `settings.drive={folders,files}`: un file già salvato e non cambiato non si ricarica.
 
+## Caparra e ricevuta (ottobre 2026)
+- Scheda del cucciolo (solo Paolo) → "Caparra" (`depBox`): bonifico e/o contanti, ognuno con importo e data; la data dei contanti è facoltativa (`d.dep={bon,cash}`). Rifacendo la ricevuta, quella nuova (con il totale aggiornato) sostituisce la vecchia.
+  "Visualizza / Scarica / WhatsApp / Email" (`depGo`) prepara la **ricevuta di caparra confirmatoria** (art. 1385 c.c., come il
+  contratto): dati di Paolo e dell'acquirente, totale in cifre e lettere (`numIt`), "di cui € … tramite bonifico il … e € … in
+  contanti il …", cucciolo (nome, sesso, nascita, genitori, microchip), "In caso di rinuncia da parte dell'acquirente, la somma
+  versata non viene restituita" + eccezione del cucciolo morto o malato (come l'art. 4), firma salvata, "Ricevuta tra privati: non è
+  un documento fiscale". Proprietari `lang:"en"`: seconda pagina in inglese. La ricevuta va in `d.docs` (`dep:true`, la vede il
+  proprietario) e in Drive nella cartella per tipo "Ricevute caparra".
+
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
 - Prima di ogni modifica all'interfaccia: anteprima HTML autonoma, poi il codice solo dopo il suo ok. Le scelte le fa Paolo (opzioni
@@ -508,6 +517,8 @@ Sito delpiccolodiavolo.it
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
+- Ricevuta della caparra: "caparra confirmatoria", non restituita in caso di rinuncia; bonifico e contanti anche insieme; firma salvata;
+  solo dalla scheda del cucciolo.
 Accessi e copie
 - Documenti firmati in Google Drive col bottone "Salva in Drive" (tutti i tipi, cartelle per cucciolata/cucciolo + collegamenti per tipo).
 - Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
