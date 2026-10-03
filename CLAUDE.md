@@ -340,3 +340,20 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   delpiccolodiavolo.it, cache 60 s. "🌐 Prepara per il sito" (`shPrep`, nel riquadro di ogni cane) scarica
   `delpiccolodiavolo-esposizioni.zip` con `data/esposizioni.json` (zip fatto in casa, `zipStore`) e segna `inSite`.
   Il sito mostra i risultati nel Palmarès e sotto ogni cane in Femmine/Maschi (vedi CLAUDE.md del repository del sito).
+
+## Scadenze (punto 8, ottobre 2026)
+- Voce "Scadenze" (`tab="scadenze"`, sul telefono in Altro; non per chi consulta): tutte le cose da fare in ordine di data,
+  gruppi Scadute / Questa settimana / Prossimi 30 giorni / Più avanti, filtri Salute, Calori e parti, Cuccioli, Esposizioni.
+  Tocco su una riga → scheda del cane. Calcolo in `scEvents()`:
+  - Salute dei cani di Paolo (`scMine`: non esterni, senza proprietario, non ceduti/deceduti) e dei cuccioli ancora prenotati
+    (`scPup`, ≤ 180 giorni): voci con data futura, "prossima dose" (`next`), e per i cani di Paolo le date **suggerite** (scelta B):
+    vaccino ultimo + 365, leishmania/filaria e pulci/zecche ultima + 30 (solo se cade tra aprile e novembre), vermifugo ultimo + 90.
+  - Cuccioli prenotati: richiamo del vaccino a 3 mesi (sparisce con un vaccino dal 70° giorno). Nessuna consegna (scelta di Paolo).
+    Le scadenze uguali dei cuccioli della stessa cucciolata diventano una riga ("8 cuccioli Billy × Black Jack").
+  - Fattrici (`reproState`): parto previsto (monta + 63) e tappe (ecografia +25, radiografia +55, cassa parto +56), oppure
+    prossimo calore previsto. Esposizioni con data da oggi in poi.
+  - Una scadenza passata resta finché non si registra la cosa fatta (scelta B): `scDone` = voce dello stesso tipo con data da 7
+    giorni prima della scadenza in poi; il calore e il parto si aggiornano da soli con un nuovo calore o la cucciolata nata.
+- Telefono: "Aggiungi al telefono" (`scPhone`) crea `settings.calToken` e mostra il link `/api/public/scadenze/<token>.ics`
+  (iPhone: `webcal://`; Google: "Da URL"). `functions/api/public/scadenze/[token].js` serve `settings.scad`, che `scSync()`
+  riscrive a ogni salvataggio e all'apertura del gestionale. Avviso alle 9 del giorno prima.
