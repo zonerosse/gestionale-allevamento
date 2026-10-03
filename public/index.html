@@ -1571,11 +1571,14 @@ async function drToken(){if(DR_TOK&&Date.now()<DR_EXP-60e3)return DR_TOK;await d
 async function drApi(url,opt){const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({Authorization:"Bearer "+DR_TOK},(opt||{}).headers||{})}));
   if(!r.ok){const t=await r.text().catch(()=>"");const e=new Error("Drive "+r.status+" "+t.slice(0,160));e.status=r.status;throw e}return r.status===204?null:r.json()}
 const drQ=s=>String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
-async function drFolder(path){const S=D.settings.drive;if(S.folders[path])return S.folders[path];const parts=path.split("/"),name=parts.pop(),parent=parts.length?await drFolder(parts.join("/")):"root";
+const DR_SEEN={};/* cartelle già controllate in questo giro */
+async function drAlive(id){try{const m=await drApi("https://www.googleapis.com/drive/v3/files/"+id+"?fields=id,trashed");return !!(m&&!m.trashed)}catch(e){if(e.status===404)return false;throw e}}
+async function drFolder(path){const S=D.settings.drive;if(S.folders[path]){if(DR_SEEN[path]||await drAlive(S.folders[path])){DR_SEEN[path]=1;return S.folders[path]}delete S.folders[path]}
+  const parts=path.split("/"),name=parts.pop(),parent=parts.length?await drFolder(parts.join("/")):"root";
   const f=await drApi("https://www.googleapis.com/drive/v3/files?q="+encodeURIComponent(`name='${drQ(name)}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`)+"&fields=files(id)");
   const id=f.files&&f.files[0]?f.files[0].id:(await drApi("https://www.googleapis.com/drive/v3/files?fields=id",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,mimeType:"application/vnd.google-apps.folder",parents:[parent]})})).id;
-  S.folders[path]=id;return id}
-async function drUpload(blob,name,parent,oldId){if(oldId){try{const m=await drApi("https://www.googleapis.com/drive/v3/files/"+oldId+"?fields=id,trashed");if(m&&!m.trashed){await drApi("https://www.googleapis.com/upload/drive/v3/files/"+oldId+"?uploadType=media&fields=id",{method:"PATCH",headers:{"Content-Type":blob.type||"application/octet-stream"},body:blob});return{id:oldId,isNew:false}}}catch(e){if(e.status!==404)throw e}}
+  S.folders[path]=id;DR_SEEN[path]=1;return id}
+async function drUpload(blob,name,parent,oldId){if(oldId){try{const m=await drApi("https://www.googleapis.com/drive/v3/files/"+oldId+"?fields=id,trashed,parents");if(m&&!m.trashed){const P=m.parents||[],mv=P.includes(parent)?"":"&addParents="+parent+(P.length?"&removeParents="+P.join(","):"");await drApi("https://www.googleapis.com/upload/drive/v3/files/"+oldId+"?uploadType=media&fields=id"+mv,{method:"PATCH",headers:{"Content-Type":blob.type||"application/octet-stream"},body:blob});return{id:oldId,isNew:false}}}catch(e){if(e.status!==404)throw e}}
   const b="dpd"+Math.random().toString(36).slice(2),meta=JSON.stringify({name,parents:[parent]});
   const body=new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: ${blob.type||"application/octet-stream"}\r\n\r\n`,blob,`\r\n--${b}--`]);
   const r=await drApi("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+b},body});return{id:r.id,isNew:true}}
@@ -1593,13 +1596,13 @@ function drBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   return `<h2>Google Drive</h2><div class="cs" style="gap:6px"><div class="dr-h"><span class="row-meta" style="flex:1">${root?`Cartella <a href="https://drive.google.com/drive/folders/${root}" target="_blank" rel="noopener">${esc(DR_ROOT)}</a>`:"Cartella “"+esc(DR_ROOT)+"” (si crea da sola)"}</span><button class="btn dr-go" data-a="drSave" data-v="${lid}" ${DR_BUSY?"disabled":""}>☁️ Salva in Drive</button></div>
   ${Object.entries(T).map(([t,v])=>`<div class="dr-r"><span>${esc(t)}</span><span class="${v.ok===v.n?"dr-ok":"row-meta"}">${t==="Modelli B"?(v.ok?"✔ salvato (si aggiorna ogni volta)":"da salvare"):(v.ok===v.n?"✔ "+v.n+" salvati":v.ok+" su "+v.n+" salvati")}</span></div>`).join("")||'<p class="row-meta">Nessun documento ancora.</p>'}
   <p class="small" style="margin:0">La prima volta Google chiede di accedere e di dare il permesso. Il gestionale vede solo i file che crea lui.</p></div>`}
-async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;
+async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;for(const k in DR_SEEN)delete DR_SEEN[k];
   if(typeof saveNow==="function"){try{while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}catch(e){}}
   try{await drToken();D.settings=D.settings||{};D.settings.drive=D.settings.drive||{};const S=D.settings.drive;S.folders=S.folders||{};S.files=S.files||{};
     const I=drItems(lid);let i=0;
     for(const x of I){i++;const old=S.files[x.key];if(old&&!x.always&&old.src===x.src){skip++;continue}toast(`Drive: ${i} di ${I.length}…`);
       const blob=await x.get(),dir=await drFolder(DR_ROOT+"/"+x.dir),up=await drUpload(blob,x.fname,dir,old&&old.id);
-      let sc=old&&old.sc;if(up.isNew||!sc){const tf=await drFolder(DR_ROOT+"/"+x.type);sc=await drShortcut(up.id,x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname,tf)}
+      let sc=old&&old.sc;if(sc&&!up.isNew&&!(await drAlive(sc)))sc=null;if(up.isNew||!sc){const tf=await drFolder(DR_ROOT+"/"+x.type);sc=await drShortcut(up.id,x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname,tf)}
       S.files[x.key]={id:up.id,sc,src:x.src};n++}
     typeof saveNow==="function"&&saveNow();toast(n?`Salvati in Drive: ${n} documenti${skip?` (${skip} c'erano già)`:""}.`:"In Drive c'era già tutto.")}
   catch(e){console.error(e);if(e.status===404){D.settings.drive.folders={};toast("Una cartella di Drive non c'è più: ritocca “Salva in Drive”.")}else toast("Drive: "+(e.message||"errore").slice(0,120))}

@@ -542,3 +542,6 @@ Accessi e copie
   carica su R2. Chrome apre i link `data:` con una pagina bianca: un gestore dei clic apre i PDF `data:` come blob.
 - `depGo` aspetta il salvataggio e ridisegna; `drSave` prima finisce di salvare, perché `drItems` prende solo i file `/files/`
   (prima la ricevuta appena rifatta veniva saltata e in Drive restava la vecchia).
+- Drive (ottobre 2026): le cartelle memorizzate in `settings.drive.folders` si controllano una volta per giro (`drAlive`): se sono
+  cestinate o cancellate si ritrovano/ricreano. Un file sostituito (`drUpload` con `oldId`) viene spostato nella cartella del
+  cucciolo se stava altrove; il collegamento nella cartella per tipo si rifà se manca.
