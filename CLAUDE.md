@@ -405,3 +405,5 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   `titles_en`, `titles_de`; se mancano, italiano), genitori dei genitori, SBT; etichetta Disponibili (c'è un cucciolo senza
   proprietario e senza stato prenotato/ceduto/deceduto/in casa) / Non disponibili / In programma; numero di cuccioli. Mai note né
   proprietari; niente cuccioli singoli né prenotazioni (scelte di Paolo). `cuItems()` nella pagina = stessa logica di `siteLitters()`.
+- Finestre (`.sheet`): sul computer larghe fino a 880 px (94% dello schermo); i campi dei moduli si stringono (`min-width:0`,
+  `width:100%`) invece di far scorrere la finestra di lato (prima un elenco con nomi lunghi la allargava e tagliava i campi).
