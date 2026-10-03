@@ -452,6 +452,13 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   il microchip manca o è troppo corto. Le caselle del microchip di fattrice e stallone si compilano sempre.
 
 
+## Allarme sul telefono voce per voce (ottobre 2026)
+- In Scadenze ogni riga ha il campanello 🔔 (`scBell`): chiede quando avvisare (scelta A di Paolo: il giorno prima alle 9, il giorno
+  stesso alle 9, tutte e due), salva `settings.alarms[id]`, salva i dati e apre
+  `/api/public/scadenze/<calToken>/ev?id=…&al=prima|giorno|tutte` (functions/api/public/scadenze/[token]/ev.js): un file .ics con un
+  solo evento, che l'iPhone apre nel Calendario ("Aggiungi"). Campanello giallo + "🔔 sul telefono" se già messa.
+  In alto resta "Aggiungi tutto al telefono" (abbonamento a tutto il calendario): usando tutti e due i modi gli eventi si doppiano.
+
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
 - Prima di ogni modifica all'interfaccia: anteprima HTML autonoma, poi il codice solo dopo il suo ok. Le scelte le fa Paolo (opzioni
@@ -477,6 +484,7 @@ Scadenze e regole
   avvisi anche del codice etico (2° calore, massimo 5 cucciolate). Maschi non permessi per parentela nascosti in Accoppiamenti
   (con "mostrali"); nessun filtro sul COI (fascia di Paolo 6–9% solo come colori).
 - Recensione: bottone "Chiedi recensione" + promemoria 4 settimane dopo i 60 giorni.
+- Allarmi sul telefono: per ogni scadenza col campanello 🔔 (chiede ogni volta quando avvisare), oppure tutto insieme.
 Sito delpiccolodiavolo.it
 - Esposizioni: interruttori "Proprietario" (parte spento) e "Sul sito"; sul sito niente giudizi né foto; titoli presi anche in "Titoli".
   Pagine: Palmarès e sotto ogni cane in Femmine/Maschi, IT/EN/DE.
