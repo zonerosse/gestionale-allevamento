@@ -426,3 +426,22 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Nome di chiamata in rilievo (stile C scelto da Paolo): sotto il nome nella scheda di Paolo e nella pagina del proprietario
   (`.nick-c`, grassetto colorato più grande) e nell'elenco Cani (`.nick-l`). Per i cuccioli è il nome dato dai proprietari
   (Rocco, Batman, Raya, Luce, Yuky); niente campo "aka".
+
+## Modello B ENCI (ottobre 2026)
+- `public/modello-b.pdf` = modulo originale ENCI F-7234_09 (4 fogli: dati + 12 cuccioli). I suoi campi sono difettosi (fogli 3 e 4
+  con gli stessi nomi), quindi si tolgono campi e annotazioni e si scrive sopra con pdf-lib alle posizioni `MB_POS` (p0 = foglio 1,
+  slots = 12 cuccioli). `mbBuild(lid)`: allevatore (Paolo, CF da `settings.ppMe`), razza, data di nascita, fattrice e stallone (LOI
+  "LO…" → ROI, microchip a caselle), proprietario dello stallone (dalla scheda o dalle note "Proprietaria: …", modificabile),
+  cuccioli (prima i maschi) con nome, sesso, microchip, mantello e dati del nuovo proprietario (indirizzo letto da `mbAddr`),
+  totale fogli 4, data, consensi presto/presto/nego, firma di Paolo (`settings.sellerSig`) sulle due righe del foglio 1 e su
+  "Firma dell'allevatore" del foglio 4. "Somma €" e "L'allevatore è" restano vuoti salvo scelta nella finestra (`l.modB.status`).
+- Finestra `mbForm`: controllo dei dati mancanti (`mbCheck`), Visualizza / Scarica / Invia per email / WhatsApp (sul telefono
+  condivisione con il PDF allegato; sul computer scarica + mailto o wa.me) / ✔ Consegnato (`l.enciB`). Email e WhatsApp di
+  destinazione in `settings.modB`.
+- **Riquadro colorato in alto** (`mbBanners`) per le cucciolate nate da ≤ 120 giorni senza Modello B consegnato: nella prima pagina
+  (Cani), in cima a Scadenze e in cima alla Scheda della cucciolata. Blu > 30 giorni, arancione 15–30, rosso < 15 o scaduto; barra
+  dei 90 giorni. Anche la scadenza "ENCI Modello B" ha il bottone "📄 Prepara il Modello B".
+- **Conto alla rovescia del Modello B sul telefono**: finché `l.enciB` è vuoto, `scEvents` aggiunge eventi `src:"mbcd"` (solo per il
+  calendario, `phone:true`, non compaiono nella pagina Scadenze) ogni 4 giorni a ritroso dalla scadenza (nascita + 90) a partire da oggi,
+  il giorno della scadenza e poi ogni 4 giorni per 4 settimane se è scaduto: "📄 Modello B ENCI: mancano N giorni". Con `al:"9"`
+  il calendario avvisa alle 9 del giorno stesso (`TRIGGER:PT9H`), invece che il giorno prima.

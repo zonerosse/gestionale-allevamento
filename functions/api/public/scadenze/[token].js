@@ -1,6 +1,7 @@
 import { loadData } from "../../../_lib.js";
 
 // Calendario del telefono con le Scadenze di Paolo (iPhone: webcal://…, Google: "Da URL").
+// Avviso: il giorno prima alle 9 (TRIGGER -PT15H); con e.al = ora del giorno stesso (conto alla rovescia del Modello B).
 // Il link segreto è settings.calToken; l'elenco (settings.scad) lo prepara il gestionale a ogni salvataggio.
 const esc = s => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const fold = l => { const o = []; let s = l; while (s.length > 74) { o.push(s.slice(0, 74)); s = " " + s.slice(74); } o.push(s); return o.join("\r\n"); };
@@ -16,7 +17,7 @@ export async function onRequestGet({ env, params }) {
     const d = e.date.replace(/-/g, ""), n = new Date(e.date + "T12:00:00Z"); n.setUTCDate(n.getUTCDate() + 1);
     L.push("BEGIN:VEVENT", fold("UID:" + esc(e.id) + "@gestionale.delpiccolodiavolo.it"), "DTSTAMP:" + now, "DTSTART;VALUE=DATE:" + d,
       "DTEND;VALUE=DATE:" + n.toISOString().slice(0, 10).replace(/-/g, ""), fold("SUMMARY:" + esc(e.t)), fold("DESCRIPTION:" + esc(e.s)), "TRANSP:TRANSPARENT",
-      "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(e.t).slice(0, 60), "TRIGGER:-PT15H", "END:VALARM", "END:VEVENT");
+      "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(e.t).slice(0, 60), e.al ? "TRIGGER:PT" + (+e.al || 9) + "H" : "TRIGGER:-PT15H", "END:VALARM", "END:VEVENT");
   }
   L.push("END:VCALENDAR");
   return new Response(L.join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
