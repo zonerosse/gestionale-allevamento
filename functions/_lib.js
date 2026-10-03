@@ -84,7 +84,7 @@ export function ownerSubset(data, token) {
   const dogs = {};
   for (const [k, g] of Object.entries(depth)) {
     const d = data.dogs[k], own = mine.includes(k), o = {};
-    if (own) { Object.assign(o, d); delete o.notes; o.owner = oid; if (o.contract && !o.contract.visible) delete o.contract; }
+    if (own) { Object.assign(o, d); delete o.notes; o.owner = oid; if (o.contract && !o.contract.visible) delete o.contract; if (o.shows) o.shows = o.shows.filter(x => x.own); } // esposizioni: solo quelle condivise
     else { PUB.forEach(f => { if (d[f] !== undefined) o[f] = d[f]; }); if (g <= 3 && d.photo) o.photo = d.photo; }
     if (g <= 2) o.docs = (d.docs || []).filter(x => !x.private); else delete o.docs;
     if (own) o.docs = (d.docs || []).filter(x => !x.private);

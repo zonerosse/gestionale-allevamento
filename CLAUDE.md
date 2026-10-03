@@ -327,3 +327,16 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Testi delle firme (scelta di Paolo): ovunque si firma c'è scritto "col dito dal telefono, col mouse dal computer" (contratto per
   Paolo e per il proprietario, prima e seconda firma, passaggio di proprietà, messaggio WhatsApp del contratto; in inglese "with your
   finger on a phone, with the mouse on a computer"). La frase nel PDF dei contratti firmati ("firma con il dito") non è cambiata.
+
+## Esposizioni (punto 7, ottobre 2026)
+- Scheda di ogni cane → "Esposizioni" (`showsBox`), prima di "Titoli": riepilogo (uscite, CAC, CACIB, BOB, Eccellente), una scheda per
+  esposizione (`shCard`) con data, tipo, nome e luogo, giudice, classe, qualifica, classifica, titoli presi, giudizio scritto e foto
+  del giudizio (Visualizza/Scarica). "＋ Aggiungi esposizione" / "Modifica" (`shForm`, elenchi `SH_TP`, `SH_CL`, `SH_Q`, `SH_TI`).
+- `d.shows=[{id,date,type,name,judge,cls,qual,rank,titles,text,file,fname,own,web,inSite}]`. Due interruttori per esposizione:
+  **Proprietario** (`own`, parte spento: scelta di Paolo) e **Sul sito** (`web`). I titoli presi compaiono anche in "Titoli" (`shTitles`).
+- Proprietario: `showsOwner` mostra solo quelle `own` (in inglese per i proprietari stranieri, `SH_EN`); `ownerSubset` gli manda solo
+  quelle (`o.shows.filter(x=>x.own)`).
+- Sito: `GET /api/public/esposizioni` (functions/api/public/esposizioni.js) → risultati `web` senza giudizio né foto, CORS per
+  delpiccolodiavolo.it, cache 60 s. "🌐 Prepara per il sito" (`shPrep`, nel riquadro di ogni cane) scarica
+  `delpiccolodiavolo-esposizioni.zip` con `data/esposizioni.json` (zip fatto in casa, `zipStore`) e segna `inSite`.
+  Il sito mostra i risultati nel Palmarès e sotto ogni cane in Femmine/Maschi (vedi CLAUDE.md del repository del sito).
