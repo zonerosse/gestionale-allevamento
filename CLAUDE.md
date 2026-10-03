@@ -483,7 +483,7 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   versata non viene restituita" + eccezione del cucciolo morto o malato (come l'art. 4), firma salvata, "Ricevuta tra privati: non è
   un documento fiscale". Proprietari `lang:"en"`: seconda pagina in inglese. La ricevuta va in `d.docs` con `dep:true` e
   **`private:true`** (scelta A di Paolo: NON compare nella pagina del proprietario; se e quando mandarla lo decide lui con WhatsApp/Email)
-  e in Drive nella cartella per tipo "Ricevute caparra".
+  e in Drive nella cartella per tipo "Ricevute caparra". Le ricevute fatte prima (private:false) diventano private da sole all apertura del gestionale (`loadAll`).
 
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro

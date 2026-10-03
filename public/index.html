@@ -2784,7 +2784,10 @@ async function loadAll(){try{const r=await api("/api/data");const j=await r.json
     if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";const ist=TABS.findIndex(t=>t[0]==="statistiche");if(ist>=0)TABS.splice(ist,1);if(tab==="statistiche")tab="cani";if(tab==="proprietari")tab="cani"}
     if(!j.data){EMPTY=true}else{EMPTY=false;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,j.data);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(D);SAVE.at=j.updated?new Date(j.updated).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null}
   }catch(err){SAVE.err=SAVE.err||"Non riesco a leggere i dati online: controlla la connessione e ricarica."}
-  resetCalc();render();if(CONTI)return;ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
+  resetCalc();render();if(CONTI)return;
+  /* le ricevute di caparra fatte prima della scelta "solo per Paolo" diventano private */
+  if(!RO&&!EMPTY){let ch=0;Object.values(D.dogs).forEach(d=>(d.docs||[]).forEach(x=>{if(x.dep&&!x.private){x.private=true;ch++}}));if(ch){render();saveNow()}}
+  ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
 /* Richieste dal modulo del sito → Lista d'attesa (una volta sola per richiesta) */
 async function wlSync(){if(RO||EMPTY)return;try{const r=await api("/api/requests");if(!r.ok)return;const R=await r.json();D.waitlist=D.waitlist||[];const have=new Set(D.waitlist.map(w=>w.id));let n=0;
   R.forEach(q=>{if(have.has(q.rid))return;D.waitlist.push({id:q.rid,created:q.created,name:q.name,email:q.email,phone:q.phone,city:q.city,country:q.country,sex:q.sex,exp:q.exp,note:q.note,source:"sito",litter:"",status:"new",lang:/^(it|italia|italy)$/i.test(q.country||"")||!q.country?"it":"en"});n++});
