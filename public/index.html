@@ -2498,9 +2498,6 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   ${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}
   <div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small></label>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="https://sbtpedigree.com/…" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn ghost small" data-a="litSbt" data-v="${lid}">Salva link</button>${l.sbtUrl?`<a class="btn ghost small" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener">Apri ↗</a>`:""}</div></div>
-  <h2 style="margin-top:18px">Consanguineità</h2>${coiH}
-  <div class="ca-mine">${bb?`<span class="badge ${bb[1]}">${bb[0]}</span>`:""}${isNaN(w)?"":`<span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(w)}%</strong> · antenati noti ${cov.known} di ${cov.tot}</span>`}</div>
-  ${s&&dm?`<h2>Su chi cade la consanguineità</h2><p class="row-meta" style="margin:0 0 8px">Antenati comuni a padre e madre, in ordine di peso: quanto ognuno porta al COI calcolato dal gestionale (${isNaN(w)?"—":pf(w)+"%"}, 8 generazioni, solo cani inseriti). Il COI di SBT può differire un po'.</p><div class="anc">${ancWeight(s,dm)}</div>`:""}
   ${birthHtml(lid)}
   ${gphotosHtml(lid)}
   ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}

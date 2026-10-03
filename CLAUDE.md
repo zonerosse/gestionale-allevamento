@@ -568,3 +568,8 @@ Accessi e copie
   indirizzo vale solo per quella volta, `PP_TO`), "Sì, prepara l'email" (`ppMailGo` → `ppPack(lid,"mail")`) o Annulla.
 - Bottoni "Scarica i 2 PDF" e "Prepara l'email all'anagrafe" sempre attivi (scelta B di Paolo): con 0 passaggi firmati compare
   l'avviso "Nessun passaggio firmato: non c'è ancora niente da mandare. Mancano ancora N passaggi da firmare." (`ppNone`).
+
+## Scheda della cucciolata senza consanguineità (ottobre 2026)
+- Scelta di Paolo: nella Scheda della cucciolata (`litterSheet`) della consanguineità resta solo il link di SBTpedigree. Tolti la
+  scala COI, "Calcolo del gestionale (Wright)" e "Su chi cade la consanguineità". Accoppiamenti e pagina dei proprietari invariati;
+  `l.sbtA` resta salvato.
