@@ -357,3 +357,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Telefono: "Aggiungi al telefono" (`scPhone`) crea `settings.calToken` e mostra il link `/api/public/scadenze/<token>.ics`
   (iPhone: `webcal://`; Google: "Da URL"). `functions/api/public/scadenze/[token].js` serve `settings.scad`, che `scSync()`
   riscrive a ogni salvataggio e all'apertura del gestionale. Avviso alle 9 del giorno prima.
+- Aggiungere e togliere dalle Scadenze (scelte B A di Paolo): "＋ Aggiungi scadenza" (`scAddF`/`scAdd`): cane (o "Tutti i cuccioli
+  …", o nessun cane = promemoria dell'allevamento in `settings.todo`), tipo, data, descrizione. Vaccino/vermifugo/antiparassitari
+  → `d.todo=[{id,k,date,text}]` (in Salute compare "📌 In programma", `scPlanned`); Esposizione → nuova voce in `d.shows`;
+  Altro → promemoria (`k:"memo"`).
+- Tocco su una scadenza (`scAct`): **Fatto…** apre il modulo della Salute già compilato (stesso prodotto dell'ultima volta o del
+  promemoria; per i cuccioli spunta "tutta la cucciolata"); al salvataggio `scAfterDone` toglie il promemoria. **Sposta la data**
+  (`scMove`: voce futura, prossima dose, suggerita → `d.scMove`, richiamo dei cuccioli, esposizione, promemoria). **Non serve**
+  sulle suggerite → `d.scSkip[tipo]=true`, non torna più per quel cane (in fondo alla pagina "Suggerimenti tolti" → Riattiva).
+  **Elimina** per quelle scritte da Paolo. Calore e parto si cambiano solo da "Calori e monte".
