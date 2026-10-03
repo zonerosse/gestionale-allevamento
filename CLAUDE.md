@@ -566,3 +566,5 @@ Accessi e copie
 - Indirizzo di base p.toselli@comune.ostellato.fe.it (o `settings.anagrafeEmail` con "cambia"). "✉️ Prepara l'email all'anagrafe"
   apre prima `ppMailAsk`: passaggi che partono (verde) e quelli non firmati che mancano (arancione), campo "Manda a" (un altro
   indirizzo vale solo per quella volta, `PP_TO`), "Sì, prepara l'email" (`ppMailGo` → `ppPack(lid,"mail")`) o Annulla.
+- Bottoni "Scarica i 2 PDF" e "Prepara l'email all'anagrafe" sempre attivi (scelta B di Paolo): con 0 passaggi firmati compare
+  l'avviso "Nessun passaggio firmato: non c'è ancora niente da mandare. Mancano ancora N passaggi da firmare." (`ppNone`).
