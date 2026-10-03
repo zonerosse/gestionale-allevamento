@@ -259,6 +259,7 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .pp-en{border:1px solid #c8dcf3;background:#f3f8fe;border-radius:12px;margin:12px 0}.pp-en summary{cursor:pointer;padding:10px 14px;font-weight:600;color:#1f5fa8}
 .pp-en-in{padding:0 14px 12px;font-size:.92rem}.pp-en-in p{margin:0 0 8px}
 .hrow small{display:block;color:var(--muted);font-size:.82rem}
+.nick-c{font-weight:800;font-size:1.35rem;color:var(--accent);margin:2px 0 0;line-height:1.2}.nick-l{color:var(--accent);font-weight:800;font-size:1.05em}
 .st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
 .st-t{overflow-x:auto}.st-t table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.92rem}.st-t th,.st-t td{padding:8px 10px;border-top:1px solid var(--line);text-align:left}.st-t th{background:#f6f7f9;font-size:.8rem;color:var(--muted);border-top:0}.st-t td.n{text-align:right;white-space:nowrap}
 .st-r{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;font:inherit;color:inherit;cursor:pointer}.cs>.st-r:first-child{border-top:0}.st-r small{display:block;color:var(--muted)}
@@ -714,7 +715,7 @@ function born(d){return d.birth?fmt(d.birth):(d.year?"nato nel "+d.year:"")}
 function rows(ids){
   if(!ids.length)return '<div class="row"><span class="row-meta">Nessun cane con questi criteri. Cambia filtro o aggiungine uno.</span></div>';
   return ids.map(id=>{const d=D.dogs[id];const st=d.ext?["Esterno",""]:STATUS[d.status]||["",""];
-    const meta=[d.nick&&esc("“"+d.nick+"”"),sexH(d.sex),esc(born(d)),d.owner&&D.owners[d.owner]&&esc("di "+D.owners[d.owner].name)].filter(Boolean).join(", ");
+    const meta=[d.nick&&('<b class="nick-l">“'+esc(d.nick)+'”</b>'),sexH(d.sex),esc(born(d)),d.owner&&D.owners[d.owner]&&esc("di "+D.owners[d.owner].name)].filter(Boolean).join(", ");
     const showP=(d.sire||d.dam)&&!d.ext;
     const pn=k=>k&&D.dogs[k]?esc(D.dogs[k].name):'<i>non inserito</i>';
     const par=!showP?"":`<span class="row-par2"><span class="pm">${pn(d.sire)}</span><span class="pf">${pn(d.dam)}</span></span>`;
@@ -751,7 +752,7 @@ function dogDetail(id){
     return `<div class="row" style="cursor:default"><span><span class="row-name" style="display:block">${l.dam===id?"con ":"con "}${other?dlink(other):'<span class="empty">partner da inserire</span>'}</span><span class="row-meta">${l.state==="pianificata"?"Pianificata":"Nata il "+fmt(l.date)}${pups.length?" · "+pups.length+" cuccioli in archivio":""} · ${cLab} ${c.toFixed(2).replace(".",",")}%${l.notes?" · "+esc(l.notes):""}</span></span>${l.sire&&l.dam?`<span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn ghost small" data-a="litterSheet" data-v="${lk}">Scheda</button><button class="btn ghost small" data-a="mateWith" data-v="${l.sire}|${l.dam}">Analizza</button></span>`:"<span></span>"}</div>`};
   const st=d.ext?"Esterno":(STATUS[d.status]||[""])[0];
   return `<button class="back" data-a="back">‹ Tutti i cani</button>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="${esc(d.name)}">`:""}<h1>${esc(d.name)}</h1><p class="nick">${[d.nick&&"“"+esc(d.nick)+"”",st,d.bred?"Allevato da te":""].filter(Boolean).join(" · ")||"&nbsp;"}</p>
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="${esc(d.name)}">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${[st,d.bred?"Allevato da te":""].filter(Boolean).join(" · ")||"&nbsp;"}</p>
   <div class="actions" style="margin:0 0 16px">${EDIT===id?"":`<button class="btn" data-a="editOn" data-v="${id}|">Modifica</button><button class="btn ghost" data-a="dogForm" data-v="${id}">Foto, test, titoli e note</button>`}
   ${!d.ext?`<button class="btn ghost" data-a="ownerPreview" data-v="${id}">Come la vede il proprietario</button>`:""}
   <button class="btn ghost" data-a="mate" data-v="${id}">Prova un accoppiamento</button></div>
@@ -1239,7 +1240,7 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1><p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${ovParents(id)}

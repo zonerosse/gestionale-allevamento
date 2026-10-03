@@ -423,3 +423,6 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   genitori, data, stato e `acc`; nomi di cuccioli e genitori; `accGen`; niente proprietari, note, documenti, impostazioni) e
   `role:"conti"`; `PUT /api/data` salva solo i Conti (`mergeConti`: `litters[*].acc` e `accGen`, il resto resta quello vero);
   `/api/upload` permesso (ricevute). Nella pagina (`CONTI`) c'è solo la voce Conti, senza Copia di sicurezza/Importa.
+- Nome di chiamata in rilievo (stile C scelto da Paolo): sotto il nome nella scheda di Paolo e nella pagina del proprietario
+  (`.nick-c`, grassetto colorato più grande) e nell'elenco Cani (`.nick-l`). Per i cuccioli è il nome dato dai proprietari
+  (Rocco, Batman, Raya, Luce, Yuky); niente campo "aka".
