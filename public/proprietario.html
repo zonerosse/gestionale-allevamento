@@ -1610,7 +1610,7 @@ function depBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const d=D.do
   const row=(k,lab)=>`<label class="f">${lab} €<input id="dep_${k}_a" inputmode="decimal" value="${esc((p[k]||{}).amt||"")}" placeholder="0"></label><label class="f">Data${k==="cash"?" <small>(facoltativa)</small>":""}<input id="dep_${k}_d" type="date" value="${esc((p[k]||{}).date||"")}"></label>`;
   return `<h2>Caparra</h2><div class="cs" style="gap:8px"><div class="form dep-f">${row("bon","Bonifico")}${row("cash","Contanti")}</div>
   <p class="row-meta" style="margin:0">${tot?"Totale caparra: <b>"+eu(tot)+"</b>":"Scrivi l'importo del bonifico, dei contanti o di tutti e due."}${has?" · ricevuta del "+fmt(has.date):""}</p>
-  ${o?`<div class="row2"><button class="btn" data-a="depGo" data-v="${id}|view">Visualizza</button><button class="btn ghost" data-a="depGo" data-v="${id}|dl">Scarica</button><button class="btn dep-wa" data-a="depGo" data-v="${id}|wa">WhatsApp</button><button class="btn ghost" data-a="depGo" data-v="${id}|mail">✉️ Email</button></div>
+  ${o?`<div class="row2"><button class="btn" data-a="depGo" data-v="${id}|save">💾 Salva</button><button class="btn dep-wa" data-a="depGo" data-v="${id}|wa">WhatsApp</button></div>
   <p class="small" style="margin:0">La ricevuta, con la tua firma, resta tra i tuoi documenti del cucciolo e in Drive ("Salva in Drive"): ${esc((o.name||"").split(" ")[0])} non la vede nella sua pagina. Se e quando mandargliela lo decidi tu, con WhatsApp o Email.</p>`:`<p class="small" style="margin:0">Per la ricevuta assegna prima il proprietario al cucciolo.</p>`}</div>`}
 async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(d),tot=P.reduce((a,x)=>a+x.amt,0),me=(D.settings||{}).ppMe||{},l=D.litters[d.litter]||{},en=o.lang==="en";
   const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),M=20,W=170;let sig=null;try{if((D.settings||{}).sellerSig)sig=await toDataURL(D.settings.sellerSig)}catch(e){}
@@ -1647,6 +1647,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   const blob=doc.output("blob"),url=URL.createObjectURL(blob),en=o.lang==="en",fn=(o.name||"").split(" ")[0];
   const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! Paolo – Del Piccolo Diavolo`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! Paolo – Del Piccolo Diavolo`;
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
   const f=new File([blob],name,{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(o.email||"")+"?subject="+encodeURIComponent(en?"Deposit receipt – "+(d.nick||d.name):"Ricevuta caparra – "+(d.nick||d.name))+"&body="+encodeURIComponent(txt)},900);

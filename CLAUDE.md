@@ -476,6 +476,8 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   per tipo. `settings.drive={folders,files}`: un file già salvato e non cambiato non si ricarica.
 
 ## Caparra e ricevuta (ottobre 2026)
+- Bottoni del riquadro Caparra (scelta di Paolo): solo "💾 Salva" (prepara e salva la ricevuta tra i documenti privati del cucciolo,
+  da lì Visualizza/Scarica) e "WhatsApp". Niente Visualizza/Scarica/Email nel riquadro.
 - Scheda del cucciolo (solo Paolo) → "Caparra" (`depBox`): bonifico e/o contanti, ognuno con importo e data; la data dei contanti è facoltativa (`d.dep={bon,cash}`). Rifacendo la ricevuta, quella nuova (con il totale aggiornato) sostituisce la vecchia.
   "Visualizza / Scarica / WhatsApp / Email" (`depGo`) prepara la **ricevuta di caparra confirmatoria** (art. 1385 c.c., come il
   contratto): dati di Paolo e dell'acquirente, totale in cifre e lettere (`numIt`), "di cui € … tramite bonifico il … e € … in
