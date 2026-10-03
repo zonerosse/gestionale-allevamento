@@ -635,6 +635,10 @@ window.addEventListener("popstate",e=>{if(LB_BACK){LB_BACK=false;return}if(typeo
   if(lbClose(true))return;if(sheetOpen()){closeSheetRaw();if(e.state&&!e.state.sheet&&e.state.tab===tab&&(e.state.view||null)===(view||null))return}
   const st=e.state||{tab:"cani",view:null};if(st.sheet)return;if((st.tab||"cani")===tab&&(st.view||null)===(view||null)){if(NAVSTACK.length>1&&!e.state.lb)history.back();return} // passo doppio lasciato da un riquadro chiuso: salto alla pagina precedenteif(typeof leaveOk==="function"&&!leaveOk()){history.pushState({tab,view},"");return}
   NAVLOCK=true;tab=st.tab||"cani";view=st.view||null;if(NAVSTACK.length>1)NAVSTACK.pop();render();NAVLOCK=false;window.scrollTo(0,st.y||0)});
+/* PDF appena fatti (ricevute, contratti, passaggi) restano "data:" finché non sono caricati: Chrome apre una pagina bianca.
+   Li apro come file vero (blob), così "Visualizza" funziona subito. */
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href^='data:application/pdf']");if(!a||a.hasAttribute("download"))return;e.preventDefault();
+  const w=window.open("","_blank");fetch(a.getAttribute("href")).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);if(w)w.location.href=u;else location.href=u}).catch(()=>{if(w)w.close();toast("Non riesco ad aprire il PDF.")})});
 /* Foto: si aprono sopra la pagina, con la X o il tasto indietro per tornare */
 function lbClose(fromPop){const l=document.getElementById("lbx");if(!l)return false;l.remove();if(!fromPop&&history.state&&history.state.lb){LB_BACK=true;history.back()}return true}
 document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
@@ -1591,6 +1595,7 @@ function drBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   ${Object.entries(T).map(([t,v])=>`<div class="dr-r"><span>${esc(t)}</span><span class="${v.ok===v.n?"dr-ok":"row-meta"}">${t==="Modelli B"?(v.ok?"✔ salvato (si aggiorna ogni volta)":"da salvare"):(v.ok===v.n?"✔ "+v.n+" salvati":v.ok+" su "+v.n+" salvati")}</span></div>`).join("")||'<p class="row-meta">Nessun documento ancora.</p>'}
   <p class="small" style="margin:0">La prima volta Google chiede di accedere e di dare il permesso. Il gestionale vede solo i file che crea lui.</p></div>`}
 async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;
+  if(typeof saveNow==="function"){try{while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}catch(e){}}
   try{await drToken();D.settings=D.settings||{};D.settings.drive=D.settings.drive||{};const S=D.settings.drive;S.folders=S.folders||{};S.files=S.files||{};
     const I=drItems(lid);let i=0;
     for(const x of I){i++;const old=S.files[x.key];if(old&&!x.always&&old.src===x.src){skip++;continue}toast(`Drive: ${i} di ${I.length}…`);
@@ -1656,7 +1661,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   toast("Preparo la ricevuta…");let doc;try{doc=await depPdf(id)}catch(e){console.error(e);toast("Non riesco a preparare la ricevuta.");return}
   const slug=String(d.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),name="ricevuta-caparra-"+slug+".pdf",tot=depParts(d).reduce((a,x)=>a+x.amt,0);
   const was=(d.docs||[]).find(x=>x.dep),sh=!!(was&&was.depShare);d.docs=(d.docs||[]).filter(x=>!x.dep);d.docs.push({title:"Ricevuta di caparra",title_en:"Deposit receipt",date:depParts(d).map(x=>x.date).filter(Boolean).sort().pop()||todayS(),file:"data:application/pdf;base64,"+btoa(doc.output()),fname:name,private:!sh,depShare:sh,dep:true});/* di base solo per Paolo; con "Condividi con il proprietario" va nella sua pagina */
-  render();typeof saveNow==="function"&&saveNow();
+  render();if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow();render()}
   const blob=doc.output("blob"),url=URL.createObjectURL(blob),en=o.lang==="en",fn=(o.name||"").split(" ")[0];
   const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! Paolo – Del Piccolo Diavolo`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! Paolo – Del Piccolo Diavolo`;
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};

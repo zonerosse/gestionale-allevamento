@@ -536,3 +536,9 @@ Accessi e copie
 - Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
 - Copie di sicurezza automatiche: una al giorno per 90 giorni, Scarica e Ripristina; promemoria settimanale per scaricarla sul computer.
 - Statistiche nel menu sotto Scadenze; per le cucciolate senza schede si scrive quanti maschi e femmine sono nati.
+
+## PDF appena creati: Visualizza e Drive (ottobre 2026)
+- Ricevute, contratti e passaggi nascono come `data:application/pdf;base64,…` e diventano `/files/…` solo quando `saveNow` li
+  carica su R2. Chrome apre i link `data:` con una pagina bianca: un gestore dei clic apre i PDF `data:` come blob.
+- `depGo` aspetta il salvataggio e ridisegna; `drSave` prima finisce di salvare, perché `drItems` prende solo i file `/files/`
+  (prima la ricevuta appena rifatta veniva saltata e in Drive restava la vecchia).
