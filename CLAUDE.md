@@ -573,3 +573,5 @@ Accessi e copie
 - Scelta di Paolo: nella Scheda della cucciolata (`litterSheet`) della consanguineità resta solo il link di SBTpedigree. Tolti la
   scala COI, "Calcolo del gestionale (Wright)" e "Su chi cade la consanguineità". Accoppiamenti e pagina dei proprietari invariati;
   `l.sbtA` resta salvato.
+- Modello A: "✔ Consegnato" nel riquadro (`maGo` modo `done` → `l.enciA`, chiude la scadenza "ENCI Modello A"); dopo resta
+  "✅ Consegnato il …". Prima mostra la scadenza (25 giorni dalla nascita).

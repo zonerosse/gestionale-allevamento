@@ -1597,9 +1597,12 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   ${w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti resta vuoto sul modulo):<br>${w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi.</div>`}
   <div class="row2"><button class="btn ghost" data-a="maGo" data-v="${lid}|view">👁 Visualizza</button><button class="btn" data-a="maGo" data-v="${lid}|save">💾 Salva</button></div>
   <div class="row2"><button class="btn ma-mail" data-a="maGo" data-v="${lid}|mail">✉️ Email alla delegazione</button><button class="btn mb-wa" data-a="maGo" data-v="${lid}|wa">WhatsApp a ${MA_TO.who}</button></div>
+  ${l.enciA?"":`<div class="row2"><button class="btn mb-done" data-a="maGo" data-v="${lid}|done">✔ Consegnato</button></div>`}
+  <p class="row-meta" style="margin:0">${l.enciA?"✅ Consegnato il "+fmt(l.enciA):l.date?"Scadenza "+fmt(addD(l.date,25))+" · entro 25 giorni dalla nascita":"Scadenza: entro 25 giorni dalla nascita"}</p>
   ${ma.saved?`<p class="row-meta" style="margin:0">Salvato il ${fmt(ma.saved)}${ma.file&&/^\/files\//.test(ma.file)?` · ${fBtns(ma.file,maName(lid))}`:""} · con "Salva in Drive" va nella cartella "Modelli A"</p>`:""}
   <p class="small" style="margin:0">Già scritti: i tuoi dati, "controllabile presso" e Delegazione di ${MA_TO.deleg}; fattrice, stallone, monta e cuccioli quando ci sono. I dati del proprietario dello stallone (oltre al nome) si scrivono a mano. Va a: <b>${MA_TO.email}</b> · WhatsApp <b>${MA_TO.who} 338 214 1637</b>. Dal telefono Email e WhatsApp aprono la condivisione con il PDF già allegato; dal computer lo scaricano e lo alleghi tu.</p></div>`}
 async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
+  if(mode==="done"){if(!confirm("Segnare il Modello A come consegnato? La scadenza sparisce."))return;l.enciA=todayS();render();if(sheetOpen())litterSheet(lid);typeof saveNow==="function"&&saveNow();toast("Modello A consegnato.");return}
   toast("Preparo il Modello A…");let blob;try{blob=await maBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
   const name=maName(lid),url=URL.createObjectURL(blob),subj="Modello A – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+(l.date?" nata il "+fmt(l.date):""),txt=maText(lid);
   if(mode==="view"){window.open(url,"_blank","noopener");return}
