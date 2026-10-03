@@ -1,4 +1,4 @@
-import { json, isAdmin, deny, loadData, role, viewerData } from "../_lib.js";
+import { json, isAdmin, deny, loadData, role, viewerData, dailyCopy } from "../_lib.js";
 
 export async function onRequestGet({ request, env }) {
   const r = await role(request, env);
@@ -16,7 +16,7 @@ export async function onRequestPut({ request, env }) {
   const txt = JSON.stringify(body.data);
   if (txt.includes('"data:')) return json({ error: "Ci sono file non ancora caricati" }, 400);
   const now = new Date().toISOString();
-  const row = await env.DB.prepare("SELECT version FROM store WHERE id = 'main'").first();
+  const row = await env.DB.prepare("SELECT version, json FROM store WHERE id = 'main'").first();
   let nv;
   if (!row) {
     if (body.version !== 0) return json({ error: "conflict", version: 0 }, 409);
@@ -32,5 +32,8 @@ export async function onRequestPut({ request, env }) {
     env.DB.prepare("INSERT INTO history (at, version, json) VALUES (?, ?, ?)").bind(now, nv, txt),
     env.DB.prepare("DELETE FROM history WHERE id NOT IN (SELECT id FROM history ORDER BY id DESC LIMIT 200)")
   ]);
+  // copia automatica del giorno (punto 11): al primo salvataggio di ogni giorno si mette da parte com'era il gestionale
+  // PRIMA di quel salvataggio (cioè alla fine dell'ultima volta che è stato usato); si tengono 90 giorni
+  if (row) try { await dailyCopy(env, JSON.parse(row.json), row.json, now, row.version); } catch (e) {}
   return json({ version: nv, updated: now });
 }

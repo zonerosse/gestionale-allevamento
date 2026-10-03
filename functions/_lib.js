@@ -99,3 +99,18 @@ export function ownerSubset(data, token) {
   txt = txt.split("/files/").join("/api/public/" + token + "/f/");
   return { oid, dogs: mine, data: JSON.parse(txt), allowed };
 }
+
+// ---------- Copie di sicurezza automatiche (punto 11) ----------
+// Tabella daily: una copia al giorno (giorno italiano), 90 giorni; le copie "prima del ripristino" hanno note.
+export async function ensureDaily(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS daily (day TEXT PRIMARY KEY, at TEXT, version INTEGER, json TEXT, dogs INTEGER, litters INTEGER, note TEXT)").run();
+}
+export const dayIT = d => new Date(d).toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" }); // AAAA-MM-GG
+export async function dailyCopy(env, data, txt, now, version, note) {
+  await ensureDaily(env);
+  const day = note ? dayIT(now) + " " + new Date(now).toLocaleTimeString("it-IT", { timeZone: "Europe/Rome", hour: "2-digit", minute: "2-digit" }) + " " + note : dayIT(now);
+  const dogs = Object.keys(data.dogs || {}).length, litters = Object.keys(data.litters || {}).length;
+  await env.DB.prepare("INSERT OR IGNORE INTO daily (day, at, version, json, dogs, litters, note) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(day, now, version, txt, dogs, litters, note || "").run();
+  const old = new Date(Date.parse(now) - 90 * 864e5).toISOString().slice(0, 10);
+  await env.DB.prepare("DELETE FROM daily WHERE substr(day, 1, 10) < ?").bind(old).run();
+}

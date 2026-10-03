@@ -255,6 +255,8 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .pp-en{border:1px solid #c8dcf3;background:#f3f8fe;border-radius:12px;margin:12px 0}.pp-en summary{cursor:pointer;padding:10px 14px;font-weight:600;color:#1f5fa8}
 .pp-en-in{padding:0 14px 12px;font-size:.92rem}.pp-en-in p{margin:0 0 8px}
 .hrow small{display:block;color:var(--muted);font-size:.82rem}
+.bk-l{border:1px solid var(--line);border-radius:12px;padding:0 12px}.bk-r{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:.93rem}.bk-l .bk-r:first-child{border-top:0}
+.bk-r small{display:block;color:var(--muted)}.bk-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .en-r{display:grid;grid-template-columns:24px 1fr;gap:8px;padding:8px 10px;border-radius:10px;margin:6px 0;font-size:.93rem}.en-r small{display:block;color:var(--muted);font-size:.82rem}
 .en-ok{background:#e9f5ec}.en-warn{background:#fff3e0}.en-bad{background:#fde8e6}.en-info{background:#f1f3f5}
 .en-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0}.en-dt{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
@@ -1499,6 +1501,7 @@ function scEvents(){const ev=[],td=todayS(),add=(e)=>ev.push(e);
     (d.shows||[]).forEach(x=>{if(x.date&&x.date>=td)add({id:id+"sh"+x.id,src:"show",ref:x.id,dog:id,nm,cat:"x",ico:"🏅",date:x.date,t:x.name||"Esposizione",s:"in programma"+(x.type?" · "+x.type:"")})})}
   for(const [lid,l] of Object.entries(D.litters)){const dm=D.dogs[l.dam];if(l.state!=="nata"||!l.date||!dm||dm.ext||dDiff(td,l.date)>180)continue;const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"";
     [["enciA",25,"ENCI Modello A: denuncia di monta e nascita"],["enciB",90,"ENCI Modello B: iscrizione della cucciolata"]].forEach(([f,n,t])=>{if(!l[f])add({id:lid+f,src:"enci",ref:lid,f,dog:null,nm:"Cucciolata "+nk(l.dam)+" × "+nk(l.sire),cat:"p",ico:"📄",date:addD(l.date,n),t,s:"entro "+n+" giorni dalla nascita"})})}
+  if(typeof OWNER_MODE==="undefined"&&!RO){const ld=(D.settings||{}).lastDl;add({id:"bkdl",src:"bk",dog:null,nm:"Allevamento",cat:"m",ico:"💾",date:ld?addD(ld,7):td,t:"Scarica la copia di sicurezza sul computer",s:ld?"l'ultima è del "+fmt(ld):"non l'hai ancora scaricata"})}
   ((D.settings||{}).todo||[]).forEach(x=>add({id:"gtd"+x.id,src:"memo",k:"memo",ref:x.id,dog:null,nm:"Allevamento",cat:"m",ico:"📝",date:x.date,t:x.text||"Promemoria",s:"promemoria",memo:true}));
   // i cuccioli prenotati della stessa cucciolata con la stessa scadenza diventano una riga sola
   const out=[],grp={};for(const e of ev.sort((a,b)=>a.date.localeCompare(b.date))){const d=e.dog&&D.dogs[e.dog];e.members=[{dog:e.dog,ref:e.ref}];
@@ -1512,8 +1515,9 @@ function scAct(id){const e=scFind(id);if(!e)return;const health=e.k&&SC_K[e.k],o
   ${health&&e.src!=="fut"?B("scDone","✔ Fatto… (apre la Salute già compilata)","sc-ok"):""}
   ${e.src==="memo"?B("scDel","✔ Fatto (lo toglie)","sc-ok"):""}
   ${e.src==="enci"?B("scEnci","✔ Fatto: consegnato oggi","sc-ok"):""}
+  ${e.src==="bk"?`<button class="btn sc-ok" data-a="bkNow">✔ Fatto: scaricala adesso</button>`:""}
   ${e.src==="show"?`<button class="btn sc-ok" data-a="shForm" data-v="${e.dog}|${e.ref}">🏅 Inserisci il risultato</button>`:""}
-  ${e.src!=="repro"&&e.src!=="enci"?B("scMoveF","📅 Sposta la data"):""}
+  ${e.src!=="repro"&&e.src!=="enci"&&e.src!=="bk"?B("scMoveF","📅 Sposta la data"):""}
   ${e.src==="sug"?B("scSkip","✕ Non serve (non la suggerisce più per "+esc(e.nm)+")","sc-r"):e.src==="pup"?B("scSkip","✕ Non serve","sc-r"):["fut","next","todo","memo","show"].includes(e.src)?B("scDel","🗑 Elimina","sc-r"):""}
   ${e.src==="repro"?`<p class="small">Il calore e il parto previsti si calcolano dal riquadro "Calori e monte": cambiali da lì.</p>`:""}
   ${one?`<button class="btn ghost" data-a="open" data-v="${e.dog}">Apri la scheda di ${esc(e.nm)}</button>`:""}

@@ -385,3 +385,14 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 - Accoppiamenti: i maschi **non permessi dall'ENCI** per parentela con la fattrice (`enciRel`: genitore/figlio, fratelli pieni, mezzi
   fratelli) non compaiono nell'elenco "Maschio"; una riga dice quanti sono, con "mostrali" (`MATE_NO`) che li mette in fondo nel
   gruppo "🚫 Non permessi dall'ENCI" con il motivo. Nessun filtro sul COI (l'ENCI non ha limiti di COI; restano i colori). Scelte A A.
+
+## Copie di sicurezza automatiche (punto 11, ottobre 2026)
+- Tabella D1 `daily` (si crea da sola, `ensureDaily`): al **primo salvataggio di ogni giorno** (giorno italiano) `PUT /api/data`
+  mette da parte com'era il gestionale **prima** di quel salvataggio (`dailyCopy`); si tengono **90 giorni** (scelta di Paolo).
+  Resta anche la tabella `history` (ultimi 200 salvataggi).
+- "Copia di sicurezza" nella fascia in alto apre il riquadro **💾 Copie di sicurezza** (`bkSheet`): "Scarica una copia adesso"
+  (scrive `settings.lastDl`) e l'elenco delle copie automatiche (`GET /api/backups`) con **Scarica** (`?day=`) e **Ripristina**
+  (`POST /api/backups {day}`: prima salva la situazione attuale come copia "prima del ripristino", poi sostituisce i dati e la
+  pagina si ricarica). Solo Paolo (`isAdmin`). Foto e documenti restano su R2: la copia contiene i dati e i collegamenti.
+- Scadenze: una volta a settimana "Scarica la copia di sicurezza sul computer" (`src:"bk"`, `settings.lastDl` + 7 giorni);
+  "Fatto" la scarica subito.

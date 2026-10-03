@@ -7,3 +7,4 @@ CREATE TABLE IF NOT EXISTS contracts (dog TEXT PRIMARY KEY, owner TEXT, json TEX
 
 -- Richieste dal modulo del sito (la tabella si crea anche da sola)
 CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, json TEXT, created TEXT);
+CREATE TABLE IF NOT EXISTS daily (day TEXT PRIMARY KEY, at TEXT, version INTEGER, json TEXT, dogs INTEGER, litters INTEGER, note TEXT);
