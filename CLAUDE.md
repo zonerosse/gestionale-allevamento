@@ -396,3 +396,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   pagina si ricarica). Solo Paolo (`isAdmin`). Foto e documenti restano su R2: la copia contiene i dati e i collegamenti.
 - Scadenze: una volta a settimana "Scarica la copia di sicurezza sul computer" (`src:"bk"`, `settings.lastDl` + 7 giorni);
   "Fatto" la scarica subito.
+
+## Cucciolate sul sito (punto 10, ottobre 2026)
+- Scheda della cucciolata → "Sul sito" (`cuBox`): interruttore `l.web` e "🌐 Prepara per il sito" (`cuPrep`): zip
+  `delpiccolodiavolo-cucciolate.zip` con `data/cucciolate.json` e le foto dei genitori in `static/images/cucciolate/`; segna `l.inSite`.
+- `GET /api/public/cucciolate` (functions/api/public/cucciolate.js, `siteLitters` in _lib.js) e `…/cucciolate/f/<chiave>` (solo
+  le foto dei genitori delle cucciolate "Sul sito"). Sul sito: genitori con foto, test e titoli in IT/EN/DE (`tests_en`, `tests_de`,
+  `titles_en`, `titles_de`; se mancano, italiano), genitori dei genitori, SBT; etichetta Disponibili (c'è un cucciolo senza
+  proprietario e senza stato prenotato/ceduto/deceduto/in casa) / Non disponibili / In programma; numero di cuccioli. Mai note né
+  proprietari; niente cuccioli singoli né prenotazioni (scelte di Paolo). `cuItems()` nella pagina = stessa logica di `siteLitters()`.

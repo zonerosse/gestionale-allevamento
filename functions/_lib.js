@@ -114,3 +114,23 @@ export async function dailyCopy(env, data, txt, now, version, note) {
   const old = new Date(Date.parse(now) - 90 * 864e5).toISOString().slice(0, 10);
   await env.DB.prepare("DELETE FROM daily WHERE substr(day, 1, 10) < ?").bind(old).run();
 }
+
+// ---------- Cucciolate sul sito (punto 10) ----------
+// Solo le cucciolate con "Sul sito" (l.web): stato, numeri e genitori (foto, test e titoli in IT/EN/DE, genitori, SBT). Mai note né proprietari.
+export function siteLitters(data) {
+  const D = data || {}, dogs = D.dogs || {}, dn = k => (dogs[k] && dogs[k].name) || "";
+  const split = s => String(s || "").split(" · ").map(x => x.trim()).filter(Boolean);
+  const par = k => { const d = dogs[k]; if (!d) return null; const m = /\/files\/([A-Za-z0-9._-]+)/.exec(d.photo || "");
+    const L = l => [...split(d["tests" + l] || d.tests), ...split(d["titles" + l] || d.titles)];
+    return { id: k, name: d.name || "", photoKey: m ? m[1] : "", it: L(""), en: L("_en"), de: L("_de"), parents: [dn(d.sire), dn(d.dam)].filter(Boolean), sbt: d.sbt || "" }; };
+  const out = [];
+  for (const [lid, l] of Object.entries(D.litters || {})) {
+    if (!l.web) continue;
+    const pups = Object.values(dogs).filter(d => d.litter === lid);
+    const avail = pups.some(d => !d.owner && !["prenotato", "ceduto", "deceduto", "casa"].includes(d.status || ""));
+    out.push({ id: lid, state: l.state === "pianificata" ? "plan" : "born", date: l.date || "", n: pups.length,
+      m: pups.filter(d => d.sex === "M").length, f: pups.filter(d => d.sex === "F").length, avail,
+      sbtUrl: l.sbtUrl || "", dam: par(l.dam), sire: par(l.sire) });
+  }
+  return out.sort((a, b) => (a.state === b.state ? (b.date || "").localeCompare(a.date || "") : a.state === "plan" ? 1 : -1));
+}
