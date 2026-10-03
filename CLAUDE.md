@@ -561,3 +561,8 @@ Accessi e copie
 - Riquadro "📄 Modello B ENCI" nella Scheda della cucciolata (`mbBox`, sotto quello del Modello A), sempre disponibile anche dopo
   "Consegnato" (sparisce solo l'avviso in alto): Visualizza, 💾 Salva (`l.mbFile`, `l.mbSaved`), Email e WhatsApp alla delegazione
   (se `settings.modB` è vuoto si usano i contatti di Ferrara `MA_TO`), ✏️ Altri dati (`mbForm`), ✔ Consegnato con scadenza.
+
+## Passaggi di proprietà: conferma prima dell'email all'anagrafe (ottobre 2026)
+- Indirizzo di base p.toselli@comune.ostellato.fe.it (o `settings.anagrafeEmail` con "cambia"). "✉️ Prepara l'email all'anagrafe"
+  apre prima `ppMailAsk`: passaggi che partono (verde) e quelli non firmati che mancano (arancione), campo "Manda a" (un altro
+  indirizzo vale solo per quella volta, `PP_TO`), "Sì, prepara l'email" (`ppMailGo` → `ppPack(lid,"mail")`) o Annulla.
