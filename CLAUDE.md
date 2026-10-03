@@ -445,3 +445,45 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   calendario, `phone:true`, non compaiono nella pagina Scadenze) ogni 4 giorni a ritroso dalla scadenza (nascita + 90) a partire da oggi,
   il giorno della scadenza e poi ogni 4 giorni per 4 settimane se è scaduto: "📄 Modello B ENCI: mancano N giorni". Con `al:"9"`
   il calendario avvisa alle 9 del giorno stesso (`TRIGGER:PT9H`), invece che il giorno prima.
+- Codice a barre del microchip (scelta B di Paolo): `mbBarcode` disegna un Code 128 (`c128`, set C per le coppie di cifre) del
+  numero di microchip nel riquadro "Spazio riservato alla applicazione del codice a barre" di ogni cucciolo (`MB_BOX`), con il
+  numero sotto. Verificato con un lettore: si legge uguale al numero. Con il codice a barre le caselle "microchip N°" del cucciolo
+  restano vuote, come chiede il modulo ("Non compilare in caso di applicazione etichetta codice a barre"); si compilano solo se
+  il microchip manca o è troppo corto. Le caselle del microchip di fattrice e stallone si compilano sempre.
+
+
+## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
+Regole di lavoro
+- Prima di ogni modifica all'interfaccia: anteprima HTML autonoma, poi il codice solo dopo il suo ok. Le scelte le fa Paolo (opzioni
+  A/B), Claude decide solo se Paolo lo chiede. Istruzioni semplicissime, percorso esatto; meglio un file da importare che cercare
+  nelle schede. Zip del gestionale `gestionale-*.zip`, del sito `delpiccolodiavolo-*.zip`. Messaggi pronti in blocco di codice.
+- Ogni zip contiene tutto (sostituisce i precedenti). Dopo Push: 2–3 minuti, poi riaprire il gestionale.
+Dati e anagrafe
+- Documenti d'identità dei proprietari solo per Paolo. Proprietari stranieri `lang:"en"`: pagina, messaggi e PDF in inglese.
+- Nome di chiamata dei cuccioli = quello dato dai proprietari (Rocco, Batman, Raya, Luce, Yuky), in rilievo (stile C); niente "aka".
+- LOI mancante dei cani allevati: "In attesa N. LOI". Spese per l'espatrio: solo la frase, visibile anche al proprietario straniero.
+- Firma di Paolo (`settings.sellerSig`) su contratti, passaggi di proprietà e Modello B. Firme: "col dito dal telefono, col mouse dal computer".
+- File: due bottoni "Visualizza" e "Scarica" ovunque.
+Modello B ENCI
+- Modulo originale compilato, firmato, 4 fogli sempre (totale fogli 4), consensi presto/presto/nego, "somma €" vuota, "L'allevatore è"
+  nessuna casella salvo scelta nella finestra, codice a barre Code 128 del microchip al posto delle caselle del cucciolo.
+- Riquadro grande e colorato in alto (prima pagina, Scadenze, Scheda della cucciolata), blu/arancione/rosso secondo i giorni.
+- Conto alla rovescia sul telefono: avviso ogni 4 giorni alle 9 fino alla scadenza (e per 4 settimane dopo, se scaduto).
+Scadenze e regole
+- Date suggerite: vaccino e vaccino leishmania solo per fattrici e cani da expo; prevenzione leishmania mai (a Ferrara non c'è);
+  prevenzione filaria (NexGard Spectra) e pulci/zecche ogni mese da aprile a novembre a tutti; vermifugo ogni 3 mesi.
+  "Fatto" apre la Salute già compilata; "Non serve" non la suggerisce più per quel cane. Nessuna consegna dei cuccioli in Scadenze.
+- Regole ENCI con limiti prudenti di Paolo: 18 mesi di età al parto e 180 giorni tra due parti (ENCI: 16 mesi e 170 giorni);
+  avvisi anche del codice etico (2° calore, massimo 5 cucciolate). Maschi non permessi per parentela nascosti in Accoppiamenti
+  (con "mostrali"); nessun filtro sul COI (fascia di Paolo 6–9% solo come colori).
+- Recensione: bottone "Chiedi recensione" + promemoria 4 settimane dopo i 60 giorni.
+Sito delpiccolodiavolo.it
+- Esposizioni: interruttori "Proprietario" (parte spento) e "Sul sito"; sul sito niente giudizi né foto; titoli presi anche in "Titoli".
+  Pagine: Palmarès e sotto ogni cane in Femmine/Maschi, IT/EN/DE.
+- Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
+  programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
+- Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
+Accessi e copie
+- Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
+- Copie di sicurezza automatiche: una al giorno per 90 giorni, Scarica e Ripristina; promemoria settimanale per scaricarla sul computer.
+- Statistiche nel menu sotto Scadenze; per le cucciolate senza schede si scrive quanti maschi e femmine sono nati.

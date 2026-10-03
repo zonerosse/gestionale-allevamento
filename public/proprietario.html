@@ -1512,15 +1512,29 @@ async function mbBuild(lid){const L=await pdflib(),l=D.litters[lid],mb=Object.as
   const fogli=pages.length;/* il modulo si consegna intero (4 fogli): la firma dell allevatore è solo sull ultimo */put(0,p0.totale_fogli,String(fogli));const dt=fmt(mb.date||todayS());put(0,p0.Data,dt);put(0,p0.consenso_Data,dt);
   X(0,R["Consenso dati ENCI"][0]);X(0,R["Pubblicità ENCI"][0]);X(0,R["MKT ENCI"][1]);
   P.slice(0,12).forEach((k,i)=>{const d=D.dogs[k],o=D.owners[d.owner]||{},S=MB_POS.slots[i],pg=S.p,a=mbAddr(o.addr),it=(o.country||"Italia")==="Italia";
-    put(pg,S.nome,d.name);X(pg,d.sex==="M"?S.sM:S.sF);put(pg,S.chip,d.chip||"");put(pg,S.mant,d.color||"");
+    put(pg,S.nome,d.name);X(pg,d.sex==="M"?S.sM:S.sF);if(String(d.chip||"").replace(/\D/g,"").length<10)put(pg,S.chip,d.chip||"");put(pg,S.mant,d.color||"");
     if(d.owner){put(pg,S.ced,o.name);if(/^[A-Z0-9]{16}$/.test(o.cf||""))put(pg,S.cf,o.cf);put(pg,S.via,a.via);put(pg,S.n,a.n);put(pg,S.cap,a.cap);
       put(pg,S.city,it||/\b(slovenia|germany|deutschland|france|austria|switzerland)\b/i.test(a.city)?a.city:a.city+" ("+(o.country||"")+")");put(pg,S.cell,String(o.phone||"").replace(/^\+39\s*/,""));put(pg,S.em,o.email||"")}});
+  P.slice(0,12).forEach((k,i)=>{const c=String(D.dogs[k].chip||"").replace(/\D/g,"");if(c.length>=10)mbBarcode(pages[MB_POS.slots[i].p],MB_BOX[i],c,font,L)});
   // firma di Paolo
   try{const sig=(D.settings||{}).sellerSig;if(sig){const u=await toDataURL(sig),img=u.startsWith("data:image/png")?await doc.embedPng(u):await doc.embedJpg(u),sc=img.scale(1),k=Math.min(150/sc.width,26/sc.height);
     const sigAt=(pg,x,y)=>pages[pg].drawImage(img,{x,y,width:sc.width*k,height:sc.height*k});
     const sigH=(pg,x,y,h)=>{const kk=Math.min(140/sc.width,h/sc.height);pages[pg].drawImage(img,{x,y,width:sc.width*kk,height:sc.height*kk})};
     sigH(0,370,479,17);sigH(0,330,216,17);sigH(pages.length-1,170,19,20)}}catch(e){console.warn("firma",e)}
   return new Blob([await doc.save()],{type:"application/pdf"})}
+
+/* codice a barre Code 128 del microchip nel riquadro "Spazio riservato alla applicazione del codice a barre" (scelta B di Paolo:
+   generato dal numero, non la foto dell'etichetta). MB_BOX = riquadri per i 12 cuccioli [x0,y0,x1,y1] in punti PDF. */
+const C128=["212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213", "221312", "231212", "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132", "221231", "213212", "223112", "312131", "311222", "321122", "321221", "312212", "322112", "322211", "212123", "212321", "232121", "111323", "131123", "131321", "112313", "132113", "132311", "211313", "231113", "231311", "112133", "112331", "132131", "113123", "113321", "133121", "313121", "211331", "231131", "213113", "213311", "213131", "311123", "311321", "331121", "312113", "312311", "332111", "314111", "221411", "431111", "111224", "111422", "121124", "121421", "141122", "141221", "112214", "112412", "122114", "122411", "142112", "142211", "241211", "221114", "413111", "241112", "134111", "111242", "121142", "121241", "114212", "124112", "124211", "411212", "421112", "421211", "212141", "214121", "412121", "111143", "111341", "131141", "114113", "114311", "411113", "411311", "113141", "114131", "311141", "411131", "211412", "211214", "211232", "2331112"];
+const MB_BOX=[[53,629,265,696],[53,436,265,503],[53,243,265,310],[53,45,265,112],[53,625,265,692],[53,432,265,499],[53,239,265,306],[53,28,265,95],[50,626,262,692],[50,432,262,499],[50,240,262,307],[50,54,262,121]];
+function c128(t){t=String(t||"");const v=[];let i=0;const dig=s=>/^\d+$/.test(s);
+  if(dig(t)&&t.length>=4){v.push(105);for(;i+1<t.length&&dig(t.slice(i,i+2));i+=2)v.push(+t.slice(i,i+2));if(i<t.length){v.push(100);for(;i<t.length;i++)v.push(t.charCodeAt(i)-32)}}
+  else{v.push(104);for(;i<t.length;i++)v.push(t.charCodeAt(i)-32)}
+  let cs=v[0];for(let j=1;j<v.length;j++)cs+=v[j]*j;v.push(cs%103,106);return v.map(x=>C128[x]).join("")}
+function mbBarcode(page,box,chip,font,L){const pat=c128(chip),mods=[...pat].reduce((a,c)=>a+ +c,0)+20,[x0,y0,x1,y1]=box,w=x1-x0-10,mw=w/mods,h=y1-y0-24;
+  page.drawRectangle({x:x0+1,y:y0+1,width:x1-x0-2,height:y1-y0-2,color:L.rgb(1,1,1)});
+  let x=x0+5+10*mw,bar=true;for(const c of pat){const k=+c;if(bar)page.drawRectangle({x,y:y0+14,width:k*mw,height:h,color:L.rgb(0,0,0)});x+=k*mw;bar=!bar}
+  const tw=font.widthOfTextAtSize(chip,9);page.drawText(chip,{x:(x0+x1)/2-tw/2,y:y0+4,size:9,font,color:L.rgb(0,0,0)})}
 function mbName(lid){const l=D.litters[lid];return "modello-b-"+(dn(l.dam)+"-"+dn(l.sire)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
 function mbText(lid){const l=D.litters[lid],P=mbPups(lid),dm=D.dogs[l.dam],sr=D.dogs[l.sire];
   return `Buongiorno, in allegato il Modello B (denuncia di iscrizione di cucciolata) della cucciolata nata il ${fmt(l.date)} da ${dm.name}${dm.loi?" ("+dm.loi+")":""} × ${sr.name}${sr.loi?" ("+sr.loi+")":""}: ${P.length} cuccioli, ${P.filter(k=>D.dogs[k].sex==="M").length} maschi e ${P.filter(k=>D.dogs[k].sex==="F").length} femmine.\nAllevatore: Paolo Boldrini, Ostellato (FE), cell. 392 463 5584.\nCordiali saluti, Paolo Boldrini`}
