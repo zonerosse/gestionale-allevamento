@@ -478,6 +478,8 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
 ## Caparra e ricevuta (ottobre 2026)
 - Bottoni del riquadro Caparra (scelta di Paolo): solo "💾 Salva" (prepara e salva la ricevuta tra i documenti privati del cucciolo,
   da lì Visualizza/Scarica) e "WhatsApp". Niente Visualizza/Scarica/Email nel riquadro.
+- Interruttore "Condividi con il proprietario" sotto i bottoni (quando la ricevuta c'è): di base spento (`private:true`); acceso →
+  `depShare:true`, `private:false`, la ricevuta compare nella pagina del proprietario. Rifacendo la ricevuta lo stato resta.
 - Scheda del cucciolo (solo Paolo) → "Caparra" (`depBox`): bonifico e/o contanti, ognuno con importo e data; la data dei contanti è facoltativa (`d.dep={bon,cash}`). Rifacendo la ricevuta, quella nuova (con il totale aggiornato) sostituisce la vecchia.
   "Visualizza / Scarica / WhatsApp / Email" (`depGo`) prepara la **ricevuta di caparra confirmatoria** (art. 1385 c.c., come il
   contratto): dati di Paolo e dell'acquirente, totale in cifre e lettere (`numIt`), "di cui € … tramite bonifico il … e € … in
@@ -521,7 +523,8 @@ Sito delpiccolodiavolo.it
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
 - Ricevuta della caparra: "caparra confirmatoria", non restituita in caso di rinuncia; bonifico e contanti anche insieme (data dei
-  contanti facoltativa); firma salvata; solo dalla scheda del cucciolo; resta privata (non va nella pagina del proprietario).
+  contanti facoltativa); firma salvata; solo dalla scheda del cucciolo; bottoni Salva e WhatsApp; di base privata, con l'interruttore
+  "Condividi con il proprietario" per mostrarla nella sua pagina.
 Accessi e copie
 - Documenti firmati in Google Drive col bottone "Salva in Drive" (tutti i tipi, cartelle per cucciolata/cucciolo + collegamenti per tipo).
 - Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
