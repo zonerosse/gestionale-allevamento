@@ -464,6 +464,17 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   giorni"), perché l'iPhone tiene al massimo due avvisi per evento. Vale per il campanello (`ev?id=&pre=&every=`) e per "Aggiungi
   tutto" (`scSync`). Se il Modello B ha un'impostazione sua, sostituisce il conto alla rovescia automatico ogni 4 giorni.
 
+## Salva in Drive (ottobre 2026)
+- Google Cloud: progetto `staffordshire-bull-terrier`, Google Drive API attivata, client OAuth web
+  `1051634257234-j2bpevh0giietep68ntut2ece36usaf5.apps.googleusercontent.com` con origine `https://gestionale.delpiccolodiavolo.it`
+  (`DRIVE_CLIENT`). Permesso `drive.file`: il gestionale vede solo i file che crea lui. Accesso con Google Identity Services
+  (https://accounts.google.com/gsi/client), token in memoria (1 ora).
+- Scheda della cucciolata → "Google Drive" (`drBox`) → "☁️ Salva in Drive" (`drSave`, solo col bottone: scelta A). Tutti i documenti
+  (scelta di Paolo): contratti firmati, passaggi di proprietà (anche traduzione inglese), certificati di iscrizione, documenti
+  d'identità dei proprietari, Modello B (rifatto e aggiornato ogni volta). Cartelle A e B: originale in
+  "Del Piccolo Diavolo – Documenti/<AAAA-MM> <madre> × <padre>/<cucciolo> (<proprietario>)/", collegamento (shortcut) nelle cartelle
+  per tipo. `settings.drive={folders,files}`: un file già salvato e non cambiato non si ricarica.
+
 ## RIEPILOGO DELLE SCELTE DI PAOLO (da rispettare; aggiornato al 3 ottobre 2026)
 Regole di lavoro
 - Prima di ogni modifica all'interfaccia: anteprima HTML autonoma, poi il codice solo dopo il suo ok. Le scelte le fa Paolo (opzioni
@@ -498,6 +509,7 @@ Sito delpiccolodiavolo.it
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
 Accessi e copie
+- Documenti firmati in Google Drive col bottone "Salva in Drive" (tutti i tipi, cartelle per cucciolata/cucciolo + collegamenti per tipo).
 - Daniela (veronesi.daniela73@gmail.com, variabile `CONTI`): vede e modifica solo i Conti.
 - Copie di sicurezza automatiche: una al giorno per 90 giorni, Scarica e Ripristina; promemoria settimanale per scaricarla sul computer.
 - Statistiche nel menu sotto Scadenze; per le cucciolate senza schede si scrive quanti maschi e femmine sono nati.
