@@ -346,8 +346,12 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   gruppi Scadute / Questa settimana / Prossimi 30 giorni / Più avanti, filtri Salute, Calori e parti, Cuccioli, Esposizioni.
   Tocco su una riga → scheda del cane. Calcolo in `scEvents()`:
   - Salute dei cani di Paolo (`scMine`: non esterni, senza proprietario, non ceduti/deceduti) e dei cuccioli ancora prenotati
-    (`scPup`, ≤ 180 giorni): voci con data futura, "prossima dose" (`next`), e per i cani di Paolo le date **suggerite** (scelta B):
-    vaccino ultimo + 365, leishmania/filaria e pulci/zecche ultima + 30 (solo se cade tra aprile e novembre), vermifugo ultimo + 90.
+    (`scPup`, ≤ 180 giorni): voci con data futura, "prossima dose" (`next`), e per i cani di Paolo le date **suggerite** (scelta B),
+    con le regole di Paolo: **vaccino** (ultimo + 365) e **vaccino leishmania** (`lf` tipo `vle`, + 365) solo per i cani "attivi"
+    = fattrici (`isFattrice`) o con un'esposizione negli ultimi 12 mesi o in programma (i cani anziani, sterilizzati, a casa non si
+    vaccinano); **prevenzione leishmania mai** (a Ferrara non c'è); **prevenzione filaria** (`pfi`, NexGard Spectra) e pulci/zecche
+    ultima + 30 solo se cade tra aprile e novembre; vermifugo ultimo + 90. Leishmania e filaria si ragionano per tipo
+    (chiavi `lf:pfi`, `lf:vle` in `scSkip`/`scMove`).
   - Cuccioli prenotati: richiamo del vaccino a 3 mesi (sparisce con un vaccino dal 70° giorno). Nessuna consegna (scelta di Paolo).
     Le scadenze uguali dei cuccioli della stessa cucciolata diventano una riga ("8 cuccioli Billy × Black Jack").
   - Fattrici (`reproState`): parto previsto (monta + 63) e tappe (ecografia +25, radiografia +55, cassa parto +56), oppure
@@ -366,3 +370,15 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   (`scMove`: voce futura, prossima dose, suggerita → `d.scMove`, richiamo dei cuccioli, esposizione, promemoria). **Non serve**
   sulle suggerite → `d.scSkip[tipo]=true`, non torna più per quel cane (in fondo alla pagina "Suggerimenti tolti" → Riattiva).
   **Elimina** per quelle scritte da Paolo. Calore e parto si cambiano solo da "Calori e monte".
+
+## Regole ENCI (punto 9, ottobre 2026)
+- Fonte: Norme tecniche del Libro genealogico in vigore dal 1/9/2023 (DM 116130 del 22/2/2023) + codice etico ENCI. Paolo ha scelto
+  limiti più prudenti: **18 mesi** di età al parto e **180 giorni** tra due parti (`EN_AGE`, `EN_GAP`); l'ENCI chiede 16 mesi e 170 giorni.
+- `enciCheck(fattrice, maschio, dataMonta)` → righe 🟢 ok / 🟠 warn / 🔴 bad / ℹ️ info: età al parto (monta + 63), giorni dall'ultimo
+  parto, numero di cucciolate (certificato veterinario di idoneità prima della monta dai 7 anni o con già 5 cucciolate; codice
+  etico: massimo 5), parentele vietate (genitore/figlio, fratelli pieni, mezzi fratelli), 2° calore (dai calori in "Calori e monte").
+- Dove: **Accoppiamenti** (riquadro "📋 Regole ENCI" con la data di monta ipotizzata, `MATE_DT`; di base la monta in corso, il
+  prossimo calore + 12 giorni o oggi + 30), **scheda della fattrice** dentro "Calori e monte" (`enciFattr`: età, cucciolate, prossimo
+  parto possibile, certificato), **cucciolate pianificate** (`enciLitLine`, con la monta in corso o "se la monta fosse oggi"),
+  **Scadenze**: Modello A (nascita + 25) e Modello B (nascita + 90) per le cucciolate nate negli ultimi 180 giorni; "Fatto:
+  consegnato oggi" scrive `l.enciA` / `l.enciB`.
