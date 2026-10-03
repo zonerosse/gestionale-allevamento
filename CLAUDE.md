@@ -545,3 +545,6 @@ Accessi e copie
 - Drive (ottobre 2026): le cartelle memorizzate in `settings.drive.folders` si controllano una volta per giro (`drAlive`): se sono
   cestinate o cancellate si ritrovano/ricreano. Un file sostituito (`drUpload` con `oldId`) viene spostato nella cartella del
   cucciolo se stava altrove; il collegamento nella cartella per tipo si rifà se manca.
+- Drive: a ogni "Salva in Drive" anche i file già salvati vengono controllati (`drPlace`): il file deve stare nella cartella del
+  cucciolo e il collegamento nella cartella per tipo ("Ricevute caparra", "Contratti"…); se manca o è cestinato si rifà, se è
+  altrove si sposta. (Caso Maris, 03/10/2026: il collegamento in "Ricevute caparra" mancava.)

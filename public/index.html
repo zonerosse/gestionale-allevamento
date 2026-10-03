@@ -1573,6 +1573,8 @@ async function drApi(url,opt){const r=await fetch(url,Object.assign({},opt,{head
 const drQ=s=>String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
 const DR_SEEN={};/* cartelle già controllate in questo giro */
 async function drAlive(id){try{const m=await drApi("https://www.googleapis.com/drive/v3/files/"+id+"?fields=id,trashed");return !!(m&&!m.trashed)}catch(e){if(e.status===404)return false;throw e}}
+async function drPlace(id,parent){let m;try{m=await drApi("https://www.googleapis.com/drive/v3/files/"+id+"?fields=id,trashed,parents")}catch(e){if(e.status===404)return false;throw e}
+  if(!m||m.trashed)return false;const P=m.parents||[];if(!P.includes(parent))await drApi("https://www.googleapis.com/drive/v3/files/"+id+"?fields=id&addParents="+parent+(P.length?"&removeParents="+P.join(","):""),{method:"PATCH",headers:{"Content-Type":"application/json"},body:"{}"});return true}
 async function drFolder(path){const S=D.settings.drive;if(S.folders[path]){if(DR_SEEN[path]||await drAlive(S.folders[path])){DR_SEEN[path]=1;return S.folders[path]}delete S.folders[path]}
   const parts=path.split("/"),name=parts.pop(),parent=parts.length?await drFolder(parts.join("/")):"root";
   const f=await drApi("https://www.googleapis.com/drive/v3/files?q="+encodeURIComponent(`name='${drQ(name)}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`)+"&fields=files(id)");
@@ -1600,9 +1602,12 @@ async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;for(con
   if(typeof saveNow==="function"){try{while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}catch(e){}}
   try{await drToken();D.settings=D.settings||{};D.settings.drive=D.settings.drive||{};const S=D.settings.drive;S.folders=S.folders||{};S.files=S.files||{};
     const I=drItems(lid);let i=0;
-    for(const x of I){i++;const old=S.files[x.key];if(old&&!x.always&&old.src===x.src){skip++;continue}toast(`Drive: ${i} di ${I.length}…`);
-      const blob=await x.get(),dir=await drFolder(DR_ROOT+"/"+x.dir),up=await drUpload(blob,x.fname,dir,old&&old.id);
-      let sc=old&&old.sc;if(sc&&!up.isNew&&!(await drAlive(sc)))sc=null;if(up.isNew||!sc){const tf=await drFolder(DR_ROOT+"/"+x.type);sc=await drShortcut(up.id,x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname,tf)}
+    for(const x of I){i++;const old=S.files[x.key],tf=await drFolder(DR_ROOT+"/"+x.type),dir=await drFolder(DR_ROOT+"/"+x.dir),scName=x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname;
+      /* già salvato: controllo comunque che il file stia nella cartella del cucciolo e il collegamento in quella per tipo */
+      if(old&&!x.always&&old.src===x.src&&await drPlace(old.id,dir)){if(!(old.sc&&await drPlace(old.sc,tf))){old.sc=await drShortcut(old.id,scName,tf);n++}else skip++;continue}
+      toast(`Drive: ${i} di ${I.length}…`);
+      const blob=await x.get(),up=await drUpload(blob,x.fname,dir,old&&old.id);
+      let sc=old&&old.sc;if(!up.isNew&&sc&&!(await drPlace(sc,tf)))sc=null;if(up.isNew||!sc)sc=await drShortcut(up.id,scName,tf);
       S.files[x.key]={id:up.id,sc,src:x.src};n++}
     typeof saveNow==="function"&&saveNow();toast(n?`Salvati in Drive: ${n} documenti${skip?` (${skip} c'erano già)`:""}.`:"In Drive c'era già tutto.")}
   catch(e){console.error(e);if(e.status===404){D.settings.drive.folders={};toast("Una cartella di Drive non c'è più: ritocca “Salva in Drive”.")}else toast("Drive: "+(e.message||"errore").slice(0,120))}
