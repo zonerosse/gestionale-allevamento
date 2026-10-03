@@ -39,7 +39,8 @@ export async function accessEmail(request, env) {
 export async function role(request, env) {
   const e = await accessEmail(request, env); if (e === null) return null;
   const V = String(env.VIEWERS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
-  return V.includes(e) ? "viewer" : "admin";
+  const C = String(env.CONTI || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+  return C.includes(e) ? "conti" : V.includes(e) ? "viewer" : "admin";
 }
 export async function isAdmin(request, env) { return (await role(request, env)) === "admin"; }
 // Dati per chi consulta: niente dati personali dei proprietari, contratti, documenti privati, firma di Paolo
@@ -133,4 +134,23 @@ export function siteLitters(data) {
       sbtUrl: l.sbtUrl || "", dam: par(l.dam), sire: par(l.sire) });
   }
   return out.sort((a, b) => (a.state === b.state ? (b.date || "").localeCompare(a.date || "") : a.state === "plan" ? 1 : -1));
+}
+
+// ---------- Ruolo "conti" (Daniela, variabile CONTI): vede e modifica SOLO i Conti ----------
+// Le manda solo cucciolate (genitori, data, stato, acc), i nomi dei cuccioli e dei genitori, le spese generali.
+export function contiData(data) {
+  const D = data || {}, dogs = {}, litters = {};
+  for (const [k, l] of Object.entries(D.litters || {})) {
+    litters[k] = { dam: l.dam || "", sire: l.sire || "", date: l.date || null, state: l.state || "", acc: l.acc || undefined };
+    for (const p of [l.dam, l.sire]) if (p && D.dogs[p]) dogs[p] = { name: D.dogs[p].name, nick: D.dogs[p].nick || "", sex: D.dogs[p].sex, ext: !!D.dogs[p].ext };
+  }
+  for (const [k, d] of Object.entries(D.dogs || {})) if (d.litter && litters[d.litter]) dogs[k] = { name: d.name, nick: d.nick || "", sex: d.sex, litter: d.litter, birthOrder: d.birthOrder };
+  return { dogs, litters, owners: {}, matings: {}, accGen: D.accGen || [], settings: {} };
+}
+// Unisce ai dati veri solo i Conti mandati dal ruolo "conti": tutto il resto resta com'è
+export function mergeConti(cur, body) {
+  const out = JSON.parse(JSON.stringify(cur));
+  for (const [k, l] of Object.entries((body && body.litters) || {})) if (out.litters && out.litters[k]) { if (l.acc) out.litters[k].acc = l.acc; else delete out.litters[k].acc; }
+  out.accGen = Array.isArray(body && body.accGen) ? body.accGen : (out.accGen || []);
+  return out;
 }

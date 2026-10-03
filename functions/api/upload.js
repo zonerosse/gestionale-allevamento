@@ -1,9 +1,9 @@
-import { json, isAdmin, deny } from "../_lib.js";
+import { json, role, deny } from "../_lib.js";
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif", "image/gif": "gif", "application/pdf": "pdf" };
 
 // Carica una foto o un PDF nell'archivio file (R2)
 export async function onRequestPost({ request, env }) {
-  if (!(await isAdmin(request, env))) return deny();
+  const rr = await role(request, env); if (rr !== "admin" && rr !== "conti") return deny(); // "conti": ricevute delle spese
   const ct = (request.headers.get("content-type") || "").split(";")[0].trim();
   if (!EXT[ct]) return json({ error: "Tipo di file non accettato: " + ct }, 415);
   const size = +(request.headers.get("content-length") || 0);

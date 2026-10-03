@@ -409,3 +409,17 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   `width:100%`) invece di far scorrere la finestra di lato (prima un elenco con nomi lunghi la allargava e tagliava i campi).
 - "Importa modifiche" con `{coiTestMating:[{sire:{sbt,name},dam:{sbt,name},coi:"16,139"}]}`: trova i cani dal numero SBT (o dal
   nome) e scrive `D.matings["maschio|femmina"].coiSbt`, come la casella "COI SBT del test mating" in Accoppiamenti.
+
+## Statistiche, richiesta di recensione, accesso di Daniela (ottobre 2026)
+- **Statistiche** (`tab="statistiche"`, nel menu sotto Scadenze; non per chi consulta): cucciolate nate, cuccioli, media, maschi/
+  femmine; tabelle per cucciolata, per fattrice, per stallone (`stPage`); titoli ed esposizioni dei cani allevati. Le cucciolate
+  senza schede dei cuccioli: "Scrivi quanti" → `l.bornM` / `l.bornF` (`stLit`; scelta A di Paolo).
+- **Recensione**: in "Link ai proprietari" il bottone "⭐ Chiedi recensione" (`lkRev`): WhatsApp (o email) con il link
+  https://delpiccolodiavolo.it/chiedi-recensione/ (italiano/inglese), segna `owners[id].revAsked`. In Scadenze "Chiedi la recensione
+  alle famiglie" a nascita + 88 giorni (60 + 4 settimane) per le cucciolate degli ultimi 180 giorni, finché non è chiesta a tutti o
+  "Fatto" (`l.revDone`).
+- **Ruolo "conti"** (Daniela, daniela.veronesi73@gmail.com): variabile Cloudflare Pages `CONTI` = email separate da virgola (e la
+  stessa email nella policy di Cloudflare Access dell'app "gestionale"). `GET /api/data` le dà `contiData` (cucciolate con
+  genitori, data, stato e `acc`; nomi di cuccioli e genitori; `accGen`; niente proprietari, note, documenti, impostazioni) e
+  `role:"conti"`; `PUT /api/data` salva solo i Conti (`mergeConti`: `litters[*].acc` e `accGen`, il resto resta quello vero);
+  `/api/upload` permesso (ricevute). Nella pagina (`CONTI`) c'è solo la voce Conti, senza Copia di sicurezza/Importa.

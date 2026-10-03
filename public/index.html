@@ -259,6 +259,11 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .pp-en{border:1px solid #c8dcf3;background:#f3f8fe;border-radius:12px;margin:12px 0}.pp-en summary{cursor:pointer;padding:10px 14px;font-weight:600;color:#1f5fa8}
 .pp-en-in{padding:0 14px 12px;font-size:.92rem}.pp-en-in p{margin:0 0 8px}
 .hrow small{display:block;color:var(--muted);font-size:.82rem}
+.st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
+.st-t{overflow-x:auto}.st-t table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.92rem}.st-t th,.st-t td{padding:8px 10px;border-top:1px solid var(--line);text-align:left}.st-t th{background:#f6f7f9;font-size:.8rem;color:var(--muted);border-top:0}.st-t td.n{text-align:right;white-space:nowrap}
+.st-r{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;font:inherit;color:inherit;cursor:pointer}.cs>.st-r:first-child{border-top:0}.st-r small{display:block;color:var(--muted)}
+.lk-rev{background:#fff7d6!important;border-color:#ecd27a!important}
+@media (max-width:640px){.st-kpi{grid-template-columns:1fr 1fr}}
 .bk-l{border:1px solid var(--line);border-radius:12px;padding:0 12px}.bk-r{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:.93rem}.bk-l .bk-r:first-child{border-top:0}
 .bk-r small{display:block;color:var(--muted)}.bk-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .en-r{display:grid;grid-template-columns:24px 1fr;gap:8px;padding:8px 10px;border-radius:10px;margin:6px 0;font-size:.93rem}.en-r small{display:block;color:var(--muted);font-size:.82rem}
@@ -570,7 +575,8 @@ const TABS=[
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
  ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
  ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
- ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>']
+ ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>'],
+ ["statistiche","Statistiche",'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>']
 ];
 let tab="cani",view=null,filter="miei",q="";
 function nav(){
@@ -597,7 +603,7 @@ const DOPEN=new Map();
 function dKey(el){const s=el.querySelector(":scope>summary");return tab+"|"+(view||"")+"|"+(typeof filter!=="undefined"?filter:"")+"|"+(s?s.textContent.replace(/\s+/g," ").trim().slice(0,60):"")}
 document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.closest("#main")&&!t.dataset.hs)DOPEN.set(dKey(t),t.open)},true);
 function dRestore(){document.querySelectorAll("#main details:not([data-hs])").forEach(el=>{const k=dKey(el);if(DOPEN.has(k))el.open=DOPEN.get(k)})}
-function navLabel(st){if(!st)return"Cani";const T0={cani:"Cani",cucciolate:"Cucciolate",proprietari:"Proprietari",coi:"Accoppiamenti",attesa:"Lista d'attesa",conti:"Conti",scadenze:"Scadenze"};
+function navLabel(st){if(!st)return"Cani";const T0={cani:"Cani",cucciolate:"Cucciolate",proprietari:"Proprietari",coi:"Accoppiamenti",attesa:"Lista d'attesa",conti:"Conti",scadenze:"Scadenze",statistiche:"Statistiche"};
   if(st.view){if(st.tab==="proprietari"&&D.owners[st.view])return D.owners[st.view].name;const d=D.dogs[st.view];if(d)return d.nick||d.name}
   if(st.tab==="cani"&&st.f){const F={miei:"I miei cani",ceduto:"Ceduti",prenotato:"Prenotati",tutti:"Tutti i cani",fattrici:"Fattrici",fattrice:"Fattrici",esterni:"Esterni",ext:"Esterni"};if(F[st.f])return F[st.f]}
   return T0[st.tab]||"Cani"}
@@ -644,6 +650,7 @@ function render(){resetCalc();nav();
   if(tab==="attesa")m.innerHTML=banner+waitList();
   if(tab==="conti")m.innerHTML=banner+contiPage();
   if(tab==="scadenze")m.innerHTML=banner+scPage();
+  if(tab==="statistiche")m.innerHTML=banner+stPage();
   if(tab==="coi")calcMate();
   colorize(m);roClean(document);dRestore();navPush();
 }
@@ -1461,6 +1468,31 @@ function importIds(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").r
   render();typeof saveNow==="function"&&saveNow();alert("Fatto: documenti aggiunti a "+ok.length+" proprietari. Il salvataggio online parte da solo (con file grandi ci vuole qualche secondo).")}
 /* ---------- Passaggi di proprietà della cucciolata: due PDF (passaggi firmati + documenti d'identità) ed email all'anagrafe ---------- */
 let PP_LIT=null;
+/* ---------- Statistiche ----------
+   Cucciolate nate: cuccioli dalle schede; se una cucciolata non ha schede contano l.bornM / l.bornF scritti a mano (scelta A).
+   Per cucciolata, per fattrice, per stallone; titoli ed esposizioni dei cani allevati da Paolo. */
+function stLit(lid){const l=D.litters[lid],P=Object.values(D.dogs).filter(d=>d.litter===lid);
+  if(P.length)return{n:P.length,m:P.filter(d=>d.sex==="M").length,f:P.filter(d=>d.sex==="F").length,man:false};
+  if(l.bornM!=null||l.bornF!=null){const m=+l.bornM||0,f=+l.bornF||0;return{n:m+f,m,f,man:true}}return null}
+function stPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"?";
+  const L=Object.entries(D.litters).filter(([,l])=>l.state==="nata").sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||""));
+  const S=L.map(([k,l])=>[k,l,stLit(k)]),K=S.filter(x=>x[2]),N=K.reduce((a,x)=>a+x[2].n,0),M=K.reduce((a,x)=>a+x[2].m,0),F=K.reduce((a,x)=>a+x[2].f,0);
+  const avg=K.length?(N/K.length).toFixed(1).replace(".",","):"–";
+  const grp=key=>{const G={};S.forEach(([k,l,s])=>{const g=l[key];if(!g)return;G[g]=G[g]||{c:0,n:0,known:0};G[g].c++;if(s){G[g].n+=s.n;G[g].known++}});return Object.entries(G).sort((a,b)=>b[1].c-a[1].c||nk(a[0]).localeCompare(nk(b[0])))};
+  const row=(cells,cls)=>`<tr${cls?` class="${cls}"`:""}>${cells.map((c,i)=>`<td${i>1?' class="n"':""}>${c}</td>`).join("")}</tr>`;
+  const bred=Object.entries(D.dogs).filter(([,d])=>d.bred&&!d.ext&&(d.titles||(d.shows||[]).length)).sort((a,b)=>(b[1].titles||"").length-(a[1].titles||"").length);
+  return `<h1 style="margin-bottom:4px">Statistiche</h1><p class="lead" style="margin-top:0">Le cucciolate nate e i cani che hai allevato, dai dati del gestionale.</p>
+  <div class="st-kpi"><div><small>Cucciolate nate</small><b>${S.length}</b></div><div><small>Cuccioli</small><b>${N}</b>${K.length<S.length?`<small>${S.length-K.length} cucciolat${S.length-K.length===1?"a":"e"} da completare</small>`:""}</div><div><small>Media per cucciolata</small><b>${avg}</b></div><div><small>Maschi / femmine</small><b>${M} / ${F}</b></div></div>
+  <h2>Cucciolate</h2><div class="st-t"><table><tr><th>Nata il</th><th>Madre × padre</th><th>Cuccioli</th><th>M / F</th></tr>
+  ${S.map(([k,l,s])=>row([fmt(l.date),esc(nk(l.dam))+" × "+esc(nk(l.sire)),s?s.n+(s.man?` <button class="plink" data-a="stBorn" data-v="${k}">✎</button>`:""):`<button class="btn ghost small" data-a="stBorn" data-v="${k}">Scrivi quanti</button>`,s?s.m+" / "+s.f:"–"])).join("")}</table></div>
+  <h2>Per fattrice</h2><div class="st-t"><table><tr><th>Fattrice</th><th></th><th>Cucciolate</th><th>Cuccioli</th><th>Media</th></tr>${grp("dam").map(([k,g])=>row([esc(nk(k)),"",g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–"])).join("")}</table></div>
+  <h2>Per stallone</h2><div class="st-t"><table><tr><th>Stallone</th><th></th><th>Cucciolate</th><th>Cuccioli</th><th>Media</th></tr>${grp("sire").map(([k,g])=>row([esc((D.dogs[k]||{}).name||"?"),"",g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–"])).join("")}</table></div>
+  <h2>I cani che hai allevato: titoli ed esposizioni</h2>${bred.length?`<div class="cs" style="gap:0;padding:4px 14px">${bred.map(([k,d])=>{const sh=d.shows||[],c=t=>sh.filter(s=>(s.titles||[]).includes(t)).length;
+    return `<button class="st-r" data-a="open" data-v="${k}"><b>${esc(d.name)}</b><small>${esc(d.titles||"")}${sh.length?`${d.titles?" · ":""}${sh.length} esposizion${sh.length===1?"e":"i"} · ${c("CAC")} CAC · ${c("CACIB")} CACIB · ${c("BOB")} BOB`:""}</small></button>`}).join("")}</div>`:'<p class="empty">Nessun titolo ancora.</p>'}`}
+function stBornF(lid){const l=D.litters[lid];sheet(`<h2 style="margin-top:0">Cuccioli nati · ${fmt(l.date)}</h2><p class="row-meta">Per le cucciolate senza le schede dei cuccioli: conta solo nelle Statistiche.</p><div class="form">
+  <label class="f">Maschi<input id="stm" type="number" min="0" inputmode="numeric" value="${l.bornM??""}"></label><label class="f">Femmine<input id="stf" type="number" min="0" inputmode="numeric" value="${l.bornF??""}"></label></div>
+  <div class="actions"><button class="btn" data-a="stBornSave" data-v="${lid}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
+function stBornSave(lid){const l=D.litters[lid],m=$("#stm").value,f=$("#stf").value;if(m===""&&f===""){delete l.bornM;delete l.bornF}else{l.bornM=+m||0;l.bornF=+f||0}closeSheet();render();typeof saveNow==="function"&&saveNow()}
 /* ---------- Cucciolate sul sito (punto 10) ----------
    l.web = la cucciolata compare nella pagina Cuccioli del sito (IT/EN/DE): in automatico da /api/public/cucciolate, e come testo
    vero con "Prepara per il sito" (zip delpiccolodiavolo-cucciolate.zip: data/cucciolate.json + static/images/cucciolate/…).
@@ -1529,6 +1561,9 @@ function scEvents(){const ev=[],td=todayS(),add=(e)=>ev.push(e);
     (d.shows||[]).forEach(x=>{if(x.date&&x.date>=td)add({id:id+"sh"+x.id,src:"show",ref:x.id,dog:id,nm,cat:"x",ico:"🏅",date:x.date,t:x.name||"Esposizione",s:"in programma"+(x.type?" · "+x.type:"")})})}
   for(const [lid,l] of Object.entries(D.litters)){const dm=D.dogs[l.dam];if(l.state!=="nata"||!l.date||!dm||dm.ext||dDiff(td,l.date)>180)continue;const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"";
     [["enciA",25,"ENCI Modello A: denuncia di monta e nascita"],["enciB",90,"ENCI Modello B: iscrizione della cucciolata"]].forEach(([f,n,t])=>{if(!l[f])add({id:lid+f,src:"enci",ref:lid,f,dog:null,nm:"Cucciolata "+nk(l.dam)+" × "+nk(l.sire),cat:"p",ico:"📄",date:addD(l.date,n),t,s:"entro "+n+" giorni dalla nascita"})})}
+  for(const [lid,l] of Object.entries(D.litters)){const dm=D.dogs[l.dam];if(l.state!=="nata"||!l.date||!dm||dm.ext||l.revDone||dDiff(td,l.date)>180)continue;
+    const P=Object.values(D.dogs).filter(x=>x.litter===lid&&x.owner&&D.owners[x.owner]),done=P.filter(x=>D.owners[x.owner].revAsked).length;if(!P.length||done===P.length)continue;const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"";
+    add({id:lid+"rev",src:"rev",ref:lid,dog:null,nm:"Cucciolata "+nk(l.dam)+" × "+nk(l.sire),cat:"p",ico:"⭐",date:addD(l.date,88),t:"Chiedi la recensione alle famiglie",s:P.length+" famiglie, "+done+" già fatte"})}
   if(typeof OWNER_MODE==="undefined"&&!RO){const ld=(D.settings||{}).lastDl;add({id:"bkdl",src:"bk",dog:null,nm:"Allevamento",cat:"m",ico:"💾",date:ld?addD(ld,7):td,t:"Scarica la copia di sicurezza sul computer",s:ld?"l'ultima è del "+fmt(ld):"non l'hai ancora scaricata"})}
   ((D.settings||{}).todo||[]).forEach(x=>add({id:"gtd"+x.id,src:"memo",k:"memo",ref:x.id,dog:null,nm:"Allevamento",cat:"m",ico:"📝",date:x.date,t:x.text||"Promemoria",s:"promemoria",memo:true}));
   // i cuccioli prenotati della stessa cucciolata con la stessa scadenza diventano una riga sola
@@ -1544,8 +1579,9 @@ function scAct(id){const e=scFind(id);if(!e)return;const health=e.k&&SC_K[e.k],o
   ${e.src==="memo"?B("scDel","✔ Fatto (lo toglie)","sc-ok"):""}
   ${e.src==="enci"?B("scEnci","✔ Fatto: consegnato oggi","sc-ok"):""}
   ${e.src==="bk"?`<button class="btn sc-ok" data-a="bkNow">✔ Fatto: scaricala adesso</button>`:""}
+  ${e.src==="rev"?`<button class="btn sc-ok" data-a="litterSheet" data-v="${e.ref}">⭐ Apri la Scheda della cucciolata (Link ai proprietari)</button>`+B("scRevDone","✔ Fatto: le ho già chieste"):""}
   ${e.src==="show"?`<button class="btn sc-ok" data-a="shForm" data-v="${e.dog}|${e.ref}">🏅 Inserisci il risultato</button>`:""}
-  ${e.src!=="repro"&&e.src!=="enci"&&e.src!=="bk"?B("scMoveF","📅 Sposta la data"):""}
+  ${e.src!=="repro"&&e.src!=="enci"&&e.src!=="bk"&&e.src!=="rev"?B("scMoveF","📅 Sposta la data"):""}
   ${e.src==="sug"?B("scSkip","✕ Non serve (non la suggerisce più per "+esc(e.nm)+")","sc-r"):e.src==="pup"?B("scSkip","✕ Non serve","sc-r"):["fut","next","todo","memo","show"].includes(e.src)?B("scDel","🗑 Elimina","sc-r"):""}
   ${e.src==="repro"?`<p class="small">Il calore e il parto previsti si calcolano dal riquadro "Calori e monte": cambiali da lì.</p>`:""}
   ${one?`<button class="btn ghost" data-a="open" data-v="${e.dog}">Apri la scheda di ${esc(e.nm)}</button>`:""}
@@ -1684,9 +1720,15 @@ function lkMsg(k){const d=D.dogs[k],o=D.owners[d.owner],en=o.lang==="en",fn=(o.n
 function lkPhone(o){let ph=String(o.phone||"").replace(/[^\d+]/g,"");if(ph.startsWith("+"))ph=ph.slice(1);else if(ph.startsWith("00"))ph=ph.slice(2);else if(ph&&(o.country||"Italia")==="Italia")ph="39"+ph;return ph}
 function linkBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]);if(!P.length)return"";
   return `<h2>Link ai proprietari</h2><div class="cs" style="gap:10px"><div class="hlist">${P.map(k=>{const d=D.dogs[k],o=D.owners[d.owner],ph=lkPhone(o);
-    return `<div class="hrow lk"><span class="hd">🐶</span><span><b>${esc(o.name)}${o.lang==="en"?" 🌍":""}</b><small>${esc(d.name)}${o.linkSent?` · <span style="color:var(--ok);font-weight:600">✔ mandato il ${fmt(o.linkSent)}</span>`:""}</small></span>
-    <span class="lk-b"><button class="btn small lk-wa" data-a="lkWa" data-v="${k}" ${ph?"":'disabled title="Manca il telefono"'}>WhatsApp</button><button class="btn ghost small" data-a="lkMail" data-v="${k}" ${o.email?"":'disabled title="Manca l’email"'}>Email</button><button class="btn ghost small" data-a="copyLink" data-v="${d.owner}">Copia link</button></span></div>`}).join("")}</div>
+    return `<div class="hrow lk"><span class="hd">🐶</span><span><b>${esc(o.name)}${o.lang==="en"?" 🌍":""}</b><small>${esc(d.name)}${o.linkSent?` · <span style="color:var(--ok);font-weight:600">✔ mandato il ${fmt(o.linkSent)}</span>`:""}${o.revAsked?` · <span style="color:#8a6200;font-weight:600">⭐ recensione chiesta il ${fmt(o.revAsked)}</span>`:""}</small></span>
+    <span class="lk-b"><button class="btn small lk-wa" data-a="lkWa" data-v="${k}" ${ph?"":'disabled title="Manca il telefono"'}>WhatsApp</button><button class="btn ghost small" data-a="lkMail" data-v="${k}" ${o.email?"":'disabled title="Manca l’email"'}>Email</button><button class="btn ghost small" data-a="copyLink" data-v="${d.owner}">Copia link</button><button class="btn ghost small lk-rev" data-a="lkRev" data-v="${k}" ${ph||o.email?"":"disabled"}>⭐ Chiedi recensione</button></span></div>`}).join("")}</div>
   <p class="small">Tocca WhatsApp o Email: si apre il messaggio già scritto con il link alla sua pagina privata, tu premi Invia. Ad Andrej e agli altri proprietari esteri arriva in inglese.</p></div>`}
+// richiesta di recensione: WhatsApp (o email se manca il telefono) con il link alla pagina del sito; owners[id].revAsked = data
+function lkRev(k){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,F=d.sex==="F",u="https://delpiccolodiavolo.it/chiedi-recensione/";
+  const t=en?`Hi ${fn}, how is ${nm} doing? 😊 If you're happy with ${F?"her":"him"}, it would mean a lot if you left a short review on Google: it helps the next family know who they're dealing with. It takes a minute:\n${u}\n\nThank you! Paolo – Del Piccolo Diavolo`
+    :`Ciao ${fn}, come sta ${nm}? 😊 Se ti trovi bene con ${F?"lei":"lui"}, mi fai un grande favore lasciando due righe su Google: aiuta la prossima famiglia a capire con chi ha a che fare. Ci vuole un minuto:\n${u}\n\nGrazie! Paolo – Del Piccolo Diavolo`;
+  const ph=lkPhone(o);if(ph)window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");else if(o.email)location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(en?"A short review for Del Piccolo Diavolo":"Una recensione per Del Piccolo Diavolo")+"&body="+encodeURIComponent(t);else return;
+  o.revAsked=todayS();typeof saveNow==="function"&&saveNow();if(sheetOpen()&&PP_LIT)litterSheet(PP_LIT)}
 function lkSend(k,how){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const m=lkMsg(k);
   if(how==="wa"){const ph=lkPhone(o);if(!ph){toast("Manca il telefono di "+esc(o.name)+".");return}window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(m.t),"_blank","noopener")}
   else{if(!o.email){toast("Manca l'email di "+esc(o.name)+".");return}location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(m.s)+"&body="+encodeURIComponent(m.t)}
@@ -2293,7 +2335,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
+    case "idDel":idDel(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
@@ -2392,6 +2434,7 @@ function bannerHtml(){if(RO)return `<div class="banner"><strong>Solo consultazio
   if(EMPTY)return `<div class="banner warn-b"><strong>Il database online è ancora vuoto.</strong> Primo avvio: carica i dati e i file del gestionale. <span class="bn-act"><label class="btn small" style="cursor:pointer">Scegli il file dei dati iniziali<input type="file" id="seedFile" accept=".json,application/json" hidden></label></span><div id="seedProg" class="row-meta"></div></div>`;
   if(SAVE.err==="conflict")return `<div class="banner warn-b"><strong>I dati sono stati salvati da un'altra finestra o da un altro dispositivo.</strong> Ricarica la pagina per vedere l'ultima versione (le modifiche fatte qui da allora non sono state salvate). <span class="bn-act"><button class="btn small" onclick="location.reload()">Ricarica</button></span></div>`;
   const st=SAVE.err?`<strong>${esc(SAVE.err)}</strong>`:SAVE.at?`Salvato online (ultimo salvataggio: ${SAVE.at}).`:"Le modifiche vengono salvate online da sole, pochi secondi dopo.";
+  if(CONTI)return `<div class="banner">${st}</div>`;
   return `<div class="banner">${st} <span class="bn-act"><button class="btn ghost small" data-a="exportData">Copia di sicurezza</button><label class="btn ghost small" style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
 function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.outerHTML=bannerHtml()}
 /* ---------- Copie di sicurezza (punto 11): scarica adesso + copie automatiche giornaliere (90 giorni) con Scarica / Ripristina ---------- */
@@ -2413,7 +2456,7 @@ async function uploadData(u){const blob=await (await fetch(u)).blob();
 async function externalize(o){for(const k of Object.keys(o)){const v=o[k];
   if(typeof v==="string"&&v.startsWith("data:")&&v.includes(";base64,"))o[k]=await uploadData(v);
   else if(v&&typeof v==="object")await externalize(v)}}
-async function saveNow(){if(RO||BUSY||EMPTY||SAVE.err==="conflict")return;try{scSync()}catch(e){console.error(e)}const j=JSON.stringify(D);if(j===lastJ)return;BUSY=true;
+async function saveNow(){if(RO||BUSY||EMPTY||SAVE.err==="conflict")return;try{if(!CONTI)scSync()}catch(e){console.error(e)}const j=JSON.stringify(D);if(j===lastJ)return;BUSY=true;
   try{if(j.includes('"data:'))await externalize(D);
     const r=await api("/api/data",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({version:VERSION,data:D})});
     if(r.status===409){SAVE.err="conflict"}
@@ -2489,11 +2532,13 @@ async function seedImport(file){const p=document.getElementById("seedProg");
   catch(err){if(p)p.textContent="Errore: "+err.message+". Riprova."}}
 document.addEventListener("change",e=>{if(e.target.id==="seedFile"&&e.target.files[0])seedImport(e.target.files[0])});
 let b0=null;
+let CONTI=false; // Daniela (ruolo "conti"): vede e modifica solo i Conti
 async function loadAll(){try{const r=await api("/api/data");const j=await r.json();
-    if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";if(tab==="proprietari")tab="cani"}
+    if(j.role==="conti"){CONTI=true;window.CONTI=true;document.body.classList.add("conti");TABS.splice(0,TABS.length,...TABS.filter(t=>t[0]==="conti"));tab="conti"}
+    if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";const ist=TABS.findIndex(t=>t[0]==="statistiche");if(ist>=0)TABS.splice(ist,1);if(tab==="statistiche")tab="cani";if(tab==="proprietari")tab="cani"}
     if(!j.data){EMPTY=true}else{EMPTY=false;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,j.data);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(D);SAVE.at=j.updated?new Date(j.updated).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null}
   }catch(err){SAVE.err=SAVE.err||"Non riesco a leggere i dati online: controlla la connessione e ricarica."}
-  resetCalc();render();ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
+  resetCalc();render();if(CONTI)return;ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
 /* Richieste dal modulo del sito → Lista d'attesa (una volta sola per richiesta) */
 async function wlSync(){if(RO||EMPTY)return;try{const r=await api("/api/requests");if(!r.ok)return;const R=await r.json();D.waitlist=D.waitlist||[];const have=new Set(D.waitlist.map(w=>w.id));let n=0;
   R.forEach(q=>{if(have.has(q.rid))return;D.waitlist.push({id:q.rid,created:q.created,name:q.name,email:q.email,phone:q.phone,city:q.city,country:q.country,sex:q.sex,exp:q.exp,note:q.note,source:"sito",litter:"",status:"new",lang:/^(it|italia|italy)$/i.test(q.country||"")||!q.country?"it":"en"});n++});
