@@ -267,7 +267,7 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .mb-go2{background:#1f5fa8!important;color:#fff!important;border-color:#1f5fa8!important}.mb-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}.mb-done{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
 .dr-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.dr-go{background:#1a73e8!important;border-color:#1a73e8!important;color:#fff!important}
 .dr-r{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.92rem}.dr-ok{color:var(--ok);font-weight:600}
-.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
+.ma-mail{background:#1f5fa8!important;border-color:#1f5fa8!important;color:#fff!important}.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
 .mb-ok{background:#e9f5ec;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}.mb-warn{background:#fff3e0;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}
 .nick-c{font-weight:800;font-size:1.35rem;color:var(--accent);margin:2px 0 0;line-height:1.2}.nick-l{color:var(--accent);font-weight:800;font-size:1.05em}
 .st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
@@ -1541,6 +1541,89 @@ async function mbBuild(lid){const L=await pdflib(),l=D.litters[lid],mb=Object.as
     sigH(0,370,479,17);sigH(0,330,216,17);sigH(pages.length-1,170,19,20)}}catch(e){console.warn("firma",e)}
   return new Blob([await doc.save()],{type:"application/pdf"})}
 
+/* ---------- Modello A ENCI (denuncia di monta e di nascita di cucciolata) ----------
+   Modulo originale /modello-a.pdf (F-7233_11), 2 fogli, compilato scrivendo sopra come il Modello B. MA_POS = caselle in punti PDF
+   (dai campi del modulo). Proprietario della fattrice: il proprietario segnato nella scheda della fattrice, altrimenti Paolo
+   (firma di Paolo solo se la fattrice è sua). Monta: l'ultima "monta" in Calori e monte prima del parto. Stallone e suo proprietario
+   come nel Modello B (l.modB.stallOwner); i suoi dati (CF, indirizzo) non ci sono: restano da scrivere a mano. Cucciolata
+   controllabile presso Paolo. Consensi presto, presto, nego (come il B). Per cucciolata: l.modA = {date, deleg}. */
+const MA_POS={p0:{fp:[135.1,720,560.4],fpcf:[119.1,699.7,369.9,16],tel:[397.5,700.2,560.4],cell:[72.2,677.9,165.6],em:[196.8,677.7,364.1],pec:[387.8,677.5,562.3],
+  via:[65.5,656.8,292.9],n:[308,656.8,337.4],cap:[358,655.8,411.1],city:[434.6,655.8,561.4],aff:[141.3,635.1,560.4],razza:[208.8,615.3,560.4],fn:[90.2,595.4,560.4],
+  fROI:[50.4,569,62.8,581.4],fRSR:[90.9,568.5,103,580.9],fcod:[132.6,569.8,260.6],fchip:[326,570,560.9,15],
+  mg:[427.2,532,464.8,2],mm:[476.4,532.1,513.1,2],ma:[526.4,532,562.8,2],sn:[171.2,512.7,560.4],sROI:[50.2,491.3,62.4,503.3],sRSR:[91.9,491.5,105.2,503.2],
+  scod:[130.9,492.8,262.3],schip:[326.4,494,561.2,15],sIA:[50,450.6,62.2,461.7],sSM:[339,450.6,351.2,461.8],sp:[157.8,414.6,560.4],
+  ng:[426.4,322.4,462.4,2],nm:[476,321.9,513,2],na:[524.2,322.6,561.4,2],tot:[76.9,301.1,127.3],mv:[263.3,301.4,313.7],fv:[401.1,301.8,451.5],dec:[505.6,302.4,555],
+  cp:[185.2,280,562.7],cpcf:[118.9,256.3,370.3,16],cptel:[396.6,255.7,561.2],cpcell:[73,234.7,164.8],cpem:[197.2,234.7,365.9],cppec:[387.4,234.4,562.4],
+  cpvia:[67.4,215.1,295.9],cpn:[309.3,215.7,339.5],cpcap:[363.7,215.1,416.4],cpcity:[443.7,215.3,562.1],deleg:[312.7,194.5,561.2]},
+  p1:{st:[[50.2,804.7,62.2,817],[174.1,804.9,186.1,817.6],[313.1,804.6,325.8,816.7],[465.5,804.1,478.5,816.9]],c1:[[54,591.9,66.7,604.6],[108.2,592,121,604.8]],
+  c2:[[54.1,561.8,66.8,574.5],[108.3,561.9,121.1,574.7]],c3:[[54.1,541.7,66.7,554.4],[108.2,541.8,121,554.6]],data:[57,484,158],firma:[285,481,552]}};
+function maMonta(lid){const l=D.litters[lid],d=D.dogs[l.dam]||{},b=l.date||"9999";const M=(d.repro||[]).filter(x=>x.t==="mating"&&x.date&&x.date<=b&&(!l.date||dDiff(l.date,x.date)<=75)).sort((a,c)=>a.date.localeCompare(c.date));return M[M.length-1]||null}
+function maCheck(lid){const l=D.litters[lid],w=[],dm=D.dogs[l.dam]||{},sr=D.dogs[l.sire]||{};if(l.dam&&!maMonta(lid))w.push("Data della monta: segnala in Calori e monte della fattrice");
+  if(l.dam){if(!dm.loi)w.push("Fattrice: manca il LOI");if(!dm.chip)w.push("Fattrice: manca il microchip")}if(l.sire){if(!sr.loi)w.push("Stallone: manca il LOI");if(!sr.chip)w.push("Stallone: manca il microchip")}return w}
+async function maBuild(lid){const L=await pdflib(),l=D.litters[lid],ma=Object.assign({},l.modA||{}),mb=l.modB||{},dm=D.dogs[l.dam]||{},sr=D.dogs[l.sire]||{},P=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).map(k=>D.dogs[k]);
+  const bytes=await (await fetch("/modello-a.pdf")).arrayBuffer(),doc=await L.PDFDocument.load(bytes),font=await doc.embedFont(L.StandardFonts.Helvetica),bold=await doc.embedFont(L.StandardFonts.HelveticaBold);
+  try{doc.catalog.delete(L.PDFName.of("AcroForm"))}catch(e){}const pages=doc.getPages();pages.forEach(p=>{try{p.node.delete(L.PDFName.of("Annots"))}catch(e){}});
+  const ink=L.rgb(.05,.15,.45),safe=t=>{let o="";for(const ch of String(t==null?"":t)){try{font.encodeText(ch);o+=ch}catch(e){o+=ch.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g,"")}}return o};
+  const put=(pg,r,t)=>{t=safe(t);if(!t||!r)return;const [x0,y0,x1,comb]=r;if(comb){const cw=(x1-x0)/comb;[...t].slice(0,comb).forEach((c,j)=>{const w=font.widthOfTextAtSize(c,9);pages[pg].drawText(c,{x:x0+cw*j+cw/2-w/2,y:y0+5,size:9,font,color:ink})});return}
+    let s=9;while(s>5.5&&font.widthOfTextAtSize(t,s)>x1-x0-4)s-=.5;pages[pg].drawText(t,{x:x0+2,y:y0+5,size:s,font,color:ink})};
+  const X=(pg,r)=>{if(!r)return;const w=bold.widthOfTextAtSize("X",10);pages[pg].drawText("X",{x:(r[0]+r[2])/2-w/2,y:r[1]+2,size:10,font:bold,color:ink})};
+  const p=MA_POS.p0,q=MA_POS.p1,me=(D.settings||{}).ppMe||{},lib=x=>String(x||"").toUpperCase().startsWith("LO")?0:String(x||"").toUpperCase().startsWith("RSR")?1:-1;
+  const own=dm.owner&&D.owners[dm.owner]?D.owners[dm.owner]:null,mine=!own;
+  const PA={name:"Paolo Boldrini",cf:me.cf||"",cell:"392 463 5584",em:"zonerosse@gmail.com",via:"Via Amerigo Chierici",n:"12",cap:"44020",city:"Ostellato (FE)"};
+  const FO=mine?PA:(()=>{const a=mbAddr(own.addr);return{name:own.name,cf:/^[A-Z0-9]{16}$/.test(own.cf||"")?own.cf:"",cell:String(own.phone||"").replace(/^\+39\s*/,""),em:own.email||"",via:a.via,n:a.n,cap:a.cap,city:a.city}})();
+  put(0,p.fp,FO.name);put(0,p.fpcf,FO.cf);put(0,p.cell,FO.cell);put(0,p.em,FO.em);put(0,p.via,FO.via);put(0,p.n,FO.n);put(0,p.cap,FO.cap);put(0,p.city,FO.city);
+  put(0,p.razza,"Staffordshire Bull Terrier");put(0,p.fn,dm.name);if(lib(dm.loi)>=0)X(0,[p.fROI,p.fRSR][lib(dm.loi)]);put(0,p.fcod,dm.loi||"");put(0,p.fchip,dm.chip||"");
+  const m=maMonta(lid);if(m){put(0,p.mg,m.date.slice(8,10));put(0,p.mm,m.date.slice(5,7));put(0,p.ma,m.date.slice(2,4));if(/congel/i.test((m.kind||"")+" "+(m.note||"")))X(0,p.sIA)}
+  put(0,p.sn,sr.name);if(lib(sr.loi)>=0)X(0,[p.sROI,p.sRSR][lib(sr.loi)]);put(0,p.scod,sr.loi||"");put(0,p.schip,sr.chip||"");
+  put(0,p.sp,mb.stallOwner!=null&&mb.stallOwner!==""?mb.stallOwner:mbStallOwner(l.sire));
+  const dd=l.date||"";put(0,p.ng,dd.slice(8,10));put(0,p.nm,dd.slice(5,7));put(0,p.na,dd.slice(2,4));
+  if(P.length){put(0,p.tot,String(P.length+(+l.dead||0)));put(0,p.mv,String(P.filter(d=>d.sex==="M"&&d.status!=="deceduto").length));put(0,p.fv,String(P.filter(d=>d.sex==="F"&&d.status!=="deceduto").length));put(0,p.dec,String(P.filter(d=>d.status==="deceduto").length+(+l.dead||0)))}
+  put(0,p.cp,PA.name);put(0,p.cpcf,PA.cf);put(0,p.cpcell,PA.cell);put(0,p.cpem,PA.em);put(0,p.cpvia,PA.via);put(0,p.cpn,PA.n);put(0,p.cpcap,PA.cap);put(0,p.cpcity,PA.city);put(0,p.deleg,ma.deleg||MA_TO.deleg);
+  if(mine){const st=["socio_enci","socio_gc","socio_ass_spec","socio_no"].indexOf(mb.status||"");if(st>=0)X(1,q.st[st]);X(1,q.c1[0]);X(1,q.c2[0]);X(1,q.c3[1]);put(1,q.data,fmt(ma.date||todayS()))}
+  try{const sig=(D.settings||{}).sellerSig;if(sig&&mine){const u=await toDataURL(sig),img=u.startsWith("data:image/png")?await doc.embedPng(u):await doc.embedJpg(u),sc=img.scale(1);
+    const at=(pg,x,y,w,h)=>{const k=Math.min(w/sc.width,h/sc.height);pages[pg].drawImage(img,{x,y,width:sc.width*k,height:sc.height*k})};at(0,90,45,150,22);at(1,330,483,150,13)}}catch(e){console.warn("firma",e)}
+  return new Blob([await doc.save()],{type:"application/pdf"})}
+/* Riquadro "Modello A ENCI" nella Scheda della cucciolata (scelte di Paolo, 03/10/2026): precompilato con i suoi dati e con
+   Delegazione di Ferrara; bottoni Visualizza, Salva (l.modA.file, va anche in Drive "Modelli A"), Email a gcferrarese@gmail.com,
+   WhatsApp a Cristina 338 214 1637. Fattrice, stallone, monta e cuccioli si aggiungono da soli quando ci sono. */
+const MA_TO={email:"gcferrarese@gmail.com",wa:"3382141637",who:"Cristina",deleg:"Ferrara"};
+function maName(lid){const l=D.litters[lid];return "modello-a-"+(dn(l.dam)+"-"+dn(l.sire)).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
+function maText(lid){const l=D.litters[lid],dm=D.dogs[l.dam]||{},sr=D.dogs[l.sire]||{};
+  return `Buongiorno, in allegato il Modello A (denuncia di monta e di nascita di cucciolata)${l.date?" della cucciolata nata il "+fmt(l.date):""}${dm.name?" da "+dm.name+(dm.loi?" ("+dm.loi+")":""):""}${sr.name?" × "+sr.name+(sr.loi?" ("+sr.loi+")":""):""}.\nAllevatore: Paolo Boldrini, Ostellato (FE), cell. 392 463 5584\nGrazie, cordiali saluti`}
+function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="undefined"&&CONTI))return"";const l=D.litters[lid];if(!l)return"";const dm=D.dogs[l.dam];if(dm&&dm.ext)return"";
+  const w=maCheck(lid),ma=l.modA||{};
+  return `<h2>📄 Modello A ENCI</h2><div class="cs" style="gap:8px">
+  ${w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti resta vuoto sul modulo):<br>${w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi.</div>`}
+  <div class="row2"><button class="btn ghost" data-a="maGo" data-v="${lid}|view">👁 Visualizza</button><button class="btn" data-a="maGo" data-v="${lid}|save">💾 Salva</button></div>
+  <div class="row2"><button class="btn ma-mail" data-a="maGo" data-v="${lid}|mail">✉️ Email alla delegazione</button><button class="btn mb-wa" data-a="maGo" data-v="${lid}|wa">WhatsApp a ${MA_TO.who}</button></div>
+  ${ma.saved?`<p class="row-meta" style="margin:0">Salvato il ${fmt(ma.saved)}${ma.file&&/^\/files\//.test(ma.file)?` · ${fBtns(ma.file,maName(lid))}`:""} · con "Salva in Drive" va nella cartella "Modelli A"</p>`:""}
+  <p class="small" style="margin:0">Già scritti: i tuoi dati, "controllabile presso" e Delegazione di ${MA_TO.deleg}; fattrice, stallone, monta e cuccioli quando ci sono. I dati del proprietario dello stallone (oltre al nome) si scrivono a mano. Va a: <b>${MA_TO.email}</b> · WhatsApp <b>${MA_TO.who} 338 214 1637</b>. Dal telefono Email e WhatsApp aprono la condivisione con il PDF già allegato; dal computer lo scaricano e lo alleghi tu.</p></div>`}
+async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
+  toast("Preparo il Modello A…");let blob;try{blob=await maBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
+  const name=maName(lid),url=URL.createObjectURL(blob),subj="Modello A – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+(l.date?" nata il "+fmt(l.date):""),txt=maText(lid);
+  if(mode==="view"){window.open(url,"_blank","noopener");return}
+  if(mode==="save"){const data=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.modA.file=data;l.modA.saved=todayS();
+    if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
+    if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
+  const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  const f=new File([blob],name,{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
+    try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
+  dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(MA_TO.email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
+  else setTimeout(()=>window.open("https://wa.me/39"+MA_TO.wa+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900);
+  toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
+/* Riquadro "Modello B ENCI" nella Scheda della cucciolata (scelta di Paolo, 03/10/2026): sempre disponibile, anche dopo
+   "Consegnato". Visualizza, Salva (l.mbFile/l.mbSaved), Email e WhatsApp alla delegazione (settings.modB, se vuoti MA_TO),
+   Altri dati (finestra mbForm), Consegnato. */
+function mbBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="undefined"&&CONTI))return"";const l=D.litters[lid];if(!l||l.state!=="nata"||!l.date)return"";const dm=D.dogs[l.dam];if(!dm||dm.ext)return"";
+  const c=mbCheck(lid),due=addD(l.date,90),g=dDiff(due,todayS());
+  return `<h2>📄 Modello B ENCI</h2><div class="cs" style="gap:8px">
+  ${c.w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti restano vuoti sul modulo):<br>${c.w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi per tutti i ${c.P.length} cuccioli. Fattrice, stallone, microchip e LOI a posto.</div>`}
+  <div class="row2"><button class="btn ghost" data-a="mbGo" data-v="${lid}|view">👁 Visualizza</button><button class="btn" data-a="mbGo" data-v="${lid}|save">💾 Salva</button></div>
+  <div class="row2"><button class="btn ma-mail" data-a="mbGo" data-v="${lid}|mail">✉️ Email alla delegazione</button><button class="btn mb-wa" data-a="mbGo" data-v="${lid}|wa">WhatsApp a ${MA_TO.who}</button></div>
+  <div class="row2"><button class="btn ghost" data-a="mbForm" data-v="${lid}">✏️ Altri dati (stallone, data del modulo)</button>${l.enciB?"":`<button class="btn mb-done" data-a="mbGo" data-v="${lid}|done">✔ Consegnato</button>`}</div>
+  <p class="row-meta" style="margin:0">${l.enciB?"✅ Consegnato il "+fmt(l.enciB):"Scadenza "+fmt(due)+" · "+(g<0?"<strong>scaduto da "+(-g)+" giorni</strong>":g===0?"<strong>scade oggi</strong>":"mancano "+g+" giorni")}${l.mbSaved?" · salvato il "+fmt(l.mbSaved)+(l.mbFile&&/^\/files\//.test(l.mbFile)?" "+fBtns(l.mbFile,mbName(lid)):""):""}</p>
+  <p class="small" style="margin:0">Va a: <b>${MA_TO.email}</b> · WhatsApp <b>${MA_TO.who} 338 214 1637</b>. Con "Salva in Drive" va nella cartella "Modelli B". Dopo "Consegnato" il riquadro resta qui: sparisce solo l'avviso colorato in alto.</p></div>`}
 /* codice a barre Code 128 del microchip nel riquadro "Spazio riservato alla applicazione del codice a barre" (scelta B di Paolo:
    generato dal numero, non la foto dell'etichetta). MB_BOX = riquadri per i 12 cuccioli [x0,y0,x1,y1] in punti PDF. */
 const C128=["212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213", "221312", "231212", "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132", "221231", "213212", "223112", "312131", "311222", "321122", "321221", "312212", "322112", "322211", "212123", "212321", "232121", "111323", "131123", "131321", "112313", "132113", "132311", "211313", "231113", "231311", "112133", "112331", "132131", "113123", "113321", "133121", "313121", "211331", "231131", "213113", "213311", "213131", "311123", "311321", "331121", "312113", "312311", "332111", "314111", "221411", "431111", "111224", "111422", "121124", "121421", "141122", "141221", "112214", "112412", "122114", "122411", "142112", "142211", "241211", "221114", "413111", "241112", "134111", "111242", "121142", "121241", "114212", "124112", "124211", "411212", "421112", "421211", "212141", "214121", "412121", "111143", "111341", "131141", "114113", "114311", "411113", "411311", "113141", "114131", "311141", "411131", "211412", "211214", "211232", "2331112"];
@@ -1590,6 +1673,7 @@ function drItems(lid){const l=D.litters[lid],nk=k=>(D.dogs[k]&&(D.dogs[k].nick||
   Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).forEach(k=>{const d=D.dogs[k],o=D.owners[d.owner],sub=(d.nick||d.name)+(o?" ("+o.name+")":"");
     (d.docs||[]).forEach((x,i)=>{const t=x.ct?"Contratti":x.pp||x.pp_en?"Passaggi di proprietà":x.isc?"Certificati di iscrizione":x.dep?"Ricevute caparra":null;if(t)add("d:"+k+":"+(x.fname||i),t,x.file,x.fname,sub)});
     if(o)(o.ids||[]).forEach(x=>add("id:"+d.owner+":"+(x.id||x.fname),"Documenti d'identità",x.file,x.fname,sub))});
+  const MA=l.modA||{};if(MA.file)add("ma:"+lid,"Modelli A",MA.file,"Modello A – "+lit.slice(8)+".pdf");
   if(l.state==="nata"&&l.date)R.push({key:"mb:"+lid,type:"Modelli B",src:"mb:"+Date.now(),fname:"Modello B – "+lit.slice(8)+".pdf",dir:lit,lit,always:true,get:()=>mbBuild(lid)});
   return R}
 function drBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="undefined"&&CONTI))return"";setTimeout(()=>drLoad().catch(()=>{}),0);const S=((D.settings||{}).drive||{files:{}}),I=drItems(lid),T={};
@@ -1687,19 +1771,22 @@ function mbForm(lid){const l=D.litters[lid],mb=l.modB||{},c=mbCheck(lid),S=(D.se
   <div class="form"><label class="f">L'allevatore è<select id="mb_st">${[["","— nessuna casella —"],["socio_enci","Socio Allevatore ENCI"],["socio_gc","Socio del Gruppo Cinofilo"],["socio_ass_spec","Socio dell'Assoc. Specializzata"],["socio_no","Non è Socio ENCI"]].map(([v,t])=>`<option value="${v}" ${v===(mb.status||"")?"selected":""}>${t}</option>`).join("")}</select></label>
   <label class="f">Proprietario dello stallone<input id="mb_so" value="${esc(mb.stallOwner!=null?mb.stallOwner:mbStallOwner(l.sire))}"></label>
   <label class="f">Data del modulo<input id="mb_dt" type="date" value="${mb.date||todayS()}"></label><label class="f">Consensi<input value="presto · presto · nego (marketing di terzi)" disabled></label>
-  <label class="f">Email a cui mandarlo<input id="mb_em" type="email" value="${esc(S.email||"")}" placeholder="es. delegazione@…"></label><label class="f">WhatsApp a cui mandarlo<input id="mb_wa" inputmode="tel" value="${esc(S.wa||"")}" placeholder="es. 333 1234567"></label></div>
+  <label class="f">Email a cui mandarlo<input id="mb_em" type="email" value="${esc(S.email||MA_TO.email)}" placeholder="es. delegazione@…"></label><label class="f">WhatsApp a cui mandarlo<input id="mb_wa" inputmode="tel" value="${esc(S.wa||MA_TO.wa)}" placeholder="es. 333 1234567"></label></div>
   <p class="small">Email e WhatsApp restano salvati. Sul telefono "Invia" apre la condivisione con il PDF già allegato; sul computer scarica il PDF e apre l'email già scritta, a cui lo alleghi tu.</p>
   <div class="actions"><button class="btn" data-a="mbGo" data-v="${lid}|view">Visualizza</button><button class="btn ghost" data-a="mbGo" data-v="${lid}|dl">Scarica</button>
   <button class="btn ghost" data-a="mbGo" data-v="${lid}|mail">✉️ Invia per email</button><button class="btn mb-wa" data-a="mbGo" data-v="${lid}|wa">WhatsApp</button>
   <button class="btn mb-done" data-a="mbGo" data-v="${lid}|done">✔ Consegnato</button><button class="btn ghost" data-a="close">Chiudi</button></div>`)}
 async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
   if($("#mb_st")){l.modB={status:$("#mb_st").value,stallOwner:$("#mb_so").value.trim(),date:$("#mb_dt").value||todayS()};D.settings=D.settings||{};D.settings.modB={email:$("#mb_em").value.trim(),wa:$("#mb_wa").value.trim()};typeof saveNow==="function"&&saveNow()}
-  if(mode==="done"){if(!confirm("Segnare il Modello B come consegnato? Il riquadro in alto e la scadenza spariscono."))return;l.enciB=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Modello B consegnato.");return}
+  if(mode==="done"){if(!confirm("Segnare il Modello B come consegnato? Il riquadro in alto e la scadenza spariscono."))return;l.enciB=todayS();if($("#mb_st")){closeSheet();render()}else{render();if(sheetOpen())litterSheet(lid)}typeof saveNow==="function"&&saveNow();toast("Modello B consegnato.");return}
   toast("Preparo il Modello B…");let blob;try{blob=await mbBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
-  const name=mbName(lid),url=URL.createObjectURL(blob),S=(D.settings||{}).modB||{},subj="Modello B – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+" nata il "+fmt(l.date),txt=mbText(lid);
+  const name=mbName(lid),url=URL.createObjectURL(blob),S0=(D.settings||{}).modB||{},S={email:S0.email||MA_TO.email,wa:S0.wa||MA_TO.wa},subj="Modello B – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+" nata il "+fmt(l.date),txt=mbText(lid);
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   if(mode==="view"){window.open(url,"_blank","noopener");return}
   if(mode==="dl"){dl();return}
+  if(mode==="save"){l.mbFile=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.mbSaved=todayS();
+    if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
+    if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
@@ -2405,6 +2492,8 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
   ${gphotosHtml(lid)}
   ${pups.length?`<h2>Cuccioli</h2><div class="list">${rows(pups)}</div>`:""}
   ${drBox(lid)}
+  ${maBox(lid)}
+  ${mbBox(lid)}
   ${cuBox(lid)}
   ${linkBox(lid)}
   ${iscBox(lid)}
@@ -2608,7 +2697,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":ppPack(v,"dl");break;case "ppMail":ppPack(v,"mail");break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;

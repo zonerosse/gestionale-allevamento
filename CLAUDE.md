@@ -548,3 +548,16 @@ Accessi e copie
 - Drive: a ogni "Salva in Drive" anche i file già salvati vengono controllati (`drPlace`): il file deve stare nella cartella del
   cucciolo e il collegamento nella cartella per tipo ("Ricevute caparra", "Contratti"…); se manca o è cestinato si rifà, se è
   altrove si sposta. (Caso Maris, 03/10/2026: il collegamento in "Ricevute caparra" mancava.)
+
+## Modello A ENCI (ottobre 2026)
+- Modulo originale `public/modello-a.pdf` (F-7233_11, 2 fogli) compilato scrivendo sopra come il B (`maBuild`, posizioni `MA_POS`
+  prese dai campi del modulo). Scelta di Paolo: precompilato con i suoi dati (sottoscritto, "controllabile presso", razza,
+  Delegazione **Ferrara**, "Non è Socio ENCI", consensi presto/presto/nego, data, firma su foglio 1 e 2). Fattrice, stallone,
+  monta (ultima "monta" in Calori e monte prima del parto) e cuccioli si aggiungono da soli quando ci sono. Dati del proprietario
+  dello stallone oltre al nome: a mano. Fattrice non sua (es. Queen di Tevini): dati del proprietario e niente firma di Paolo.
+- Riquadro "📄 Modello A ENCI" nella Scheda della cucciolata (`maBox`, sotto Google Drive): Visualizza, 💾 Salva (`l.modA.file`,
+  `l.modA.saved`; va in Drive nella cartella per tipo "Modelli A"), ✉️ Email a gcferrarese@gmail.com, WhatsApp a Cristina
+  338 214 1637 (`MA_TO`). Per la cucciolata di Billy non serve (scelta di Paolo).
+- Riquadro "📄 Modello B ENCI" nella Scheda della cucciolata (`mbBox`, sotto quello del Modello A), sempre disponibile anche dopo
+  "Consegnato" (sparisce solo l'avviso in alto): Visualizza, 💾 Salva (`l.mbFile`, `l.mbSaved`), Email e WhatsApp alla delegazione
+  (se `settings.modB` è vuoto si usano i contatti di Ferrara `MA_TO`), ✏️ Altri dati (`mbForm`), ✔ Consegnato con scadenza.
