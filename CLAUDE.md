@@ -485,7 +485,7 @@ wrangler pages dev public --d1 DB=gestionale-test --r2 FILES=gestionale-test
   contratto): dati di Paolo e dell'acquirente, totale in cifre e lettere (`numIt`), "di cui € … tramite bonifico il … e € … in
   contanti il …", cucciolo (nome, sesso, nascita, genitori, microchip), "In caso di rinuncia da parte dell'acquirente, la somma
   versata non viene restituita" + eccezione del cucciolo morto o malato (come l'art. 4), firma salvata, "Ricevuta tra privati: non è
-  un documento fiscale". Proprietari `lang:"en"`: seconda pagina in inglese. La ricevuta va in `d.docs` con `dep:true` e
+  un documento fiscale". Proprietari stranieri (`lang:"en"` oppure paese diverso dall'Italia), scelta A di Paolo: un solo foglio, sopra il testo italiano che fa fede, una riga, sotto la traduzione inglese più piccola in grigio; firma una volta in fondo, nota "non è un documento fiscale" in tutte e due le lingue. La ricevuta va in `d.docs` con `dep:true` e
   **`private:true`** (scelta A di Paolo: NON compare nella pagina del proprietario; se e quando mandarla lo decide lui con WhatsApp/Email)
   e in Drive nella cartella per tipo "Ricevute caparra". Le ricevute fatte prima (private:false) diventano private da sole all apertura del gestionale (`loadAll`).
 

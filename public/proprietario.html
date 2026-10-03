@@ -1603,7 +1603,7 @@ async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;
 /* ---------- Caparra e ricevuta (scheda del cucciolo) ----------
    d.dep = {bon:{amt,date}, cash:{amt,date}}: bonifico e/o contanti (anche tutti e due, scelta di Paolo). "Caparra confirmatoria
    (art. 1385 c.c.)" come nel contratto, con scritto che in caso di rinuncia non si restituisce e l'eccezione del cucciolo morto o
-   malato. Ricevuta PDF con la firma di Paolo; per i proprietari stranieri seconda pagina in inglese. Va tra i documenti del cucciolo
+   malato. Ricevuta PDF con la firma di Paolo; per i proprietari stranieri un solo foglio: sopra l'italiano che fa fede, sotto l'inglese. Va tra i documenti del cucciolo
    (doc.dep, la vede il proprietario) e in Drive ("Ricevute caparra"). */
 function numIt(n){n=Math.floor(n);const u=["","uno","due","tre","quattro","cinque","sei","sette","otto","nove","dieci","undici","dodici","tredici","quattordici","quindici","sedici","diciassette","diciotto","diciannove"],
   t=["","","venti","trenta","quaranta","cinquanta","sessanta","settanta","ottanta","novanta"];
@@ -1619,29 +1619,35 @@ function depBox(id){if(typeof OWNER_MODE!=="undefined"||RO)return"";const d=D.do
   ${o?`<div class="row2"><button class="btn" data-a="depGo" data-v="${id}|save">💾 Salva</button><button class="btn dep-wa" data-a="depGo" data-v="${id}|wa">WhatsApp</button></div>
   ${has?`<div class="sh-sw" style="border:0;margin:0;padding:0"><button class="sh-t ${has.depShare?"on":""}" data-a="depShare" data-v="${id}" aria-label="Condividi con il proprietario"></button>Condividi con il proprietario${has.depShare?` · <span class="row-meta">${esc((o.name||"").split(" ")[0])} la vede nella sua pagina</span>`:""}</div>`:""}
   <p class="small" style="margin:0">La ricevuta, con la tua firma, resta tra i tuoi documenti del cucciolo e in Drive ("Salva in Drive"). ${esc((o.name||"").split(" ")[0])} la vede nella sua pagina solo se accendi "Condividi con il proprietario".</p>`:`<p class="small" style="margin:0">Per la ricevuta assegna prima il proprietario al cucciolo.</p>`}</div>`}
-async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(d),tot=P.reduce((a,x)=>a+x.amt,0),me=(D.settings||{}).ppMe||{},l=D.litters[d.litter]||{},en=o.lang==="en";
+async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(d),tot=P.reduce((a,x)=>a+x.amt,0),me=(D.settings||{}).ppMe||{},l=D.litters[d.litter]||{};
+  /* proprietari stranieri (scelta A di Paolo): un solo foglio, sopra l'italiano che fa fede, sotto la traduzione inglese */
+  const en=o.lang==="en"||(!!o.country&&!/^ital/i.test(o.country));
   const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),M=20,W=170;let sig=null;try{if((D.settings||{}).sellerSig)sig=await toDataURL(D.settings.sellerSig)}catch(e){}
-  const last=P.map(x=>x.date).filter(Boolean).sort().pop()||todayS(),dt=x=>fmt(x||last);/* la data dei contanti si può lasciare vuota */
-  const page=(E)=>{let y=22;doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text(E?"Del Piccolo Diavolo kennel · Staffordshire Bull Terrier · Ostellato (FE), Italy":"Allevamento Del Piccolo Diavolo · Staffordshire Bull Terrier · Ostellato (FE)",105,y,{align:"center"});
-    y+=14;doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(14);doc.text(E?"RECEIPT OF CONFIRMATORY DEPOSIT":"RICEVUTA DI CAPARRA CONFIRMATORIA",105,y,{align:"center"});
-    if(E){y+=6;doc.setFont("helvetica","italic");doc.setFontSize(9);doc.setTextColor(110);doc.text("English translation for information – the Italian page is the original",105,y,{align:"center"})}
-    y+=12;doc.setFont("helvetica","normal");doc.setFontSize(11);doc.setTextColor(20);
-    const pay=P.map(x=>E?`${eu(x.amt)} ${x.k==="bon"?"by bank transfer":"in cash"}${x.date?" on "+fmt(x.date):""}`:`${eu(x.amt)} ${x.k==="bon"?"tramite bonifico":"in contanti"}${x.date?" il "+fmt(x.date):""}`);
-    const sx=d.sex==="F"?(E?"female":"femmina"):(E?"male":"maschio"),par=(D.dogs[l.dam]||{}).name&&(D.dogs[l.sire]||{}).name?(D.dogs[l.dam].name+" × "+D.dogs[l.sire].name):"";
-    const T=E?[`I, the undersigned Paolo Boldrini, born in Comacchio (FE, Italy) on 12/09/1970, residing at Via Amerigo Chierici 12, 44020 Ostellato (FE), Italy, tax code ${me.cf||"BLDPLA70P12C912O"},`,
+  const last=P.map(x=>x.date).filter(Boolean).sort().pop()||todayS(),dt=x=>fmt(x||last);
+  const sx=E=>d.sex==="F"?(E?"female":"femmina"):(E?"male":"maschio"),par=(D.dogs[l.dam]||{}).name&&(D.dogs[l.sire]||{}).name?(D.dogs[l.dam].name+" × "+D.dogs[l.sire].name):"";
+  const pay=E=>P.map(x=>E?`${eu(x.amt)} ${x.k==="bon"?"by bank transfer":"in cash"}${x.date?" on "+fmt(x.date):""}`:`${eu(x.amt)} ${x.k==="bon"?"tramite bonifico":"in contanti"}${x.date?" il "+fmt(x.date):""}`);
+  const txt=E=>E?[`I, the undersigned Paolo Boldrini, born in Comacchio (FE, Italy) on 12/09/1970, residing at Via Amerigo Chierici 12, 44020 Ostellato (FE), Italy, tax code ${me.cf||"BLDPLA70P12C912O"},`,
       `declare that I have received from ${o.name}${o.cf?", tax ID "+o.cf:""}${o.addr?", residing at "+o.addr:""},`,
-      `the total sum of ${eu(tot)}${P.length>1?" ("+pay.join(" and ")+")":", "+pay[0].replace(eu(P[0].amt)+" ","")},`,
-      `as a confirmatory deposit under Article 1385 of the Italian Civil Code for the Staffordshire Bull Terrier puppy ${d.name}, ${sx}, born on ${fmt(d.birth||l.date)}${par?" out of "+par:""}${d.chip?", microchip "+d.chip:""}.`,
+      `the total sum of ${eu(tot)}${P.length>1?" ("+pay(1).join(" and ")+")":" "+pay(1)[0].replace(eu(P[0].amt)+" ","")},`,
+      `as a confirmatory deposit under Article 1385 of the Italian Civil Code for the Staffordshire Bull Terrier puppy ${d.name}, ${sx(1)}, born on ${fmt(d.birth||l.date)}${par?" out of "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `The deposit is deducted from the price at the time of handover. If the buyer withdraws, the sum paid will not be refunded. If the puppy dies or becomes seriously ill before handover, the deposit is refunded in full or, if the buyer prefers, remains valid for another puppy.`]
      :[`Io sottoscritto Paolo Boldrini, nato a Comacchio (FE) il 12/09/1970, residente in Via Amerigo Chierici 12, 44020 Ostellato (FE), C.F. ${me.cf||"BLDPLA70P12C912O"},`,
       `dichiaro di aver ricevuto da ${o.name}${o.cf?(/^[A-Z0-9]{16}$/.test(o.cf)?", C.F. ":", codice fiscale estero ")+o.cf:""}${o.addr?", residente in "+o.addr:""},`,
-      `la somma complessiva di ${eu(tot)} (${numIt(tot)}/${String(Math.round(tot*100)%100).padStart(2,"0")})${P.length>1?", di cui "+pay.join(" e "):" "+pay[0].replace(eu(P[0].amt)+" ","")},`,
-      `a titolo di caparra confirmatoria ai sensi dell'art. 1385 del Codice Civile per il cucciolo di Staffordshire Bull Terrier ${d.name}, ${sx}, nato il ${fmt(d.birth||l.date)}${par?" da "+par:""}${d.chip?", microchip "+d.chip:""}.`,
+      `la somma complessiva di ${eu(tot)} (${numIt(tot)}/${String(Math.round(tot*100)%100).padStart(2,"0")})${P.length>1?", di cui "+pay(0).join(" e "):" "+pay(0)[0].replace(eu(P[0].amt)+" ","")},`,
+      `a titolo di caparra confirmatoria ai sensi dell'art. 1385 del Codice Civile per il cucciolo di Staffordshire Bull Terrier ${d.name}, ${sx(0)}, nato il ${fmt(d.birth||l.date)}${par?" da "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `La caparra viene detratta dal prezzo di cessione al momento della consegna. In caso di rinuncia da parte dell'acquirente, la somma versata non viene restituita. Se il cucciolo muore o si ammala gravemente prima della consegna, la caparra viene restituita per intero oppure, se l'acquirente preferisce, resta valida per un altro cucciolo.`];
-    T.forEach(p=>{const ls=doc.splitTextToSize(p,W);doc.text(ls,M,y);y+=ls.length*5.6+3.5});
-    y+=8;doc.text((E?"Ostellato, ":"Ostellato, ")+dt(last),M,y);if(sig){try{doc.addImage(sig,sig.startsWith("data:image/png")?"PNG":"JPEG",125,y-14,52,18)}catch(e){}}
-    doc.setFontSize(10);doc.text("Paolo Boldrini",151,y+8,{align:"center"});doc.setFontSize(8.5);doc.setTextColor(120);doc.text(E?"Private receipt between individuals: not a tax document.":"Ricevuta tra privati: non è un documento fiscale.",M,y+22)};
-  page(false);if(en){doc.addPage();page(true)}return doc}
+  let y=22;doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text("Allevamento Del Piccolo Diavolo · Staffordshire Bull Terrier · Ostellato (FE)"+(en?", Italy":""),105,y,{align:"center"});
+  y+=14;doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(14);doc.text("RICEVUTA DI CAPARRA CONFIRMATORIA",105,y,{align:"center"});
+  if(en){y+=6;doc.setFont("helvetica","bold");doc.setFontSize(10.5);doc.setTextColor(110);doc.text("RECEIPT OF CONFIRMATORY DEPOSIT",105,y,{align:"center"})}
+  const block=(T,fs,lh,col)=>{doc.setFont("helvetica","normal");doc.setFontSize(fs);doc.setTextColor(col);T.forEach(p=>{const ls=doc.splitTextToSize(p,W);doc.text(ls,M,y);y+=ls.length*lh+(en?2.5:3.5)})};
+  y+=12;block(txt(false),en?10.5:11,en?5.1:5.6,20);
+  if(en){y+=2;doc.setDrawColor(190);doc.setLineWidth(0.3);doc.line(M,y,M+W,y);y+=6;doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(110);
+    doc.text("English translation for information – the Italian text above is the original",105,y,{align:"center"});y+=7;block(txt(true),9.5,4.6,60)}
+  y+=(en?6:8);doc.setFont("helvetica","normal");doc.setFontSize(11);doc.setTextColor(20);doc.text("Ostellato, "+dt(last),M,y);
+  if(sig){try{doc.addImage(sig,sig.startsWith("data:image/png")?"PNG":"JPEG",125,y-14,52,18)}catch(e){}}
+  doc.setFontSize(10);doc.text("Paolo Boldrini",151,y+8,{align:"center"});doc.setFontSize(8.5);doc.setTextColor(120);
+  doc.text("Ricevuta tra privati: non è un documento fiscale."+(en?" · Private receipt between individuals: not a tax document.":""),M,y+22);
+  return doc}
 async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.owner]||{};
   const num=x=>Math.round(parseFloat(String(x||"").replace(/\./g,"").replace(",","."))*100)/100||0;
   d.dep={bon:{amt:num($("#dep_bon_a").value),date:$("#dep_bon_d").value},cash:{amt:num($("#dep_cash_a").value),date:$("#dep_cash_d").value}};
