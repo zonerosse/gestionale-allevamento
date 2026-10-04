@@ -690,3 +690,5 @@ Accessi e copie
   ID SBT, COI SBT, test mating letto; mai note, proprietari, prezzi). Pagina in italiano o inglese (`?l=en`), noindex.
   WhatsApp 🇮🇹/🇬🇧 (scelta della chat), Copia, Apri; "Link del test mating su SBT" facoltativo (`tmUrl`, solo sbtpedigree.com;
   se vuoto: pedigree?SIRE=&DAM=&generation=8 dagli ID SBT). "Disattiva il link" toglie il token.
+- Accoppiamenti: "🔍 Vedi il test mating su SBT" (`tmOpen`: `tmUrl` o pedigree?SIRE&DAM dagli ID SBT, se no chiede il link e lo
+  salva) e "📷 Carica screenshot o PDF" (il vecchio "Leggi il test mating", che apriva la scelta dei file).
