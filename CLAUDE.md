@@ -670,3 +670,6 @@ Accessi e copie
 - Numero senza scriverlo: secondo comando rapido dell'iPhone "Salva negli interessati" (WhatsApp → nome della persona →
   Condividi contatto) → `#interessato=<nome>|<numero>` (`intFromHash`): completa l'interessato aperto senza numero con lo
   stesso primo nome, se no ne crea uno nuovo; poi apre la sua scheda.
+- Accoppiamenti, "Su chi cade la consanguineità": se la coppia ha il test mating letto (`sbtRead.blood`) usa quello (`sbtWeight`:
+  % di sangue, comparse, generazioni, barra con tacca della quota normale 100/2^gen della prima comparsa); nomi con link alla
+  scheda del cane se è nel gestionale, altrimenti ricerca della pagina su SBTpedigree. Senza test mating: `ancWeight` come prima.
