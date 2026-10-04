@@ -585,3 +585,20 @@ Accessi e copie
   Contents: Read and write). Messo da Paolo il 04/10/2026. Se scade o viene tolta, il bottone dice l'errore e resta
   "Scarica lo zip come prima" (`cuPrep`, `shPrep`). Ultima pubblicazione in `settings.sitePub`.
 - Dopo una pubblicazione dal gestionale, prima di lavorare sul sito in locale fare **Fetch/Pull** in GitHub Desktop.
+
+## Programma, Diario e Novità in Home dal gestionale (ottobre 2026)
+- Riquadro "🌐 Sul sito" della Scheda della cucciolata (`cuBox` + `siBox`), solo per le cucciolate da ottobre 2026 in poi
+  (`siOk`, `SI_FROM`; quelle di prima hanno schede e pagine scritte a mano): interruttore **Novità in Home** (una cucciolata alla
+  volta, `homeSince`; spento + Pubblica → il riquadro sparisce), **A che punto è** (In programma / In arrivo / Sono nati, solo
+  dopo la nascita), **Programma di allevamento**, **Diario dell'allevamento**, **Pagina Cuccioli** (`l.web`, come prima), **due
+  parole** in IT/EN/DE (tutte e tre o nessuna: controllo prima di pubblicare). Dati in `l.site`.
+- "🌐 Pubblica sul sito" (`cuPub` → `siBuild`): un commit con `data/cucciolate.json`, le schede `litter-card` fra i segnaposto
+  `<!-- GESTIONALE:INIZIO/FINE -->` delle tre pagine del Programma (`blocks`), le pagine del Diario
+  `content/<lingua>/diario-allevamento/*.md` con `gestionale: true` (file protetti: il server non scrive mai sopra una pagina
+  senza quella riga; spegnendo Diario le cancella con `deletes`), `data/novita.json` per la Home e le foto (genitori in
+  `static/images/cucciolate/`, "Tutta la cucciolata" in `static/images/diario/<slug>/` con l'età in giorni).
+- Testi come il sito (COME-SI-SCRIVE del repository del sito): niente linguaggio da vendita o lista d'attesa, tre lingue,
+  paragrafo citabile 110–160 parole, description 140–165 caratteri, aria-label sui link esterni. Provato con Hugo 0.152.2 e
+  `tools/controlli/verifica.py`: nessun avviso nuovo.
+- Il sito ha bisogno di `layouts/partials/novita-home.html` e del segnaposto `<!--NOVITA-->` nelle tre Home (zip
+  `delpiccolodiavolo-novita-home.zip`, 04/10/2026).
