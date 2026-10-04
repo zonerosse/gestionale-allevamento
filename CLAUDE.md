@@ -654,3 +654,10 @@ Accessi e copie
 - Test mating: Claude legge anche la tabella "Ancestor list" (Blood %): i 6 antenati con più sangue senza padre e madre, con
   comparse e generazioni (`blood`), mostrati prima dei "più ripetuti" (per Paolo contano le percentuali). Screenshot lunghi
   mandati a pezzi (`aiImgParts`, fino a 4). Traduci dalla Lista d'attesa e dal proprietario: numero già nella casella Numero.
+- 💬 dalla Lista d'attesa: il messaggio della richiesta (note, esperienza, preferenza) è già in "Ti hanno scritto"; in italiano
+  si legge com'è ("Il suo messaggio"), in altra lingua Claude lo traduce da solo. Sotto: Proponi risposte, WhatsApp, Rispondi.
+  Nella parte "Rispondi" c'è sempre anche "Apri WhatsApp" (chat della persona).
+- Lista d'attesa, su ogni persona: 🔗 Collega (`wlLink`: cucciolate di `wlLitters`, o nessuna → `x.litter`), 📎 Manda il link
+  (`wlSend`, solo se collegata: messaggio breve fisso it/en/de + `litUrl` nella sua lingua: Diario del gestionale se nata, scheda
+  nel Programma se c'è, altrimenti pagina Cuccioli; WhatsApp, Email, ✏️ Cambia in Traduci). Accanto a ogni cucciolata
+  "📎 link a tutti" (`wlSendAll`: 📣 Messaggio a tutti con testo e traduzioni già pronti).
