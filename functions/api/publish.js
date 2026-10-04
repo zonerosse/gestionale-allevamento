@@ -4,7 +4,7 @@ import { json, role, deny } from "../_lib.js";
    Corpo: { message,
      files:  [{ path, b64, guard? }]  guard=true: se il file c'è già e non contiene "gestionale: true" NON si tocca
                                       (pagine del Diario scritte a mano da Paolo);
-     blocks: [{ path, html }]         sostituisce il testo fra <!-- GESTIONALE:INIZIO --> e <!-- GESTIONALE:FINE -->; se i
+     blocks: [{ path, html, lastmod? }]       sostituisce il testo fra <!-- GESTIONALE:INIZIO --> e <!-- GESTIONALE:FINE -->; se i
                                       segnaposto mancano li mette prima della prima <article class="litter-card">, con il
                                       rientro della riga (custom_content è un blocco YAML);
      deletes:[{ path }] }             cancella solo file con "gestionale: true".
@@ -50,6 +50,8 @@ export async function onRequestPost({ request, env }) {
         const ls = cur.lastIndexOf("\n", k) + 1, ind = cur.slice(ls, k);
         out = cur.slice(0, ls) + ind + A + "\n" + b.html.split("\n").map(x => x ? ind + x : "").join("\n") + "\n\n" + ind + Z + "\n\n" + cur.slice(ls);
       }
+      // la pagina è cambiata: data di aggiornamento di oggi (Google e IndexNow vedono che è nuova), solo nel front matter
+      if (out !== cur && b.lastmod && /^\d{4}-\d{2}-\d{2}$/.test(b.lastmod)) { const e = out.indexOf("\n---", 3); if (e > 0) out = out.slice(0, e).replace(/^lastmod:.*$/m, "lastmod: " + b.lastmod) + out.slice(e); }
       if (out !== cur) tree.push({ path: b.path, mode: "100644", type: "blob", sha: await blob(u8b64(new TextEncoder().encode(out))) });
     }
     for (const d of deletes) { const cur = await read(d.path); if (cur == null) continue; if (!OWN.test(cur)) { skipped.push(d.path); continue; } tree.push({ path: d.path, mode: "100644", type: "blob", sha: null }); }

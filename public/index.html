@@ -1853,7 +1853,7 @@ const SI_M={it:["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio"
   en:["January","February","March","April","May","June","July","August","September","October","November","December"],
   de:["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]};
 function siOk(lid){const l=D.litters[lid];return !!l&&(l.state==="pianificata"||(!!l.date&&l.date>=SI_FROM))}
-function siOf(lid){const l=D.litters[lid];l.site=Object.assign({stage:l.state==="nata"?"nat":"prog",prog:false,diar:false,home:false,txt:{it:"",en:"",de:""}},l.site||{});
+function siOf(lid){const l=D.litters[lid];l.site=Object.assign({stage:l.state==="nata"?"nat":"prog",prog:false,diar:false,home:false,fr:true},l.site||{});
   if(l.site.stage==="nat"&&l.state!=="nata")l.site.stage="arr";return l.site}
 function siD(s,L){if(!s)return"";const [y,m,d]=s.split("-").map(Number);return L==="en"?`${SI_M.en[m-1]} ${d}, ${y}`:L==="de"?`${d}. ${SI_M.de[m-1]} ${y}`:`${d===1?"1°":d} ${SI_M.it[m-1]} ${y}`}
 const siEsc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1866,21 +1866,29 @@ function siInfo(lid){const l=D.litters[lid],s=siOf(lid),P=Object.values(D.dogs).
     monta:mt&&mt.date||"",due:mt&&mt.date?addD(mt.date,63):"",dam:siPar(l.dam),sire:siPar(l.sire),dn:dam.name||"",sn:sire.name||"",
     slug:{it:`cucciolata-${w(dam.name)}-${w(sire.name)}-${SI_M.it[m-1]}-${y}`,en:`${w(dam.name)}-${w(sire.name)}-litter-${siSlugW(SI_M.en[m-1])}-${y}`,de:`wurf-${w(dam.name)}-${w(sire.name)}-${siSlugW(SI_M.de[m-1])}-${y}`},
     short:{dam:(dam.name||"").split(/\s+/)[0],sire:(sire.name||"").split(/\s+/).slice(0,2).join(" ")}}}
-function siPhoto(p){if(!p||!p.photoKey)return"";const ext=(p.photoKey.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase();return"/images/cucciolate/"+p.id+ext}
+const siPicName=x=>`cuccioli-staffordshire-bull-terrier-${siSlugW(x.short.dam)}-${siSlugW(x.short.sire)}`;
+function siPhoto(p){if(!p||!p.photoKey)return"";const ext=(p.photoKey.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase();return"/images/cucciolate/"+(siSlugW(p.name)||p.id)+"-staffordshire-bull-terrier"+ext}
 function siDog(p,L){if(!p)return'<div class="dog"></div>';const ph=siPhoto(p),li=(p[L]&&p[L].length?p[L]:p.it)||[],sbtA={it:"Vedi il pedigree di ",en:"See the pedigree of ",de:"Stammbaum ansehen: "}[L];
   return `<div class="dog">\n<span class="dog-name">${siEsc(p.name)}</span>\n${ph?`<img src="${ph}" alt="${siEsc(p.name)} - Staffordshire Bull Terrier" width="300" height="400" loading="lazy" decoding="async">\n`:""}${li.length?`<ul>\n${li.map(x=>`<li>${siEsc(x)}</li>`).join("\n")}\n</ul>\n`:""}${p.parents.length?`<p>${p.parents.map(siEsc).join(" × ")}</p>\n`:""}${p.sbt?`<p><a class="sbt-link" href="https://sbtpedigree.com/dog_details?dogs_id=${siEsc(p.sbt)}" target="_blank" rel="noopener" aria-label="${sbtA}${siEsc(p.name)}">SBTPedigree</a></p>\n`:""}</div>`}
 const SI_T={it:{plan:"Cucciolata in programma",arr:"Cucciolata in arrivo",nat:"Cucciolata nata il ",bP:"In programma",bA:"In arrivo",bN:"Sono nati",monta:"Monta il ",due:"parto previsto intorno al ",pups:(n,m,f)=>`${n} cuccioli: ${m} maschi e ${f} femmine.`,ped:"Pedigree della cucciolata:",see:"vedi su SBTPedigree",diar:"La crescita, settimana per settimana:",diarL:"diario dell'allevamento"},
   en:{plan:"Planned litter",arr:"Litter on the way",nat:"Litter born on ",bP:"Planned",bA:"On the way",bN:"Born",monta:"Mated on ",due:"whelping expected around ",pups:(n,m,f)=>`${n} puppies: ${m} males and ${f} females.`,ped:"Litter pedigree:",see:"see on SBTPedigree",diar:"Growth, week by week:",diarL:"breeding diary"},
   de:{plan:"Geplanter Wurf",arr:"Wurf erwartet",nat:"Wurf geboren am ",bP:"Geplant",bA:"Erwartet",bN:"Geboren",monta:"Deckakt am ",due:"Wurf erwartet um den ",pups:(n,m,f)=>`${n} Welpen: ${m} Rüden und ${f} Hündinnen.`,ped:"Stammbaum des Wurfs:",see:"auf SBTPedigree ansehen",diar:"Die Entwicklung, Woche für Woche:",diarL:"Zuchttagebuch"}};
 function siDiarUrl(I,L){return(L==="it"?"":"/"+L)+"/diario-allevamento/"+I.slug[L]+"/"}
-function siCard(I,L){const t=SI_T[L],st=I.s.stage,txt=(I.s.txt&&I.s.txt[L]||"").trim();
+/* Frase fissa sotto la scheda del Programma (scelta C di Paolo, 04/10/2026): la scrive il gestionale in tre lingue, non si
+   modifica; non ripete monta, parto e cuccioli (sono già sulla scheda), dice cosa succede dopo. Interruttore s.fr. */
+function siFrase(I,L){if(!I.s.fr)return"";const q=I.short.dam;
+  if(I.s.stage==="prog")return{it:`La data dell'accoppiamento dipende dal calore di ${q}: la scheda si aggiorna quando avviene.`,en:`The mating date depends on ${q}'s season: this card will be updated when it happens.`,de:`Der Decktermin hängt von der Läufigkeit von ${q} ab: Diese Karte wird aktualisiert, sobald es so weit ist.`}[L];
+  if(I.s.stage==="arr")return{it:"La scheda si aggiorna alla nascita, con il numero dei cuccioli e le prime foto nel diario.",en:"This card will be updated at the birth, with the number of puppies and the first photos in the diary.",de:"Diese Karte wird nach der Geburt aktualisiert, mit der Zahl der Welpen und den ersten Fotos im Tagebuch."}[L];
+  return I.s.diar?{it:"Nel diario dell'allevamento c'è la crescita dei cuccioli, con le foto settimana per settimana.",en:"The breeding diary follows the puppies' growth, with photos week by week.",de:"Im Zuchttagebuch ist die Entwicklung der Welpen zu sehen, mit Fotos Woche für Woche."}[L]
+    :{it:"I cuccioli restano con la madre fino all'affido, dopo i 60 giorni previsti dalla legge.",en:"The puppies stay with their mother until they leave, after the 60 days required by Italian law.",de:"Die Welpen bleiben bis zur Abgabe bei der Mutter, nach den gesetzlich vorgeschriebenen 60 Tagen."}[L]}
+function siCard(I,L){const t=SI_T[L],st=I.s.stage,txt=siFrase(I,L);
   const head=st==="nat"?t.nat+siD(I.l.date,L):st==="arr"?t.arr:t.plan,b=st==="nat"?t.bN:st==="arr"?t.bA:t.bP;
   const info=[st!=="nat"&&I.monta?t.monta+siD(I.monta,L)+" · "+t.due+siD(I.due,L)+".":"",st==="nat"&&I.n?t.pups(I.n,I.m,I.f):""].filter(Boolean).join(" ");
   return `<article class="litter-card" id="cucciolata-${I.lid}"${I.l.date?` data-nascita="${I.l.date}"`:""}>\n<div class="litter-header">\n<h3 class="litter-title">${siEsc(head)}</h3>\n<span class="badge badge-coming">${b}</span>\n</div>\n<div class="pair">\n${siDog(I.dam,L)}\n<div class="pair-x">×</div>\n${siDog(I.sire,L)}\n</div>\n`+
     (txt?`<p style="margin-top:1rem;font-size:.9rem;color:#5c4a3a;line-height:1.6">${siEsc(txt)}</p>\n`:"")+
     `<p class="pedigree-link">${info?siEsc(info)+" ":""}${I.l.sbtUrl?`${t.ped} <a class="sbt-link" href="${siEsc(I.l.sbtUrl)}" target="_blank" rel="noopener" aria-label="${t.ped} ${t.see}">${t.see}</a>`:""}</p>\n`+
     (st==="nat"&&I.s.diar?`<p class="pedigree-link">${t.diar} <a href="${siDiarUrl(I,L)}">${t.diarL}</a></p>\n`:"")+`</article>`}
-function siDiary(I,L,imgs){const t=SI_T[L],txt=(I.s.txt&&I.s.txt[L]||"").trim(),dd=siD(I.l.date,L),tk=I.slug.it,y=I.l.date.slice(0,4),mo=SI_M[L][+I.l.date.slice(5,7)-1];
+function siDiary(I,L,imgs){const t=SI_T[L],txt="",dd=siD(I.l.date,L),tk=I.slug.it,y=I.l.date.slice(0,4),mo=SI_M[L][+I.l.date.slice(5,7)-1];
   const title={it:`Cucciolata ${I.short.dam} × ${I.short.sire} (${mo} ${y})`,en:`${I.short.dam} × ${I.short.sire} Litter (${mo} ${y})`,de:`Wurf ${I.short.dam} × ${I.short.sire} (${mo} ${y})`}[L];
   /* description fra 140 e 165 caratteri (controllo del sito): si sceglie la variante che ci sta */
   const dv=(a,b,e)=>({it:`Nati il ${dd}: ${I.n} cuccioli di Staffordshire Bull Terrier da ${a} e ${b}. ${e?"Test genetici dei genitori e foto della crescita.":"Test genetici dei genitori e foto."}`,
@@ -1903,7 +1911,7 @@ function siDiary(I,L,imgs){const t=SI_T[L],txt=(I.s.txt&&I.s.txt[L]||"").trim(),
     (I.l.sbtUrl?`<p class="pedigree-link">${SI_T[L].ped} <a class="sbt-link" href="${siEsc(I.l.sbtUrl)}" target="_blank" rel="noopener" aria-label="${SI_T[L].ped} ${SI_T[L].see}">${SI_T[L].see}</a></p>\n\n`:"")+
     (imgs.length?`## ${H[1]}\n\n<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0">\n${imgs.map(p=>`<figure style="margin:0"><img src="${p.src}" alt="${siEsc(title)} - ${cap(p)}" width="${p.w||800}" height="${p.h||600}" loading="lazy" decoding="async" style="width:100%;height:auto;border-radius:12px"><figcaption style="font-size:.85rem;color:#6b5d52;text-align:center;margin-top:.3rem">${cap(p)} · ${siD(p.date,L)}</figcaption></figure>`).join("\n")}\n</div>\n`:"")}
 function siNovita(I){const st=I.s.stage,toDiar=st==="nat"&&I.s.diar,toProg=I.s.prog,o={show:true,since:I.s.homeSince||todayS()};
-  for(const L of ["it","en","de"]){const t=SI_T[L],txt=(I.s.txt&&I.s.txt[L]||"").trim(),dd=siD(I.l.date,L),pair=`${I.short.dam} × ${I.short.sire}`;
+  for(const L of ["it","en","de"]){const t=SI_T[L],txt="",dd=siD(I.l.date,L),pair=`${I.short.dam} × ${I.short.sire}`;
     const url=toDiar?siDiarUrl(I,L):SI_PURL[L]+"#cucciolata-"+I.lid;
     o[L]=st==="nat"?{badge:{it:"🐾 Sono nati",en:"🐾 They're born",de:"🐾 Sie sind da"}[L],title:{it:`Cucciolata ${pair}, nata il ${dd}`,en:`${pair} litter, born on ${dd}`,de:`Wurf ${pair}, geboren am ${dd}`}[L],
         desc:txt||({it:`${t.pups(I.n,I.m,I.f)} Genitori, test genetici e foto della crescita nel diario.`,en:`${t.pups(I.n,I.m,I.f)} Parents, genetic tests and growth photos in the diary.`,de:`${t.pups(I.n,I.m,I.f)} Eltern, Gentests und Fotos der Entwicklung im Tagebuch.`}[L]),
@@ -1919,24 +1927,23 @@ async function siBuild(){const {items,files}=await cuFiles(),enc=new TextEncoder
   /* Programma: schede fra i segnaposto, nelle tre lingue */
   const ord={arr:0,prog:1,nat:2},PG=LS.filter(k=>I[k].s.prog).sort((a,b)=>ord[I[a].s.stage]-ord[I[b].s.stage]||(I[b].l.date||"").localeCompare(I[a].l.date||""));
   for(const k of PG){await addPhoto(I[k].dam);await addPhoto(I[k].sire)}
-  if(PG.length||S.siProg){for(const L of ["it","en","de"])blocks.push({path:SI_PROG[L],html:PG.map(k=>siCard(I[k],L)).join("\n\n")});S.siProg=PG.length>0}
+  if(PG.length||S.siProg){for(const L of ["it","en","de"])blocks.push({path:SI_PROG[L],html:PG.map(k=>siCard(I[k],L)).join("\n\n"),lastmod:todayS()});S.siProg=PG.length>0}
   /* Diario: una pagina per cucciolata nata (mai sopra una pagina scritta a mano: il server controlla "gestionale: true") */
   for(const k of LS){const x=I[k];
     if(x.s.diar&&x.l.state==="nata"&&x.l.date){await addPhoto(x.dam);await addPhoto(x.sire);const imgs=[];
       for(const [i,p] of (x.l.gphotos||[]).filter(p=>/^\/files\//.test(p.file||"")).sort((a,b)=>(a.date||"").localeCompare(b.date||"")).entries()){
-        const ext=(p.file.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase(),src=`/images/diario/${x.slug.it}/${i+1}${ext}`,r=await fetch(docHref(p.file));if(!r.ok)continue;
+        const ext=(p.file.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase(),src=`/images/diario/${x.slug.it}/${siPicName(x)}-${i+1}${ext}`,r=await fetch(docHref(p.file));if(!r.ok)continue;
         const b=new Uint8Array(await r.arrayBuffer());let w=0,h=0;try{const bm=await createImageBitmap(new Blob([b]));w=bm.width;h=bm.height}catch(e){}
         files.push({name:"static"+src,data:b});imgs.push({src,date:p.date||x.l.date,w,h})}
       for(const L of ["it","en","de"])files.push({name:`content/${L}/diario-allevamento/${x.slug[L]}.md`,data:enc.encode(siDiary(x,L,imgs)),guard:true});x.s.diarDone=x.slug}
     else if(x.s.diarDone){for(const L of ["it","en","de"])deletes.push({path:`content/${L}/diario-allevamento/${x.s.diarDone[L]}.md`});x.s.diarDone=null}}
   /* Novità in Home: una sola cucciolata alla volta */
   const H=LS.find(k=>I[k].s.home);if(H){const n=siNovita(I[H]);const ph=I[H].dam&&siPhoto(I[H].dam);if(ph){await addPhoto(I[H].dam);n.img=ph}
-    if(I[H].s.stage==="nat"&&I[H].s.diar&&(I[H].l.gphotos||[]).some(p=>/^\/files\//.test(p.file||"")))n.img=`/images/diario/${I[H].slug.it}/1${((I[H].l.gphotos.filter(p=>/^\/files\//.test(p.file)).sort((a,b)=>(a.date||"").localeCompare(b.date||""))[0].file.match(/\.[a-z0-9]+$/i)||[".jpg"])[0]).toLowerCase()}`;
+    if(I[H].s.stage==="nat"&&I[H].s.diar&&(I[H].l.gphotos||[]).some(p=>/^\/files\//.test(p.file||"")))n.img=`/images/diario/${I[H].slug.it}/${siPicName(I[H])}-1${((I[H].l.gphotos.filter(p=>/^\/files\//.test(p.file)).sort((a,b)=>(a.date||"").localeCompare(b.date||""))[0].file.match(/\.[a-z0-9]+$/i)||[".jpg"])[0]).toLowerCase()}`;
     files.push({name:"data/novita.json",data:enc.encode(JSON.stringify(n,null,1))});S.siHome=true}
   else if(S.siHome){files.push({name:"data/novita.json",data:enc.encode(JSON.stringify({show:false},null,1))});S.siHome=false}
   return{items,files,blocks,deletes}}
-function siRead(lid){const l=D.litters[lid];if(!l||!siOk(lid))return;const s=siOf(lid);for(const L of ["it","en","de"]){const e=document.getElementById(`si_${L}_${lid}`);if(e)s.txt[L]=e.value}}
-document.addEventListener("change",e=>{const t=e.target;if(!t||!t.dataset||!t.dataset.si)return;const [lid,L]=t.dataset.si.split("|");if(!D.litters[lid])return;siOf(lid).txt[L]=t.value;typeof saveNow==="function"&&saveNow()});
+function siRead(lid){}
 function siAct(a,v){const [lid,x]=v.split("|"),l=D.litters[lid];if(!l)return;siRead(lid);const s=siOf(lid);
   if(a==="siHome"){s.home=!s.home;if(s.home){s.homeSince=todayS();for(const [k,o] of Object.entries(D.litters))if(k!==lid&&o.site)o.site.home=false;if(!s.prog&&!(s.stage==="nat"&&s.diar))s.prog=true}}
   if(a==="siStage"){if(x==="nat"&&l.state!=="nata"){toast("Per “Sono nati” prima segna la nascita nella cucciolata.");return}s.stage=x}
@@ -1948,7 +1955,7 @@ function siBox(lid){if(!siOk(lid))return `<p class="small" style="margin:0">Prog
   return `<div style="padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper)">${sw(s.home,"siHome",lid,"Novità in Home","riquadro dorato subito dopo la foto grande"+(s.home&&s.homeSince?` · acceso dal ${fmt(s.homeSince)} · lo spegni quando vuoi e ripubblichi`:""))}</div>
   <div><p class="row-meta" style="margin:0 0 6px">A che punto è</p><div class="si-chips">${[["prog","📅 In programma"],["arr","🤰 In arrivo"],["nat","🐾 Sono nati"]].map(([k,t])=>`<button class="si-chip ${s.stage===k?"on":""}${k==="nat"&&!nat?" off":""}" data-a="siStage" data-v="${lid}|${k}">${t}</button>`).join("")}</div><p class="small" style="margin:6px 0 0">${hint}</p></div>
   <div><p class="row-meta" style="margin:0 0 2px">Dove compare</p>${sw(s.prog,"siTog",lid+"|prog","Programma di allevamento","scheda della cucciolata nella sezione Accoppiamenti")}${sw(s.diar,"siTog",lid+"|diar","Diario dell'allevamento","una pagina per la cucciolata, da quando nascono"+(s.diarDone?" · già sul sito":""))}</div>
-  <div><p class="row-meta" style="margin:0">Due parole (facoltative: in tutte e tre le lingue o in nessuna)</p>${[["it","🇮🇹 Italiano"],["en","🇬🇧 English"],["de","🇩🇪 Deutsch"]].map(([L,t])=>`<label class="si-l">${t}<textarea id="si_${L}_${lid}" data-si="${lid}|${L}" rows="2">${esc(s.txt[L]||"")}</textarea></label>`).join("")}</div>`}
+  <div>${sw(s.fr,"siTog",lid+"|fr","Frase sotto la scheda","scritta dal gestionale, uguale in tre lingue")}${s.fr?(()=>{const I=siInfo(lid);return `<p class="small" style="margin:4px 0 0">🇮🇹 ${esc(siFrase(I,"it"))}<br>🇬🇧 ${esc(siFrase(I,"en"))}<br>🇩🇪 ${esc(siFrase(I,"de"))}</p>`})():""}</div>`}
 function cuBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const l=D.litters[lid],it=l.web?cuItems().find(x=>x.id===lid):null;
   const st=!it?"":it.state==="plan"?"In programma":it.avail?"Disponibili":"Non disponibili";
   return `<h2>🌐 Sul sito</h2><div class="cs" style="gap:10px">${siBox(lid)}
@@ -1966,12 +1973,10 @@ async function sitePublish(files,message,blocks=[],deletes=[]){toast("Pubblico s
 function sitePubMeta(){const t=(D.settings||{}).sitePub;if(!t)return"";const d=new Date(t),oggi=d.toDateString()===new Date().toDateString();
   return `<p class="row-meta" style="margin:0">✔ Ultima pubblicazione ${oggi?"oggi":"il "+d.toLocaleDateString("it-IT")} alle ${d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})} · il sito si aggiorna in 2–3 minuti</p>`}
 async function cuFiles(){const items=cuItems(),files=[],enc=new TextEncoder();
-  for(const it of items)for(const p of [it.dam,it.sire]){if(!p||!p.photoKey)continue;const ext=(p.photoKey.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase(),path="images/cucciolate/"+p.id+ext;p.photo="/"+path;
+  for(const it of items)for(const p of [it.dam,it.sire]){if(!p||!p.photoKey)continue;const path=siPhoto(p).slice(1);p.photo="/"+path;
     if(!files.some(f=>f.name==="static/"+path)){const r=await fetch(docHref("/files/"+p.photoKey));if(r.ok)files.push({name:"static/"+path,data:new Uint8Array(await r.arrayBuffer())})}}
   files.unshift({name:"data/cucciolate.json",data:enc.encode(JSON.stringify({updated:todayS(),items},null,1))});return{items,files}}
 async function cuPub(lid){if(lid)siRead(lid);
-  const bad=Object.keys(D.litters).filter(k=>siOk(k)&&D.litters[k].site).find(k=>{const t=D.litters[k].site.txt||{},n=["it","en","de"].filter(L=>(t[L]||"").trim()).length;return n>0&&n<3});
-  if(bad){alert("Le due parole vanno scritte in tutte e tre le lingue (italiano, inglese, tedesco), oppure in nessuna.\n\nCucciolata: "+dn(D.litters[bad].dam)+" × "+dn(D.litters[bad].sire));return}
   try{const {items,files,blocks,deletes}=await siBuild();const j=await sitePublish(files,"Sito dal gestionale: cucciolate, programma, diario, home",blocks,deletes);
     Object.values(D.litters).forEach(l=>{l.inSite=!!l.web});if(PP_LIT&&sheetOpen())litterSheet(PP_LIT);else if(lid&&sheetOpen())litterSheet(lid);else render();typeof saveNow==="function"&&saveNow();
     if(j.skipped&&j.skipped.length)alert("Pubblicato, ma questi file non li ho toccati perché li hai scritti tu a mano:\n\n"+j.skipped.join("\n"));
@@ -1982,7 +1987,7 @@ async function shPub(){try{const items=shItems(),j=await sitePublish([{name:"dat
     toast(j.unchanged?"Sul sito era già tutto aggiornato.":"Pubblicato: il sito si aggiorna in 2–3 minuti.")}
   catch(x){console.error(x);alert("Non riesco a pubblicare sul sito.\n\n"+x.message+"\n\nPuoi usare \"Scarica lo zip come prima\".")}}
 async function cuPrep(){const items=cuItems(),files=[],enc=new TextEncoder();toast("Preparo i file…");
-  try{for(const it of items)for(const p of [it.dam,it.sire]){if(!p||!p.photoKey)continue;const ext=(p.photoKey.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase(),path="images/cucciolate/"+p.id+ext;p.photo="/"+path;
+  try{for(const it of items)for(const p of [it.dam,it.sire]){if(!p||!p.photoKey)continue;const path=siPhoto(p).slice(1);p.photo="/"+path;
       if(!files.some(f=>f.name==="static/"+path)){const r=await fetch(docHref("/files/"+p.photoKey));if(r.ok)files.push({name:"static/"+path,data:new Uint8Array(await r.arrayBuffer())})}}
     files.unshift({name:"data/cucciolate.json",data:enc.encode(JSON.stringify({updated:todayS(),items},null,1))});
     const a=document.createElement("a");a.href=URL.createObjectURL(zipStore(files));a.download="delpiccolodiavolo-cucciolate.zip";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000);

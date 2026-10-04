@@ -602,3 +602,10 @@ Accessi e copie
   `tools/controlli/verifica.py`: nessun avviso nuovo.
 - Il sito ha bisogno di `layouts/partials/novita-home.html` e del segnaposto `<!--NOVITA-->` nelle tre Home (zip
   `delpiccolodiavolo-novita-home.zip`, 04/10/2026).
+- Miglioramenti SEO (scelte di Paolo, 04/10/2026): le pagine del Diario del gestionale entrano da sole in llms.txt (lato sito);
+  quando cambiano le schede del Programma il server mette `lastmod` di oggi nelle tre pagine (`blocks[].lastmod`); foto con nomi
+  descrittivi (`siPhoto`: `<nome-cane>-staffordshire-bull-terrier.<ext>`, anche per la pagina Cuccioli; `siPicName` per il Diario).
+- Frase sotto la scheda del Programma (scelta C di Paolo, 04/10/2026, dopo aver scartato l'API di Claude perché a pagamento a
+  parte): `siFrase`, fissa, in tre lingue, interruttore `l.site.fr` (acceso di base). Non ripete monta, parto e cuccioli; dice cosa
+  succede dopo (In programma: dipende dal calore; In arrivo: si aggiorna alla nascita; Sono nati: rimando al diario o affido dopo
+  60 giorni). Niente caselle di testo, niente chiavi esterne.
