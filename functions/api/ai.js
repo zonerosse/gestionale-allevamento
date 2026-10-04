@@ -3,6 +3,7 @@ import { json, role, deny } from "../_lib.js";
    POST { task, ... } → { ok, ... }. Solo l'admin (Paolo). Niente viene salvato o mandato da qui: il gestionale mostra il
    risultato e Paolo decide. Compiti:
    - "in":       { text }                  → { lang, langName, it }          messaggio ricevuto → italiano
+   - "interessato": { msg, it }           → { name, city, country, sex, when, lang, note }  per la lista Interessati
    - "risposte": { msg, it, lang }         → { options:[{label,it,out}] }     tre risposte diverse, già tradotte
    - "out":      { text, lang }            → { text }                         italiano di Paolo → lingua del cliente
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
@@ -51,6 +52,12 @@ Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una paren
 Formato: {"options":[{"label":"","it":"","out":""}]}`,
         `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
       return json({ ok: true, options: (o.options || []).slice(0, 3).map(x => ({ label: x.label || "", it: x.it || "", out: x.out || "" })) });
+    }
+    if (task === "interessato") {
+      const o = await ask(env, `Da un messaggio WhatsApp di una persona interessata a un cucciolo di Staffordshire Bull Terrier, estrai SOLO quello che c'è scritto (stringa vuota se manca, non inventare):
+"name" (nome con cui si firma o si presenta), "city", "country" (in italiano, es. "Slovenia"), "sex" ("maschio", "femmina" o ""), "when" (quando lo vorrebbe, es. "primavera 2027"), "lang" (codice ISO 639-1 della lingua del messaggio), "note" (in italiano, una frase con le domande o le richieste fatte).
+Formato: {"name":"","city":"","country":"","sex":"","when":"","lang":"","note":""}`, `Messaggio:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 600);
+      return json({ ok: true, name: o.name || "", city: o.city || "", country: o.country || "", sex: o.sex || "", when: o.when || "", lang: o.lang || "it", note: o.note || "" });
     }
     if (task === "richiesta") {
       const o = await ask(env, `${VOICE}

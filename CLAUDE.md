@@ -661,3 +661,12 @@ Accessi e copie
   (`wlSend`, solo se collegata: messaggio breve fisso it/en/de + `litUrl` nella sua lingua: Diario del gestionale se nata, scheda
   nel Programma se c'è, altrimenti pagina Cuccioli; WhatsApp, Email, ✏️ Cambia in Traduci). Accanto a ogni cucciolata
   "📎 link a tutti" (`wlSendAll`: 📣 Messaggio a tutti con testo e traduzioni già pronti).
+
+## Interessati (04/10/2026)
+- Chi scrive su WhatsApp senza compilare il modulo. `D.interested` (vedi commento in index.html). Traduci → "➕ Metti negli
+  interessati" (solo se Traduci non è già legato a qualcuno; compito `interessato` di /api/ai, senza numero). Pagina Attesa →
+  sezione "👀 Interessati" in cima (solo `status:"open"`): 💬 (`intMsg`, Traduci con `TR.int`), ⬆ (`intToWl`: entra nella
+  Lista d'attesa come "Contattato", source WhatsApp, messaggio nelle note), scheda (`intForm`) con "Non più interessato".
+- Numero senza scriverlo: secondo comando rapido dell'iPhone "Salva negli interessati" (WhatsApp → nome della persona →
+  Condividi contatto) → `#interessato=<nome>|<numero>` (`intFromHash`): completa l'interessato aperto senza numero con lo
+  stesso primo nome, se no ne crea uno nuovo; poi apre la sua scheda.
