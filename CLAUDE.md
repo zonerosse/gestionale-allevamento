@@ -698,3 +698,6 @@ Accessi e copie
   sotto in piccolo l'italiano; per ognuna WhatsApp, Copia, ✏️ Modifica.
 - Traduci, bottone WhatsApp nella parte "Rispondi" (`trWa`): mette sempre il testo nel messaggio (traduzione se c'è; in italiano la
   casella; altrimenti traduce e poi apre WhatsApp). Prima apriva solo la chat e Paolo doveva incollare.
+- Accoppiamenti, storico: ogni coppia guardata si segna in `D.matings[k].seen` (`mateSeen` in `calcMate`; salva al più una volta
+  all'ora per coppia). Menu "🕘 Coppie già guardate" in cima (`mateHist`): coppie con seen, COI SBT o test mating letto, le più
+  recenti prima, con COI e data; sceglierne una la apre.
