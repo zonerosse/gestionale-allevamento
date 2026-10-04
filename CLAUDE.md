@@ -692,3 +692,7 @@ Accessi e copie
   se vuoto: pedigree?SIRE=&DAM=&generation=8 dagli ID SBT). "Disattiva il link" toglie il token.
 - Accoppiamenti: "🔍 Vedi il test mating su SBT" (`tmOpen`: `tmUrl` o pedigree?SIRE&DAM dagli ID SBT, se no chiede il link e lo
   salva) e "📷 Carica screenshot o PDF" (il vecchio "Leggi il test mating", che apriva la scelta dei file).
+- Traduci: dopo "Traduci in italiano" le 3 proposte di risposta partono da sole. Riquadro "Dimmi cosa vuoi rispondere" (`TR.idea`,
+  "✨ Scrivi la risposta"): compito `risposte` con `idea` → 2 versioni che dicono esattamente quello, in italiano e tradotte.
+- Proposte di risposta come in chat con Claude (scelta di Paolo): etichetta, sopra il testo da mandare nella lingua del cliente,
+  sotto in piccolo l'italiano; per ognuna WhatsApp, Copia, ✏️ Modifica.

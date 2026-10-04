@@ -46,7 +46,7 @@ Formato: {"text":"traduzione"}`, String(p.text || "").slice(0, 4000));
     if (task === "risposte") {
       const L = LANGS[p.lang] ? p.lang : "en";
       const o = await ask(env, `${VOICE}
-Ti arriva un messaggio (WhatsApp o email) da un cliente o un allevatore. Proponi 3 risposte DIVERSE nell'approccio, non solo nel tono (es. breve e cordiale / con le informazioni utili / che fissa il prossimo passo; scegli tu i tre approcci più adatti al messaggio).
+Ti arriva un messaggio (WhatsApp o email) da un cliente o un allevatore. ${p.idea ? `Paolo ti dice in breve cosa vuole rispondere: "${String(p.idea).slice(0, 800)}". Scrivi 2 versioni della risposta che dicono ESATTAMENTE questo (una più breve, una un po' più calda), senza aggiungere promesse o informazioni che lui non ha dato.` : "Proponi 3 risposte DIVERSE nell'approccio, non solo nel tono (es. breve e cordiale / con le informazioni utili / che fissa il prossimo passo; scegli tu i tre approcci più adatti al messaggio)."}
 Per ognuna: "label" (2-4 parole in italiano che dicono cosa fa), "it" (la risposta in italiano, massimo 60 parole, firmata "Paolo" solo se il messaggio ricevuto è lungo o formale), "out" (la stessa risposta tradotta fedelmente in ${LANGS[L]}).
 Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una parentesi quadra da completare, es. [data].
 Formato: {"options":[{"label":"","it":"","out":""}]}`,
