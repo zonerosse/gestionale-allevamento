@@ -609,3 +609,19 @@ Accessi e copie
   parte): `siFrase`, fissa, in tre lingue, interruttore `l.site.fr` (acceso di base). Non ripete monta, parto e cuccioli; dice cosa
   succede dopo (In programma: dipende dal calore; In arrivo: si aggiorna alla nascita; Sono nati: rimando al diario o affido dopo
   60 giorni). Niente caselle di testo, niente chiavi esterne.
+
+## Funzioni con Claude, parte 1 (ottobre 2026)
+- `POST /api/ai` (functions/api/ai.js, segreto Cloudflare `ANTHROPIC_API_KEY`, modello claude-sonnet-5-5, solo admin): compiti
+  `in` (messaggio ricevuto → italiano, con la lingua), `out` (italiano di Paolo → lingua del cliente), `richiesta` (riassunto,
+  bozza nella voce di Paolo, traduzione), `referto` (PDF o foto → titolo, data, laboratorio, microchip, test in it/en/de).
+  Niente parte da solo: il gestionale mostra il risultato, Paolo controlla e manda o salva. Credito finito → messaggio chiaro.
+- **💬 Traduci** (voce del menu, `tab="traduci"`, `trPage`): incolla il messaggio ricevuto → italiano; risposta in italiano →
+  lingua scelta (en, de, fr, es, sl) → WhatsApp (al numero del proprietario, o scelta della chat), Email, Copia. Dalla pagina di
+  un proprietario: "💬 Messaggio tradotto" (`trOpen`, sa numero, email e lingua). Comando rapido dell'iPhone:
+  `https://gestionale.delpiccolodiavolo.it/#traduci=<testo>` (`trFromHash`) apre Traduci con il testo già tradotto.
+  Paolo non conosce inglese e tedesco: l'inglese e il tedesco li scrive sempre Claude.
+- **Richieste** (Attesa → scheda della richiesta): "✨ Riassunto e bozza di risposta" (`wlAi`), bozza modificabile in italiano,
+  "Ritraduci", poi Email / WhatsApp / Copia.
+- **Referti** (Referti e documenti → Aggiungi): "✨ Leggi con Claude" (`docAi`) compila titolo, titolo inglese e data se vuoti,
+  controlla il microchip con quello della scheda, propone i test genetici da aggiungere (`docAiApply` al Salva: tests,
+  tests_en, tests_de, senza doppioni).

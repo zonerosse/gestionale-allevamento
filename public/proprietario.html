@@ -267,7 +267,7 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .mb-go2{background:#1f5fa8!important;color:#fff!important;border-color:#1f5fa8!important}.mb-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}.mb-done{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
 .dr-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.dr-go{background:#1a73e8!important;border-color:#1a73e8!important;color:#fff!important}
 .dr-r{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.92rem}.dr-ok{color:var(--ok);font-weight:600}
-.ma-mail{background:#1f5fa8!important;border-color:#1f5fa8!important;color:#fff!important}.si-chips{display:flex;gap:6px;flex-wrap:wrap}.si-chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}.si-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}.si-chip.off{opacity:.45}.si-l{display:block;font-size:.82rem;color:var(--muted);margin-top:8px}.si-l textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:3px}.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
+.ma-mail{background:#1f5fa8!important;border-color:#1f5fa8!important;color:#fff!important}.si-chips{display:flex;gap:6px;flex-wrap:wrap}.si-chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}.si-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}.si-chip.off{opacity:.45}.si-l{display:block;font-size:.82rem;color:var(--muted);margin-top:8px}.si-l textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:3px}.tr-ta{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:8px}.tr-out{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.95rem;white-space:pre-wrap}.tr-out b{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px;font-weight:600}.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
 .mb-ok{background:#e9f5ec;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}.mb-warn{background:#fff3e0;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}
 .nick-c{font-weight:800;font-size:1.35rem;color:var(--accent);margin:2px 0 0;line-height:1.2}.nick-l{color:var(--accent);font-weight:800;font-size:1.05em}
 .st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
@@ -591,6 +591,7 @@ const TABS=[
  ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
  ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
+ ["traduci","Traduci",'<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c-1 4-4 7-7 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>'],
  ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
  ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>'],
  ["statistiche","Statistiche",'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>']
@@ -672,6 +673,7 @@ function render(){resetCalc();nav();
   if(tab==="conti")m.innerHTML=banner+contiPage();
   if(tab==="scadenze")m.innerHTML=banner+scPage();
   if(tab==="statistiche")m.innerHTML=banner+stPage();
+  if(tab==="traduci")m.innerHTML=banner+trPage();
   if(tab==="coi")calcMate();
   colorize(m);roClean(document);dRestore();navPush();
 }
@@ -1158,11 +1160,12 @@ function parentDocsHtml(id){const d=D.dogs[id];const out=[];
     else{[x.sire,x.dam].forEach((g,j)=>g&&D.dogs[g]&&(D.dogs[g].docs||[]).some(z=>!z.private)&&out.push(`<p class="pd-h">${role} ${esc(x.name)} – ${T(j?"sua madre":"suo padre",j?"its dam":"its sire")}: <strong>${esc(D.dogs[g].name)}</strong></p>${docsHtml(g,true,true)}`))}};
   add(d.sire,T("Padre","Sire"));add(d.dam,T("Madre","Dam"));return out.join("")}
 let docFile=null;
-function docForm(id){docFile=null;const d=D.dogs[id];const sib=d.litter?Object.keys(D.dogs).filter(x=>x!==id&&D.dogs[x].litter===d.litter):[];
+function docForm(id){docFile=null;DOC_AI=null;const d=D.dogs[id];const sib=d.litter?Object.keys(D.dogs).filter(x=>x!==id&&D.dogs[x].litter===d.litter):[];
   sheet(`<h2 style="margin-top:0">Nuovo documento · ${esc(d.name)}</h2><div class="form">
   <label class="f full">Titolo<input id="dt" placeholder="Es. Test genetici L2HGA e HC"></label>
   <label class="f">Data<input type="date" id="dd"></label><label class="f">Titolo in inglese <small>(facoltativo)</small><input id="dten"></label>
   <label class="f full">File (PDF o foto)<input type="file" id="dfile" accept="application/pdf,image/*"></label>
+  <div class="f full"><button class="btn ghost" data-a="docAi" data-v="${id}">✨ Leggi con Claude</button><div id="docAi"></div></div>
   <label class="f full chk"><input type="checkbox" id="dpriv"> Solo per me (non mostrarlo al proprietario)</label>
   ${sib.length?`<label class="f full chk"><input type="checkbox" id="dall"> Uguale per tutti i ${sib.length+1} cuccioli della cucciolata</label>`:""}</div>
   <div class="actions"><button class="btn" data-a="docSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
@@ -1170,7 +1173,7 @@ document.addEventListener("change",e=>{if(e.target.id==="dfile"){const f=e.targe
 function docSave(id){const t=$("#dt").value.trim();if(!t){$("#dt").focus();return}if(!docFile){$("#dfile").focus();return}const d=D.dogs[id];
   const o={title:t,title_en:$("#dten").value.trim(),date:$("#dd").value,file:docFile.data,fname:docFile.name,private:$("#dpriv").checked};
   const ids=$("#dall")&&$("#dall").checked?Object.keys(D.dogs).filter(x=>D.dogs[x].litter===d.litter):[id];
-  ids.forEach(x=>(D.dogs[x].docs=D.dogs[x].docs||[]).push(Object.assign({},o)));closeSheet();render();toast("Documento salvato.")}
+  ids.forEach(x=>(D.dogs[x].docs=D.dogs[x].docs||[]).push(Object.assign({},o)));docAiApply(id);closeSheet();render();toast("Documento salvato.")}
 function docDel(v){const [id,i]=v.split("|");if(!confirm("Eliminare questo documento?"))return;D.dogs[id].docs.splice(+i,1);render()}
 
 /* ---------- Dati del cane: lettura / modifica con Salva ---------- */
@@ -1840,6 +1843,76 @@ function cuItems(){const dogs=D.dogs,dn=k=>(dogs[k]&&dogs[k].name)||"",split=s=>
     out.push({id:lid,state:l.state==="pianificata"?"plan":"born",date:l.date||"",n:P.length,m:P.filter(d=>d.sex==="M").length,f:P.filter(d=>d.sex==="F").length,
       avail:P.some(d=>!d.owner&&!["prenotato","ceduto","deceduto","casa"].includes(d.status||"")),sbtUrl:l.sbtUrl||"",dam:par(l.dam),sire:par(l.sire)})}
   return out.sort((a,b)=>a.state===b.state?(b.date||"").localeCompare(a.date||""):a.state==="plan"?1:-1)}
+/* ---------- Funzioni con Claude, parte 1 (ottobre 2026, scelte di Paolo): Traduci, Richieste, Referti ----------
+   Tutto passa da POST /api/ai (functions/api/ai.js, segreto ANTHROPIC_API_KEY). Niente parte da solo: si vede, si controlla,
+   poi Paolo manda o salva. */
+async function aiCall(task,p){const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({task},p))});
+  const raw=await r.text();let j={};try{j=JSON.parse(raw)}catch(e){}if(!j.ok)throw new Error(j.error||("errore "+r.status));return j}
+function aiBusy(b,on,lab){if(!b)return;if(on){b.dataset.lab=b.innerHTML;b.innerHTML="⏳ "+(lab||"Claude lavora…");b.disabled=true}else{b.innerHTML=b.dataset.lab||b.innerHTML;b.disabled=false}}
+function aiCopy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Copiato."),()=>prompt("Copia il testo:",t))}
+const TR_L=[["en","🇬🇧 Inglese"],["de","🇩🇪 Tedesco"],["fr","🇫🇷 Francese"],["es","🇪🇸 Spagnolo"],["sl","🇸🇮 Sloveno"]];
+let TR={to:null,inTxt:"",inIt:"",inLang:"",outIt:"",out:"",lang:"en"};
+/* Pagina "Traduci" (menu): ricevuto → italiano; risposta in italiano → lingua del cliente → WhatsApp / Email / Copia.
+   Da un proprietario (💬 Messaggio tradotto) sa già numero, email e lingua. Dal comando rapido dell'iPhone arriva con
+   #traduci=<testo>: il messaggio è già incollato e tradotto. */
+function trPage(){const o=TR.to&&D.owners[TR.to],wa=o&&o.phone?lkPhone(o):"";
+  return `<h1>💬 Traduci</h1>${o?`<p class="nick">Con <b>${esc(o.name)}</b> <button class="plink" data-a="trFree">nessuno in particolare</button></p>`:`<p class="nick">Messaggi in un'altra lingua: WhatsApp, email, chiunque.</p>`}
+  <h2>Ti hanno scritto</h2><div class="cs" style="gap:8px"><textarea id="tr_in" rows="4" class="tr-ta" placeholder="Incolla qui il messaggio che ti è arrivato">${esc(TR.inTxt)}</textarea>
+  <div class="row2"><button class="btn" data-a="trIn">✨ Traduci in italiano</button></div>
+  ${TR.inIt?`<div class="tr-out"><b>🇮🇹 Cosa dice${TR.inLang?` · era in ${esc(TR.inLang)}`:""}</b>${esc(TR.inIt)}</div>`:""}</div>
+  <h2>Rispondi in italiano</h2><div class="cs" style="gap:8px"><textarea id="tr_it" rows="4" class="tr-ta" placeholder="Scrivi qui la risposta, in italiano">${esc(TR.outIt)}</textarea>
+  <label class="f" style="max-width:240px">Lingua<select id="tr_lang">${TR_L.map(([k,t])=>`<option value="${k}" ${TR.lang===k?"selected":""}>${t}</option>`).join("")}</select></label>
+  <div class="row2"><button class="btn" data-a="trOut">✨ Traduci</button></div>
+  ${TR.out?`<div class="tr-out"><b>Da mandare</b>${esc(TR.out)}</div><div class="row2"><a class="btn mb-wa" href="https://wa.me/${wa}?text=${encodeURIComponent(TR.out)}" target="_blank" rel="noopener">WhatsApp${o?" a "+esc(o.name.split(" ")[0]):""}</a>${o&&o.email?`<a class="btn ghost" href="mailto:${esc(o.email)}?body=${encodeURIComponent(TR.out)}">Email</a>`:""}<button class="btn ghost" data-a="trCopy">Copia</button></div>
+  ${wa?"":`<p class="small" style="margin:0">WhatsApp ti fa scegliere la chat a cui mandarlo.</p>`}`:""}</div>`}
+function trKeep(){const a=$("#tr_in"),b=$("#tr_it"),c=$("#tr_lang");if(a)TR.inTxt=a.value;if(b)TR.outIt=b.value;if(c)TR.lang=c.value}
+async function trAct(a,b){trKeep();
+  if(a==="trFree"){TR.to=null;render();return}
+  if(a==="trCopy"){aiCopy(TR.out);return}
+  if(a==="trIn"){if(!TR.inTxt.trim()){toast("Incolla prima il messaggio.");return}aiBusy(b,1,"Claude traduce…");
+    try{const j=await aiCall("in",{text:TR.inTxt});TR.inIt=j.it;TR.inLang=j.langName;if(j.lang&&j.lang!=="it"&&TR_L.some(x=>x[0]===j.lang))TR.lang=j.lang;render()}catch(x){aiBusy(b,0);alert("Claude non risponde.\n\n"+x.message)}return}
+  if(a==="trOut"){if(!TR.outIt.trim()){toast("Scrivi prima la risposta in italiano.");return}aiBusy(b,1,"Claude traduce…");
+    try{const j=await aiCall("out",{text:TR.outIt,lang:TR.lang});TR.out=j.text;render();setTimeout(()=>{const e=document.querySelector(".tr-out:last-of-type");e&&e.scrollIntoView({block:"center",behavior:"smooth"})},50)}catch(x){aiBusy(b,0);alert("Claude non risponde.\n\n"+x.message)}}}
+function trOpen(oid){const o=D.owners[oid];TR={to:oid,inTxt:"",inIt:"",inLang:"",outIt:"",out:"",lang:o&&o.lang==="en"?"en":(o&&/deutsch|german|austria|svizzera|germania/i.test(o.country||"")?"de":"en")};if(!leaveOk())return;tab="traduci";view=null;render();scrollTo(0,0)}
+/* Comando rapido dell'iPhone: https://gestionale.delpiccolodiavolo.it/#traduci=<testo> */
+function trFromHash(){const h=location.hash||"";if(!h.startsWith("#traduci="))return;let t="";try{t=decodeURIComponent(h.slice(9))}catch(e){t=h.slice(9)}
+  history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;TR={to:null,inTxt:t,inIt:"",inLang:"",outIt:"",out:"",lang:"en"};tab="traduci";view=null;render();
+  setTimeout(()=>{const b=document.querySelector('[data-a="trIn"]');b&&b.click()},200)}
+window.addEventListener("hashchange",trFromHash);
+/* Richieste dal sito: riassunto e bozza di risposta nella lingua di chi scrive (nella scheda della richiesta, Attesa). */
+function wlAiBox(x){const msg=[x.note,x.exp].filter(Boolean).join("\n");if(!x.id||!msg)return"";
+  return `<div class="cs" style="gap:8px;margin:10px 0"><div class="row2"><button class="btn" data-a="wlAi" data-v="${x.id}">✨ Riassunto e bozza di risposta</button></div><div id="wlAi"></div></div>`}
+async function wlAi(id,b){const x=(D.waitlist||[]).find(w=>w.id===id);if(!x)return;aiBusy(b,1);
+  try{const j=await aiCall("richiesta",{name:x.name||"",msg:[x.note,x.exp].filter(Boolean).join("\n")});aiBusy(b,0);
+    const wa=String(x.phone||"").replace(/[^\d+]/g,"").replace(/^\+/,"").replace(/^00/,"");WL_AI=j;
+    $("#wlAi").innerHTML=`<div class="tr-out"><b>🇮🇹 In breve</b>${esc(j.sunto)}</div><label class="f full" style="display:block"><span class="row-meta">🇮🇹 Bozza (la puoi cambiare)</span><textarea id="wl_b" rows="5" class="tr-ta">${esc(j.bozza)}</textarea></label>
+      ${j.lang!=="it"?`<div class="row2"><button class="btn ghost" data-a="wlAiTr" data-v="${id}">🌐 Ritraduci la bozza in ${esc(j.langName)}</button></div><div class="tr-out" id="wl_o"><b>Da mandare (${esc(j.langName)})</b>${esc(j.out)}</div>`:""}
+      <div class="row2">${x.email?`<button class="btn ghost" data-a="wlAiSend" data-v="${id}|mail">Email</button>`:""}${wa?`<button class="btn mb-wa" data-a="wlAiSend" data-v="${id}|wa">WhatsApp</button>`:""}<button class="btn ghost" data-a="wlAiSend" data-v="${id}|copy">Copia</button></div>`}
+  catch(e){aiBusy(b,0);alert("Claude non risponde.\n\n"+e.message)}}
+let WL_AI=null;
+async function wlAiTr(id,b){if(!WL_AI)return;const t=($("#wl_b")||{}).value||"";aiBusy(b,1,"Claude traduce…");try{const j=await aiCall("out",{text:t,lang:WL_AI.lang});WL_AI.out=j.text;WL_AI.bozza=t;aiBusy(b,0);$("#wl_o").innerHTML=`<b>Da mandare (${esc(WL_AI.langName)})</b>${esc(j.text)}`}catch(e){aiBusy(b,0);alert("Claude non risponde.\n\n"+e.message)}}
+function wlAiSend(v){const [id,m]=v.split("|"),x=(D.waitlist||[]).find(w=>w.id===id);if(!x||!WL_AI)return;const bz=($("#wl_b")||{}).value||WL_AI.bozza;
+  if(WL_AI.lang!=="it"&&bz!==WL_AI.bozza&&!confirm("Hai cambiato la bozza ma non l'hai ritradotta: mando la traduzione di prima?"))return;
+  const t=WL_AI.lang==="it"?bz:WL_AI.out,wa=String(x.phone||"").replace(/[^\d+]/g,"").replace(/^\+/,"").replace(/^00/,"");
+  if(m==="copy")aiCopy(t);else if(m==="wa")window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(t),"_blank","noopener");
+  else location.href="mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(WL_AI.lang==="de"?"Ihre Anfrage – Del Piccolo Diavolo":WL_AI.lang==="it"?"La tua richiesta – Del Piccolo Diavolo":"Your enquiry – Del Piccolo Diavolo")+"&body="+encodeURIComponent(t)}
+/* Referti: "✨ Leggi con Claude" nella finestra Nuovo documento. Compila titolo e data, controlla il microchip, propone i test
+   genetici da aggiungere alla scheda (in tre lingue: tests, tests_en, tests_de). */
+let DOC_AI=null;
+/* foto grandi del telefono: ridotte a 1600 px prima di mandarle a Claude (limite di dimensione delle immagini) */
+function aiImg(u){return new Promise(res=>{if(!/^data:image\//.test(u))return res(u);const im=new Image();im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.85))};im.onerror=()=>res(u);im.src=u})}
+async function docAi(id,b){if(!docFile){toast("Scegli prima il file.");return}const d=D.dogs[id],m=/^data:([^;]+);/.exec(docFile.data);aiBusy(b,1,"Claude legge…");
+  try{const isImg=m&&/^image\//.test(m[1]),data=isImg?await aiImg(docFile.data):docFile.data;
+    const j=await aiCall("referto",{data,media:isImg?"image/jpeg":(m?m[1]:"application/pdf"),dog:{name:d.name,chip:d.chip||""}});aiBusy(b,0);DOC_AI=j;
+    if(j.title&&!$("#dt").value)$("#dt").value=j.title;if(j.title_en&&!$("#dten").value)$("#dten").value=j.title_en;if(j.date&&!$("#dd").value)$("#dd").value=j.date;
+    const chipOk=!j.chip||!d.chip?null:j.chip.endsWith(String(d.chip).replace(/\D/g,"").slice(-6))&&String(d.chip).replace(/\D/g,"")===j.chip;
+    $("#docAi").innerHTML=`<div class="tr-out"><b>Claude ha letto</b>${esc([j.lab,j.date?fmt(j.date):"",j.note].filter(Boolean).join(" · "))||"—"}</div>
+      ${j.chip?`<p class="small" style="margin:4px 0">${chipOk===false?`⚠️ <b>Microchip diverso</b>: sul referto ${esc(j.chip)}, nella scheda ${esc(d.chip)}. Controlla che sia il cane giusto.`:chipOk?"✔ Il microchip del referto è uguale a quello della scheda.":`Microchip sul referto: ${esc(j.chip)}${d.chip?"":" (nella scheda non c'è)"}.`}</p>`:""}
+      ${j.tests.length?`<p class="row-meta" style="margin:6px 0 2px">Test da aggiungere alla scheda (spunta quelli da salvare):</p>${j.tests.map((t,i)=>`<label class="f full chk"><input type="checkbox" class="docAiT" data-i="${i}" ${String(d.tests||"").includes(t.it)?"":"checked"}> ${esc(t.it)}${String(d.tests||"").includes(t.it)?" <small>(c'è già)</small>":""}</label>`).join("")}`:""}`}
+  catch(e){aiBusy(b,0);alert("Claude non risponde.\n\n"+e.message)}}
+function docAiApply(id){if(!DOC_AI||!DOC_AI.tests.length)return;const pick=[...document.querySelectorAll(".docAiT")].filter(c=>c.checked).map(c=>DOC_AI.tests[+c.dataset.i]).filter(Boolean);if(!pick.length)return;
+  const d=D.dogs[id],add=(k,L)=>{const cur=String(d[k]||"").split(" · ").map(s=>s.trim()).filter(Boolean);pick.forEach(t=>{const v=(t[L]||t.it||"").trim();if(v&&!cur.includes(v))cur.push(v)});d[k]=cur.join(" · ")};
+  add("tests","it");add("tests_en","en");add("tests_de","de");toast(pick.length===1?"Test aggiunto alla scheda.":pick.length+" test aggiunti alla scheda.")}
 /* ---------- Programma, Diario e Novità in Home dal gestionale (ottobre 2026, scelte di Paolo) ----------
    l.site = {stage:"prog"|"arr"|"nat", prog, diar, home, homeSince, txt:{it,en,de}, diarDone}. Solo per le cucciolate da
    ottobre 2026 in poi (SI_FROM): quelle di prima hanno schede e pagine scritte a mano, che il gestionale non tocca mai.
@@ -2528,6 +2601,7 @@ function wlForm(id){const x=id?(D.waitlist||[]).find(w=>w.id===id):{status:"new"
   <label class="f">Il cucciolo<input id="wls" value="${esc(x.sex||"")}" placeholder="maschio, femmina, indifferente…"></label><label class="f">Lingua<select id="wlg">${[["it","Italiano"],["en","Inglese"]].map(([v,t])=>`<option value="${v}" ${x.lang===v?"selected":""}>${t}</option>`).join("")}</select></label>
   <label class="f">Caparra versata il<input type="date" id="wld" value="${esc(x.depDate||"")}"></label>
   ${x.exp?`<p class="f full row-meta" style="margin:0">Esperienza: ${esc(x.exp)}</p>`:""}<label class="f full">Dove vivrà il cane / note<textarea id="wlt" rows="3">${esc(x.note||"")}</textarea></label></div>
+  ${id?wlAiBox(x):""}
   ${id&&x.dog&&D.dogs[x.dog]?`<p class="row-meta">🐶 Assegnato a <button class="plink" data-a="open" data-v="${x.dog}">${esc(D.dogs[x.dog].nick||D.dogs[x.dog].name)}</button></p>`:""}
   <div class="actions"><button class="btn" data-a="wlSave" data-v="${id||""}">Salva</button>${id&&!x.dog?`<button class="btn ghost" data-a="wlAssign" data-v="${id}">🐶 Assegna un cucciolo</button>`:""}
   ${wa?`<a class="btn ghost" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>`:""}${x.email?`<a class="btn ghost" href="mailto:${esc(x.email)}">Email</a>`:""}${id?`<button class="btn ghost" data-a="wlDel" data-v="${id}">Elimina</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
@@ -2746,7 +2820,7 @@ function ownerDetail(id){
   <h2>Cani</h2>${dogs.length?`<div class="list">${rows(dogs)}</div>`:'<p class="empty">Nessun cane collegato.</p>'}
   ${RO?"":`<h2>Documenti d'identità</h2>${idsHtml("o:"+id,o.ids)}`}
   ${o.notes?`<h2>Note</h2><div class="note">${esc(o.notes)}</div>`:""}
-  ${EDIT==="own:"+id?"":ownLink(id)+`<div class="actions"><button class="btn" data-a="ownEdit" data-v="${id}">Modifica</button></div>`}`;
+  ${EDIT==="own:"+id?"":ownLink(id)+`<div class="actions"><button class="btn" data-a="ownEdit" data-v="${id}">Modifica</button>${RO?"":`<button class="btn ghost" data-a="trOpen" data-v="${id}">💬 Messaggio tradotto</button>`}</div>`}`;
 }
 function ownerForm(id){
   const o=id?D.owners[id]:{};
@@ -2853,7 +2927,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "trIn":case "trOut":case "trCopy":case "trFree":trAct(a,el);break;case "trOpen":trOpen(v);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
