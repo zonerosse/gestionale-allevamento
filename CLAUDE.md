@@ -575,3 +575,13 @@ Accessi e copie
   `l.sbtA` resta salvato.
 - Modello A: "✔ Consegnato" nel riquadro (`maGo` modo `done` → `l.enciA`, chiude la scadenza "ENCI Modello A"); dopo resta
   "✅ Consegnato il …". Prima mostra la scadenza (25 giorni dalla nascita).
+
+## Pubblica sul sito (ottobre 2026)
+- "🌐 Pubblica sul sito" (riquadro "Sul sito" della cucciolata `cuPub`, Esposizioni di ogni cane `shPub`): gli stessi file dello zip
+  (`data/cucciolate.json` + foto dei genitori in `static/images/cucciolate/`, `data/esposizioni.json`) vanno nel repository
+  `zonerosse/delpiccolodiavolo-hugo` con un commit su `main` (`POST /api/publish`, functions/api/publish.js, solo admin; percorsi
+  ammessi data/ static/ content/ assets/ i18n/). Il sito si ricostruisce da solo: resta HTML statico, leggibile da Google e IA.
+- Chiave: segreto Cloudflare `GITHUB_TOKEN` del progetto gestionale-allevamento (fine-grained, solo il repository del sito,
+  Contents: Read and write). Messo da Paolo il 04/10/2026. Se scade o viene tolta, il bottone dice l'errore e resta
+  "Scarica lo zip come prima" (`cuPrep`, `shPrep`). Ultima pubblicazione in `settings.sitePub`.
+- Dopo una pubblicazione dal gestionale, prima di lavorare sul sito in locale fare **Fetch/Pull** in GitHub Desktop.
