@@ -681,3 +681,5 @@ Accessi e copie
   gestionale sul valore SBT ("≈", con la percentuale di albero conosciuta) e invita a leggere il test mating per il dato esatto.
 - Accoppiamenti, "📊 Calcola e mostra il grafico" (`MATE_GRAPH`, `mateGraph`): la scala di `coiScale` (fascia 6–9%, 3/5/8 gen.,
   chi pesa di più) con i dati migliori disponibili: test mating letto > COI SBT scritto > calcolo del gestionale (con % di albero).
+- "Importa modifiche" con `analisiSbt`: ora salva sempre anche nella coppia (`D.matings["sire|dam"]`: coiSbt + sbtRead con `blood`),
+  e se la cucciolata non esiste ancora salva solo nella coppia. `a.blood` = [{name,pct,n,gens}] dalla tabella "Ancestor list".

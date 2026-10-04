@@ -3240,10 +3240,14 @@ function findDogByName(n){const q=String(n||"").trim().toLowerCase();if(!q)retur
 function importSbt(x){const S=findDogByName(x.sire),M=findDogByName(x.dam);
   const L=Object.entries(D.litters).filter(([,l])=>S.includes(l.sire)&&M.includes(l.dam))
     .sort((a,b)=>(a[1].state==="pianificata")!==(b[1].state==="pianificata")?(a[1].state==="pianificata"?-1:1):(b[1].date||"").localeCompare(a[1].date||""));
-  if(!L.length){alert(`Non trovo la cucciolata ${x.dam} × ${x.sire}.\n\nControlla che padre e madre abbiano questi nomi e che la cucciolata esista (anche solo pianificata), poi riprova.`);return}
+  /* sempre anche nella coppia di Accoppiamenti (COI SBT + su chi cade), anche se la cucciolata non esiste ancora */
+  const toMate=()=>{if(!S.length||!M.length)return false;const k=S[0]+"|"+M[0];D.matings=D.matings||{};const a=x.a||{},n=v=>v==null||v===""?null:parseFloat(String(v).replace(",","."));
+    D.matings[k]=Object.assign(D.matings[k]||{},{coiSbt:String(a.c8||"").replace(".",","),sbtRead:{coi3:n(a.c3),coi5:n(a.c5),uniq:a.uniq||null,loss:n(a.loss),blood:a.blood||[],top:a.top||[],date:a.date||todayS()}});return true};
+  if(!L.length){if(S.length&&M.length&&confirm(`Analisi SBT: COI 8 generazioni ${x.a.c8}%\n\nLa cucciolata ${x.dam} × ${x.sire} non esiste ancora: la salvo nella coppia in Accoppiamenti?`)&&toMate()){mateS=S[0];mateD=M[0];resetCalc();tab="coi";view=null;render();saveNow();toast("Analisi SBT salvata nella coppia.")}else if(!S.length||!M.length)alert(`Non trovo ${!S.length?x.sire:x.dam} fra i cani del gestionale.`);return}
+
   const [lid,l]=L[0],when=l.state==="pianificata"?"pianificata":"nata il "+(fmt(l.date)||"?");
   if(!confirm(`Analisi SBT: COI 8 generazioni ${x.a.c8}%\n\nLa applico alla cucciolata ${dn(l.dam)} × ${dn(l.sire)} (${when})?${l.sbtA?"\n\nQuesta cucciolata ha già un'analisi: verrà sostituita.":""}`))return;
-  l.sbtA=x.a;resetCalc();render();saveNow();toast("Analisi SBT salvata: vale per tutti i cuccioli della cucciolata.")}
+  l.sbtA=x.a;toMate();resetCalc();render();saveNow();toast("Analisi SBT salvata: vale per tutti i cuccioli della cucciolata.")}
 document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;
       if(o.analisiSbt){importSbt(o.analisiSbt);return}
