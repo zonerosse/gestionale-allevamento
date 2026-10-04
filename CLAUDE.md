@@ -647,3 +647,10 @@ Accessi e copie
   rinunciato): italiano una volta, "✨ Traduci per chi è straniero" (una traduzione per lingua, `wbTr`), poi WhatsApp/Email a
   ciascuno nella sua lingua (si segna ✔ nella finestra) e un'email unica in copia nascosta per lingua.
 - "COI SBT del test mating: [ ]%" in Accoppiamenti è una casella da riempire, non un errore.
+- Accoppiamenti → "📷 Leggi il test mating" (`tmPick`/`tmRead`, compito `testmating` di /api/ai): screenshot o PDF della pagina
+  Testmating COI di SBTpedigree (i numeri SBT li vede solo Paolo con il Level 2: il link da fuori non funziona). Claude legge COI
+  8/3/5 generazioni, antenati, ancestor loss, più ripetuti; avvisa se è l'analisi di un cane solo o se i nomi non sono quelli
+  della coppia. "💾 Salva" → `setMateSbt` + `D.matings[k].sbtRead`. Le immagini lunghe vengono tagliate in alto (lì ci sono i numeri).
+- Test mating: Claude legge anche la tabella "Ancestor list" (Blood %): i 6 antenati con più sangue senza padre e madre, con
+  comparse e generazioni (`blood`), mostrati prima dei "più ripetuti" (per Paolo contano le percentuali). Screenshot lunghi
+  mandati a pezzi (`aiImgParts`, fino a 4). Traduci dalla Lista d'attesa e dal proprietario: numero già nella casella Numero.

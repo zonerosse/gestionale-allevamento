@@ -6,6 +6,7 @@ import { json, role, deny } from "../_lib.js";
    - "risposte": { msg, it, lang }         → { options:[{label,it,out}] }     tre risposte diverse, già tradotte
    - "out":      { text, lang }            → { text }                         italiano di Paolo → lingua del cliente
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
+   - "testmating": { data, media, sire, dam } → { pair, single, coi8, coi3, coi5, uniq, loss, top } pagina di SBTpedigree
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
@@ -80,6 +81,21 @@ Formato: {"lang":"codice ISO 639-1 di chi scrive","sunto":"...","bozza":"...","o
 Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","tests":[{"it":"","en":"","de":""}],"note":""}`,
         [doc, { type: "text", text: `Cane atteso: ${dog.name || ""}, microchip ${dog.chip || "non indicato"}.` }], 1500);
       return json({ ok: true, title: o.title || "", title_en: o.title_en || "", date: o.date || "", lab: o.lab || "", chip: String(o.chip || "").replace(/\D/g, ""), tests: Array.isArray(o.tests) ? o.tests : [], note: o.note || "" });
+    }
+    if (task === "testmating") {
+      const parts = (Array.isArray(p.parts) && p.parts.length ? p.parts : [p.data]).filter(Boolean).slice(0, 4).map(x => String(x).replace(/^data:[^,]*,/, "")), media = p.media || "image/jpeg";
+      if (!parts.length) return json({ ok: false, error: "Manca il file." });
+      const doc = media === "application/pdf" ? [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: parts[0] } }] : parts.map(d => ({ type: "image", source: { type: "base64", media_type: media, data: d } }));
+      const o = await ask(env, `Leggi una pagina di SBTpedigree.com (Testmating COI o analisi di un cane). Estrai SOLO i numeri scritti, senza calcolare niente.
+- "pair": i nomi della coppia come scritti (es. "Black Stone D.P. x Lackyle Bean Croi Olc"), o il nome del cane se è l'analisi di un cane solo.
+- "single": true se è l'analisi di un cane solo e non di una coppia (test mating).
+- "coi8","coi3","coi5": percentuali come numeri (es. 14.736), null se non ci sono.
+- "uniq": antenati in 8 generazioni (es. 360), "loss": ancestor loss in % (es. 29.4), null se mancano.
+- "blood": dalla tabella "Ancestor list (blood % and appearances by generation)", i 6 antenati con il Blood % più alto SENZA il padre e la madre (i due al 50%): [{"name":"","pct":43.75,"n":4,"gens":"2,4,4,4"}] dove "n" = # of appearances e "gens" = le generazioni in cui compare, ripetute per ogni comparsa. Lista vuota se la tabella non si vede.
+- "top": "Most repeated ancestors" [{"name":"","n":14}], al massimo 3.
+Formato: {"pair":"","single":false,"coi8":null,"coi3":null,"coi5":null,"uniq":null,"loss":null,"blood":[],"top":[]}`,
+        [...doc, { type: "text", text: `Coppia scelta nel gestionale: maschio ${p.sire || ""}, femmina ${p.dam || ""}.${doc.length > 1 ? " Le immagini sono pezzi consecutivi della stessa pagina, dall'alto in basso." : ""}` }], 1400);
+      return json({ ok: true, pair: o.pair || "", single: !!o.single, coi8: o.coi8, coi3: o.coi3, coi5: o.coi5, uniq: o.uniq, loss: o.loss, blood: Array.isArray(o.blood) ? o.blood.slice(0, 6) : [], top: Array.isArray(o.top) ? o.top.slice(0, 3) : [] });
     }
     return json({ ok: false, error: "Compito sconosciuto: " + task });
   } catch (e) { return json({ ok: false, error: String(e.message || e) }); }
