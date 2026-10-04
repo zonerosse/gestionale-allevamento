@@ -1302,14 +1302,17 @@ function coiParts(s,d){const by={},out={};if(!s||!d||!D.dogs[s]||!D.dogs[d])retu
   for(const r of routes(s,COI_GEN)){const L=by[r.a];if(!L)continue;const A=D.dogs[r.a],FA=coi8(A.sire,A.dam),set=new Set(r.path.slice(0,-1));
     for(const q of L){if(q.path.slice(0,-1).some(x=>set.has(x)))continue;out[r.a]=(out[r.a]||0)+Math.pow(.5,r.d+q.d-1)*(1+FA)}}
   return out}
-function ancWeight(s,d){const P=coiParts(s,d),ids=Object.keys(P).filter(k=>P[k]>0).sort((a,b)=>P[b]-P[a]);
-  if(!ids.length)return '<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
+/* sbt (facoltativo): COI SBT inserito a mano senza test mating letto → le quote del gestionale vengono riportate su quel valore
+   (approssimato: vale solo per gli antenati comuni che il gestionale conosce). Richiesta di Paolo, 04/10/2026. */
+function ancWeight(s,d,sbt){const P=coiParts(s,d),ids=Object.keys(P).filter(k=>P[k]>0).sort((a,b)=>P[b]-P[a]);sbt=isNaN(sbt)?0:sbt;
+  if(!ids.length)return sbt?`<p class="row-meta">Il COI SBT è ${pf(sbt)}%, ma fra gli antenati inseriti nel gestionale non ce n'è nessuno in comune: per vedere su chi cade usa <b>📷 Leggi il test mating</b>.</p>`:'<p class="row-meta">Nessun antenato in comune fra quelli inseriti.</p>';
+  const cvA=sbt?coverage(s,d):null,pre=sbt?`<p class="row-meta" style="margin:0 0 6px">≈ Approssimato: il COI SBT (${pf(sbt)}%) diviso fra gli antenati comuni che il gestionale conosce (albero al ${cvA&&cvA.tot?Math.round(cvA.known/cvA.tot*100):0}%). Per il dato esatto: <b>📷 Leggi il test mating</b>.</p>`:"";
   const tot=ids.reduce((t,k)=>t+P[k],0),mx=P[ids[0]],ord=n=>n+"ª";
   const row=k=>{const x=D.dogs[k],a=gensOf(s,k),b=gensOf(d,k);return `<div class="anc-row">${thumb(x)}<div class="anc-t"><button class="plink anc-n" data-a="open" data-v="${k}">${esc(x.name)}</button>
     <span class="row-meta">Lato padre: ${a.map(ord).join(", ")} gen. · Lato madre: ${b.map(ord).join(", ")} gen.</span><span class="aw-bar"><i style="width:${(P[k]/mx*100).toFixed(1)}%"></i></span></div>
-    <div class="anc-r"><span class="anc-c" title="Quota del COI">${pf(P[k]*100)}%</span><span class="row-meta">${Math.round(P[k]/tot*100)}% del totale</span></div></div>`};
+    <div class="anc-r"><span class="anc-c" title="Quota del COI">${sbt?"≈ ":""}${pf(sbt?P[k]/tot*sbt:P[k]*100)}%</span><span class="row-meta">${Math.round(P[k]/tot*100)}% del totale</span></div></div>`};
   const top=ids.slice(0,8),rest=ids.slice(8);
-  return `<div class="anc-list">${top.map(row).join("")}</div>${rest.length?`<details class="aw-more"><summary>Altri ${rest.length} antenati in comune, con peso minore</summary><div class="anc-list">${rest.map(row).join("")}</div></details>`:""}`}
+  return pre+`<div class="anc-list">${top.map(row).join("")}</div>${rest.length?`<details class="aw-more"><summary>Altri ${rest.length} antenati in comune, con peso minore</summary><div class="anc-list">${rest.map(row).join("")}</div></details>`:""}`}
 /* ---------- Contratto di cessione ---------- */
 // Testo dei contratti di Paolo (maschio/femmina) con traduzione inglese: fa fede l'italiano.
 const CT_VER="2026-10b";
@@ -2047,7 +2050,7 @@ window.addEventListener("hashchange",intFromHash);
 /* Accoppiamenti: "Su chi cade la consanguineità" dai dati del test mating SBT letti da Claude (D.matings[k].sbtRead.blood), se ci
    sono; altrimenti il calcolo del gestionale (ancWeight). Nomi: link alla scheda del cane se è nel gestionale, altrimenti ricerca
    della sua pagina su SBTpedigree. Barra rossa = % di sangue, tacca = quota normale della prima generazione in cui compare. */
-function sbtWeight(s,d){const m=D.matings&&D.matings[s+"|"+d],r=m&&m.sbtRead;if(!r)return"";if(!(r.blood||[]).length)return `<p class="row-meta" style="margin:0">Il test mating salvato non ha la tabella del sangue: rifai <b>📷 Leggi il test mating</b> con il PDF e premi Salva.</p>`;
+function sbtWeight(s,d){const m=D.matings&&D.matings[s+"|"+d],r=m&&m.sbtRead;if(!r||!(r.blood||[]).length)return"";
   const nm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(),idx={};Object.keys(D.dogs).forEach(k=>{idx[nm(D.dogs[k].name)]=k});
   const N=x=>String(Math.round(x*100)/100).replace(".",",");
   return `<p class="row-meta" style="margin:0 0 4px">dal test mating SBT letto il ${fmt(r.date)} · senza padre e madre${r.loss!=null?" · ancestor loss "+String(r.loss).replace(".",",")+"%":""}</p>`+r.blood.map(t=>{const g=parseInt(String(t.gens||"").match(/\d+/)||0,10),q=g?100/Math.pow(2,g):0,pct=+t.pct||0,id=idx[nm(t.name)];
@@ -3050,7 +3053,7 @@ function calcMate(){
    ${p.src==="sbt"?`<p class="row-meta" style="margin:6px 0 0">Calcolo del gestionale: ${pf(w)}% · antenati inseriti ${cov.known} di ${cov.tot}</p>`:""}
    <p class="row-meta" style="margin:8px 0 0"><label class="sbt-in">COI SBT del test mating: <input id="mateSbt" inputmode="decimal" placeholder="es. 6,17" value="${esc(m.coiSbt||"")}">%</label> <button class="btn small" data-a="tmPick">📷 Leggi il test mating</button></p><div id="tmRes"></div>
    ${enciBox}
-   <div class="twrap"><div class="tcard"><b>Su chi cade la consanguineità</b>${sbtWeight(mateS,mateD)||ancWeight(mateS,mateD)}</div>
+   <div class="twrap"><div class="tcard"><b>Su chi cade la consanguineità</b>${sbtWeight(mateS,mateD)||ancWeight(mateS,mateD,mateSbt(mateS,mateD))}</div>
    <div class="tcard"><b>🧪 Test genetici</b><p style="margin:6px 0 0"><b>${esc(dd.nick||dd.name)}:</b> ${esc(dd.tests||"non inseriti")}</p><p style="margin:6px 0 0"><b>${esc(ds.name)}:</b> ${esc(ds.tests||"non inseriti")}</p></div></div>
    <div class="actions">${lit?`<button class="btn" data-a="litterSheet" data-v="${lit[0]}">Scheda della cucciolata</button>`:`<button class="btn" data-a="planLitter">🐾 Pianifica la cucciolata</button>`}
    ${ds.sbt?`<a class="btn ghost" href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(ds.sbt)}" target="_blank" rel="noopener">${esc(ds.name.split(" ")[0])} su SBT ↗</a>`:""}${miss}</div></div>`;

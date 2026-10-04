@@ -677,3 +677,5 @@ Accessi e copie
   `mateMales`, senza i vietati ENCI salvo "mostrali"; accanto ai maschi l'etichetta COI `mateLab`). "✨ Suggerisci i maschi"
   (`mateSug`): ordine per COI nella fascia 6–9% (pairCoi), test L2HGA e HC, età; albero incompleto → "fai il test mating";
   sopra la fascia in fondo, grigi, "non suggeriti".
+- "Su chi cade" con COI SBT scritto a mano (senza tabella del sangue letta): `ancWeight(s,d,sbt)` riporta le quote del
+  gestionale sul valore SBT ("≈", con la percentuale di albero conosciuta) e invita a leggere il test mating per il dato esatto.
