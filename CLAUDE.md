@@ -632,3 +632,10 @@ Accessi e copie
 - Traduci: casella "Numero WhatsApp (facoltativo)" (`TR.num`): se c'è, i bottoni WhatsApp aprono la chat con quel numero
   (anche se non è in rubrica: wa.me/<numero>); numeri italiani anche senza +39, stranieri con il prefisso. Altrimenti numero del
   proprietario, o scelta della chat.
+
+## Ritocchi del 04/10/2026
+- Regola del 2° calore (Accoppiamenti/ENCI): vale solo per la prima cucciolata di una femmina sotto i 2 anni alla monta; se ha
+  già figliato o ha almeno 2 anni è "2° calore superato".
+- "Prossimo calore previsto" senza calori: "segna l'ultimo calore, anche passato, per calcolarlo" (1 calore → +180 giorni;
+  2 o più → media degli intervalli).
+- ✕ tonda in alto a destra in ogni finestra (`sheet()`, classe `.sh-x`, ferma in alto anche scorrendo).

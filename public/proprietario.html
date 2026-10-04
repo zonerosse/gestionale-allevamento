@@ -267,7 +267,7 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .mb-go2{background:#1f5fa8!important;color:#fff!important;border-color:#1f5fa8!important}.mb-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}.mb-done{background:var(--ok)!important;border-color:var(--ok)!important;color:#fff!important}
 .dr-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.dr-go{background:#1a73e8!important;border-color:#1a73e8!important;color:#fff!important}
 .dr-r{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.92rem}.dr-ok{color:var(--ok);font-weight:600}
-.ma-mail{background:#1f5fa8!important;border-color:#1f5fa8!important;color:#fff!important}.si-chips{display:flex;gap:6px;flex-wrap:wrap}.si-chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}.si-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}.si-chip.off{opacity:.45}.si-l{display:block;font-size:.82rem;color:var(--muted);margin-top:8px}.si-l textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:3px}.tr-ta{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:8px}.tr-out{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.95rem;white-space:pre-wrap}.tr-out b{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px;font-weight:600}.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
+.ma-mail{background:#1f5fa8!important;border-color:#1f5fa8!important;color:#fff!important}.si-chips{display:flex;gap:6px;flex-wrap:wrap}.si-chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:8px 12px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}.si-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}.si-chip.off{opacity:.45}.si-l{display:block;font-size:.82rem;color:var(--muted);margin-top:8px}.si-l textarea{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:3px}.tr-ta{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:.95rem;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:8px}.tr-out{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.95rem;white-space:pre-wrap}.tr-out b{display:block;font-size:.78rem;color:var(--muted);margin-bottom:3px;font-weight:600}.sh-x{position:sticky;top:0;float:right;margin:-6px -6px 0 8px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:1.25rem;line-height:1;cursor:pointer;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.12)}.dep-f{grid-template-columns:1fr 1fr}.dep-wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
 .mb-ok{background:#e9f5ec;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}.mb-warn{background:#fff3e0;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}
 .nick-c{font-weight:800;font-size:1.35rem;color:var(--accent);margin:2px 0 0;line-height:1.2}.nick-l{color:var(--accent);font-weight:800;font-size:1.05em}
 .st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
@@ -972,8 +972,12 @@ function enciCheck(dam,sire,mate){const d=D.dogs[dam],s=sire&&D.dogs[sire],parto
   else if(L.length)add("ok","Cucciolate fatte: "+n+" · questa sarebbe la "+(n+1)+"ª","certificato veterinario dalla 6ª; il codice etico consiglia al massimo 5");
   if(s){const rel=enciRel(dam,sire);
     if(rel)add("bad","Parentela vietata: "+rel,"dal 2023 i cuccioli non sono iscrivibili al Libro genealogico");else add("ok","Nessuna parentela vietata","non sono genitore/figlio, fratelli o mezzi fratelli")}
-  const H=(d.repro||[]).filter(x=>x.t==="heat"&&x.date<=mate);
-  if(!(d.repro||[]).some(x=>x.t==="heat"))add("info","2° calore: non controllabile","nel riquadro \"Calori e monte\" non ci sono calori registrati");
+  const H=(d.repro||[]).filter(x=>x.t==="heat"&&x.date<=mate),eta=d.birth?dDiff(mate,d.birth):0;
+  /* il consiglio del 2° calore vale solo per la prima cucciolata di una femmina giovane: se ha già figliato o ha almeno 2 anni
+     alla monta, i due calori li ha già avuti di sicuro (correzione chiesta da Paolo, 04/10/2026) */
+  if(L.length)add("ok","2° calore superato","ha già avuto "+(L.length===1?"una cucciolata":L.length+" cucciolate"));
+  else if(eta>=730)add("ok","2° calore superato","alla monta ha "+Math.floor(eta/365.25)+" anni");
+  else if(!(d.repro||[]).some(x=>x.t==="heat"))add("info","2° calore: non controllabile","nel riquadro \"Calori e monte\" non ci sono calori registrati");
   else if(H.length<2)add("warn","Monta prima del 2° calore","il codice etico ENCI consiglia di non far accoppiare prima del secondo calore ("+H.length+" registrat"+(H.length===1?"o":"i")+" prima della monta)");
   else add("ok","2° calore superato",H.length+" calori registrati prima della monta");
   return R}
@@ -1012,7 +1016,7 @@ function reproInner(id,s){const d=D.dogs[id];
     <p style="font-weight:600;margin:14px 0 6px">Le tappe</p><ul class="tl">${items.map(x=>x.html).join("")}</ul>${add}</div>`}
   const lastL=Object.values(D.litters).filter(l=>l.dam===id&&l.state==="nata"&&l.date).sort((a,b)=>b.date.localeCompare(a.date))[0];
   const nPups=lastL?Object.values(D.dogs).filter(x=>x.litter===Object.keys(D.litters).find(k=>D.litters[k]===lastL)).length:0;
-  return `<div class="rp"><div class="big"><div class="kp"><small>Prossimo calore previsto</small><b>${s.next?new Date(s.next+"T12:00:00").toLocaleDateString("it-IT",{month:"long",year:"numeric"}):"—"}</b><span>${s.next?`dall'ultimo calore (${fmt(s.last.date)}) e dalla media dei suoi calori`:"segna il primo calore per calcolarlo"}</span></div>
+  return `<div class="rp"><div class="big"><div class="kp"><small>Prossimo calore previsto</small><b>${s.next?new Date(s.next+"T12:00:00").toLocaleDateString("it-IT",{month:"long",year:"numeric"}):"—"}</b><span>${s.next?`dall'ultimo calore (${fmt(s.last.date)}) e dalla media dei suoi calori`:"segna l'ultimo calore, anche passato, per calcolarlo"}</span></div>
   <div class="kp"><small>Ultima cucciolata</small><b>${lastL?fmt(lastL.date):"—"}</b><span>${lastL?nPups+" cuccioli":""}</span></div></div>
   ${s.R.length?`<p style="font-weight:600;margin:6px 0">Storico</p><ul class="tl">${s.R.slice().reverse().map(row).join("")}</ul>`:""}${add}</div>`}
 function rpForm(v){const [id,t]=v.split("|"),today=todayS();const M=mateMales();
@@ -3003,7 +3007,7 @@ document.addEventListener("change",e=>{
 });
 
 /* ---------- Sheet ---------- */
-function sheet(h){if(!sheetOpen()){try{history.pushState({tab,view,sheet:1},"")}catch(e){}}$("#sheet").innerHTML=h;colorize($("#sheet"));roClean($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button");f&&f.focus()}
+function sheet(h){if(!sheetOpen()){try{history.pushState({tab,view,sheet:1},"")}catch(e){}}$("#sheet").innerHTML=`<button class="sh-x" data-a="close" aria-label="Chiudi">✕</button>`+h;colorize($("#sheet"));roClean($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button:not(.sh-x)");f&&f.focus()}
 function closeSheetRaw(){$("#sheetBg").classList.remove("open")}
 function closeSheet(){const was=sheetOpen();closeSheetRaw();if(was&&history.state&&history.state.sheet){try{history.replaceState({tab,view},"")}catch(e){}}}
 $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelSheet()});
