@@ -696,3 +696,5 @@ Accessi e copie
   "✨ Scrivi la risposta"): compito `risposte` con `idea` → 2 versioni che dicono esattamente quello, in italiano e tradotte.
 - Proposte di risposta come in chat con Claude (scelta di Paolo): etichetta, sopra il testo da mandare nella lingua del cliente,
   sotto in piccolo l'italiano; per ognuna WhatsApp, Copia, ✏️ Modifica.
+- Traduci, bottone WhatsApp nella parte "Rispondi" (`trWa`): mette sempre il testo nel messaggio (traduzione se c'è; in italiano la
+  casella; altrimenti traduce e poi apre WhatsApp). Prima apriva solo la chat e Paolo doveva incollare.
