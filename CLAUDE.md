@@ -673,3 +673,7 @@ Accessi e copie
 - Accoppiamenti, "Su chi cade la consanguineità": se la coppia ha il test mating letto (`sbtRead.blood`) usa quello (`sbtWeight`:
   % di sangue, comparse, generazioni, barra con tacca della quota normale 100/2^gen della prima comparsa); nomi con link alla
   scheda del cane se è nel gestionale, altrimenti ricerca della pagina su SBTpedigree. Senza test mating: `ancWeight` come prima.
+- Accoppiamenti: Femmina e Maschio sono caselle in cui scrivere (`combo` con `data-only` = candidati di `mateFemales`/
+  `mateMales`, senza i vietati ENCI salvo "mostrali"; accanto ai maschi l'etichetta COI `mateLab`). "✨ Suggerisci i maschi"
+  (`mateSug`): ordine per COI nella fascia 6–9% (pairCoi), test L2HGA e HC, età; albero incompleto → "fai il test mating";
+  sopra la fascia in fondo, grigi, "non suggeriti".
