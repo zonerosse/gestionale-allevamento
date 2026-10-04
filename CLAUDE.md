@@ -639,3 +639,11 @@ Accessi e copie
 - "Prossimo calore previsto" senza calori: "segna l'ultimo calore, anche passato, per calcolarlo" (1 calore → +180 giorni;
   2 o più → media degli intervalli).
 - ✕ tonda in alto a destra in ogni finestra (`sheet()`, classe `.sh-x`, ferma in alto anche scorrendo).
+
+## Messaggi dalla Lista d'attesa (04/10/2026)
+- 💬 su ogni riga (`wlMsg`): apre Traduci con la persona della lista (`TR.wl`, `trContact`): numero, email e lingua della
+  richiesta. In Traduci c'è anche "🇮🇹 Italiano (non tradurre)": il testo va com'è ("✔ Pronto da mandare").
+- 📣 Messaggio a tutti (`wlAll`, in alto per tutta la lista, accanto a ogni cucciolata per chi aspetta quella; mai chi ha
+  rinunciato): italiano una volta, "✨ Traduci per chi è straniero" (una traduzione per lingua, `wbTr`), poi WhatsApp/Email a
+  ciascuno nella sua lingua (si segna ✔ nella finestra) e un'email unica in copia nascosta per lingua.
+- "COI SBT del test mating: [ ]%" in Accoppiamenti è una casella da riempire, non un errore.
