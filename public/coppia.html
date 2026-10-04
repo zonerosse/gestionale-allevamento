@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Del Piccolo Diavolo · Test mating</title>
+<style>
+:root{--ink:#1f1d24;--muted:#6b6570;--line:#e4ddd2;--paper:#fbf8f3;--bg:#f6f3ee;--red:#c0392b;--acc:#8b2c2c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.w{max-width:760px;margin:0 auto;padding:22px 16px 40px}.k{font-size:.8rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:0}
+h1{font-family:Georgia,serif;font-size:1.6rem;line-height:1.25;margin:4px 0 14px}h2{font-family:Georgia,serif;font-size:1.15rem;margin:22px 0 8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}.big{font-family:Georgia,serif;font-size:2.6rem;line-height:1}.big small{font-size:1.2rem}
+.band{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:600;margin-left:8px;vertical-align:middle}.b-ok{background:#e1f2e5;color:#1d6b33}.b-lo{background:#e3ecf8;color:#1f4e8c}.b-hi{background:#f6d5d5;color:#8b2c2c}
+.sc{position:relative;height:46px;margin:18px 4px 4px}.tr{position:absolute;top:22px;left:0;right:0;height:8px;border-radius:4px;background:linear-gradient(90deg,#9cc3e6,#bfe0c4 50%,#bfe0c4 75%,#efb3ad)}
+.zn{position:absolute;top:18px;height:16px;border:2px solid #2e7d32;border-radius:6px;left:50%;width:25%}.pin{position:absolute;top:0;transform:translateX(-50%);text-align:center;font-weight:700;font-size:.85rem}.pin i{display:block;width:2px;height:26px;background:var(--ink);margin:2px auto 0}
+.tk{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin:0 4px}.trio{display:flex;gap:10px;margin-top:12px}.trio div{flex:1;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}.trio b{display:block;font-size:1.1rem}.trio span{font-size:.75rem;color:var(--muted)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dog h3{margin:0 0 4px;font-size:1rem}.dog p{margin:2px 0;font-size:.88rem}.dog .m{color:var(--muted);font-size:.8rem}
+.r{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid var(--line)}.r:last-child{border:0}.r small{color:var(--muted)}.bar{grid-column:1/3;height:8px;background:var(--line);border-radius:4px;position:relative}.bar div{height:8px;background:var(--red);border-radius:4px}.bar i{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink)}
+.ft{margin-top:24px;font-size:.8rem;color:var(--muted)}.lg{float:right;font-size:.85rem}.lg a{color:var(--acc)}.empty{padding:40px 0;text-align:center;color:var(--muted)}
+@media(max-width:520px){.pair{grid-template-columns:1fr}.big{font-size:2.2rem}}
+</style></head><body><div class="w" id="app"><p class="empty">…</p></div>
+<script>
+const L=new URLSearchParams(location.search).get("l")==="en"?"en":"it",T=(i,e)=>L==="en"?e:i,N=x=>x==null||x===""?"—":(L==="en"?String(x).replace(",","."):String(x).replace(".",",")),pc=v=>v==null||v===""?NaN:parseFloat(String(v).replace(",","."));
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function page(d){const tm=d.tmUrl||(d.sire.sbt&&d.dam.sbt?`https://sbtpedigree.com/pedigree?SIRE=${encodeURIComponent(d.sire.sbt)}&DAM=${encodeURIComponent(d.dam.sbt)}&generation=8`:""),r=d.read||{},v=pc(d.coi),band=isNaN(v)?"":v<6?["b-lo",T("sotto la fascia 6–9%","below the 6–9% range")]:v<=9?["b-ok",T("nella fascia 6–9%","within the 6–9% range")]:["b-hi",T("sopra la fascia 6–9%","above the 6–9% range")],pos=x=>Math.min(Math.max(x,0)/12*100,100);
+  const dog=x=>`<div class="card dog"><h3>${esc(x.name)}</h3>${x.parents?`<p class="m">${esc(x.parents)}</p>`:""}${(L==="en"&&x.tests_en||x.tests)?`<p>🧬 ${esc(L==="en"&&x.tests_en||x.tests)}</p>`:""}${(L==="en"&&x.titles_en||x.titles)?`<p>🏆 ${esc(L==="en"&&x.titles_en||x.titles)}</p>`:""}${x.sbt?`<p><a href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(x.sbt)}" target="_blank" rel="noopener">SBTpedigree ↗</a></p>`:""}</div>`;
+  const B=(r.blood||[]).map(t=>{const g=parseInt((String(t.gens||"").match(/\d+/)||[0])[0],10),q=g?100/Math.pow(2,g):0,p=+t.pct||0;
+    return `<div class="r"><span><b>${esc(t.name)}</b><br><small>${T("compare","appears")} ${esc(String(t.n||1))} ${T(t.n==1?"volta":"volte",t.n==1?"time":"times")}${t.gens?" · "+T("generazioni","generations")+" "+esc(String(t.gens)):""}</small></span><span style="text-align:right"><b>${N(p)}%</b>${q?`<br><small>${T("quota normale","normal share")} ${N(Math.round(q*100)/100)}%</small>`:""}</span><div class="bar"><div style="width:${Math.min(100,p*2)}%"></div>${q?`<i style="left:${Math.min(100,q*2)}%"></i>`:""}</div></div>`}).join("");
+  document.title=`${d.dam.name} × ${d.sire.name} · Test mating`;
+  return `<span class="lg"><a href="?l=${L==="en"?"it":"en"}">${L==="en"?"Italiano":"English"}</a></span><p class="k">${T("Allevamento Del Piccolo Diavolo · test mating","Del Piccolo Diavolo kennel · test mating")}</p>
+  <h1>${esc(d.dam.name)} × ${esc(d.sire.name)}</h1>
+  <div class="card"><span class="big">${isNaN(v)?"—":N(Math.round(v*1000)/1000)}<small>%</small></span>${band?`<span class="band ${band[0]}">${band[1]}</span>`:""}<p class="k" style="margin-top:6px">${T("COI 8 generazioni · SBTpedigree","8-generation COI · SBTpedigree")}</p>
+  ${isNaN(v)?"":`<div class="sc"><div class="tr"></div><div class="zn"></div><div class="pin" style="left:${pos(v)}%">${N(Math.round(v*100)/100)}%<i></i></div></div><div class="tk"><span>0%</span><span>3%</span><span>6%</span><span>9%</span><span>12%+</span></div>`}
+  ${r.coi3!=null||r.coi5!=null?`<div class="trio"><div><b>${N(r.coi3)}%</b><span>3 ${T("gen.","gen.")}</span></div><div><b>${N(r.coi5)}%</b><span>5 ${T("gen.","gen.")}</span></div><div><b>${N(Math.round(v*1000)/1000)}%</b><span>8 ${T("gen.","gen.")}</span></div></div>`:""}
+  ${r.uniq?`<p class="k" style="margin-top:10px">${r.uniq} ${T("antenati diversi su 510","different ancestors out of 510")}${r.loss!=null?" · ancestor loss "+N(r.loss)+"%":""}</p>`:""}</div>
+  ${tm?`<p style="margin:12px 0 0"><a href="${esc(tm)}" target="_blank" rel="noopener">🔗 ${T("Apri il test mating su SBTpedigree","Open the test mating on SBTpedigree")} ↗</a><br><small class="k" style="text-transform:none;letter-spacing:0">${T("su SBT i numeri del COI si vedono con l'abbonamento Level 2","on SBT the COI figures need a Level 2 subscription")}</small></p>`:""}
+  <h2>${T("I genitori","The parents")}</h2><div class="pair">${dog(d.dam)}${dog(d.sire)}</div>
+  ${B?`<h2>${T("Su chi cade la consanguineità","Where the inbreeding comes from")}</h2><p class="k" style="text-transform:none;letter-spacing:0">${T("Percentuale di sangue di ogni antenato, senza padre e madre. La tacca è la sua quota normale (nonno 25%, bisnonno 12,5%…): dove il rosso la supera, lì è concentrata la linea.","Blood percentage of each ancestor, excluding sire and dam. The mark is its normal share (grandparent 25%, great-grandparent 12.5%…): where the red goes past it, that is where the line is concentrated.")}</p><div class="card">${B}</div>`:""}
+  <p class="ft">${T("Dati del test mating di SBTpedigree","Data from the SBTpedigree test mating")}${r.date?" · "+esc(r.date.split("-").reverse().join("/")):""} · Paolo Boldrini, Del Piccolo Diavolo, Ostellato (FE) · +39 392 463 5584</p>`}
+const tok=location.pathname.split("/").filter(Boolean).pop();
+(window.COPPIA?Promise.resolve(window.COPPIA):fetch("/api/public/coppia/"+encodeURIComponent(tok)).then(r=>r.ok?r.json():Promise.reject()))
+ .then(d=>{document.getElementById("app").innerHTML=page(d)}).catch(()=>{document.getElementById("app").innerHTML=`<p class="empty">${T("Link non valido o non più attivo.","This link is not valid or no longer active.")}</p>`});
+</script></body></html>

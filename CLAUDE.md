@@ -683,3 +683,10 @@ Accessi e copie
   chi pesa di più) con i dati migliori disponibili: test mating letto > COI SBT scritto > calcolo del gestionale (con % di albero).
 - "Importa modifiche" con `analisiSbt`: ora salva sempre anche nella coppia (`D.matings["sire|dam"]`: coiSbt + sbtRead con `blood`),
   e se la cucciolata non esiste ancora salva solo nella coppia. `a.blood` = [{name,pct,n,gens}] dalla tabella "Ancestor list".
+
+## Link da condividere della coppia (04/10/2026)
+- Accoppiamenti → "🔗 Link da condividere" (`mateShare`): token in `D.matings[k].share`, link `/p/coppia/<token>`
+  (functions/p/coppia/[token].js serve public/coppia.html; dati da `GET /api/public/coppia/<token>`: nomi, genitori, test, titoli,
+  ID SBT, COI SBT, test mating letto; mai note, proprietari, prezzi). Pagina in italiano o inglese (`?l=en`), noindex.
+  WhatsApp 🇮🇹/🇬🇧 (scelta della chat), Copia, Apri; "Link del test mating su SBT" facoltativo (`tmUrl`, solo sbtpedigree.com;
+  se vuoto: pedigree?SIRE=&DAM=&generation=8 dagli ID SBT). "Disattiva il link" toglie il token.
