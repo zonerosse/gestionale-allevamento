@@ -90,7 +90,7 @@ Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","tests":[{"it":"
       return json({ ok: true, title: o.title || "", title_en: o.title_en || "", date: o.date || "", lab: o.lab || "", chip: String(o.chip || "").replace(/\D/g, ""), tests: Array.isArray(o.tests) ? o.tests : [], note: o.note || "" });
     }
     if (task === "testmating") {
-      const parts = (Array.isArray(p.parts) && p.parts.length ? p.parts : [p.data]).filter(Boolean).slice(0, 4).map(x => String(x).replace(/^data:[^,]*,/, "")), media = p.media || "image/jpeg";
+      const parts = (Array.isArray(p.parts) && p.parts.length ? p.parts : [p.data]).filter(Boolean).slice(0, 6).map(x => String(x).replace(/^data:[^,]*,/, "")), media = p.media || "image/jpeg";
       if (!parts.length) return json({ ok: false, error: "Manca il file." });
       const doc = media === "application/pdf" ? [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: parts[0] } }] : parts.map(d => ({ type: "image", source: { type: "base64", media_type: media, data: d } }));
       const o = await ask(env, `Leggi una pagina di SBTpedigree.com (Testmating COI o analisi di un cane). Estrai SOLO i numeri scritti, senza calcolare niente.

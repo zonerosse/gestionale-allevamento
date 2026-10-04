@@ -1960,12 +1960,14 @@ async function wbTr(b){if(!WB||!WB.it.trim()){toast("Scrivi prima il messaggio i
    Paolo fa screenshot o PDF della pagina Testmating COI, Claude legge (compito "testmating") e propone il COI 8 generazioni per
    la casella "COI SBT del test mating"; con 💾 Salva va in D.matings["sire|dam"] (coiSbt, sbtRead). */
 function aiImgParts(u){return new Promise(res=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1300/im.width),w=Math.round(im.width*k),H=Math.round(im.height*k),out=[];
-  for(let y=0;y<H&&out.length<4;y+=1500){const h=Math.min(1500,H-y),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,y/k,im.width,h/k,0,0,w,h);out.push(c.toDataURL("image/jpeg",.85))}res(out)};im.onerror=()=>res([u]);im.src=u})}
+  for(let y=0;y<H&&out.length<6;y+=1500){const h=Math.min(1500,H-y),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,y/k,im.width,h/k,0,0,w,h);out.push(c.toDataURL("image/jpeg",.85))}res(out)};im.onerror=()=>res([u]);im.src=u})}
 function aiImgTopOld(u){return new Promise(res=>{if(!/^data:image\//.test(u))return res(u);const im=new Image();im.onload=()=>{const k=Math.min(1,1400/im.width),w=Math.round(im.width*k),h=Math.min(Math.round(im.height*k),2200),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,im.width,h/k,0,0,w,h);res(c.toDataURL("image/jpeg",.88))};im.onerror=()=>res(u);im.src=u})}
 let TM=null;
-function tmPick(){let i=$("#tmFile");if(!i){i=document.createElement("input");i.type="file";i.id="tmFile";i.accept="image/*,application/pdf";i.hidden=true;document.body.appendChild(i);i.addEventListener("change",tmRead)}i.value="";i.click()}
-async function tmRead(){const f=$("#tmFile").files[0];if(!f)return;const b=document.querySelector('[data-a="tmPick"]');aiBusy(b,1,"Claude legge…");
-  try{const u=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),isImg=/^image\//.test(f.type),parts=isImg?await aiImgParts(u):[u];
+function tmPick(){let i=$("#tmFile");if(!i){i=document.createElement("input");i.type="file";i.id="tmFile";i.accept="image/*,application/pdf";i.multiple=true;i.hidden=true;document.body.appendChild(i);i.addEventListener("change",tmRead)}i.value="";i.click()}
+async function tmRead(){const F=[...$("#tmFile").files],f=F[0];if(!f)return;const b=document.querySelector('[data-a="tmPick"]');aiBusy(b,1,"Claude legge…");
+  try{const u=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),isImg=/^image\//.test(f.type);let parts=[u];
+    /* più screenshot insieme (numeri in alto + tabella del sangue): tutti a pezzi, fino a 6 */
+    if(isImg){parts=[];for(const g of F.filter(x=>/^image\//.test(x.type))){const d=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(g)});parts.push(...await aiImgParts(d))}parts=parts.slice(0,6)}
     const S=D.dogs[mateS]||{},M=D.dogs[mateD]||{},j=await aiCall("testmating",{parts,media:isImg?"image/jpeg":"application/pdf",sire:S.name||"",dam:M.name||""});aiBusy(b,0);TM=j;
     const N=x=>x==null||x===""?"—":String(x).replace(".",",")+"%",low=t=>String(t||"").toLowerCase(),w=x=>low(x).split(/\s+/)[0];
     const match=!j.single&&(low(j.pair).includes(w(S.name))||!S.name)&&(low(j.pair).includes(w(M.name))||!M.name);
@@ -1973,7 +1975,10 @@ async function tmRead(){const f=$("#tmFile").files[0];if(!f)return;const b=docum
       ${j.single?`<p class="small" style="margin:4px 0">⚠️ Questa è l'analisi di <b>un cane solo</b>, non del test mating della coppia: il numero non va nella casella.</p>`:!match?`<p class="small" style="margin:4px 0">⚠️ I nomi letti non sembrano quelli della coppia scelta (${esc(S.name||"")} × ${esc(M.name||"")}). Controlla prima di salvare.</p>`:""}
       ${j.coi8!=null&&!j.single?`<div class="row2" style="margin-top:6px"><button class="btn" data-a="tmSave">💾 Salva ${N(j.coi8)}</button><button class="btn ghost" data-a="tmNo">Annulla</button></div>`:""}`}
   catch(e){aiBusy(b,0);alert("Claude non risponde.\n\n"+e.message)}}
-function tmSave(){if(!TM||TM.coi8==null)return;const v=String(Math.round(TM.coi8*1000)/1000).replace(".",",");setMateSbt(v);const k=mateS+"|"+mateD;D.matings[k].sbtRead={coi3:TM.coi3,coi5:TM.coi5,uniq:TM.uniq,loss:TM.loss,blood:TM.blood||[],top:TM.top,date:todayS()};typeof saveNow==="function"&&saveNow();TM=null;toast("COI SBT salvato.")}
+function tmSave(){if(!TM||TM.coi8==null)return;const v=String(Math.round(TM.coi8*1000)/1000).replace(".",","),k=mateS+"|"+mateD;D.matings=D.matings||{};
+  /* prima i dati letti, poi il COI: setMateSbt ridisegna la coppia e deve già trovare "Su chi cade" */
+  D.matings[k]=Object.assign(D.matings[k]||{},{sbtRead:{coi3:TM.coi3,coi5:TM.coi5,uniq:TM.uniq,loss:TM.loss,blood:TM.blood||[],top:TM.top,date:todayS()}});
+  setMateSbt(v);typeof saveNow==="function"&&saveNow();const n=(TM.blood||[]).length;TM=null;toast(n?"COI SBT salvato, con su chi cade la consanguineità.":"COI SBT salvato. La tabella del sangue non si leggeva. Prova con 2 screenshot: uno con i numeri in alto e uno con la tabella “Ancestor list”.")}
 /* Lista d'attesa: 🔗 Collega a una cucciolata e 📎 Manda il link della sua pagina sul sito (scelta di Paolo, 04/10/2026).
    Il link va al Diario se la cucciolata è nata e ha la pagina del gestionale, al Programma se ci ha la scheda, altrimenti alla
    pagina Cuccioli; sempre nella lingua della persona. Messaggio breve fisso in it/en/de (le altre lingue: inglese). */
@@ -2041,7 +2046,7 @@ window.addEventListener("hashchange",intFromHash);
 /* Accoppiamenti: "Su chi cade la consanguineità" dai dati del test mating SBT letti da Claude (D.matings[k].sbtRead.blood), se ci
    sono; altrimenti il calcolo del gestionale (ancWeight). Nomi: link alla scheda del cane se è nel gestionale, altrimenti ricerca
    della sua pagina su SBTpedigree. Barra rossa = % di sangue, tacca = quota normale della prima generazione in cui compare. */
-function sbtWeight(s,d){const m=D.matings&&D.matings[s+"|"+d],r=m&&m.sbtRead;if(!r||!(r.blood||[]).length)return"";
+function sbtWeight(s,d){const m=D.matings&&D.matings[s+"|"+d],r=m&&m.sbtRead;if(!r)return"";if(!(r.blood||[]).length)return `<p class="row-meta" style="margin:0">Il test mating salvato non ha la tabella del sangue: rifai <b>📷 Leggi il test mating</b> con il PDF e premi Salva.</p>`;
   const nm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(),idx={};Object.keys(D.dogs).forEach(k=>{idx[nm(D.dogs[k].name)]=k});
   const N=x=>String(Math.round(x*100)/100).replace(".",",");
   return `<p class="row-meta" style="margin:0 0 4px">dal test mating SBT letto il ${fmt(r.date)} · senza padre e madre${r.loss!=null?" · ancestor loss "+String(r.loss).replace(".",",")+"%":""}</p>`+r.blood.map(t=>{const g=parseInt(String(t.gens||"").match(/\d+/)||0,10),q=g?100/Math.pow(2,g):0,pct=+t.pct||0,id=idx[nm(t.name)];
