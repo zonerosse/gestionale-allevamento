@@ -625,3 +625,10 @@ Accessi e copie
 - **Referti** (Referti e documenti → Aggiungi): "✨ Leggi con Claude" (`docAi`) compila titolo, titolo inglese e data se vuoti,
   controlla il microchip con quello della scheda, propone i test genetici da aggiungere (`docAiApply` al Salva: tests,
   tests_en, tests_de, senza doppioni).
+- Traduci → "✨ Proponi risposte" (scelta di Paolo, 04/10/2026): compito `risposte` di /api/ai, 3 risposte diverse
+  nell'approccio, con etichetta, in italiano e già tradotte nella lingua scelta; per ognuna WhatsApp, Copia, ✏️ Modifica (la mette
+  in "Rispondi in italiano"). Il comando rapido dell'iPhone "Traduci con gestionale" (Ricevi da Condivisione → Codifica URL →
+  Testo `https://gestionale.delpiccolodiavolo.it/#traduci=` + testo codificato → Apri URL) è fatto e funziona.
+- Traduci: casella "Numero WhatsApp (facoltativo)" (`TR.num`): se c'è, i bottoni WhatsApp aprono la chat con quel numero
+  (anche se non è in rubrica: wa.me/<numero>); numeri italiani anche senza +39, stranieri con il prefisso. Altrimenti numero del
+  proprietario, o scelta della chat.

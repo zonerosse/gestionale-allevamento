@@ -3,6 +3,7 @@ import { json, role, deny } from "../_lib.js";
    POST { task, ... } → { ok, ... }. Solo l'admin (Paolo). Niente viene salvato o mandato da qui: il gestionale mostra il
    risultato e Paolo decide. Compiti:
    - "in":       { text }                  → { lang, langName, it }          messaggio ricevuto → italiano
+   - "risposte": { msg, it, lang }         → { options:[{label,it,out}] }     tre risposte diverse, già tradotte
    - "out":      { text, lang }            → { text }                         italiano di Paolo → lingua del cliente
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
@@ -39,6 +40,16 @@ Formato: {"lang":"codice ISO 639-1","it":"traduzione italiana"}`, String(p.text 
       const o = await ask(env, `Traduci in ${LANGS[L]} il messaggio scritto in italiano da Paolo, allevatore di cani, per un cliente o un allevatore straniero. Traduzione fedele e naturale, registro cordiale (in tedesco "Sie" se il testo dà del lei, altrimenti "du"; in inglese naturale e semplice). Non aggiungere saluti, frasi o informazioni che non ci sono. Mantieni a capo ed emoji.
 Formato: {"text":"traduzione"}`, String(p.text || "").slice(0, 4000));
       return json({ ok: true, text: o.text || "" });
+    }
+    if (task === "risposte") {
+      const L = LANGS[p.lang] ? p.lang : "en";
+      const o = await ask(env, `${VOICE}
+Ti arriva un messaggio (WhatsApp o email) da un cliente o un allevatore. Proponi 3 risposte DIVERSE nell'approccio, non solo nel tono (es. breve e cordiale / con le informazioni utili / che fissa il prossimo passo; scegli tu i tre approcci più adatti al messaggio).
+Per ognuna: "label" (2-4 parole in italiano che dicono cosa fa), "it" (la risposta in italiano, massimo 60 parole, firmata "Paolo" solo se il messaggio ricevuto è lungo o formale), "out" (la stessa risposta tradotta fedelmente in ${LANGS[L]}).
+Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una parentesi quadra da completare, es. [data].
+Formato: {"options":[{"label":"","it":"","out":""}]}`,
+        `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
+      return json({ ok: true, options: (o.options || []).slice(0, 3).map(x => ({ label: x.label || "", it: x.it || "", out: x.out || "" })) });
     }
     if (task === "richiesta") {
       const o = await ask(env, `${VOICE}
