@@ -679,3 +679,5 @@ Accessi e copie
   sopra la fascia in fondo, grigi, "non suggeriti".
 - "Su chi cade" con COI SBT scritto a mano (senza tabella del sangue letta): `ancWeight(s,d,sbt)` riporta le quote del
   gestionale sul valore SBT ("≈", con la percentuale di albero conosciuta) e invita a leggere il test mating per il dato esatto.
+- Accoppiamenti, "📊 Calcola e mostra il grafico" (`MATE_GRAPH`, `mateGraph`): la scala di `coiScale` (fascia 6–9%, 3/5/8 gen.,
+  chi pesa di più) con i dati migliori disponibili: test mating letto > COI SBT scritto > calcolo del gestionale (con % di albero).
