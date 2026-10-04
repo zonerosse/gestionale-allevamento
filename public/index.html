@@ -1960,7 +1960,8 @@ function cuBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const l=D.li
 function b64u8(u){let s="";for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)}
 async function sitePublish(files,message,blocks=[],deletes=[]){toast("Pubblico sul sito…");
   const r=await fetch("/api/publish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,blocks,deletes,files:files.map(f=>({path:f.name,b64:b64u8(f.data),guard:!!f.guard}))})});
-  const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||("errore "+r.status));
+  const raw=await r.text();let j={};try{j=JSON.parse(raw)}catch(e){}
+  if(!r.ok||!j.ok)throw new Error(j.error||("errore "+r.status+(raw?": "+raw.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,240):"")));
   D.settings=D.settings||{};D.settings.sitePub=new Date().toISOString();return j}
 function sitePubMeta(){const t=(D.settings||{}).sitePub;if(!t)return"";const d=new Date(t),oggi=d.toDateString()===new Date().toDateString();
   return `<p class="row-meta" style="margin:0">✔ Ultima pubblicazione ${oggi?"oggi":"il "+d.toLocaleDateString("it-IT")} alle ${d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})} · il sito si aggiorna in 2–3 minuti</p>`}

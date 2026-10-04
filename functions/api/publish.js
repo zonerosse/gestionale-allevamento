@@ -16,7 +16,7 @@ const u8b64 = u => { let s = ""; for (let i = 0; i < u.length; i += 32768) s += 
 const b64txt = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
 export async function onRequestPost({ request, env }) {
   if ((await role(request, env)) !== "admin") return deny();
-  if (!env.GITHUB_TOKEN) return json({ error: "Manca la chiave GITHUB_TOKEN in Cloudflare." }, 500);
+  if (!env.GITHUB_TOKEN) return json({ ok: false, error: "Manca la chiave GITHUB_TOKEN in Cloudflare (Settings → Variables and Secrets)." }, 200);
   const gh = async (path, method = "GET", body, soft404) => {
     const r = await fetch(API + path, { method, headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json",
       "User-Agent": "gestionale-delpiccolodiavolo", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
@@ -59,5 +59,5 @@ export async function onRequestPost({ request, env }) {
     const c = await gh("/git/commits", "POST", { message: message || "Aggiornamento dal gestionale", tree: nt.sha, parents: [head] });
     await gh("/git/refs/heads/" + BRANCH, "PATCH", { sha: c.sha });
     return json({ ok: true, commit: c.sha.slice(0, 7), skipped });
-  } catch (e) { return json({ error: String(e.message || e) }, 502); }
+  } catch (e) { return json({ ok: false, error: String(e.message || e) }, 200); } // 200: Cloudflare non deve coprire il messaggio
 }
