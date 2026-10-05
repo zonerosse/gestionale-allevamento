@@ -705,3 +705,6 @@ Accessi e copie
   fila fissa `.mate-bar` (📊 Calcola = apre/chiude il grafico, ✨ Suggerisci, 🔍 Test mating SBT, 📷 Carica PDF COI) · avviso maschi
   non permessi · ➕ Aggiungi maschio da SBT · la coppia (senza più i bottoni doppi; resta 🔗 Link da condividere). Il COI si
   ricalcola da solo a ogni cambio. Attenzione: `.bar` è già usata (barrette alte 6px), non riusarla.
+- Fila dei 6 bottoni su due righe (`.mate-bar`, griglia 3×2): 📊 Calcola · ✨ Suggerisci · 🔗 Carica link SBT (`tmLink` → `tmUrl`) /
+  🔍 Vedi test SBT (`tmOpen`) · 📷 Carica PDF COI (`tmPick`; con 💾 Salva il file resta nella coppia: `tmFile`, `tmFname`) ·
+  📄 Vedi PDF COI (`tmView`).
