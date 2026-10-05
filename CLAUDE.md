@@ -759,8 +759,10 @@ Accessi e copie
 - Test genetici "presenti" (`gtHas`): testo nei test O referto allegato (`gtDocs`: flag `gt` dei file caricati con 🧬, o titolo/nome
   riconosciuto). ✓ in Accoppiamenti, nella scheda e in "Cosa c'è"; 🧬 mostra prima i file anche se dal file non è uscito testo.
 
-## Recensioni Google (ottobre 2026)
-- Scheda **Recensioni** (solo Paolo; tolta a chi consulta e a "conti"): legge le recensioni del profilo Google, per ogni
+## Google: recensioni e post (ottobre 2026)
+- Voce di menu **Google** (chiave `recensioni`) con due sezioni: **⭐ Recensioni** e **📣 Post** (`RV.sub`, scelta di Paolo:
+  una sola voce). Numero sul menu = recensioni da rispondere + post da proporre (`rvBadge`).
+- Sezione **Recensioni** (solo Paolo; tolta a chi consulta e a "conti"): legge le recensioni del profilo Google, per ogni
   recensione senza risposta Claude propone **due ringraziamenti brevi** (`/api/ai`, task `recensione`) oppure scrive la
   risposta dallo **spunto** di Paolo; la risposta resta modificabile e parte solo con **"Pubblica su Google"**.
   Le risposte già date si cambiano con "Modifica" → "Salva su Google" / "Annulla modifiche". Numero da rispondere sul menu.
@@ -774,3 +776,10 @@ Accessi e copie
 - Google dà l'accesso alle API del profilo solo dopo la richiesta "Application for Basic API Access" (numero del progetto):
   finché non approva le chiamate danno 403/429 e la scheda lo dice in italiano.
 - Codice client: blocco "Recensioni Google" (`RV`, `rvPage`, `rvAct`, `rvSite`, `rvFromHash`) nel blocco comune, uguale nei due file.
+- Sezione **Post** (`gpPage`, `GP`): propone un post per gli "Aggiornamenti" del profilo Google quando c'è una novità
+  (`gpEvents`): cucciolata nata con la pagina del Diario sul sito e foto più nuove dell'ultimo post (`l.gpost={date,at}`),
+  oppure risultato d'esposizione sul sito (`s.web`) degli ultimi 60 giorni non ancora raccontato (`s.gpost`).
+  Claude scrive il testo (`/api/ai`, task `post`: notizia, mai vendita, niente telefono, non dice quanti cuccioli),
+  Paolo sceglie la foto e pubblica con il tasto (`POST /api/posts`); "Non serve" segna la novità senza pubblicare.
+  La foto Google la scarica da `/api/public/gpost/<chiave>`: aperto solo 2 giorni e solo per le chiavi registrate
+  (tabella `gbp`, `media:<chiave>`). Controlli anche sul server: niente numeri di telefono, max 1.500 caratteri.

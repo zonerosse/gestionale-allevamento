@@ -542,6 +542,26 @@ nav.bottom{display:none}
 .rv-form textarea{width:100%;min-height:96px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
 .rv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
 @media (max-width:820px){.rv-state{grid-template-columns:1fr 1fr}.rv-state .act{grid-column:1/-1;border-left:0!important;border-top:1px solid var(--line);flex-direction:row;justify-content:space-between;align-items:center}.rv-state .when{text-align:left}.rv-reply,.rv-form{margin-left:0}.rv-sugg{grid-template-columns:1fr}}
+/* Post su Google */
+.gp-ev{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center}
+.gp-ev .ic{font-size:1.4rem;grid-row:span 2}.gp-ev .t{font-weight:600;margin:0}.gp-ev .s{color:var(--muted);font-size:.88rem;margin:0}.gp-ev .b{grid-row:span 2;text-align:right}
+.gp-ed{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px;background:var(--paper);border:1px solid var(--accent);border-radius:12px;padding:18px;margin:0 0 14px}
+.gp-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
+.gp-ph{aspect-ratio:4/3;border-radius:8px;border:2px solid transparent;padding:0;overflow:hidden;background:var(--bg);position:relative}
+.gp-ph img{width:100%;height:100%;object-fit:cover;display:block}.gp-ph[aria-pressed="true"]{border-color:var(--ok)}
+.gp-ph .ck{position:absolute;top:4px;right:4px;background:var(--ok);color:#fff;border-radius:999px;font-size:.7rem;font-weight:700;padding:1px 6px}
+.gp-tx{width:100%;min-height:150px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
+.gp-sel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 0;font-size:.9rem}
+.gp-checks{list-style:none;padding:0;margin:10px 0 0;font-size:.9rem}.gp-checks li{margin:3px 0}.gp-checks .y{color:var(--ok);font-weight:600}.gp-checks .n{color:var(--accent);font-weight:600}
+.gp-prev{background:#fff;color:#202124;border:1px solid #dadce0;border-radius:12px;overflow:hidden;font-family:Roboto,Arial,sans-serif;max-width:360px}
+.gp-prev .gh{display:flex;gap:10px;align-items:center;padding:10px 12px}.gp-prev .ga{width:32px;height:32px;border-radius:50%;background:#5f6368;color:#fff;display:grid;place-items:center;font-size:.75rem;font-weight:700}
+.gp-prev .gn{font-size:.85rem;font-weight:500;margin:0}.gp-prev .gd{font-size:.75rem;color:#5f6368;margin:0}.gp-prev img{display:block;width:100%;height:auto}
+.gp-prev .gt{font-size:.85rem;line-height:1.45;padding:10px 12px 4px;margin:0;white-space:pre-wrap}
+.gp-prev .gb{display:inline-block;margin:6px 12px 12px;color:#1a73e8;font-size:.85rem;font-weight:500;border:1px solid #dadce0;border-radius:18px;padding:5px 14px}
+.gp-post{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.gp-post .th{grid-row:span 2;width:64px;height:48px;border-radius:6px;overflow:hidden;background:var(--bg)}.gp-post .th img{width:100%;height:100%;object-fit:cover}
+.gp-post .pt{margin:0;font-weight:600}.gp-post .pd{margin:0;color:var(--muted);font-size:.85rem}.gp-post .badge{grid-row:span 2}
+@media (max-width:820px){.gp-ed{grid-template-columns:1fr}.gp-photos{grid-template-columns:repeat(2,1fr)}.gp-ev{grid-template-columns:auto minmax(0,1fr)}.gp-ev .b{grid-column:1/-1;grid-row:auto;text-align:left}}
 </style>
 </head>
 <body class="owner-mode">
@@ -620,7 +640,7 @@ const TABS=[
  ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
  ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
- ["recensioni","Recensioni",'<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>'],
+ ["recensioni","Google",'<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>'],
  ["traduci","Traduci",'<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c-1 4-4 7-7 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>'],
  ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
  ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>'],
@@ -630,7 +650,7 @@ let tab="cani",view=null,filter="miei",q="";
 function nav(){
   // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
   const ico=ic=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>`;
-  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}${k==="recensioni"&&typeof rvTodo==="function"&&rvTodo()?`<span class="nb">${rvTodo()}</span>`:""}</button>`).join("");
+  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}${k==="recensioni"&&typeof rvBadge==="function"&&rvBadge()?`<span class="nb">${rvBadge()}</span>`:""}</button>`).join("");
   $("#navSide").innerHTML=B(TABS,false);$("#navBottom").classList.remove("more-on");
   // sul telefono: le prime 4 voci, poi "Altro" con un menu a tendina per le altre (Attesa, Conti e quelle che verranno)
   if(TABS.length<=5){$("#navBottom").innerHTML=B(TABS,true);return}
@@ -3150,7 +3170,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":rvAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
@@ -3248,8 +3268,8 @@ function rvSugHtml(i){const r=RV.list[i];if(!r||r.reply!=null)return"";const s=R
 async function rvSuggAll(){for(let i=0;i<RV.list.length;i++){const r=RV.list[i];if(r.reply!=null||RV.sg[r.name]||RV.sgw[r.name]===1)continue;
   RV.sgw[r.name]=1;try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text});RV.sg[r.name]=j.options||[];RV.sgw[r.name]=0}catch(x){RV.sgw[r.name]="err"}
   const box=document.getElementById("rvs_"+i);if(box&&tab==="recensioni")box.innerHTML=rvSugHtml(i)}}
-function rvPage(){
-  let h=`<h1>⭐ Recensioni</h1><p class="lead">Le recensioni del profilo Google. La risposta che scrivi qui va su Google, e il numero delle recensioni sul sito si aggiorna da qui.</p>`;
+function rvRevPage(){
+  let h=`<p class="lead">Le recensioni del profilo Google. La risposta che scrivi qui va su Google, e il numero delle recensioni sul sito si aggiorna da qui.</p>`;
   if(RV.msg)h+=`<p class="fnote">${esc(RV.msg)}</p>`;
   if(!RV.st){RV.st="load";setTimeout(rvLoad,0)}
   if(RV.st==="load"&&!RV.list.length)return h+`<p class="empty">⏳ Leggo le recensioni da Google…</p>`;
@@ -3276,7 +3296,71 @@ function rvPage(){
       <p class="small" style="margin:6px 0 0">${esc(r.who)} riceverà una notifica, e la risposta sarà visibile a tutti sul profilo.</p></div>`}
     h+=`</article>`}
   return h}
+/* ---------- Post su Google (ottobre 2026, scelte di Paolo) ----------
+   Dentro la voce "Google" (insieme alle Recensioni). Il gestionale propone un post quando c'è una novità:
+   - cucciolata nata con la pagina del Diario sul sito e foto più nuove dell'ultimo post (l.gpost = {date: foto, at: giorno});
+   - risultato d'esposizione messo sul sito (s.web) degli ultimi 60 giorni, non ancora raccontato (s.gpost).
+   Claude scrive il testo (/api/ai, task "post"), Paolo sceglie la foto, controlla e pubblica (/api/posts). Mai da solo.
+   "Non serve" toglie la proposta senza pubblicare. Controlli: niente telefono, niente parole da vendita, max 1.500 caratteri. */
+let GP={ed:null,text:"",photo:0,btn:1,busy:0,list:null,lerr:""};
+const gpFile=p=>p&&/^\/files\//.test(p.file||"")?p.file:"";
+function gpEvents(){const out=[],today=todayS(),lim=new Date(Date.now()-60*864e5).toISOString().slice(0,10);
+  for(const [lid,l] of Object.entries(D.litters||{})){if(l.state!=="nata"||!l.date||!(l.site&&l.site.diarDone)||!siOk(lid))continue;
+    const ph=[];(l.gphotos||[]).forEach(p=>gpFile(p)&&ph.push(p));Object.values(D.dogs).filter(d=>d.litter===lid).forEach(d=>(d.wphotos||[]).forEach(p=>gpFile(p)&&ph.push(p)));
+    ph.sort((a,b)=>(b.date||"").localeCompare(a.date||""));const newest=ph.length?(ph[0].date||l.date):l.date,last=(l.gpost||{}).date||"";
+    if(last&&newest<=last)continue;const wk=Math.max(0,Math.floor((new Date(today)-new Date(l.date))/(7*864e5)));
+    out.push({k:"l|"+lid,ic:"📖",t:`Cucciolata ${litPair(lid)}: ${wk<1?"sono nati":wk+(wk===1?" settimana":" settimane")}`,s:"Pagina del Diario sul sito"+(ph.length?" · foto del "+fmt(newest):""),
+      url:litUrl(lid,"it"),photos:ph.slice(0,8).map(p=>p.file),newest,
+      facts:{tipo:"cucciolata",coppia:litPair(lid),nati_il:l.date,settimane:wk,didascalie_foto:ph.slice(0,6).map(p=>p.cap||"").filter(Boolean)}})}
+  for(const [k,d] of Object.entries(D.dogs||{}))for(const s of d.shows||[]){if(!s.web||s.gpost||!s.date||s.date<lim)continue;
+    const res=[s.qual,s.rank,(s.titles||[]).join(" ")].filter(Boolean).join(" · ");
+    out.push({k:"s|"+k+"|"+s.id,ic:"🏆",t:`${d.name}: ${res||"esposizione"}${s.name?" a "+s.name:""}`,s:"Esposizione del "+fmt(s.date),
+      url:SITE+"/palmares-del-piccolo-diavolo/",photos:[gpFile({file:s.photo}),gpFile({file:d.photo})].filter(Boolean),
+      facts:{tipo:"esposizione",cane:d.name,data:s.date,esposizione:s.name||"",tipo_esposizione:s.type||"",giudice:s.judge||"",classe:s.cls||"",qualifica:s.qual||"",classifica:s.rank||"",titoli:s.titles||[]}})}
+  return out}
+const gpChecks=t=>[[!/\+?\d[\d\s.\-]{7,}\d/.test(t),"Niente numero di telefono nel testo (Google non lo accetta)"],
+  [!/\b(prezz\w*|euro|€|vend\w*|disponibil\w*|prenot\w*|client[ei]|acquist\w*|caparr\w*)\b/i.test(t),"Niente prezzi, vendite o «disponibili»: è una notizia"],
+  [t.trim().length>0&&t.length<=1500,t.length+"/1.500 caratteri"]];
+function gpChecksHtml(t){return gpChecks(t).map(([ok,l])=>`<li class="${ok?"y":"n"}">${ok?"✓":"✗"} ${esc(l)}</li>`).join("")}
+async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok)GP.list=j.posts;else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
+function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa; lo pubblichi tu, con il tasto.</p><h2>Da proporre (${E.length})</h2>`;
+  if(!E.length)h+=`<p class="empty">Niente di nuovo da raccontare per ora.</p>`;
+  for(const e of E){if(GP.ed!==e.k){h+=`<div class="gp-ev"><span class="ic" aria-hidden="true">${e.ic}</span><p class="t">${esc(e.t)}</p><span class="b"><button class="btn small" data-a="gpOpen" data-v="${esc(e.k)}">Prepara il post</button> <button class="plink" data-a="gpSkip" data-v="${esc(e.k)}">Non serve</button></span><p class="s">${esc(e.s)}</p></div>`;continue}
+    const ph=e.photos,sel=ph[GP.photo]||"",ok=gpChecks(GP.text).every(x=>x[0]);
+    h+=`<div class="gp-ed"><div><span class="rv-ft">Foto</span>${ph.length?`<div class="gp-photos">${ph.map((f,i)=>`<button type="button" class="gp-ph" data-a="gpPh" data-v="${i}" aria-pressed="${GP.photo===i}"><img src="${esc(f)}" alt="" loading="lazy">${GP.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}</div>`:`<p class="small">Nessuna foto caricata per questa novità: il post esce senza foto.</p>`}
+      <label class="rv-ft" for="gp_tx">Testo (scritto da Claude, puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":""}">${esc(GP.text)}</textarea>
+      <div class="gp-sel"><label><input type="checkbox" id="gp_btn" ${GP.btn?"checked":""}> Tasto «Scopri di più» verso</label> <a href="${esc(e.url)}" target="_blank" rel="noopener" class="small">${esc(e.url.replace(SITE,""))}</a></div>
+      <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
+      <div class="rv-row"><button class="btn ghost small" data-a="gpRedo" data-v="${esc(e.k)}">✨ Riscrivi il testo</button><span><button class="btn ghost small" data-a="gpClose">Annulla</button> <button class="btn small rv-go" data-a="gpPub" data-v="${esc(e.k)}" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
+      <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">Allevamento Staffordshire Bull Terrier Del Piccolo Diavolo</p><p class="gd">Adesso</p></div></div>${sel?`<img src="${esc(sel)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${GP.btn?`<span class="gb">Scopri di più</span>`:""}</div>
+      <p class="small" style="margin:10px 0 0">Google controlla ogni post prima di mostrarlo: di solito pochi minuti, a volte di più.</p></div></div>`}
+  h+=`<h2>Pubblicati</h2>`;if(GP.list===null){setTimeout(gpLoad,0);GP.list=undefined}
+  if(!GP.list)h+=`<p class="empty">⏳ Leggo i post da Google…</p>`;else if(GP.lerr)h+=`<p class="fnote">${esc(GP.lerr)}</p>`;else if(!GP.list.length)h+=`<p class="empty">Ancora nessun post.</p>`;
+  else h+=GP.list.map(p=>`<div class="gp-post"><div class="th">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))}</p>${p.state==="LIVE"?`<span class="badge ok">✓ Online su Google</span>`:p.state==="REJECTED"?`<span class="badge f">Rifiutato da Google</span>`:`<span class="badge warn">In controllo da Google</span>`}<p class="pd">${fmt(p.date)}</p></div>`).join("");
+  return h}
+function gpFind(k){return gpEvents().find(e=>e.k===k)}
+function gpMark(k,newest){const [t,a,b]=k.split("|");if(t==="l"&&D.litters[a])D.litters[a].gpost={date:newest||todayS(),at:todayS()};
+  if(t==="s"&&D.dogs[a]){const s=(D.dogs[a].shows||[]).find(x=>x.id===b);if(s)s.gpost=todayS()}typeof saveNow==="function"&&saveNow()}
+async function gpWrite(e,b){GP.busy=1;GP.text="";render();try{const j=await aiCall("post",{facts:e.facts});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render()}
+async function gpAct(a,v,b){
+  if(a==="gpOpen"){const e=gpFind(v);if(!e)return;GP.ed=v;GP.photo=0;GP.btn=1;gpWrite(e,b);return}
+  if(a==="gpClose"){GP.ed=null;render();return}
+  if(a==="gpSkip"){const e=gpFind(v);if(e&&confirm("Togliere questa proposta senza pubblicare niente?")){gpMark(v,e.newest);if(GP.ed===v)GP.ed=null;render()}return}
+  if(a==="gpPh"){GP.photo=+v;render();return}
+  if(a==="gpRedo"){const e=gpFind(v);if(e)gpWrite(e,b);return}
+  if(a==="gpPub"){const e=gpFind(v);if(!e)return;const f=e.photos[GP.photo]||"";aiBusy(b,1,"Pubblico…");
+    try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:GP.btn?e.url:"",file:f?f.replace(/^\/files\//,""):""})}),j=await r.json();
+      if(!j.ok)throw new Error(j.error||"errore");gpMark(v,e.newest);GP.ed=null;GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}
+    catch(x){aiBusy(b,0);alert("Post non pubblicato.\n\n"+x.message)}}}
+document.addEventListener("input",e=>{const t=e.target;if(!t)return;
+  if(t.id==="gp_tx"){GP.text=t.value;const g=document.getElementById("gp_gt");if(g)g.textContent=t.value;const c=document.getElementById("gp_ck");if(c)c.innerHTML=gpChecksHtml(t.value);
+    const b=document.querySelector('[data-a="gpPub"]');if(b)b.disabled=!gpChecks(t.value).every(x=>x[0])}
+  if(t.id==="gp_btn"){GP.btn=t.checked?1:0;render()}});
+const rvBadge=()=>{let n=rvTodo();try{n+=gpEvents().length}catch(e){}return n};
+function rvPage(){const sub=RV.sub||"rev",n1=rvTodo();let n2=0;try{n2=gpEvents().length}catch(e){}
+  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button></div>`+(sub==="post"?gpPage():rvRevPage())}
 async function rvAct(a,v,b){const i=parseInt(v,10),r=RV.list[i];
+  if(a==="rvSub"){RV.sub=v;render();return}
   if(a==="rvLoad"){RV.msg="";rvLoad();return}
   if(a==="rvF"){RV.f=v;render();return}
   if(a==="rvSugRetry"&&r){delete RV.sgw[r.name];const box=document.getElementById("rvs_"+i);if(box)box.innerHTML=rvSugHtml(i);rvSuggAll();return}
@@ -3300,7 +3384,7 @@ document.addEventListener("input",e=>{const t=e.target;if(!t||!t.dataset)return;
 /* Ritorno da Google dopo "Collega il profilo Google": #recensioni=<messaggio> */
 function rvFromHash(){const h=location.hash||"";if(!h.startsWith("#recensioni"))return;let m="";try{m=decodeURIComponent(h.slice(12))}catch(e){}
   history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
-  RV.msg=m;RV.st="";tab="recensioni";view=null;render()}
+  RV.msg=m;RV.st="";RV.sub="rev";tab="recensioni";view=null;render()}
 /* ---------- Pagina privata del proprietario ---------- */
 function bannerHtml(){return ""}
 function ownLink(){return ""}
