@@ -9,6 +9,7 @@ import { json, role, deny } from "../_lib.js";
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
    - "testmating": { data, media, sire, dam } → { pair, single, coi8, coi3, coi5, uniq, loss, top } pagina di SBTpedigree
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
+   - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
@@ -52,6 +53,16 @@ Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una paren
 Formato: {"options":[{"label":"","it":"","out":""}]}`,
         `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
       return json({ ok: true, options: (o.options || []).slice(0, 3).map(x => ({ label: x.label || "", it: x.it || "", out: x.out || "" })) });
+    }
+    if (task === "recensione") {
+      // Recensione Google (scheda Recensioni): senza idea → 2 ringraziamenti brevi; con idea → 1 risposta che dice quello.
+      const o = await ask(env, `${VOICE}
+Ti arriva una recensione pubblica del profilo Google dell'allevamento. La risposta è pubblica: la leggono tutti.
+${p.idea ? `Paolo ti dice in breve cosa vuole dire: "${String(p.idea).slice(0, 800)}". Scrivi UNA risposta che dice esattamente questo, con un ringraziamento, senza aggiungere promesse o informazioni che lui non ha dato.` : "Scrivi DUE risposte brevi di ringraziamento, diverse fra loro (una più asciutta, una più calda), che riprendono qualcosa di concreto della recensione se c'è."}
+Regole: massimo 40 parole ciascuna; nella lingua della recensione; niente firma; niente hashtag; niente date precise, nomi di cani o fatti che non sono scritti nella recensione o nell'idea di Paolo; mai le parole clienti, acquisto, vendita, prenotazione, caparra (l'allevamento è amatoriale: si parla di famiglie e di affido). Se la recensione è negativa: tono calmo, nessuna polemica, invito a parlarne di persona.
+Formato: {"options":["risposta"]}`,
+        `Autore: ${String(p.who || "").slice(0, 80)}\nStelle: ${+p.stars || ""}\nRecensione:\n${String(p.text || "(nessun testo, solo stelle)").slice(0, 3000)}`, 700);
+      return json({ ok: true, options: (o.options || []).map(String).filter(Boolean).slice(0, 2) });
     }
     if (task === "interessato") {
       const o = await ask(env, `Da un messaggio WhatsApp di una persona interessata a un cucciolo di Staffordshire Bull Terrier, estrai SOLO quello che c'è scritto (stringa vuota se manca, non inventare):

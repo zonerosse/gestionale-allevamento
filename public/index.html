@@ -513,6 +513,35 @@ nav.bottom{display:none}
   .coi-num{font-size:2.4rem}
 }
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}to{transform:none;opacity:1}}}
+/* Recensioni Google */
+.navbtn .nb{margin-left:auto;background:var(--accent);color:#fff;border-radius:999px;font-size:.72rem;font-weight:600;min-width:19px;height:19px;display:inline-grid;place-items:center;padding:0 5px}
+.rv-state{display:grid;grid-template-columns:1fr 1fr auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 18px}
+.rv-state>div{padding:14px 18px}.rv-state>div+div{border-left:1px solid var(--line)}
+.rv-state .k{color:var(--muted);font-size:.85rem;margin:0}.rv-state .v{font-family:var(--serif);font-size:1.5rem;line-height:1.2;margin:2px 0 0}
+.rv-state .v small{font-family:var(--sans);font-size:.9rem;color:var(--muted)}
+.rv-state .act{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:6px}.rv-state .when{color:var(--muted);font-size:.8rem;margin:0;text-align:right}
+.rv-st{color:#C98A0B;letter-spacing:1px;margin-right:6px}
+.rv-ok,.rv-todo{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:600;border-radius:999px;padding:2px 10px;vertical-align:4px}
+.rv-ok{color:var(--ok);background:var(--ok-soft)}.rv-todo{color:var(--warn);background:var(--warn-soft)}
+.btn.rv-go{background:var(--accent);color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
+.rv-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.rv{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 10px}.rv.open{border-color:var(--accent)}
+.rv-h{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:2px 12px;align-items:center}
+.rv-av{grid-row:span 2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:600;color:#fff;background:#5B6B8C}
+.rv-h .badge{grid-row:span 2}
+.rv-who{font-weight:600;margin:0}.rv-meta{color:var(--muted);font-size:.85rem;margin:0}
+.rv-text{margin:10px 0 0;max-width:72ch;white-space:pre-wrap}
+.rv-reply{margin:12px 0 0 52px;padding:10px 14px;border-left:3px solid var(--ok);background:var(--bg);border-radius:0 8px 8px 0}
+.rv-reply .rl{font-size:.85rem;color:var(--ok);font-weight:600;margin:0 0 2px}.rv-reply p{margin:0;white-space:pre-wrap}
+.rv-form{margin:12px 0 0 52px}.rv-ft{display:block;font-weight:600;font-size:.9rem;margin:0 0 6px}
+.rv-sugg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.rv-sug{text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink)}
+.rv-sug:hover{border-color:var(--ink)}.rv-sug[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-soft)}
+.rv-sug span{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin:0 0 2px}.rv-sug[aria-pressed="true"] span{color:var(--ok)}
+.rv-hint{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}.rv-hint input{flex:1 1 240px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.rv-form textarea{width:100%;min-height:96px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
+.rv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+@media (max-width:820px){.rv-state{grid-template-columns:1fr 1fr}.rv-state .act{grid-column:1/-1;border-left:0!important;border-top:1px solid var(--line);flex-direction:row;justify-content:space-between;align-items:center}.rv-state .when{text-align:left}.rv-reply,.rv-form{margin-left:0}.rv-sugg{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -590,6 +619,7 @@ const TABS=[
  ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
  ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
+ ["recensioni","Recensioni",'<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>'],
  ["traduci","Traduci",'<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c-1 4-4 7-7 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>'],
  ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
  ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>'],
@@ -599,7 +629,7 @@ let tab="cani",view=null,filter="miei",q="";
 function nav(){
   // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
   const ico=ic=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>`;
-  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}</button>`).join("");
+  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}${k==="recensioni"&&typeof rvTodo==="function"&&rvTodo()?`<span class="nb">${rvTodo()}</span>`:""}</button>`).join("");
   $("#navSide").innerHTML=B(TABS,false);$("#navBottom").classList.remove("more-on");
   // sul telefono: le prime 4 voci, poi "Altro" con un menu a tendina per le altre (Attesa, Conti e quelle che verranno)
   if(TABS.length<=5){$("#navBottom").innerHTML=B(TABS,true);return}
@@ -674,6 +704,7 @@ function render(){resetCalc();nav();if(NAV_READY){try{sessionStorage.setItem("gx
   if(tab==="scadenze")m.innerHTML=banner+scPage();
   if(tab==="statistiche")m.innerHTML=banner+stPage();
   if(tab==="traduci")m.innerHTML=banner+trPage();
+  if(tab==="recensioni")m.innerHTML=banner+rvPage();
   if(tab==="coi")calcMate();
   colorize(m);roClean(document);dRestore();navPush();
 ;try{if(!CONTI&&!RO&&(tab==="cani"||tab==="proprietari")&&view)ckDecorate(document.getElementById("main"),ckItems())}catch(e){console.warn(e)}}
@@ -3288,7 +3319,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "kitAtt":kitAtt(v);break;case "ckGo":ckGo(v,el);break;case "gtPick":if(sheetOpen())closeSheet();gtPick(v);break;case "gtMate":{const k=v==="s"?mateS:mateD;if(!k){toast("Scegli prima il "+(v==="s"?"maschio":"la femmina")+".");break}if(gtHas(D.dogs[k]))gtShow(k);else gtPick(k)}break;case "ckDog":closeSheet();openItem(v);break;case "gtSave":gtSave();break;case "tmOpen":tmOpen();break;case "tmLink":{if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}const m=(D.matings||{})[mateS+"|"+mateD]||{};if(m.tmUrl)tmLinkShow();else tmLink()}break;case "tmLinkEdit":closeSheet();tmLink();break;case "tmLinkDel":{const m=(D.matings||{})[mateS+"|"+mateD];if(m&&confirm("Togliere il link del test mating?")){delete m.tmUrl;closeSheet();render();typeof saveNow==="function"&&saveNow()}}break;case "tmView":tmView();break;case "mateAnalysis":if(sheetOpen())closeSheet();mateAnalysis();break;case "mateShare":mateShare();break;case "mateShareCopy":case "mateShareSave":case "mateShareOff":mateShareAct(a);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}MATE_GRAPH=!MATE_GRAPH;render();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":{if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}const pd=pairData(mateS,mateD);if(pd.file||pd.read)tmPdfShow();else tmPick()}break;case "tmPickNew":closeSheet();tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "kitAtt":kitAtt(v);break;case "ckGo":ckGo(v,el);break;case "gtPick":if(sheetOpen())closeSheet();gtPick(v);break;case "gtMate":{const k=v==="s"?mateS:mateD;if(!k){toast("Scegli prima il "+(v==="s"?"maschio":"la femmina")+".");break}if(gtHas(D.dogs[k]))gtShow(k);else gtPick(k)}break;case "ckDog":closeSheet();openItem(v);break;case "gtSave":gtSave();break;case "tmOpen":tmOpen();break;case "tmLink":{if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}const m=(D.matings||{})[mateS+"|"+mateD]||{};if(m.tmUrl)tmLinkShow();else tmLink()}break;case "tmLinkEdit":closeSheet();tmLink();break;case "tmLinkDel":{const m=(D.matings||{})[mateS+"|"+mateD];if(m&&confirm("Togliere il link del test mating?")){delete m.tmUrl;closeSheet();render();typeof saveNow==="function"&&saveNow()}}break;case "tmView":tmView();break;case "mateAnalysis":if(sheetOpen())closeSheet();mateAnalysis();break;case "mateShare":mateShare();break;case "mateShareCopy":case "mateShareSave":case "mateShareOff":mateShareAct(a);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}MATE_GRAPH=!MATE_GRAPH;render();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":{if(!mateS||!mateD){toast("Scegli maschio e femmina.");break}const pd=pairData(mateS,mateD);if(pd.file||pd.read)tmPdfShow();else tmPick()}break;case "tmPickNew":closeSheet();tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":rvAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
@@ -3362,6 +3393,83 @@ $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelShee
 addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
 
 
+/* ---------- Recensioni Google (ottobre 2026, scelte di Paolo) ----------
+   Scheda solo per Paolo. Legge le recensioni del profilo Google (/api/reviews), per ognuna senza risposta propone due
+   ringraziamenti brevi scritti da Claude (/api/ai, task "recensione") o una risposta dal suo spunto; la risposta parte
+   solo con "Pubblica su Google". Il numero delle recensioni sul sito (hugo.toml) cambia SOLO con il tasto
+   "Aggiorna il sito", mai da solo. Collegamento a Google: /api/google (una volta sola). */
+let RV={st:"",list:[],total:0,rating:0,site:null,checked:"",f:"todo",ed:null,dr:{},pk:{},sg:{},sgw:{},id:{},msg:""};
+const rvTodo=()=>RV.list.filter(r=>r.reply==null).length;
+const rvStars=n=>"★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
+const rvVoto=x=>Number(x||0).toFixed(1);
+async function rvApi(p){const r=await fetch("/api/reviews",p?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)}:{});
+  const raw=await r.text();let j={};try{j=JSON.parse(raw)}catch(e){}if(r.status===403)throw new Error("Accesso non autorizzato.");if(!raw)throw new Error("errore "+r.status);return j}
+async function rvLoad(){RV.st="load";if(tab==="recensioni")render();
+  try{const j=await rvApi();if(!j.ok){RV.st=j.connect?"connect":"err";RV.err=j.error||"Errore";RV.setup=!!j.setup}
+    else{RV.st="ok";RV.list=(j.reviews||[]).sort((a,b)=>a.date<b.date?1:-1);RV.total=j.total||RV.list.length;RV.rating=j.rating||0;RV.site=j.site;RV.title=j.title||"";
+      RV.checked=new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}}
+  catch(x){RV.st="err";RV.err=x.message}
+  if(tab==="recensioni")render();else nav();if(RV.st==="ok")rvSuggAll()}
+function rvSugHtml(i){const r=RV.list[i];if(!r||r.reply!=null)return"";const s=RV.sg[r.name];
+  if(RV.sgw[r.name]==="err")return`<p class="small">Claude non ha risposto. <button class="plink" data-a="rvSugRetry" data-v="${i}">Riprova</button></p>`;
+  if(!s)return`<p class="small">⏳ Claude scrive due risposte…</p>`;
+  return`<p class="rv-ft">Due risposte pronte: tocca quella che vuoi</p><div class="rv-sugg">${s.map((t,k)=>`<button type="button" class="rv-sug" data-a="rvUse" data-v="${i}|${k}" aria-pressed="${RV.pk[r.name]===k}"><span>${RV.pk[r.name]===k?"✓ Scelta":"Risposta "+(k+1)}</span>${esc(t)}</button>`).join("")}</div>`}
+async function rvSuggAll(){for(let i=0;i<RV.list.length;i++){const r=RV.list[i];if(r.reply!=null||RV.sg[r.name]||RV.sgw[r.name]===1)continue;
+  RV.sgw[r.name]=1;try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text});RV.sg[r.name]=j.options||[];RV.sgw[r.name]=0}catch(x){RV.sgw[r.name]="err"}
+  const box=document.getElementById("rvs_"+i);if(box&&tab==="recensioni")box.innerHTML=rvSugHtml(i)}}
+function rvPage(){
+  let h=`<h1>⭐ Recensioni</h1><p class="lead">Le recensioni del profilo Google. La risposta che scrivi qui va su Google, e il numero delle recensioni sul sito si aggiorna da qui.</p>`;
+  if(RV.msg)h+=`<p class="fnote">${esc(RV.msg)}</p>`;
+  if(!RV.st){RV.st="load";setTimeout(rvLoad,0)}
+  if(RV.st==="load"&&!RV.list.length)return h+`<p class="empty">⏳ Leggo le recensioni da Google…</p>`;
+  if(RV.st==="connect")return h+(RV.setup?`<p class="fnote">Manca ancora la chiave di Google in Cloudflare (GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET): segui i passi che ti ha dato Claude.</p>`:
+    `<div class="rv-box"><p style="margin:0 0 10px">Il gestionale non è ancora collegato al profilo Google dell'allevamento.</p><a class="btn" href="/api/google">Collega il profilo Google</a><p class="small" style="margin:10px 0 0">Si apre Google: scegli l'account con cui gestisci il profilo e premi «Consenti». Si fa una volta sola.</p></div>`);
+  if(RV.st==="err"&&!RV.list.length)return h+`<p class="fnote">${esc(RV.err)}</p><button class="btn ghost" data-a="rvLoad">Riprova</button>`;
+  const todo=RV.list.filter(r=>r.reply==null),s=RV.site,same=s&&s.total===RV.total&&String(s.rating)===rvVoto(RV.rating);
+  h+=`<div class="rv-state"><div><p class="k">Su Google</p><p class="v"><span class="rv-st">★</span> ${rvVoto(RV.rating).replace(".",",")} <small>· ${RV.total} recensioni</small></p></div>
+  <div><p class="k">Sul sito</p><p class="v">${s?esc(s.total)+" "+(same?`<span class="rv-ok">✓ uguale a Google</span>`:`<span class="rv-todo">da aggiornare</span>`):`<small>non letto</small>`}</p></div>
+  <div class="act">${same||!s?`<button class="btn ghost small" data-a="rvLoad">${RV.st==="load"?"⏳ Controllo…":"Controlla adesso"}</button>`:`<button class="btn small rv-go" data-a="rvSite">Aggiorna il sito a ${RV.total}</button>`}<p class="when">Ultimo controllo: ${esc(RV.checked)}</p></div></div>`;
+  if(RV.st==="err")h+=`<p class="fnote">${esc(RV.err)}</p>`;
+  h+=`<div class="toolbar"><button class="chip" data-a="rvF" data-v="todo" aria-pressed="${RV.f==="todo"}">Da rispondere (${todo.length})</button><button class="chip" data-a="rvF" data-v="all" aria-pressed="${RV.f==="all"}">Tutte (${RV.list.length})</button></div>`;
+  const L=RV.list.map((r,i)=>[r,i]).filter(([r])=>RV.f==="all"||r.reply==null||RV.ed===r.name);
+  if(!L.length)h+=`<p class="empty">Hai risposto a tutte le recensioni.</p>`;
+  for(const [r,i] of L){const ed=RV.ed===r.name,open=r.reply==null||ed,val=RV.dr[r.name]!=null?RV.dr[r.name]:(ed?r.reply:"");
+    h+=`<article class="rv${open?" open":""}"><div class="rv-h"><div class="rv-av" aria-hidden="true">${esc((r.who||"?").trim().charAt(0).toUpperCase())}</div><p class="rv-who">${esc(r.who)}</p>
+    ${r.reply!=null?`<span class="badge ok">✓ Risposta</span>`:`<span class="badge f">Da rispondere</span>`}<p class="rv-meta"><span class="rv-st" aria-label="${r.stars} stelle su 5">${rvStars(r.stars)}</span>${fmt(r.date)}</p></div>
+    ${r.text?`<p class="rv-text">${esc(r.text)}</p>`:`<p class="rv-text small">Solo stelle, senza testo.</p>`}`;
+    if(r.reply!=null&&!ed)h+=`<div class="rv-reply"><p class="rl">✓ La tua risposta${r.replyDate?", pubblicata il "+fmt(r.replyDate):""}</p><p>${esc(r.reply)}</p><div class="row2" style="margin-top:8px"><button class="btn ghost small" data-a="rvEdit" data-v="${i}">Modifica</button></div></div>`;
+    else{h+=`<div class="rv-form">`;
+      if(r.reply==null)h+=`<div id="rvs_${i}">${rvSugHtml(i)}</div><p class="rv-ft">Oppure dai uno spunto e la scrivo io</p><div class="rv-hint"><input data-rvi="${i}" value="${esc(RV.id[r.name]||"")}" placeholder="Es. verranno a prendere Rocco tra una decina di giorni" aria-label="Spunto per la risposta"><button class="btn ghost small" data-a="rvGen" data-v="${i}">✨ Scrivi la risposta</button></div>`;
+      h+=`<label class="rv-ft" for="rvt_${i}">${r.reply!=null?"Modifica la risposta":"La risposta che pubblichi (puoi correggerla)"}</label><textarea id="rvt_${i}" data-rvt="${i}" maxlength="4000" rows="4" placeholder="Scrivi la risposta che vedranno tutti su Google">${esc(val||"")}</textarea>
+      <div class="rv-row"><span class="small" id="rvc_${i}">${(val||"").length}/4.000</span><span>${r.reply!=null?`<button class="btn ghost small" data-a="rvCancel" data-v="${i}">Annulla modifiche</button> `:""}<button class="btn small rv-go" data-a="rvPub" data-v="${i}" ${(val||"").trim()?"":"disabled"}>${r.reply!=null?"Salva su Google":"Pubblica su Google"}</button></span></div>
+      <p class="small" style="margin:6px 0 0">${esc(r.who)} riceverà una notifica, e la risposta sarà visibile a tutti sul profilo.</p></div>`}
+    h+=`</article>`}
+  return h}
+async function rvAct(a,v,b){const i=parseInt(v,10),r=RV.list[i];
+  if(a==="rvLoad"){RV.msg="";rvLoad();return}
+  if(a==="rvF"){RV.f=v;render();return}
+  if(a==="rvSugRetry"&&r){delete RV.sgw[r.name];const box=document.getElementById("rvs_"+i);if(box)box.innerHTML=rvSugHtml(i);rvSuggAll();return}
+  if(a==="rvUse"){const [x,k]=v.split("|").map(Number),q=RV.list[x];if(!q||!RV.sg[q.name])return;RV.pk[q.name]=k;RV.dr[q.name]=RV.sg[q.name][k];render();return}
+  if(!r)return;
+  if(a==="rvGen"){const idea=(RV.id[r.name]||"").trim();if(!idea){toast("Scrivi in due parole cosa vuoi dire.");return}
+    aiBusy(b,1,"Claude scrive…");try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text,idea});RV.dr[r.name]=(j.options||[])[0]||"";RV.pk[r.name]=null;render();toast("Risposta scritta: controllala prima di pubblicare.")}
+    catch(x){aiBusy(b,0);alert("Claude non risponde.\n\n"+x.message)}return}
+  if(a==="rvEdit"){RV.ed=r.name;RV.dr[r.name]=r.reply;render();const t=document.getElementById("rvt_"+i);t&&t.focus();return}
+  if(a==="rvCancel"){RV.ed=null;delete RV.dr[r.name];render();return}
+  if(a==="rvPub"){const text=(RV.dr[r.name]||"").trim();if(!text)return;const was=r.reply!=null;aiBusy(b,1,"Pubblico…");
+    try{const j=await rvApi({task:"reply",name:r.name,text});if(!j.ok)throw new Error(j.error||"errore");r.reply=j.reply;r.replyDate=j.replyDate;delete RV.dr[r.name];RV.ed=null;render();toast(was?"Risposta salvata su Google.":"Risposta pubblicata su Google.")}
+    catch(x){aiBusy(b,0);alert("Non pubblicata.\n\n"+x.message)}return}}
+async function rvSite(b){aiBusy(b,1,"Aggiorno il sito…");
+  try{const j=await rvApi({task:"site",total:RV.total,rating:RV.rating});if(!j.ok)throw new Error(j.error||"errore");RV.site={total:j.total,rating:j.rating};render();toast("Sito aggiornato: "+j.total+" recensioni. Tra un paio di minuti è online.")}
+  catch(x){aiBusy(b,0);alert("Sito non aggiornato.\n\n"+x.message)}}
+document.addEventListener("input",e=>{const t=e.target;if(!t||!t.dataset)return;
+  if(t.dataset.rvt!=null){const r=RV.list[+t.dataset.rvt];if(!r)return;RV.dr[r.name]=t.value;const c=document.getElementById("rvc_"+t.dataset.rvt);if(c)c.textContent=t.value.length+"/4.000";
+    const b=document.querySelector('[data-a="rvPub"][data-v="'+t.dataset.rvt+'"]');if(b)b.disabled=!t.value.trim()}
+  if(t.dataset.rvi!=null){const r=RV.list[+t.dataset.rvi];if(r)RV.id[r.name]=t.value}});
+/* Ritorno da Google dopo "Collega il profilo Google": #recensioni=<messaggio> */
+function rvFromHash(){const h=location.hash||"";if(!h.startsWith("#recensioni"))return;let m="";try{m=decodeURIComponent(h.slice(12))}catch(e){}
+  history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
+  RV.msg=m;RV.st="";tab="recensioni";view=null;render()}
 /* ---------- Salvataggio online ---------- */
 let VERSION=0,lastJ="",EMPTY=false,BUSY=false,SAVE={at:null,msg:"",err:""};
 const nowS=()=>new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -3492,12 +3600,12 @@ let b0=null;
 let CONTI=false; // Daniela (ruolo "conti"): vede e modifica solo i Conti
 async function loadAll(){try{const r=await api("/api/data");const j=await r.json();
     if(j.role==="conti"){CONTI=true;window.CONTI=true;document.body.classList.add("conti");TABS.splice(0,TABS.length,...TABS.filter(t=>t[0]==="conti"));tab="conti"}
-    if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";const ist=TABS.findIndex(t=>t[0]==="statistiche");if(ist>=0)TABS.splice(ist,1);if(tab==="statistiche")tab="cani";const itr=TABS.findIndex(t=>t[0]==="traduci");if(itr>=0)TABS.splice(itr,1);if(tab==="traduci")tab="cani";if(tab==="proprietari")tab="cani"}
+    if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";const ist=TABS.findIndex(t=>t[0]==="statistiche");if(ist>=0)TABS.splice(ist,1);if(tab==="statistiche")tab="cani";const irv=TABS.findIndex(t=>t[0]==="recensioni");if(irv>=0)TABS.splice(irv,1);if(tab==="recensioni")tab="cani";const itr=TABS.findIndex(t=>t[0]==="traduci");if(itr>=0)TABS.splice(itr,1);if(tab==="traduci")tab="cani";if(tab==="proprietari")tab="cani"}
     if(!j.data){EMPTY=true}else{EMPTY=false;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,j.data);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(D);SAVE.at=j.updated?new Date(j.updated).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null}
   }catch(err){SAVE.err=SAVE.err||"Non riesco a leggere i dati online: controlla la connessione e ricarica."}
   /* ricaricando la pagina si resta dove si era (richiesta di Paolo, 05/10/2026): tab, scheda aperta e coppia di Accoppiamenti */
   if(!CONTI&&!RO){try{const z=JSON.parse(sessionStorage.getItem("gx_nav")||"null");if(z&&TABS.some(t=>t[0]===z.tab)){tab=z.tab;view=z.view&&(D.dogs[z.view]||D.owners[z.view])?z.view:null;if(z.ms&&D.dogs[z.ms])mateS=z.ms;if(z.md&&D.dogs[z.md])mateD=z.md}}catch(e){}}
-  NAV_READY=true;resetCalc();render();if(CONTI)return;trFromHash();intFromHash();
+  NAV_READY=true;resetCalc();render();if(CONTI)return;trFromHash();rvFromHash();intFromHash();
   /* le ricevute di caparra fatte prima della scelta "solo per Paolo" diventano private */
   if(!RO&&!EMPTY){let ch=0;Object.values(D.dogs).forEach(d=>(d.docs||[]).forEach(x=>{if(x.dep&&!x.private&&!x.depShare){x.private=true;ch++}}));if(ch){render();saveNow()}}
   ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}

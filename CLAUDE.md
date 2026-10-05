@@ -758,3 +758,19 @@ Accessi e copie
   la sezione non compare.
 - Test genetici "presenti" (`gtHas`): testo nei test O referto allegato (`gtDocs`: flag `gt` dei file caricati con 🧬, o titolo/nome
   riconosciuto). ✓ in Accoppiamenti, nella scheda e in "Cosa c'è"; 🧬 mostra prima i file anche se dal file non è uscito testo.
+
+## Recensioni Google (ottobre 2026)
+- Scheda **Recensioni** (solo Paolo; tolta a chi consulta e a "conti"): legge le recensioni del profilo Google, per ogni
+  recensione senza risposta Claude propone **due ringraziamenti brevi** (`/api/ai`, task `recensione`) oppure scrive la
+  risposta dallo **spunto** di Paolo; la risposta resta modificabile e parte solo con **"Pubblica su Google"**.
+  Le risposte già date si cambiano con "Modifica" → "Salva su Google" / "Annulla modifiche". Numero da rispondere sul menu.
+- In alto "Su Google" (voto e numero) e "Sul sito" (letto da `hugo.toml` del sito). Il sito si aggiorna **solo con il tasto
+  "Aggiorna il sito a N"** (scelta di Paolo, mai da solo): `POST /api/reviews {task:"site"}` cambia solo
+  `recensioniTotale` e `recensioniVoto` in `hugo.toml` di `zonerosse/delpiccolodiavolo-hugo` con un commit (`GITHUB_TOKEN`).
+- Server: `functions/api/reviews.js` (GET elenco, POST `reply` / `site`), `functions/api/google.js` (collegamento OAuth una
+  volta sola, trova da sé la scheda "…Piccolo Diavolo…"), `functions/_gbp.js` (token e tabella D1 `gbp` con refresh token e
+  scheda: **mai nel repository**). Segreti Cloudflare: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+  URI di reindirizzamento da registrare in Google Cloud: `https://gestionale.delpiccolodiavolo.it/api/google`.
+- Google dà l'accesso alle API del profilo solo dopo la richiesta "Application for Basic API Access" (numero del progetto):
+  finché non approva le chiamate danno 403/429 e la scheda lo dice in italiano.
+- Codice client: blocco "Recensioni Google" (`RV`, `rvPage`, `rvAct`, `rvSite`, `rvFromHash`) nel blocco comune, uguale nei due file.
