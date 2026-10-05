@@ -720,3 +720,5 @@ Accessi e copie
   (dopo il caricamento dei dati, non per Daniela né per chi consulta) si ripristinano se esistono ancora.
 - Analisi COI senza test mating SBT: COI 8/5/3 e ancestor loss del gestionale (`coiAt`, `lossTree` sugli antenati noti), con la
   scritta "numeri del gestionale, albero al X%" (poco affidabili sotto il 70%). Prima mostrava "—%".
+- "📷 Carica PDF COI" ora carica e salva in un colpo: se i nomi sono quelli della coppia salva da solo (`tmSave`) e apre l'analisi;
+  chiede conferma solo se è l'analisi di un cane solo o se i nomi non tornano.
