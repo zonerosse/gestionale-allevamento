@@ -783,3 +783,6 @@ Accessi e copie
   Paolo sceglie la foto e pubblica con il tasto (`POST /api/posts`); "Non serve" segna la novità senza pubblicare.
   La foto Google la scarica da `/api/public/gpost/<chiave>`: aperto solo 2 giorni e solo per le chiavi registrate
   (tabella `gbp`, `media:<chiave>`). Controlli anche sul server: niente numeri di telefono, max 1.500 caratteri.
+- **"✍️ Scrivi un post"** (`gpFreeHtml`, `gpFreeAct`, `GP.free`): post libero di Paolo. Due righe sue → testo di Claude
+  (task `post` con `idea`); foto fra le ultime 16 caricate (`gpRecent`: foto settimanali, di cucciolata, dei cani) o senza
+  foto; tasto "Scopri di più" verso Home, Cuccioli, Diario di una cucciolata, Palmarès o nessuno (`gpLinks`).
