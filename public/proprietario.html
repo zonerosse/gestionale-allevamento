@@ -2720,7 +2720,9 @@ async function ppGo(id){const d=D.dogs[id],g=k=>{const e=document.getElementById
     d.docs.push({title:"Passaggio di proprietà firmato",title_en:"Transfer of ownership – official Italian form, signed",date:day,file:"data:application/pdf;base64,"+btoa(doc.output()),fname:"passaggio-proprieta-"+slug+".pdf",private:false,pp:true});
     d.pp={date:day,at:new Date().toISOString()};closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Fatto: il PDF è nei documenti del cucciolo.")}
   catch(x){console.error(x);say("Non riesco a creare il PDF: controlla la connessione e riprova.")}}
-const KIT=[["Kit puppy Farmina (crocchette)","Farmina puppy kit (kibble)"],["Libretto veterinario","Veterinary booklet"],["Certificato di buona salute","Certificate of good health"]];
+const KIT=[["Kit puppy Farmina (crocchette)","Farmina puppy kit (kibble)"],["Libretto veterinario","Veterinary booklet"],["Certificato di buona salute","Certificate of good health"],["Passaporto","Pet passport"],["Avvio pratica export pedigree","Export pedigree application started"],["Vaccino antirabbica","Rabies vaccination"]];
+/* KIT: Paolo spunta a mano cosa ha fatto/consegnato (05/10/2026: aggiunti passaporto, export pedigree, antirabbica, servono
+   per i cuccioli che vanno all'estero). Sempre in fondo: d.kit è per posizione. */
 function kitBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";const k=D.dogs[id].kit||[],n=KIT.filter((x,i)=>k[i]).length;
   return `<h2>Consegna</h2><div class="kit">${KIT.map((x,i)=>`<label><input type="checkbox" data-kit="${id}|${i}" ${k[i]?"checked":""}> ${x[0]}</label>`).join("")}
   <p class="small">${n===KIT.length?"✅ Tutto consegnato.":"Spunta quello che hai consegnato. Il proprietario vede l'elenco nella sua pagina."}</p></div>`}

@@ -747,3 +747,7 @@ Accessi e copie
   (genetico, anche, gomiti, dentatura, occhi, cuore, rotula, udito, altra salute, vaccino, titolo, identificazione, pedigree,
   altro). `gtSheet` le mostra raggruppate; al Salva: salute/genetica → tests*, titoli → titles*, vaccini → health.vacc,
   microchip/LOI solo se vuoti; pedigree e altro solo da leggere.
+- ✓ di "📷 Carica PDF COI" e finestra `tmPdfShow`: guardano anche il test mating salvato nella cucciolata (`sbtA`, con `sbtA.pdf`),
+  non solo quello della coppia (`pairData.file/read`). Caso Desy × Forever: dati nella cucciolata pianificata.
+- Consegna (`KIT`): aggiunti Passaporto, Avvio pratica export pedigree, Vaccino antirabbica (in fondo, d.kit è per posizione);
+  Paolo li spunta a mano. Anche fra le voci "Cosa c'è" del cucciolo.
