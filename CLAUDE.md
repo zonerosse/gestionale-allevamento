@@ -751,3 +751,6 @@ Accessi e copie
   non solo quello della coppia (`pairData.file/read`). Caso Desy × Forever: dati nella cucciolata pianificata.
 - Consegna (`KIT`): aggiunti Passaporto, Avvio pratica export pedigree, Vaccino antirabbica (in fondo, d.kit è per posizione);
   Paolo li spunta a mano. Anche fra le voci "Cosa c'è" del cucciolo.
+- Consegna con allegati: 📎 Allega su ogni voce (`kitAtt`): documento in Referti e documenti con titolo della voce e `kit:i`,
+  voce spuntata da sola; se c'è già (`kitDoc`: kit:i o titolo/nome file riconosciuto, libretto anche dai vaccini) ✓ con
+  Visualizza/Scarica. Spunta a mano sempre possibile.
