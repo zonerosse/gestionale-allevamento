@@ -730,3 +730,6 @@ Accessi e copie
 - Spunte verdi ✓ (`.ok-v`, Paolo 05/10/2026: "se un dato è già inserito o allegato devo VEDERLO"): nella fila di Accoppiamenti
   su link SBT, test genetici di maschio e femmina, PDF del test mating, analisi COI disponibile; nella scheda del cane accanto a
   "Test sanitari". Bordo verde sul bottone (`.has`).
+- "Cosa c'è" su tutte le schede (`ckItems` cane/cucciolo/proprietario, `ckLit` cucciolata, `ckDecorate` dopo il disegno):
+  voci verdi ✓ / bianche ○, tocco = vai alla sezione (`ckGo`); ✓ verde sui titoli delle sezioni con dati. Cucciolo = nato in
+  una nostra cucciolata con proprietario o prenotato/ceduto.
