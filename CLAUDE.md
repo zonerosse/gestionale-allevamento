@@ -786,3 +786,10 @@ Accessi e copie
 - **"✍️ Scrivi un post"** (`gpFreeHtml`, `gpFreeAct`, `GP.free`): post libero di Paolo. Due righe sue → testo di Claude
   (task `post` con `idea`); foto fra le ultime 16 caricate (`gpRecent`: foto settimanali, di cucciolata, dei cani) o senza
   foto; tasto "Scopri di più" verso Home, Cuccioli, Diario di una cucciolata, Palmarès o nessuno (`gpLinks`).
+
+## App sul telefono (ottobre 2026)
+- Il gestionale si installa come app web: `public/manifest.webmanifest` (nome "Gestionale", schermo intero), icone dal logo
+  dell'allevamento (scelta A di Paolo: `apple-touch-icon.png` 180, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`,
+  `favicon-32.png`, fondo bianco), meta tag in `index.html`. Il manifest ha `crossorigin="use-credentials"` per Cloudflare Access.
+- iPhone: Safari → Condividi → "Aggiungi alla schermata Home". La prima apertura dall'icona chiede il codice di Access
+  (l'app sulla Home non condivide i cookie con Safari). Durata della sessione di Access: 1 mese (impostata da Paolo in Zero Trust).
