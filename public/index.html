@@ -2130,8 +2130,15 @@ function pairData(s,d){const m=(D.matings||{})[s+"|"+d]||{},r=m.sbtRead||{},l=Ob
    Usato quando manca la tabella "Ancestor list" di SBT. */
 function bloodTree(s,d,depth=8){const B={};[s,d].forEach(r=>ancestors(r,depth-1).forEach((c,i)=>c.forEach(y=>{if(!y||!D.dogs[y])return;const g=i+2,b=B[y]=B[y]||{id:y,name:D.dogs[y].name,pct:0,n:0,G:[]};b.pct+=100/Math.pow(2,g);b.n++;b.G.push(g)})));
   return Object.values(B).map(b=>{const c={};b.G.forEach(g=>{c[g]=(c[g]||0)+1});return Object.assign(b,{gens:Object.keys(c).sort((a,z)=>a-z).map(g=>c[g]>1?g+"×"+c[g]:String(g)).join(", ")})}).sort((a,z)=>z.pct-a.pct||z.n-a.n)}
+/* COI del gestionale a G generazioni (3, 5, 8) e ancestor loss sugli antenati noti: per l'analisi delle coppie senza test mating
+   SBT (Paolo, 05/10/2026: "perché non mi dai le %"). Stessa formula di coi8, con profondità diversa. */
+function coiAt(s,d,G){if(!s||!d||!D.dogs[s]||!D.dogs[d])return 0;const R2=routes(d,G),by={};R2.forEach(r=>(by[r.a]=by[r.a]||[]).push(r));let t=0;
+  for(const r of routes(s,G)){const L=by[r.a];if(!L)continue;const A=D.dogs[r.a],FA=coi8(A.sire,A.dam),set=new Set(r.path.slice(0,-1));for(const q of L){if(q.path.slice(0,-1).some(x=>set.has(x)))continue;t+=Math.pow(.5,r.d+q.d-1)*(1+FA)}}return t}
+function lossTree(s,d){const ids=[];[s,d].forEach(p=>{if(p)ids.push(p);ancestors(p,7).forEach(g=>g.forEach(x=>{if(x)ids.push(x)}))});const u=new Set(ids).size;return{known:ids.length,uniq:u,loss:ids.length?(ids.length-u)/ids.length*100:NaN}}
 function mateAnalysis(){if(!mateS||!mateD){toast("Scegli maschio e femmina.");return}const S=D.dogs[mateS],F=D.dogs[mateD],X=pairData(mateS,mateD),n=x=>x==null||x===""?NaN:pc(x),N=x=>isNaN(x)?"—":pf(x);
-  const c8=n(X.c8),c3=n(X.c3),c5=n(X.c5),ls=n(X.loss),w=coi8(mateS,mateD)*100,cv=coverage(mateS,mateD);
+  const w=coi8(mateS,mateD)*100,cv=coverage(mateS,mateD),own=isNaN(n(X.c8)),LT=lossTree(mateS,mateD);
+  /* senza test mating SBT: i numeri del gestionale */
+  const c8=own?w:n(X.c8),c3=own?coiAt(mateS,mateD,3)*100:n(X.c3),c5=own?coiAt(mateS,mateD,5)*100:n(X.c5),ls=own?LT.loss:n(X.loss);if(own){X.uniq=LT.uniq}
   const nm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(),idx={};Object.keys(D.dogs).forEach(k=>{idx[nm(D.dogs[k].name)]=k});
   const fromTree=!X.blood.length,BL=fromTree?bloodTree(mateS,mateD).slice(0,15):X.blood;
   const B=BL.map(t=>{const g=parseInt(String(t.gens||"").match(/\d+/)||0,10),q=g?100/Math.pow(2,g):0,p=+t.pct||0;return Object.assign({},t,{q,p,ex:q?p-q:0,id:t.id||idx[nm(t.name)]})});
@@ -2142,13 +2149,13 @@ function mateAnalysis(){if(!mateS||!mateD){toast("Scegli maschio e femmina.");re
   B.filter(t=>t.ex>0.5).sort((a,b)=>b.ex-a.ex).slice(0,4).forEach(t=>L.push(`<b>${esc(t.name)}</b> porta il <b>${N(t.p)}%</b> contro il ${N(t.q)}% normale (+${N(t.ex)}): compare ${t.n} ${t.n==1?"volta":"volte"}${t.gens?" (gen. "+esc(String(t.gens))+")":""}.`));
 
   if(!isNaN(ls)&&X.uniq)L.push(`Ancestor loss ${N(ls)}%: su 510 posti nel pedigree, ${510-X.uniq} sono occupati da cani che si ripetono.`);
-  if(isNaN(c8))L.push(`Per questa coppia non c'è il test mating di SBT: il calcolo del gestionale dà ${pf(w)}% con l'albero al ${cv.tot?Math.round(cv.known/cv.tot*100):0}%.`);
+  if(own)L.push(`Numeri calcolati dal gestionale, con l'albero al ${cv.tot?Math.round(cv.known/cv.tot*100):0}%: il test mating di SBT per questa coppia non c'è.`);
   const side=id=>{if(!id)return "<span class=\"row-meta\">non nel gestionale</span>";const a=gensOf(mateS,id),b=gensOf(mateD,id),o=x=>x.map(g=>g+"ª").join(", ");return `${a.length?"padre: "+o(a):""}${a.length&&b.length?" · ":""}${b.length?"madre: "+o(b):""}`||"<span class=\"row-meta\">—</span>"};
   const nmL=t=>t.id?`<button class="plink" data-a="open" data-v="${t.id}" style="font-weight:700">${esc(t.name)}</button>`:`<b>${esc(t.name)}</b>`;
   const tst=d=>d.tests?esc(d.tests):'<span class="row-meta">non inseriti</span>';
   sheet(`<p class="row-meta" style="margin:0">Analisi COI${X.date?" · test mating SBT del "+fmt(X.date):""}</p><h2 style="margin:2px 0 10px">${esc(F.nick||F.name)} × ${esc(S.name)}</h2>
-  <div class="an-k"><div><b style="color:${isNaN(c8)?"inherit":c8>9?"#8b2c2c":c8<6?"#1f4e8c":"#1d6b33"}">${N(c8)}%</b><span>COI 8 gen.</span></div><div><b>${N(c5)}%</b><span>5 gen.</span></div><div><b>${N(c3)}%</b><span>3 gen.</span></div><div><b>${N(ls)}%</b><span>ancestor loss${X.uniq?" · "+X.uniq+"/510":""}</span></div></div>
-  ${isNaN(c8)?"":coiScale({c8:String(c8),cap:"COI 8 generazioni · SBT"},true)}
+  <div class="an-k"><div><b style="color:${isNaN(c8)?"inherit":c8>9?"#8b2c2c":c8<6?"#1f4e8c":"#1d6b33"}">${N(c8)}%</b><span>COI 8 gen.</span></div><div><b>${N(c5)}%</b><span>5 gen.</span></div><div><b>${N(c3)}%</b><span>3 gen.</span></div><div><b>${N(ls)}%</b><span>ancestor loss${own?" · sugli antenati noti":X.uniq?" · "+X.uniq+"/510":""}</span></div></div>${own?`<p class="row-meta" style="margin:6px 0 0">Numeri del <b>gestionale</b> (albero al ${cv.tot?Math.round(cv.known/cv.tot*100):0}%${cv.tot&&cv.known/cv.tot<.7?": poco affidabili":""}): per i numeri di SBT usa 📷 Carica PDF COI.</p>`:""}
+  ${isNaN(c8)?"":coiScale({c8:String(c8),cap:own?"COI 8 generazioni · calcolo del gestionale":"COI 8 generazioni · SBT"},true)}
   <div class="an-c"><h3>Lettura</h3><ul>${L.map(x=>`<li>${x}</li>`).join("")}</ul><p class="row-meta" style="margin:6px 0 0">Scritta dal gestionale con i numeri del test mating, senza interpretazioni.</p></div>
   ${B.length?`<div class="an-c"><h3>I più influenti dopo i genitori (sangue %, padre e madre 50% esclusi)</h3>${fromTree?`<p class="row-meta" style="margin:0 0 6px">Calcolato dal pedigree del gestionale (albero al ${cv.tot?Math.round(cv.known/cv.tot*100):0}%): per la tabella di SBT usa 📷 Carica PDF COI.</p>`:`<p class="row-meta" style="margin:0 0 6px">Dalla tabella "Ancestor list" del test mating SBT.</p>`}<div style="overflow-x:auto"><table class="an-t"><tr><th>Antenato</th><th>Sangue</th><th>Normale</th><th>Eccesso</th><th>Volte</th><th>Generazioni</th><th>Da che lato</th></tr>${B.map(t=>`<tr><td>${nmL(t)}</td><td><b>${N(t.p)}%</b></td><td>${t.q?N(t.q)+"%":"—"}</td><td>${t.ex>0.5?"🔺 +"+N(t.ex):"—"}</td><td>${t.n||1}</td><td>${esc(String(t.gens||""))}</td><td>${side(t.id)}</td></tr>`).join("")}</table></div></div>`
 :""}

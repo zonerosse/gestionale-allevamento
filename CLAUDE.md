@@ -718,3 +718,5 @@ Accessi e copie
   somma delle comparse, padre e madre esclusi), con quota normale, eccesso, generazioni e lato.
 - Ricaricando la pagina si resta dove si era: `render()` salva tab, scheda aperta e coppia in sessionStorage `gx_nav`; all'avvio
   (dopo il caricamento dei dati, non per Daniela né per chi consulta) si ripristinano se esistono ancora.
+- Analisi COI senza test mating SBT: COI 8/5/3 e ancestor loss del gestionale (`coiAt`, `lossTree` sugli antenati noti), con la
+  scritta "numeri del gestionale, albero al X%" (poco affidabili sotto il 70%). Prima mostrava "—%".
