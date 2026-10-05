@@ -713,3 +713,6 @@ Accessi e copie
   per i cani nel gestionale), genitori. Dati da `pairData`: test mating letto nella coppia, se no analisi SBT della cucciolata
   (`sbtA`, anche pianificata). La pagina condivisa (/api/public/coppia) usa la stessa regola: prima risultava "—%" per Queen ×
   Forever, che aveva i dati solo nella cucciolata pianificata.
+- Analisi COI: niente più "più ripetuti" (Paolo li considera fuorvianti); sempre la tabella "I più influenti dopo i genitori" con il
+  sangue %: dalla tabella SBT se letta, altrimenti calcolata dal pedigree del gestionale (`bloodTree`: nonni 25%, bisnonni 12,5%…,
+  somma delle comparse, padre e madre esclusi), con quota normale, eccesso, generazioni e lato.
