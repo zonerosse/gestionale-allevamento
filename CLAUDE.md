@@ -799,3 +799,9 @@ Accessi e copie
   cane senza legami: niente figli in archivio, nessuna cucciolata come padre/madre, nessun proprietario, nessun contratto;
   altrimenti il riquadro spiega cosa lo blocca. Si tolgono anche le voci di `D.matings` con quel cane. I file in R2 restano;
   per recuperare c'è la copia di sicurezza della notte. Per un dato sbagliato (es. il sesso) si usa Modifica.
+
+## Ricerca con suggerimenti (ottobre 2026)
+- In Cani il campo "Cerca in tutti i cani" (`#srch`) cerca sempre in tutto l'archivio (nome, soprannome, LOI, microchip),
+  qualunque filtro sia scelto, e mostra fino a 8 suggerimenti (`sxShow`, `sxGo`, `#sxsug`): ♂ azzurro/♀ rosa, lettere
+  evidenziate, gruppo (Mio/Esterno/Ceduto/Prenotato/Sterilizzata…). Tocco, o frecce e Invio, aprono la scheda.
+  Il campo non filtra più l'elenco sotto (`q` resta vuoto): l'elenco segue solo i bottoni (scelta di Paolo).

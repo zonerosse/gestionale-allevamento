@@ -577,6 +577,16 @@ nav.bottom{display:none}
 .dl-zone p{margin:0 0 10px;color:var(--muted);font-size:.92rem}
 .dl-link{background:none;border:0;color:#B42318;font-weight:600;padding:0;text-decoration:underline}
 .btn.dl-del{background:#B42318;color:#fff}.dl-ok{color:var(--ok);font-weight:600}.dl-no{color:#B42318;font-weight:600}
+.sxw{position:relative}
+.sxsug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden;z-index:30}
+.sxsug button{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:2px 10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px}
+.sxsug button:last-child{border-bottom:0}.sxsug button[aria-selected="true"],.sxsug button:hover{background:var(--bg)}
+.sxsug .sx-m{color:#2B7BD8;font-weight:700}.sxsug .sx-f{color:#D6337A;font-weight:700}
+.sxsug .n{font-weight:600}.sxsug .nk{font-weight:400;color:var(--muted)}.sxsug mark{background:#FFE9A8;color:inherit;border-radius:2px}
+.sxsug .m{grid-column:2;color:var(--muted);font-size:.82rem}
+.sxsug .g{grid-row:span 2;font-size:.75rem;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.sxsug .g.ext{background:var(--warn-soft);color:var(--warn)}.sxsug .g.mio{background:var(--ok-soft);color:var(--ok)}
+.sxsug .none{padding:12px;margin:0;color:var(--muted);font-style:italic}
 </style>
 </head>
 <body>
@@ -788,7 +798,7 @@ function dogList(){
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
   return `${hero()}
-  <p class="lab">Cerca</p><label class="sx"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input placeholder="Nome, soprannome, LOI o microchip" value="${esc(q)}" id="srch"></label>
+  <p class="lab">Cerca in tutti i cani</p><div class="sxw"><label class="sx"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input placeholder="Nome, soprannome, LOI o microchip" value="" id="srch" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sxsug"></label><div class="sxsug" id="sxsug" role="listbox" hidden></div></div>
   <button class="fab" data-a="dogForm" aria-label="Nuovo cane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="fabl">Nuovo cane</span></button>
   <div class="toolbar" style="margin-top:12px">${f.map(([k,l])=>`<button class="chip" aria-pressed="${filter===k}" data-a="filter" data-v="${k}">${l}</button>`).join("")}</div>
   <p class="row-meta" style="margin:0 0 10px">${Object.keys(D.dogs).length} cani in archivio, compresi antenati e stalloni esterni.</p>
@@ -3411,7 +3421,7 @@ document.addEventListener("click",e=>{
     case "mateWith":{closeSheet();const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
   }
 });
-document.addEventListener("input",e=>{if(e.target.id==="srch"){q=e.target.value;rerenderList()}});
+/* il campo Cerca ora mostra i suggerimenti (sxShow) e non filtra più l'elenco: q resta vuoto */
 document.addEventListener("change",e=>{if(e.target.id==="mateSbt")setMateSbt(e.target.value)});
 document.addEventListener("change",e=>{
   const t=e.target;
@@ -3617,6 +3627,28 @@ function dogDel(id){const d=D.dogs[id];if(!d||dogLinks(id).length)return;const n
   Object.keys(D.matings||{}).forEach(k=>{if(k.split("|").includes(id))delete D.matings[k]});
   if(typeof mateS!=="undefined"&&mateS===id)mateS=null;if(typeof mateD!=="undefined"&&mateD===id)mateD=null;
   closeSheet();EDIT=null;EDIRTY=false;view=null;tab="cani";resetCalc();render();typeof saveNow==="function"&&saveNow();toast(esc(n)+" eliminato.")}
+/* ---------- Ricerca con suggerimenti (ottobre 2026, scelta di Paolo) ----------
+   "Cerca in tutti i cani": cerca sempre in tutto l'archivio, qualunque filtro sia scelto; sotto il campo fino a 8
+   suggerimenti (♂/♀, nome con le lettere evidenziate, soprannome, LOI o microchip, gruppo). Tocco o Invio → scheda. */
+let SXS=0,SXR=[];
+function sxGroup(d){if(d.ext)return["Esterno","ext"];const s=(STATUS[d.status]||[])[0];if(s&&d.status!=="fattrice"&&d.status!=="stallone"&&d.status!=="casa")return[s,""];return["Mio","mio"]}
+function sxHl(t,q){t=String(t||"");const i=t.toLowerCase().indexOf(q);return i<0?esc(t):esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length))}
+function sxShow(){const inp=$("#srch"),box=$("#sxsug");if(!inp||!box)return;const q=inp.value.trim().toLowerCase();
+  if(!q){box.hidden=true;inp.setAttribute("aria-expanded","false");return}
+  SXR=Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];return(d.name+" "+(d.nick||"")+" "+(d.loi||"")+" "+(d.chip||"")).toLowerCase().includes(q)})
+    .sort((a,b)=>{const A=D.dogs[a].name.toLowerCase(),B=D.dogs[b].name.toLowerCase();return(A.startsWith(q)?0:1)-(B.startsWith(q)?0:1)||A.localeCompare(B)}).slice(0,8);SXS=0;
+  box.innerHTML=SXR.length?SXR.map((k,i)=>{const d=D.dogs[k],[g,c]=sxGroup(d),m=d.loi?d.loi:(d.chip?"chip "+d.chip:"");
+    return`<button type="button" role="option" data-sx="${i}" aria-selected="${i===SXS}"><span class="${d.sex==="F"?"sx-f":"sx-m"}">${d.sex==="F"?"♀":"♂"}</span><span class="n">${sxHl(d.name,q)}${d.nick?` <span class="nk">«${sxHl(d.nick,q)}»</span>`:""}</span><span class="g ${c}">${esc(g)}</span><span class="m">${sxHl(m,q)}</span></button>`}).join("")
+    :`<p class="none">Nessun cane con «${esc(inp.value.trim())}».</p>`;
+  box.hidden=false;inp.setAttribute("aria-expanded","true")}
+function sxGo(i){const k=SXR[i];if(!k)return;const box=$("#sxsug");if(box)box.hidden=true;if(typeof leaveOk==="function"&&!leaveOk())return;openItem(k)}
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="srch")sxShow()});
+document.addEventListener("focusin",e=>{if(e.target&&e.target.id==="srch")sxShow()});
+document.addEventListener("keydown",e=>{if(!e.target||e.target.id!=="srch")return;const box=$("#sxsug");if(!box||box.hidden)return;const b=[...box.querySelectorAll("button")];if(!b.length)return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();SXS=(SXS+(e.key==="ArrowDown"?1:-1)+b.length)%b.length;b.forEach((x,i)=>x.setAttribute("aria-selected",i===SXS))}
+  if(e.key==="Enter"){e.preventDefault();sxGo(SXS)}if(e.key==="Escape")box.hidden=true});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#sxsug button");if(b){e.preventDefault();sxGo(+b.dataset.sx);return}
+  if(!(e.target.closest&&e.target.closest(".sxw"))){const box=$("#sxsug");if(box)box.hidden=true}});
 /* ---------- Salvataggio online ---------- */
 let VERSION=0,lastJ="",EMPTY=false,BUSY=false,SAVE={at:null,msg:"",err:""};
 const nowS=()=>new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
