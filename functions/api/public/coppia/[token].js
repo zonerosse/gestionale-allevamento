@@ -9,6 +9,8 @@ export async function onRequestGet({ env, params }) {
     const x = (D.dogs || {})[id] || {}, n = i => ((D.dogs || {})[i] || {}).name || "";
     return { name: x.name || "", parents: [n(x.sire), n(x.dam)].filter(Boolean).join(" × "), tests: x.tests || "", tests_en: x.tests_en || "", titles: x.titles || "", titles_en: x.titles_en || "", sbt: x.sbt || "" };
   };
-  const r = m.sbtRead || {};
-  return json({ sire: dg(s), dam: dg(d), coi: m.coiSbt || "", tmUrl: m.tmUrl || "", read: { coi3: r.coi3, coi5: r.coi5, uniq: r.uniq, loss: r.loss, blood: r.blood || [], date: r.date || "" } }, 200, { "x-robots-tag": "noindex", "cache-control": "no-store" });
+  // dati del test mating: quelli letti nella coppia, se no quelli della cucciolata (anche pianificata) con l'analisi SBT
+  const r = m.sbtRead || {}, l = Object.values(D.litters || {}).find(x => x && x.sire === s && x.dam === d && x.sbtA && x.sbtA.c8), a = (l && l.sbtA) || {};
+  const pick = (x, y) => (x != null && x !== "" ? x : y != null && y !== "" ? y : null);
+  return json({ sire: dg(s), dam: dg(d), coi: pick(m.coiSbt, a.c8) || "", tmUrl: m.tmUrl || "", read: { coi3: pick(r.coi3, a.c3), coi5: pick(r.coi5, a.c5), uniq: pick(r.uniq, a.uniq), loss: pick(r.loss, a.loss), blood: r.blood || [], top: (r.top && r.top.length ? r.top : a.top) || [], date: r.date || a.date || "" } }, 200, { "x-robots-tag": "noindex", "cache-control": "no-store" });
 }

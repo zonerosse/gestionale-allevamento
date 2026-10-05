@@ -708,3 +708,8 @@ Accessi e copie
 - Fila dei 6 bottoni su due righe (`.mate-bar`, griglia 3×2): 📊 Calcola · ✨ Suggerisci · 🔗 Carica link SBT (`tmLink` → `tmUrl`) /
   🔍 Vedi test SBT (`tmOpen`) · 📷 Carica PDF COI (`tmPick`; con 💾 Salva il file resta nella coppia: `tmFile`, `tmFname`) ·
   📄 Vedi PDF COI (`tmView`).
+- "📄 Vedi analisi COI" (`mateAnalysis`, al posto di "Vedi PDF COI"): finestra con COI 8/5/3, ancestor loss, scala, lettura in
+  chiaro scritta dal gestionale (niente Claude), tabella dei richiami (sangue, normale, eccesso, volte, generazioni, lato padre/madre
+  per i cani nel gestionale), genitori. Dati da `pairData`: test mating letto nella coppia, se no analisi SBT della cucciolata
+  (`sbtA`, anche pianificata). La pagina condivisa (/api/public/coppia) usa la stessa regola: prima risultava "—%" per Queen ×
+  Forever, che aveva i dati solo nella cucciolata pianificata.
