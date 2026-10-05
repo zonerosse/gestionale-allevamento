@@ -722,3 +722,6 @@ Accessi e copie
   scritta "numeri del gestionale, albero al X%" (poco affidabili sotto il 70%). Prima mostrava "—%".
 - "📷 Carica PDF COI" ora carica e salva in un colpo: se i nomi sono quelli della coppia salva da solo (`tmSave`) e apre l'analisi;
   chiede conferma solo se è l'analisi di un cane solo o se i nomi non tornano.
+- Scheda del cane → Test genetici → "🧬 Carica test genetici (screenshot o PDF)" (`gtPick`/`gtRead`/`gtSave`, compito `referto`):
+  conferma con spunte e controllo microchip; salva i test in tests/tests_en/tests_de (senza doppioni) e il file in Referti e
+  documenti. Da lì li usano analisi COI, pagina condivisa, sito, Suggerisci.
