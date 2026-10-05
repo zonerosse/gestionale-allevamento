@@ -740,3 +740,10 @@ Accessi e copie
   già visibili sopra e il bottone diventa "Carica altri test"). Da applicare a ogni bottone nuovo.
 - Correzione 05/10/2026: dopo il salvataggio del test mating (tmSave) e del link (tmLink) si ridisegna tutta la pagina
   (render), non solo la coppia (calcMate): la fila dei bottoni con le ✓ sta in mating() e prima restava vecchia fino al ricarico.
+- Test e salute (`gtSheet`): Claude legge TUTTI i valori (test genetici, anche HD, gomiti ED, dentatura, occhi, cuore, rotula…) con il
+  valore com'è scritto e chi l'ha valutato; elenco a sinistra con spunte; se nella scheda c'è già un valore diverso per la stessa
+  voce lo segnala ("⚠️ nella scheda c'è: …") senza cambiarlo da solo.
+- REGOLA di Paolo: "leggi sempre TUTTO e cataloga". Compito `referto`: `items` con tutto quello che c'è scritto, per categoria
+  (genetico, anche, gomiti, dentatura, occhi, cuore, rotula, udito, altra salute, vaccino, titolo, identificazione, pedigree,
+  altro). `gtSheet` le mostra raggruppate; al Salva: salute/genetica → tests*, titoli → titles*, vaccini → health.vacc,
+  microchip/LOI solo se vuoti; pedigree e altro solo da leggere.

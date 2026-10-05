@@ -77,17 +77,26 @@ Formato: {"lang":"codice ISO 639-1 di chi scrive","sunto":"...","bozza":"...","o
       const doc = media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
         : { type: "image", source: { type: "base64", media_type: media || "image/jpeg", data } };
       const dog = p.dog || {};
-      const o = await ask(env, `Leggi un referto veterinario o di laboratorio di un cane (test genetici, esami, vaccini, certificati). Estrai SOLO quello che c'è scritto, senza interpretare.
+      const o = await ask(env, `Leggi un documento su un cane (referto, test genetici, scheda SBTpedigree, certificato, libretto, pedigree, risultati di esposizione). Leggi TUTTO ed estrai SOLO quello che c'è scritto, senza interpretare.
 - "title": titolo breve in italiano per l'archivio (es. "Test genetici L2HGA e HC – Laboklin").
 - "title_en": lo stesso in inglese.
 - "date": data del referto (AAAA-MM-GG) o "".
 - "lab": laboratorio o clinica, o "".
 - "chip": numero di microchip scritto sul referto (solo cifre), o "".
-- "tests": per ogni test genetico con risultato, una riga breve nelle tre lingue nello stile "L2HGA: esente (N/N)" / "L2HGA: clear (N/N)" / "L2HGA: frei (N/N)". Per portatori: "portatore (N/P)" / "carrier (N/P)" / "Träger (N/P)"; per affetti: "affetto (P/P)" / "affected (P/P)" / "betroffen (P/P)". Lista vuota se non ci sono test genetici.
+- "tests": TUTTI i risultati di salute scritti, una riga breve per ognuno nelle tre lingue, con il VALORE esattamente com'è scritto:
+  test genetici ("L2HGA: esente (N/N)" / "L2HGA: clear (N/N)" / "L2HGA: frei (N/N)"; "esente per discendenza (genitori esenti)" / "clear by parents" / "frei über Eltern"; portatore (N/P) / carrier / Träger; affetto (P/P) / affected / betroffen),
+  displasia dell'anca ("Anche (HD): A/A" / "Hips (HD): A/A" / "Hüften (HD): A/A"), gomiti ("Gomiti (ED): 0/0" / "Elbows (ED): 0/0" / "Ellbogen (ED): 0/0"),
+  dentatura ("Dentatura: chiusura a forbice completa" / "Dentition: correct scissor bite" / "Gebiss: korrektes Scherengebiss"), occhi, cuore, rotula, BAER, ecc.
+  Se è indicato chi ha fatto la valutazione (es. "by Veterinary") aggiungilo fra parentesi (veterinario / veterinarian / Tierarzt). Lista vuota se non c'è nessun risultato.
 - "note": una frase in italiano su cos'altro contiene (vaccino, esame, ecc.), o "".
-Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","tests":[{"it":"","en":"","de":""}],"note":""}`,
-        [doc, { type: "text", text: `Cane atteso: ${dog.name || ""}, microchip ${dog.chip || "non indicato"}.` }], 1500);
-      return json({ ok: true, title: o.title || "", title_en: o.title_en || "", date: o.date || "", lab: o.lab || "", chip: String(o.chip || "").replace(/\D/g, ""), tests: Array.isArray(o.tests) ? o.tests : [], note: o.note || "" });
+- "items": TUTTO quello che c'è scritto sul cane, catalogato, una voce per ogni dato, ognuna con "cat" fra:
+  "genetico" (test DNA), "anche", "gomiti", "dentatura", "occhi", "cuore", "rotula", "udito", "altra salute", "vaccino" (con data e prodotto),
+  "titolo" (titoli e risultati di esposizione), "identificazione" (microchip, tatuaggio, LOI/numero di registro, sesso, nascita, colore),
+  "pedigree" (padre, madre, allevatore, proprietario), "altro". Ogni voce: {"cat":"","it":"Etichetta: valore","en":"","de":"","date":"AAAA-MM-GG o vuoto"}.
+  Non saltare niente di quello che è scritto, anche se non è salute. Le voci di salute e genetica vanno anche in "tests".
+Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","loi":"","tests":[{"it":"","en":"","de":""}],"items":[{"cat":"","it":"","en":"","de":"","date":""}],"note":""}`,
+        [doc, { type: "text", text: `Cane atteso: ${dog.name || ""}, microchip ${dog.chip || "non indicato"}.` }], 3000);
+      return json({ ok: true, title: o.title || "", title_en: o.title_en || "", date: o.date || "", lab: o.lab || "", chip: String(o.chip || "").replace(/\D/g, ""), loi: o.loi || "", tests: Array.isArray(o.tests) ? o.tests : [], items: Array.isArray(o.items) ? o.items : [], note: o.note || "" });
     }
     if (task === "testmating") {
       const parts = (Array.isArray(p.parts) && p.parts.length ? p.parts : [p.data]).filter(Boolean).slice(0, 6).map(x => String(x).replace(/^data:[^,]*,/, "")), media = p.media || "image/jpeg";
