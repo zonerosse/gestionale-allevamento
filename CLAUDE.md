@@ -725,3 +725,5 @@ Accessi e copie
 - Scheda del cane → Test genetici → "🧬 Carica test genetici (screenshot o PDF)" (`gtPick`/`gtRead`/`gtSave`, compito `referto`):
   conferma con spunte e controllo microchip; salva i test in tests/tests_en/tests_de (senza doppioni) e il file in Referti e
   documenti. Da lì li usano analisi COI, pagina condivisa, sito, Suggerisci.
+- Accoppiamenti: anche "🧬 Test genetici maschio" e "🧬 Test genetici femmina" nella fila (ora 4×2, 2 colonne sul telefono):
+  stesso flusso di `gtPick` sul cane scelto.
