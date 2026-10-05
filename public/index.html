@@ -2888,7 +2888,9 @@ function kitBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";c
   return `<h2>Consegna</h2><div class="kit">${KIT.map((x,i)=>{const doc=kitDoc(d,i);return `<div class="kr"><label><input type="checkbox" data-kit="${id}|${i}" ${k[i]?"checked":""}> ${x[0]}</label><span class="kb">${doc?`<span class="ok-v">✓</span>${fBtns(docHref(doc.file),doc.fname)}`:`<button class="btn small ghost" data-a="kitAtt" data-v="${id}|${i}">📎 Allega</button>`}</span></div>`}).join("")}
   <p class="small">${n===KIT.length?"✅ Tutto consegnato.":"Spunta quello che hai consegnato. Il proprietario vede l'elenco nella sua pagina."}</p></div>`}
 function kitOwner(id){const d=D.dogs[id];if(!d||!d.bred||d.ext)return"";
-  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${KIT.map(x=>`<div class="ki">✔️ ${T(x[0],x[1])}</div>`).join("")}</div>`}
+  /* il proprietario vede SOLO le voci che Paolo ha spuntato (05/10/2026) */
+  const K=KIT.filter((x,i)=>(d.kit||[])[i]);if(!K.length)return"";
+  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${K.map(x=>`<div class="ki">✔️ ${T(x[0],x[1])}</div>`).join("")}</div>`}
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.kit||RO)return;const [id,i]=t.dataset.kit.split("|"),d=D.dogs[id];if(!d)return;
   d.kit=KIT.map((x,j)=>j===+i?t.checked:!!(d.kit||[])[j]);render();typeof saveNow==="function"&&saveNow()});
 function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&(ctSellerSig()||(c&&c.dataset.used)))}

@@ -754,3 +754,5 @@ Accessi e copie
 - Consegna con allegati: 📎 Allega su ogni voce (`kitAtt`): documento in Referti e documenti con titolo della voce e `kit:i`,
   voce spuntata da sola; se c'è già (`kitDoc`: kit:i o titolo/nome file riconosciuto, libretto anche dai vaccini) ✓ con
   Visualizza/Scarica. Spunta a mano sempre possibile.
+- Pagina del proprietario, "Cosa ricevi con…" (`kitOwner`): solo le voci che Paolo ha spuntato nella Consegna; nessuna voce →
+  la sezione non compare.
