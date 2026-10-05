@@ -701,3 +701,7 @@ Accessi e copie
 - Accoppiamenti, storico: ogni coppia guardata si segna in `D.matings[k].seen` (`mateSeen` in `calcMate`; salva al più una volta
   all'ora per coppia). Menu "🕘 Coppie già guardate" in cima (`mateHist`): coppie con seen, COI SBT o test mating letto, le più
   recenti prima, con COI e data; sceglierne una la apre.
+- Accoppiamenti, disposizione dal disegno di Paolo (04/10/2026): 🕘 Coppie già guardate · Maschio a sinistra, Femmina a destra ·
+  fila fissa `.mate-bar` (📊 Calcola = apre/chiude il grafico, ✨ Suggerisci, 🔍 Test mating SBT, 📷 Carica PDF COI) · avviso maschi
+  non permessi · ➕ Aggiungi maschio da SBT · la coppia (senza più i bottoni doppi; resta 🔗 Link da condividere). Il COI si
+  ricalcola da solo a ogni cambio. Attenzione: `.bar` è già usata (barrette alte 6px), non riusarla.
