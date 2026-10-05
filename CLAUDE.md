@@ -793,3 +793,9 @@ Accessi e copie
   `favicon-32.png`, fondo bianco), meta tag in `index.html`. Il manifest ha `crossorigin="use-credentials"` per Cloudflare Access.
 - iPhone: Safari → Condividi → "Aggiungi alla schermata Home". La prima apertura dall'icona chiede il codice di Access
   (l'app sulla Home non condivide i cookie con Safari). Durata della sessione di Access: 1 mese (impostata da Paolo in Zero Trust).
+
+## Eliminare un cane (ottobre 2026)
+- In Modifica del cane, in fondo e separato: "🗑 Elimina questo cane" (`dogDelAsk`, `dogDel`, `dogLinks`). Si elimina solo un
+  cane senza legami: niente figli in archivio, nessuna cucciolata come padre/madre, nessun proprietario, nessun contratto;
+  altrimenti il riquadro spiega cosa lo blocca. Si tolgono anche le voci di `D.matings` con quel cane. I file in R2 restano;
+  per recuperare c'è la copia di sicurezza della notte. Per un dato sbagliato (es. il sesso) si usa Modifica.
