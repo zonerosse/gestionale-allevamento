@@ -733,3 +733,8 @@ Accessi e copie
 - "Cosa c'è" su tutte le schede (`ckItems` cane/cucciolo/proprietario, `ckLit` cucciolata, `ckDecorate` dopo il disegno):
   voci verdi ✓ / bianche ○, tocco = vai alla sezione (`ckGo`); ✓ verde sui titoli delle sezioni con dati. Cucciolo = nato in
   una nostra cucciolata con proprietario o prenotato/ceduto.
+- 🧬 Test genetici maschio/femmina in Accoppiamenti: se il cane ha già i test apre `gtShow` (testo nella scheda, en, referti
+  allegati con Visualizza/Scarica, "📷 Carica altri test", "Apri la scheda del cane"); solo senza test apre la scelta del file.
+- REGOLA di Paolo: ogni bottone di caricamento, se il dato c'è già, prima lo mostra (con ✓) e da lì si cambia o si ricarica.
+  Fatto per: link SBT (`tmLinkShow`), PDF test mating (`tmPdfShow`), test genetici (`gtShow`; nella scheda del cane i test sono
+  già visibili sopra e il bottone diventa "Carica altri test"). Da applicare a ogni bottone nuovo.
