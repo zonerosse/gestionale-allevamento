@@ -738,3 +738,5 @@ Accessi e copie
 - REGOLA di Paolo: ogni bottone di caricamento, se il dato c'è già, prima lo mostra (con ✓) e da lì si cambia o si ricarica.
   Fatto per: link SBT (`tmLinkShow`), PDF test mating (`tmPdfShow`), test genetici (`gtShow`; nella scheda del cane i test sono
   già visibili sopra e il bottone diventa "Carica altri test"). Da applicare a ogni bottone nuovo.
+- Correzione 05/10/2026: dopo il salvataggio del test mating (tmSave) e del link (tmLink) si ridisegna tutta la pagina
+  (render), non solo la coppia (calcMate): la fila dei bottoni con le ✓ sta in mating() e prima restava vecchia fino al ricarico.

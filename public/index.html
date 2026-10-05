@@ -1996,7 +1996,7 @@ function tmSave(){if(!TM||TM.coi8==null)return;const v=String(Math.round(TM.coi8
   /* prima i dati letti, poi il COI: setMateSbt ridisegna la coppia e deve già trovare "Su chi cade" */
   D.matings[k]=Object.assign(D.matings[k]||{},{sbtRead:{coi3:TM.coi3,coi5:TM.coi5,uniq:TM.uniq,loss:TM.loss,blood:TM.blood||[],top:TM.top,date:todayS()}});
   if(TM.file){D.matings[k].tmFile=TM.file;D.matings[k].tmFname=TM.fname||"test-mating"}
-  setMateSbt(v);typeof saveNow==="function"&&saveNow();const n=(TM.blood||[]).length;TM=null;toast(n?"COI SBT salvato, con su chi cade la consanguineità.":"COI SBT salvato. La tabella del sangue non si leggeva. Prova con 2 screenshot: uno con i numeri in alto e uno con la tabella “Ancestor list”.")}
+  setMateSbt(v);render();typeof saveNow==="function"&&saveNow();const n=(TM.blood||[]).length;TM=null;toast(n?"COI SBT salvato, con su chi cade la consanguineità.":"COI SBT salvato. La tabella del sangue non si leggeva. Prova con 2 screenshot: uno con i numeri in alto e uno con la tabella “Ancestor list”.")}
 /* Lista d'attesa: 🔗 Collega a una cucciolata e 📎 Manda il link della sua pagina sul sito (scelta di Paolo, 04/10/2026).
    Il link va al Diario se la cucciolata è nata e ha la pagina del gestionale, al Programma se ci ha la scheda, altrimenti alla
    pagina Cuccioli; sempre nella lingua della persona. Messaggio breve fisso in it/en/de (le altre lingue: inglese). */
@@ -2120,7 +2120,7 @@ document.addEventListener("change",e=>{if(e.target&&e.target.id==="mateHist"&&e.
    (tmPick: Claude legge, e il file resta salvato nella coppia: tmFile, caricato online da saveNow), 📄 Vedi PDF COI (tmView). */
 function tmLink(){if(!mateS||!mateD){toast("Scegli maschio e femmina.");return}const k=mateS+"|"+mateD,m=(D.matings||{})[k]||{};
   const v=(prompt("Incolla il link del test mating di SBTpedigree:",m.tmUrl||"")||"").trim();if(!v)return;if(!/^https:\/\/(www\.)?sbtpedigree\.com\//.test(v)){toast("Il link deve essere di sbtpedigree.com.");return}
-  D.matings=D.matings||{};D.matings[k]=Object.assign(D.matings[k]||{},{tmUrl:v});typeof saveNow==="function"&&saveNow();toast("Link del test mating salvato.")}
+  D.matings=D.matings||{};D.matings[k]=Object.assign(D.matings[k]||{},{tmUrl:v});render();typeof saveNow==="function"&&saveNow();toast("Link del test mating salvato.")}
 async function tmView(){if(!mateS||!mateD){toast("Scegli maschio e femmina.");return}const m=(D.matings||{})[mateS+"|"+mateD]||{};if(!m.tmFile){toast("Per questa coppia non c'è ancora un PDF: usa 📷 Carica PDF COI.");return}
   const w=window.open("","_blank");try{const u=m.tmFile.startsWith("data:")?URL.createObjectURL(await (await fetch(m.tmFile)).blob()):docHref(m.tmFile);if(w)w.location.href=u;else location.href=u}catch(e){if(w)w.close();toast("Non riesco ad aprire il file.")}}
 /* "📄 Vedi analisi COI" (scelta di Paolo, 05/10/2026): vista completa dentro il gestionale, niente da scaricare. Dati: test mating
