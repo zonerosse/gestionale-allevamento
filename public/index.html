@@ -661,7 +661,8 @@ function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{
   const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
   const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
-function render(){resetCalc();nav();
+let NAV_READY=false;
+function render(){resetCalc();nav();if(NAV_READY){try{sessionStorage.setItem("gx_nav",JSON.stringify({tab,view,ms:mateS,md:mateD}))}catch(e){}}
   const m=$("#main");
   const banner=bannerHtml();
   if(tab==="cani")m.innerHTML=banner+(view?dogDetail(view):mbBanners()+dogList());
@@ -3388,7 +3389,9 @@ async function loadAll(){try{const r=await api("/api/data");const j=await r.json
     if(j.role==="viewer"&&!RO){RO=true;window.RO=true;document.body.classList.add("ro");const i=TABS.findIndex(t=>t[0]==="proprietari");if(i>=0)TABS.splice(i,1);const isd=TABS.findIndex(t=>t[0]==="scadenze");if(isd>=0)TABS.splice(isd,1);if(tab==="scadenze")tab="cani";const ic=TABS.findIndex(t=>t[0]==="conti");if(ic>=0)TABS.splice(ic,1);if(tab==="conti")tab="cani";const ist=TABS.findIndex(t=>t[0]==="statistiche");if(ist>=0)TABS.splice(ist,1);if(tab==="statistiche")tab="cani";const itr=TABS.findIndex(t=>t[0]==="traduci");if(itr>=0)TABS.splice(itr,1);if(tab==="traduci")tab="cani";if(tab==="proprietari")tab="cani"}
     if(!j.data){EMPTY=true}else{EMPTY=false;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,j.data);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(D);SAVE.at=j.updated?new Date(j.updated).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):null}
   }catch(err){SAVE.err=SAVE.err||"Non riesco a leggere i dati online: controlla la connessione e ricarica."}
-  resetCalc();render();if(CONTI)return;trFromHash();intFromHash();
+  /* ricaricando la pagina si resta dove si era (richiesta di Paolo, 05/10/2026): tab, scheda aperta e coppia di Accoppiamenti */
+  if(!CONTI&&!RO){try{const z=JSON.parse(sessionStorage.getItem("gx_nav")||"null");if(z&&TABS.some(t=>t[0]===z.tab)){tab=z.tab;view=z.view&&(D.dogs[z.view]||D.owners[z.view])?z.view:null;if(z.ms&&D.dogs[z.ms])mateS=z.ms;if(z.md&&D.dogs[z.md])mateD=z.md}}catch(e){}}
+  NAV_READY=true;resetCalc();render();if(CONTI)return;trFromHash();intFromHash();
   /* le ricevute di caparra fatte prima della scelta "solo per Paolo" diventano private */
   if(!RO&&!EMPTY){let ch=0;Object.values(D.dogs).forEach(d=>(d.docs||[]).forEach(x=>{if(x.dep&&!x.private&&!x.depShare){x.private=true;ch++}}));if(ch){render();saveNow()}}
   ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}

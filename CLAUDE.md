@@ -716,3 +716,5 @@ Accessi e copie
 - Analisi COI: niente più "più ripetuti" (Paolo li considera fuorvianti); sempre la tabella "I più influenti dopo i genitori" con il
   sangue %: dalla tabella SBT se letta, altrimenti calcolata dal pedigree del gestionale (`bloodTree`: nonni 25%, bisnonni 12,5%…,
   somma delle comparse, padre e madre esclusi), con quota normale, eccesso, generazioni e lato.
+- Ricaricando la pagina si resta dove si era: `render()` salva tab, scheda aperta e coppia in sessionStorage `gx_nav`; all'avvio
+  (dopo il caricamento dei dati, non per Daniela né per chi consulta) si ripristinano se esistono ancora.
