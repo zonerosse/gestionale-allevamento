@@ -756,3 +756,5 @@ Accessi e copie
   Visualizza/Scarica. Spunta a mano sempre possibile.
 - Pagina del proprietario, "Cosa ricevi con…" (`kitOwner`): solo le voci che Paolo ha spuntato nella Consegna; nessuna voce →
   la sezione non compare.
+- Test genetici "presenti" (`gtHas`): testo nei test O referto allegato (`gtDocs`: flag `gt` dei file caricati con 🧬, o titolo/nome
+  riconosciuto). ✓ in Accoppiamenti, nella scheda e in "Cosa c'è"; 🧬 mostra prima i file anche se dal file non è uscito testo.
