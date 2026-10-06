@@ -857,3 +857,6 @@ Accessi e copie
 - Luoghi di Maps (scelta di Paolo, ottobre 2026): Italia e regione con `location_name` del fornitore (come in Sottosopra:
   "Italy", "Emilia-Romagna,Italy"), i capoluoghi con le coordinate (zoom 12): tutti quelli dell'Emilia-Romagna più Padova
   e Rovigo. Massimo 15 luoghi e 10 parole. Controllo automatico ogni due settimane (tetto 100 ricerche al mese invariato).
+- Correzione (ottobre 2026): il contatore di Maps conta solo le ricerche riuscite (chiave `maps:used2:AAAA-MM`; il primo
+  contava anche i tentativi falliti per credito esaurito). Senza credito la pagina dice "DataForSEO è senza credito".
+  Niente bandierine emoji (su Windows non si vedono): "Solo Italia", "Italiano/Inglese/Tedesco" in testo.

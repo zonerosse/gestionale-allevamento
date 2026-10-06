@@ -28,7 +28,8 @@ async function cfg(env) {
 }
 const month = () => new Date().toISOString().slice(0, 7);
 const cap = env => Math.max(1, parseInt(env.MAPS_CAP || "100", 10) || 100);
-async function used(env) { return parseInt(await gbpGet(env, "maps:used:" + month()) || "0", 10) || 0; }
+const UKEY = () => "maps:used2:" + month();   // "used2": il primo contatore contava anche i tentativi falliti
+async function used(env) { return parseInt(await gbpGet(env, UKEY()) || "0", 10) || 0; }
 async function runs(env) { const s = await gbpGet(env, "maps:runs"); return s ? JSON.parse(s) : []; }
 async function geocode(name) {
   const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=" + encodeURIComponent(name),
@@ -72,10 +73,16 @@ export async function onRequestPost({ request, env }) {
       const u = await used(env), lim = cap(env);
       if (u + jobs.length > lim) return json({ ok: false, capped: true, used: u, cap: lim,
         error: `Tetto del mese raggiunto: ${u} ricerche fatte su ${lim}. Il controllo riparte il mese prossimo (o con meno parole e città).` });
-      await gbpSet(env, "maps:used:" + month(), String(u + jobs.length));
-      for (let i = 0; i < jobs.length; i += 5) await Promise.all(jobs.slice(i, i + 5).map(async ([k, c]) => { res[k + "|" + c.n] = await check(env, k, c); }));
-      const R = [{ at: new Date().toISOString(), res }].concat(await runs(env)).slice(0, 12);
-      await gbpSet(env, "maps:runs", JSON.stringify(R)); return json({ ok: true, runs: R, used: u + jobs.length, cap: lim });
+      // si contano solo le ricerche andate a buon fine (quelle fallite DataForSEO non le fa pagare)
+      let ok = 0, err = "";
+      for (let i = 0; i < jobs.length; i += 5) await Promise.all(jobs.slice(i, i + 5).map(async ([k, c]) => {
+        try { res[k + "|" + c.n] = await check(env, k, c); ok++; } catch (e) { err = err || String(e.message || e); }
+      }));
+      if (ok) await gbpSet(env, UKEY(), String(u + ok));
+      if (!ok) return json({ ok: false, used: u, cap: lim, error: /fund|balance|credit|money|402/i.test(err)
+        ? "DataForSEO è senza credito: ricarica il conto e riprova." : "Nessuna ricerca riuscita. " + err });
+      const R = [{ at: new Date().toISOString(), res, partial: ok < jobs.length }].concat(await runs(env)).slice(0, 12);
+      await gbpSet(env, "maps:runs", JSON.stringify(R)); return json({ ok: true, runs: R, used: u + ok, cap: lim, warn: ok < jobs.length ? err : "" });
     }
     return json({ ok: false, error: "Richiesta sconosciuta." }, 400);
   } catch (e) { return json({ ok: false, error: String(e.message || e) }); }
