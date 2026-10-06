@@ -854,3 +854,6 @@ Accessi e copie
   (predefinito 30). Se il gestionale non risponde, Sottosopra non spende.
 - **Visite di Cloudflare tolte** (scelta di Paolo, ottobre 2026): la sezione "Visite sul sito" non c'è più e `cloudflare()`
   in sitestats non viene chiamata; `CF_API_TOKEN`/`CF_ACCOUNT_ID` non servono. Resta il contatore WhatsApp (tabella D1 `wa`).
+- Luoghi di Maps (scelta di Paolo, ottobre 2026): Italia e regione con `location_name` del fornitore (come in Sottosopra:
+  "Italy", "Emilia-Romagna,Italy"), i capoluoghi con le coordinate (zoom 12): tutti quelli dell'Emilia-Romagna più Padova
+  e Rovigo. Massimo 15 luoghi e 10 parole. Controllo automatico ogni due settimane (tetto 100 ricerche al mese invariato).

@@ -4,15 +4,28 @@ import { gbpGet, gbpSet } from "../_gbp.js";
    DataForSEO "serp/google/maps/live/advanced" (segreti DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD, lo stesso abbonamento
    di Sottosopra). Parole e città in gbp "maps:cfg"; ultimi 12 controlli in gbp "maps:runs".
    GET → { ok, cfg:{kw:[], cities:[{n,lat,lng}]}, runs:[{at, res:{"parola|città": posizione o null}}] }
-   POST { task:"run" } → nuovo controllo (si fa da solo una volta a settimana quando Paolo apre la pagina, o col tasto)
+   POST { task:"run" } → nuovo controllo (si fa da solo ogni due settimane quando Paolo apre la pagina, o col tasto)
    POST { task:"cfg", kw:[...], cities:["Nome", ...] } → salva; le città nuove si trovano su OpenStreetMap.
    Tetto di spesa (scelta di Paolo): al massimo MAPS_CAP ricerche al mese (predefinito 100, circa 20 centesimi);
    contatore in gbp "maps:used:AAAA-MM". Oltre il tetto il controllo non parte e lo dice. */
+// Luoghi (scelta di Paolo, ottobre 2026): Italia e regione con il nome ufficiale del fornitore (come in Sottosopra),
+// i capoluoghi con le coordinate del centro città (zoom 12), che per Maps sono le più affidabili.
+const LOC = { "italia": "Italy", "emilia-romagna": "Emilia-Romagna,Italy", "veneto": "Veneto,Italy", "lombardia": "Lombardy,Italy",
+  "toscana": "Tuscany,Italy", "marche": "Marche,Italy", "piemonte": "Piedmont,Italy", "lazio": "Lazio,Italy" };
 const DEF = { kw: ["allevamento staffordshire bull terrier", "cuccioli staffordshire bull terrier", "allevamento staffy"],
-  cities: [{ n: "Ostellato", lat: 44.7446, lng: 11.9411 }, { n: "Ferrara", lat: 44.8381, lng: 11.6198 }, { n: "Bologna", lat: 44.4949, lng: 11.3426 },
-    { n: "Padova", lat: 45.4064, lng: 11.8768 }, { n: "Milano", lat: 45.4642, lng: 9.19 }] };
+  cities: [{ n: "Italia", loc: "Italy" }, { n: "Emilia-Romagna", loc: "Emilia-Romagna,Italy" },
+    { n: "Bologna", lat: 44.4949, lng: 11.3426 }, { n: "Ferrara", lat: 44.8381, lng: 11.6198 }, { n: "Forlì", lat: 44.2226, lng: 12.0408 },
+    { n: "Modena", lat: 44.6471, lng: 10.9252 }, { n: "Parma", lat: 44.8015, lng: 10.3279 }, { n: "Piacenza", lat: 45.0526, lng: 9.693 },
+    { n: "Ravenna", lat: 44.4184, lng: 12.2035 }, { n: "Reggio Emilia", lat: 44.6983, lng: 10.6312 }, { n: "Rimini", lat: 44.0678, lng: 12.5695 },
+    { n: "Padova", lat: 45.4064, lng: 11.8768 }, { n: "Rovigo", lat: 45.0698, lng: 11.7902 }] };
 const MINE = /piccolo\s*diavolo|delpiccolodiavolo/i;
-async function cfg(env) { const s = await gbpGet(env, "maps:cfg"); return s ? JSON.parse(s) : DEF; }
+async function cfg(env) {
+  const s = await gbpGet(env, "maps:cfg"); if (!s) return DEF;
+  const c = JSON.parse(s);
+  // la prima impostazione (Ostellato, Ferrara, Bologna, Padova, Milano) passa da sola ai luoghi nuovi
+  if (c.cities.map(x => x.n).join("|") === "Ostellato|Ferrara|Bologna|Padova|Milano") return { kw: c.kw, cities: DEF.cities };
+  return c;
+}
 const month = () => new Date().toISOString().slice(0, 7);
 const cap = env => Math.max(1, parseInt(env.MAPS_CAP || "100", 10) || 100);
 async function used(env) { return parseInt(await gbpGet(env, "maps:used:" + month()) || "0", 10) || 0; }
@@ -27,7 +40,7 @@ async function geocode(name) {
 async function check(env, kw, c) {
   const r = await fetch("https://api.dataforseo.com/v3/serp/google/maps/live/advanced", { method: "POST",
     headers: { Authorization: "Basic " + btoa(env.DATAFORSEO_LOGIN + ":" + env.DATAFORSEO_PASSWORD), "content-type": "application/json" },
-    body: JSON.stringify([{ keyword: kw, location_coordinate: `${c.lat},${c.lng},13z`, language_code: "it", depth: 20 }]) });
+    body: JSON.stringify([{ keyword: kw, ...(c.loc ? { location_name: c.loc } : { location_coordinate: `${c.lat},${c.lng},12z` }), language_code: "it", depth: 20 }]) });
   const j = await r.json().catch(() => ({}));
   const task = (j.tasks || [])[0] || {};
   if (!r.ok || (task.status_code && task.status_code >= 40000)) throw new Error("DataForSEO: " + (task.status_message || j.status_message || r.status));
@@ -45,7 +58,10 @@ export async function onRequestPost({ request, env }) {
     const p = await request.json();
     if (p.task === "cfg") {
       const old = await cfg(env), kw = [...new Set((p.kw || []).map(s => String(s).trim().toLowerCase()).filter(Boolean))].slice(0, 10), cities = [];
-      for (const n of (p.cities || []).map(s => String(s).trim()).filter(Boolean).slice(0, 10)) cities.push(old.cities.find(c => c.n.toLowerCase() === n.toLowerCase()) || await geocode(n));
+      for (const n of (p.cities || []).map(s => String(s).trim()).filter(Boolean).slice(0, 15)) {
+        const k = n.toLowerCase(), known = old.cities.find(c => c.n.toLowerCase() === k) || DEF.cities.find(c => c.n.toLowerCase() === k);
+        cities.push(known || (LOC[k] ? { n, loc: LOC[k] } : await geocode(n)));
+      }
       if (!kw.length || !cities.length) return json({ ok: false, error: "Serve almeno una parola e una città." });
       await gbpSet(env, "maps:cfg", JSON.stringify({ kw, cities })); return json({ ok: true, cfg: { kw, cities } });
     }
