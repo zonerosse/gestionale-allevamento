@@ -4090,13 +4090,23 @@ function nvItems(id){const d=D.dogs[id];if(!d)return[];const out=[],en=LANG==="e
   const W=(d.weights||[]).slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));W.forEach(w=>out.push({k:"w:"+w.date,grp:"w",t:"⚖️ "+TT("Peso aggiornato: ","Weight updated: ")+(Math.round(w.g/100)/10).toString().replace(".",en?".":",")+" kg ("+fmt(w.date)+")",m:TT("il peso","the weight")}));
   const l=d.litter&&D.litters[d.litter];(d.wphotos||[]).concat((l&&l.gphotos)||[]).forEach(p=>{if(p&&p.file)out.push({k:"ph:"+p.file,grp:"ph"})});
   const h=d.health||{},HN={vacc:TT("Vaccino","Vaccination"),verm:TT("Sverminazione","Worming"),feci:TT("Esame delle feci","Faecal test"),pz:TT("Antiparassitario","Parasite treatment"),lf:TT("Leishmania e filaria","Leishmania and heartworm")};
-  Object.keys(HN).forEach(k=>(h[k]||[]).forEach(v=>{if(v&&v.date)out.push({k:"h:"+k+":"+v.date+":"+(v.prod||""),t:"🩺 "+HN[k]+" "+TT("del","on")+" "+fmt(v.date),m:HN[k].toLowerCase()+" "+TT("del","on")+" "+fmt(v.date)})}));
-  return out}
+  Object.keys(HN).forEach(k=>(h[k]||[]).forEach(v=>{if(v&&v.date&&v.date<=todayS())out.push({k:"h:"+k+":"+v.date+":"+(v.prod||""),t:"🩺 "+HN[k]+" "+TT("del","on")+" "+fmt(v.date),m:HN[k].toLowerCase()+" "+TT("del","on")+" "+fmt(v.date)})}));
+  const seen=new Set();return out.filter(x=>seen.has(x.k)?false:(seen.add(x.k),true))}
+/* chiavi "già note" quando non c'è un riferimento: tutto tranne le istruzioni e ciò che ha meno di 14 giorni */
+function nvOld(id,all){const lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
+  const S=all.filter(x=>!x.ins&&!(dt(x.k)&&dt(x.k)>=lim)&&x.grp!=="ph").map(x=>x.k),d=D.dogs[id],l=d&&d.litter&&D.litters[d.litter];
+  ((d&&d.wphotos||[]).concat((l&&l.gphotos)||[])).forEach(p=>{if(p&&p.file&&!(p.date&&p.date>=lim))S.push("ph:"+p.file)});return S}
 function nvGroup(L){const en=LANG==="en",TT=(a,b)=>en?b:a,out=L.filter(x=>!x.grp),w=L.filter(x=>x.grp==="w"),ph=L.filter(x=>x.grp==="ph");
   if(w.length)out.push(Object.assign({},w[w.length-1],{k:"w*"}));
   if(ph.length)out.push({k:"ph*",t:"📷 "+(ph.length===1?TT("1 foto nuova","1 new photo"):TT(ph.length+" foto nuove",ph.length+" new photos")),m:ph.length===1?TT("una foto nuova","a new photo"):TT(ph.length+" foto nuove",ph.length+" new photos")});return out}
 const nvGet=id=>{try{const s=localStorage.getItem("nv:"+id);return s?JSON.parse(s):null}catch(e){return null}};
-function nvBox(id){if(typeof OWNER_MODE==="undefined")return"";const all=nvItems(id),keys=all.map(x=>x.k);let seen=nvGet(id);
+function nvBox(id){const all=nvItems(id),keys=all.map(x=>x.k);
+  /* anteprima di Paolo ("Come la vede il proprietario"): mostra le novità come le vedrà la famiglia, cioè ciò che è cambiato
+     dall'ultimo avviso (o, se non ne ha mai mandati, istruzioni e cose degli ultimi 14 giorni). Il tasto non registra niente. */
+  if(typeof OWNER_MODE==="undefined"){const d=D.dogs[id],lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
+    const S=d.nvSent?d.nvSent.keys:all.filter(x=>!x.ins&&!(dt(x.k)&&dt(x.k)>=lim)&&x.grp!=="ph").map(x=>x.k);const L=nvGroup(all.filter(x=>!S.includes(x.k)));if(!L.length)return"";
+    return`<div class="nv-box"><b class="nv-t">🆕 ${T("Novità dalla tua ultima visita","New since your last visit")}</b><ul>${L.map(x=>`<li>${esc(x.t)}</li>`).join("")}</ul><p class="row-meta" style="margin:6px 0 0">Anteprima: così la vede la famiglia alla prossima apertura della pagina.</p></div>`}
+  let seen=nvGet(id);
   /* prima visita su questo telefono (anche famiglie che avevano già il link): conta come "nuovo" solo ciò che ha meno di 14
      giorni e le istruzioni; il resto si dà per già visto */
   if(!seen){const lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
@@ -4109,9 +4119,9 @@ function nvSeen(id){try{localStorage.setItem("nv:"+id,JSON.stringify(nvItems(id)
 /* Gestionale: "💬 Avvisa la famiglia" */
 let NV=null;
 function nvSheet(id){const d=D.dogs[id],o=D.owners[d.owner];if(!o){toast("Questo cane non ha ancora un proprietario.");return}
-  const old=LANG;LANG=o.lang==="en"?"en":"it";const all=nvItems(id),sent=d.nvSent||null,L=nvGroup(sent?all.filter(x=>!sent.keys.includes(x.k)):all);LANG=old;
-  NV={id,L,pick:L.map(x=>!x.k.startsWith("ph")&&!x.k.startsWith("w")),txt:""};NV.txt=nvMsg();
-  sheet(`<h2 style="margin-top:0">💬 Avvisa la famiglia di ${esc(d.nick||d.name)}</h2><p class="row-meta">${sent?"Ultimo avviso mandato il "+fmt(sent.at)+". Da allora è cambiato:":"Non hai ancora mandato avvisi da qui. Nella pagina di "+esc(o.name)+" ci sono:"}</p>
+  const old=LANG;LANG=o.lang==="en"?"en":"it";const all=nvItems(id),sent=d.nvSent||null,S=sent?sent.keys:nvOld(id,all),L=nvGroup(all.filter(x=>!S.includes(x.k)));LANG=old;
+  const hasIns=L.some(x=>x.ins);NV={id,L,pick:L.map(x=>hasIns?!!x.ins:/^doc:/.test(x.k)),txt:""};NV.txt=nvMsg();
+  sheet(`<h2 style="margin-top:0">💬 Avvisa la famiglia di ${esc(d.nick||d.name)}</h2><p class="row-meta">${sent?"Ultimo avviso mandato il "+fmt(sent.at)+". Da allora è cambiato:":"Novità recenti nella pagina di "+esc(o.name)+" (istruzioni e ultimi 14 giorni):"} Spunta cosa citare nel messaggio.</p>
   ${L.length?`<div class="nv-pick">${L.map((x,i)=>`<label><input type="checkbox" data-nvp="${i}" ${NV.pick[i]?"checked":""}> ${esc(x.t)}</label>`).join("")}</div>`:`<p class="empty">Niente di nuovo dall'ultimo avviso: puoi comunque scrivere un messaggio.</p>`}
   <label class="rv-ft" for="nv_txt" style="margin-top:10px">Messaggio (puoi correggerlo)</label><textarea id="nv_txt" rows="6" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;box-sizing:border-box">${esc(NV.txt)}</textarea>
   <div class="actions"><button class="btn ag-wa" data-a="nvSend" data-v="${id}">Apri WhatsApp</button><button class="btn ghost" data-a="close">Annulla</button></div>

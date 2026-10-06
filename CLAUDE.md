@@ -921,7 +921,8 @@ Accessi e copie
   ciò che è comparso dall'ultima volta su quel telefono (voci della Consegna spuntate, documenti non privati, ultimo peso,
   numero di foto nuove, vaccini/sverminazioni/esami). Chiavi viste in localStorage "nv:<cane>", data in "nvAt:<cane>".
   Sparisce con "Ok, visto" (`nvSeen`) e torna solo con cose nuove. Prima visita su un telefono: contano come nuove solo le
-  istruzioni e ciò che ha meno di 14 giorni. Nell'anteprima di Paolo non compare.
+  istruzioni e ciò che ha meno di 14 giorni. Nell'anteprima di Paolo compare con ciò che è cambiato dall'ultimo avviso (o istruzioni + ultimi 14 giorni).
 - Scheda del cane: "💬 Avvisa la famiglia" (`nvSheet`/`nvSend`): cosa è cambiato dall'ultimo avviso (`d.nvSent={at,keys}`),
   spunte per cosa citare, messaggio breve che si riscrive (`nvMsg`, lingua del proprietario, link con #istruzioni se ci
   sono le istruzioni), "Apri WhatsApp" nella chat della famiglia. Lo manda sempre Paolo.
+- Avvisa la famiglia senza avvisi precedenti: contano come novità solo istruzioni e ultimi 14 giorni (`nvOld`); spuntate di partenza solo le istruzioni (o i documenti se le istruzioni non ci sono). Le voci sanitarie con data futura (in programma) non sono novità; niente doppioni.
