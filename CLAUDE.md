@@ -805,3 +805,8 @@ Accessi e copie
   qualunque filtro sia scelto, e mostra fino a 8 suggerimenti (`sxShow`, `sxGo`, `#sxsug`): ♂ azzurro/♀ rosa, lettere
   evidenziate, gruppo (Mio/Esterno/Ceduto/Prenotato/Sterilizzata…). Tocco, o frecce e Invio, aprono la scheda.
   Il campo non filtra più l'elenco sotto (`q` resta vuoto): l'elenco segue solo i bottoni (scelta di Paolo).
+
+## Schede che non si aprono (ottobre 2026)
+- `dogDetail` è chiamata tramite `dogDetailSafe`: se la scheda va in errore, al posto del nulla compare un riquadro con il
+  messaggio d'errore da mandare a Claude. Ogni sezione della scheda passa da `safe(()=>…,"nome")`: una sezione rotta
+  mostra "⚠️ La parte «nome» non si è caricata" e il resto della scheda si apre lo stesso.

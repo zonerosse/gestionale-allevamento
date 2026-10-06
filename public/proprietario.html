@@ -730,7 +730,7 @@ function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{
 function render(){resetCalc();nav();
   const m=$("#main");
   const banner=bannerHtml();
-  if(tab==="cani")m.innerHTML=banner+(view?dogDetail(view):mbBanners()+dogList());
+  if(tab==="cani")m.innerHTML=banner+(view?dogDetailSafe(view):mbBanners()+dogList());
   if(tab==="cucciolate")m.innerHTML=banner+litterList();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
@@ -827,6 +827,9 @@ function coiScale(a,me){const N=s=>LANG==="en"?String(s).replace(",","."):String
   ${a.uniq&&a.max?`<div class="ca-sec"><p class="ca-sub">${a.uniq} ${T("antenati diversi su","different ancestors in")} ${a.max}${a.loss?` · ${T("perdita di antenati","ancestor loss")} ${N(a.loss)}%`:""}</p></div>`:""}
   ${(a.top||[]).length?`<div class="ca-sec"><p class="ca-h">${a.topH||T("Antenati più ripetuti","Most repeated ancestors")}</p><ul class="ca-anc">${a.top.map(x=>`<li><span class="n">${esc(x.name)}</span><span class="x"><b>${esc(String(x.n))}×</b>${x.pct?` · ${N(x.pct)}%`:""}</span></li>`).join("")}</ul></div>`:""}
   ${a.src||a.pdf?`<div class="ca-foot">${a.src?`${T("Fonte: SBTpedigree, test mating","Source: SBTpedigree, test mating")} ${esc(a.src)}`:""}${a.pdf?`<br><a href="${esc(a.pdf)}" target="_blank" rel="noopener">📎 ${T("Analisi completa (PDF)","Full analysis (PDF)")}</a>`:""}</div>`:""}</div>`}
+/* Una sezione della scheda che va in errore non deve bloccare tutta la scheda (ottobre 2026): mostra l'avviso con il motivo. */
+function safe(f,name){try{return f()}catch(e){console.error(name,e);return`<div class="fnote">⚠️ La parte «${esc(name)}» non si è caricata: ${esc(e&&e.message||e)}</div>`}}
+function dogDetailSafe(id){try{return dogDetail(id)}catch(e){console.error(e);const d=D.dogs[id]||{};return`<button class="back" data-a="back">‹ Indietro</button><h1>${esc(d.name||"Scheda")}</h1><div class="fnote">⚠️ Questa scheda non si apre per un errore: <b>${esc(e&&e.message||e)}</b>.<br>Fai uno screenshot di questo riquadro e mandalo a Claude.<br><small>${esc(String(e&&e.stack||"").split("\n").slice(0,3).join(" · "))}</small></div>`}}
 function dogDetail(id){
   const d=D.dogs[id];if(!d)return "";
   const f=F(id)*100,cov=coverage(d.sire,d.dam);
@@ -845,28 +848,28 @@ function dogDetail(id){
   ${!d.ext?`<button class="btn ghost" data-a="ownerPreview" data-v="${id}">Come la vede il proprietario</button>`:""}
   <button class="btn ghost" data-a="mate" data-v="${id}">Prova un accoppiamento</button></div>
   <h2 style="margin-top:8px">Dati</h2>
-  ${dogFacts(d,id,st,own)}
+  ${safe(()=>dogFacts(d,id,st,own),"dogFacts")}
 
-  <p class="row-meta">${sbtLink(d)}</p>
-  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}${ownLinkMini(d.owner)}</div>`:""}
-  ${contractBox(id)}
-  ${depBox(id)}
-  ${abroadBox(id)}
-  ${ppBox(id)}
-  ${kitBox(id)}
-  ${isFattrice(d)?`<h2>Calori e monte</h2>${reproHtml(id)}`:""}
-  ${wSeries(id).length>=3?`<h2>Crescita</h2>${growthDog(id)}`:""}
-  ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${wphotosHtml(id)}`:""}
-  ${!d.ext?`<h2>Salute</h2>${scPlanned(id)}${healthHtml(id,false)}`:""}
-  ${certHtml(id,false,false)}
-  <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
-  ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
-  ${d.dna?`<h2>Profilo genetico (DNA)</h2>${dnaHtml(d)}`:""}
+  <p class="row-meta">${safe(()=>sbtLink(d),"sbtLink")}</p>
+  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}${safe(()=>ownLinkMini(d.owner),"ownLinkMini")}</div>`:""}
+  ${safe(()=>contractBox(id),"contractBox")}
+  ${safe(()=>depBox(id),"depBox")}
+  ${safe(()=>abroadBox(id),"abroadBox")}
+  ${safe(()=>ppBox(id),"ppBox")}
+  ${safe(()=>kitBox(id),"kitBox")}
+  ${isFattrice(d)?`<h2>Calori e monte</h2>${safe(()=>reproHtml(id),"reproHtml")}`:""}
+  ${wSeries(id).length>=3?`<h2>Crescita</h2>${safe(()=>growthDog(id),"growthDog")}`:""}
+  ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${safe(()=>wphotosHtml(id),"wphotosHtml")}`:""}
+  ${!d.ext?`<h2>Salute</h2>${safe(()=>scPlanned(id),"scPlanned")}${safe(()=>healthHtml(id,false),"healthHtml")}`:""}
+  ${safe(()=>certHtml(id,false,false),"certHtml")}
+  <h2>Referti e documenti</h2>${safe(()=>docsHtml(id,false,false),"docsHtml")}
+  ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${safe(()=>parentDocsHtml(id),"parentDocsHtml")}`:""}
+  ${d.dna?`<h2>Profilo genetico (DNA)</h2>${safe(()=>dnaHtml(d),"dnaHtml")}`:""}
   <h2>Test sanitari</h2>${d.tests?`<div class="note">${esc(d.tests)}</div>`:'<p class="empty">Nessun test inserito.</p>'}
-  ${showsBox(id)}
-  <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:""}${shTitles(id)}${!d.titles&&!shTitles(id)?'<p class="empty">Nessun titolo inserito.</p>':""}
+  ${safe(()=>showsBox(id),"showsBox")}
+  <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:""}${safe(()=>shTitles(id),"shTitles")}${!d.titles&&!shTitles(id)?'<p class="empty">Nessun titolo inserito.</p>':""}
   <h2>Pedigree</h2>${(()=>{const L0=LANG;LANG="it";const h=ovParents(id,true);LANG=L0;return h})()}
-  <details class="ped-more"><summary>Albero a 4 generazioni (per controllare e completare gli antenati)</summary>${pedigree(id)}</details>
+  <details class="ped-more"><summary>Albero a 4 generazioni (per controllare e completare gli antenati)</summary>${safe(()=>pedigree(id),"pedigree")}</details>
   <h2>Consanguineità</h2>
   ${litA(id)?(()=>{const a=litA(id),bb=band(pc(a.c8));return coiScale(a,true)+`<div class="ca-mine"><span class="badge ${bb[1]}">${bb[0]}</span><span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(f)}%</strong> · antenati noti ${cov.known} di ${cov.tot} · solo per te</span></div>`})():(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
    return `<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
@@ -874,9 +877,9 @@ function dogDetail(id){
    <div class="coi-cov"><strong>COI 8 generazioni SBT</strong>${hs?"":" · da inserire con Modifica"}</div></div>
    <div class="coi2"><span>Calcolo del gestionale (Wright, 8 generazioni): <strong>${pf(f)}%</strong></span><span class="row-meta">Antenati noti ${cov.known} di ${cov.tot}.</span></div>`})()}
   ${born_in?`<h2>Cucciolata di nascita</h2><div class="note">${fmt(born_in.date)||"Data da inserire"} · ${esc(dn(born_in.sire)||"padre da inserire")} × ${esc(dn(born_in.dam))}${born_in.notes?"\n"+esc(born_in.notes):""}</div>`:""}
-  ${sibs.length?`<h2>Fratelli</h2><div class="list">${rows(sibs)}</div>`:""}
+  ${sibs.length?`<h2>Fratelli</h2><div class="list">${safe(()=>rows(sibs),"rows")}</div>`:""}
   ${myLitters.length?`<h2>Cucciolate</h2><div class="list">${myLitters.map(litterRow).join("")}</div>`:""}
-  ${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${rows(rk)}</div>`:""}`})():""}
+  ${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${safe(()=>rows(rk),"rows")}</div>`:""}`})():""}
   <h2>Note</h2>${d.notes?`<div class="note">${esc(d.notes)}</div>`:'<p class="empty">Nessuna nota.</p>'}`;
 }
 
