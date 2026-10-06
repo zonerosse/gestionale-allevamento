@@ -902,3 +902,10 @@ Accessi e copie
   dei primi 8-9 mesi (scale in braccio: deciso da Paolo, il sito è stato allineato), poi movimento, alimentazione, pasti,
   cibi vietati, vaccini (testo di Paolo: a tre mesi, poi dopo un anno, salvo parere del veterinario), masticativi morbidi fino al cambio dei denti e niente tira e molla, niente lanci di bastoni o palline, rispetto, contatto; link alle guide del sito. Gli altri numeri sono quelli delle guide del
   sito: se cambiano lì, vanno cambiati anche qui.
+- Consegna (06/10/2026): aggiunta in fondo a KIT la voce "Istruzioni dell'allevatore" (posizione 6, d.kit resta per
+  posizione). In più Paolo può aggiungere voci sue dal riquadro ("➕ Aggiungi voce", nome e inglese facoltativo): stanno in
+  `D.settings.kitExtra` [{id,it,en,off}], valgono per tutti i cani, spunte in `d.kitx`; "✕" le nasconde (off) senza perdere
+  le spunte. Compaiono anche in "Cosa c'è" e, se spuntate, in "Cosa ricevi" del proprietario. Le voci aggiunte non hanno 📎.
+- Sulla voce "Istruzioni dell'allevatore" della Consegna, al posto di 📎 Allega: "👁 Visualizza" (`instrView`: riquadro con
+  `ovInstr(id,true)`, nella lingua del proprietario) e "🖨 Stampa" (`instrPrint`: stampa solo le istruzioni, classe
+  `print-instr`, con intestazione allevamento, cucciolo, data di nascita, famiglia, telefono).
