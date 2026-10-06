@@ -652,6 +652,8 @@ nav.bottom{display:none}
 @media print{body.print-instr *{visibility:hidden!important}body.print-instr .instr-pr,body.print-instr .instr-pr *{visibility:visible!important}
 body.print-instr .instr-pr{position:absolute;left:0;top:0;width:100%;padding:0 10px}body.print-instr .instr-pr .pr-head{display:block;margin:0 0 10px;font-size:.95rem}
 body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:none}body.print-instr #sheetBg{position:static!important;background:none!important}}
+.oi-imp{display:flex;gap:14px;align-items:center;background:#FFF4CC;border:2px solid #E0A800;border-radius:14px;padding:14px 16px;margin:14px 0 6px;text-decoration:none!important;color:#5C4300!important;box-shadow:0 4px 14px rgba(224,168,0,.25)}
+.oi-tri{flex:none;width:54px;height:48px}.oi-imp b{display:block;font-size:1.12rem;color:#3D2D00}.oi-imp span{font-size:.92rem}.oi-imp .oi-go{margin-left:auto;font-weight:700;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1426,10 +1428,10 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${ovInstr(id)}
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${ovImp(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
-  <h2>Pedigree</h2>${ovParents(id)}
+  ${ovInstr(id)}<h2>Pedigree</h2>${ovParents(id)}
   <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
    :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
@@ -4032,13 +4034,17 @@ function instrHtml(id){const d=D.dogs[id]||{},o=D.owners[d.owner]||{},old=LANG;L
 function instrView(id){const d=D.dogs[id]||{};sheet(`<div class="instr-bar"><b>${esc(d.nick||d.name||"")}: istruzioni</b><button class="btn small" data-a="instrPrint" data-v="${id}">🖨 Stampa</button></div>${instrHtml(id)}`)}
 function instrPrint(id){if(!document.querySelector("#sheet .instr-pr"))instrView(id);document.body.classList.add("print-instr");
   const off=()=>{document.body.classList.remove("print-instr");window.removeEventListener("afterprint",off)};window.addEventListener("afterprint",off);setTimeout(()=>window.print(),150)}
-function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&(d.ext||!d.birth||dDiff(todayS(),d.birth)>548)))return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
+/* Avviso ⚠️ in cima alla pagina del proprietario (scelta di Paolo, 06/10/2026): istruzioni e avviso si vedono SOLO dopo
+   che Paolo spunta "Istruzioni dell'allevatore" nella Consegna. */
+const instrOn=id=>{const d=D.dogs[id];if(!d||d.ext)return false;const i=KIT.findIndex(x=>/^Istruzioni dell'allevatore/.test(x[0]));return i>=0&&!!(d.kit||[])[i]};
+function ovImp(id){if(!instrOn(id))return"";return`<a class="oi-imp" href="#istruzioni"><svg class="oi-tri" viewBox="0 0 54 48" aria-hidden="true"><path d="M27 3 L51 45 H3 Z" fill="#FFC400" stroke="#8A6200" stroke-width="3" stroke-linejoin="round"/><rect x="24.5" y="16" width="5" height="16" rx="2" fill="#3D2D00"/><circle cx="27" cy="38" r="3" fill="#3D2D00"/></svg><div><b>${T("IMPORTANTE: leggi le istruzioni dell'allevatore","IMPORTANT: read the breeder's instructions")}</b><span>${T("Soprattutto nei primi 8-9 mesi: niente corse forzate, salti e scale.","Above all in the first 8-9 months: no forced running, jumping or stairs.")}</span></div><span class="oi-go">${T("Leggi","Read")} ›</span></a>`}
+function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
   const G=[["🍽️",T("Alimentazione del cucciolo","Puppy feeding"),T("quanto, quante volte, il cambio di cibo","how much, how often, changing food"),en?"puppy-initial-feeding":"cuccioli-alimentazione-iniziale"],
     ["🏃",T("Movimento sicuro","Safe exercise"),T("cosa fare e cosa evitare mese per mese","what to do and avoid, month by month"),en?"staffy-safe-exercise":"salute-esercizio-sicuro"],
     ["💉",T("Vaccinazioni","Vaccinations"),T("il calendario fino a 12 mesi","the schedule up to 12 months"),en?"puppy-first-vaccinations":"cuccioli-prime-vaccinazioni"],
     ["🐜",T("Parassiti","Parasites"),T("zecche, pulci, filaria","ticks, fleas, heartworm"),en?"staffy-parasite-prevention":"salute-parassiti-prevenzione"],
     ["🦷",T("Denti","Teeth"),T("spazzolino e masticativi","brushing and chews"),en?"staffy-dental-health":"salute-denti-igiene"]];
-  return`<h2 class="oi-h">📋 ${T("Le istruzioni dell'allevatore","The breeder's instructions")}</h2><div class="oi-card">
+  return`<h2 class="oi-h" id="istruzioni">⚠️ ${T("Le istruzioni dell'allevatore","The breeder's instructions")}</h2><div class="oi-card">
   <div class="oi-big">${T("Nei primi 8-9 mesi di vita il cucciolo non deve essere forzato a correre, saltare, salire le scale, o a fare sforzi che possano compromettere il suo sviluppo fisico e psicofisico.","During the first 8-9 months the puppy must not be forced to run, jump, climb stairs, or make any effort that could compromise its physical and mental development.")}<small>${T("Le scale si fanno in braccio, in salita e in discesa.","Carry the puppy on stairs, both up and down.")}</small></div>
   <ul class="oi-ul">
   <li><b>${T("Movimento:","Exercise:")}</b> ${T("passeggiate di 5 minuti per ogni mese di età, una o due volte al giorno (a 3 mesi 15 minuti, a 4 mesi 20), su erba o terra battuta. Il gioco libero va bene, perché il cucciolo si ferma quando è stanco. Niente salti dall'alto, niente corsa vicino alla bicicletta, niente jogging fino ai 12 mesi, niente lanci di bastoni o palline che costringono il cucciolo ad accelerare in modo innaturale o forzato: le cartilagini di crescita si chiudono fra i 12 e i 18 mesi.","walks of 5 minutes for each month of age, once or twice a day (15 minutes at 3 months, 20 at 4), on grass or packed earth. Free play is fine, because the puppy stops when tired. No jumping down from heights, no running beside a bicycle, no jogging until 12 months, no throwing sticks or balls that make the puppy accelerate in an unnatural or forced way: the growth plates close between 12 and 18 months.")}</li>

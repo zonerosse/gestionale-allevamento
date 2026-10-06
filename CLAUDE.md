@@ -909,3 +909,6 @@ Accessi e copie
 - Sulla voce "Istruzioni dell'allevatore" della Consegna, al posto di 📎 Allega: "👁 Visualizza" (`instrView`: riquadro con
   `ovInstr(id,true)`, nella lingua del proprietario) e "🖨 Stampa" (`instrPrint`: stampa solo le istruzioni, classe
   `print-instr`, con intestazione allevamento, cucciolo, data di nascita, famiglia, telefono).
+- Pagina del proprietario (scelta di Paolo): istruzioni (`ovInstr`, prima del Pedigree, titolo con ⚠️, id "istruzioni") e
+  avviso giallo con triangolo "IMPORTANTE: leggi le istruzioni dell'allevatore" (`ovImp`, subito sotto il nome, porta alle
+  istruzioni) si vedono SOLO quando nella Consegna è spuntata "Istruzioni dell'allevatore" (`instrOn`), a qualsiasi età.
