@@ -880,3 +880,4 @@ Accessi e copie
 - Tasti: ✅ Conferma su WhatsApp (messaggio con indirizzo e link Maps), 🔔 Promemoria del giorno prima, 💬 Chiedi quando
   viene / Proponi un giorno, 📅 Al calendario (.ics con avviso 2 ore prima), 🐾 Ritirato, 👍 Visita fatta,
   ➕ Aggiungi all'Attesa (crea la richiesta in `D.waitlist`, source "visita"), ✏️ Modifica con Salva/Annulla, 🗑 Elimina.
+- Il tasto fluttuante 💉 (vaccino · sverminazione · esame, `.hfab`) compare solo in Cani, Cucciolate e Scadenze (`body[data-tab]`).

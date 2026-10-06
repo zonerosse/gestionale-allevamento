@@ -167,7 +167,9 @@ h2{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:32px 0 12px}
 .row .badge{justify-self:end;max-width:100%}
 .pups summary{flex-wrap:wrap}.pups summary span{min-width:0}
 .hfab{position:fixed;right:90px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:9}
-.hfab svg{width:24px;height:24px}.hfab .fabl{right:66px}
+.hfab svg{width:24px;height:24px}
+/* tasto 💉 solo dove serve (scelta di Paolo): Cani, Cucciolate, Scadenze */
+body[data-tab]:not([data-tab="cani"]):not([data-tab="cucciolate"]):not([data-tab="scadenze"]) .hfab{display:none}.hfab .fabl{right:66px}
 .hfab:hover .fabl,.hfab:focus-visible .fabl{opacity:1}
 @media (max-width:760px){.hfab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:84px}}
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.92rem;opacity:0;pointer-events:none;transition:all .2s;z-index:40}
@@ -779,7 +781,7 @@ function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{
   const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
   const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
-function render(){resetCalc();nav();
+function render(){resetCalc();nav();document.body.setAttribute("data-tab",tab);
   const m=$("#main");
   const banner=bannerHtml();
   if(tab==="cani")m.innerHTML=banner+(view?dogDetailSafe(view):(typeof agBanner==="function"?agBanner():"")+mbBanners()+dogList());
