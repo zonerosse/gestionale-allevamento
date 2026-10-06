@@ -884,3 +884,7 @@ Accessi e copie
 - Sulla scheda di ogni appuntamento restano solo 📅 Al calendario, 🐾 Ritirato / 👍 Visita fatta, ✏️ Modifica (scelta di Paolo: tolti Conferma e Promemoria WhatsApp). Claude scrive "chi viene" e le note in modo corto.
 - Aggiornamenti sul telefono: `_headers` mette `Cache-Control: no-cache` alle pagine; l'app riaperta dopo più di 20 minuti
   si ricarica da sola (`visibilitychange`), mai durante una modifica (EDIT/EDIRTY) o con un riquadro aperto.
+- "Chi ti ha scritto?" (scelta di Paolo): WhatsApp non passa il numero, quindi sotto il messaggio c'è un campo facoltativo
+  con suggerimenti (famiglie dei cuccioli prenotati: nome, cucciolo, telefono, città). La famiglia scelta (`AG.hint`) va a
+  Claude come indizio e decide il cucciolo se il messaggio non lo dice. Dal comando rapido il gestionale NON legge da solo:
+  mette il cursore su "Chi ti ha scritto?", poi Paolo preme "✨ Leggi il messaggio".
