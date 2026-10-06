@@ -3307,7 +3307,7 @@ document.addEventListener("click",e=>{
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}
-    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);closeSheet();render();typeof saveNow==="function"&&saveNow();break}
+    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);/* richiesta del sito: non deve tornare al prossimo caricamento */if(/^r[0-9a-f]{12}$/.test(v)){D.wlGone=(D.wlGone||[]).concat(v);try{fetch("/api/requests?id="+encodeURIComponent(v),{method:"DELETE"}).catch(()=>{})}catch(e){}}closeSheet();render();typeof saveNow==="function"&&saveNow();break}
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;

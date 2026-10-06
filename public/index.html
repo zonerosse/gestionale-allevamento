@@ -3487,7 +3487,7 @@ document.addEventListener("click",e=>{
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}
-    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);closeSheet();render();typeof saveNow==="function"&&saveNow();break}
+    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);/* richiesta del sito: non deve tornare al prossimo caricamento */if(/^r[0-9a-f]{12}$/.test(v)){D.wlGone=(D.wlGone||[]).concat(v);try{fetch("/api/requests?id="+encodeURIComponent(v),{method:"DELETE"}).catch(()=>{})}catch(e){}}closeSheet();render();typeof saveNow==="function"&&saveNow();break}
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
@@ -4275,7 +4275,7 @@ async function loadAll(){try{const r=await api("/api/data");const j=await r.json
   ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
 /* Richieste dal modulo del sito → Lista d'attesa (una volta sola per richiesta) */
 async function wlSync(){if(RO||EMPTY)return;try{const r=await api("/api/requests");if(!r.ok)return;const R=await r.json();D.waitlist=D.waitlist||[];const have=new Set(D.waitlist.map(w=>w.id));let n=0;
-  R.forEach(q=>{if(have.has(q.rid))return;D.waitlist.push({id:q.rid,created:q.created,name:q.name,email:q.email,phone:q.phone,city:q.city,country:q.country,sex:q.sex,exp:q.exp,note:q.note,source:"sito",litter:"",status:"new",lang:/^(it|italia|italy)$/i.test(q.country||"")||!q.country?"it":"en"});n++});
+  const gone=new Set(D.wlGone||[]);R.forEach(q=>{if(have.has(q.rid)||gone.has(q.rid))return;D.waitlist.push({id:q.rid,created:q.created,name:q.name,email:q.email,phone:q.phone,city:q.city,country:q.country,sex:q.sex,exp:q.exp,note:q.note,source:"sito",litter:"",status:"new",lang:/^(it|italia|italy)$/i.test(q.country||"")||!q.country?"it":"en"});n++});
   if(n){saveNow();if(tab==="attesa")render();toast(n===1?"1 nuova richiesta dal sito nella Lista d'attesa.":n+" nuove richieste dal sito nella Lista d'attesa.")}}catch(e){}}
 /* Contratti firmati dai proprietari: li carico e salvo da solo il PDF nei documenti del cucciolo */
 async function ctLoad(){let changed=false;try{const r=await api("/api/contracts");if(r.ok){CONTR=await r.json();window.CONTR=CONTR}}catch(e){return}

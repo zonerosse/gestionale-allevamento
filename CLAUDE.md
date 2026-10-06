@@ -926,3 +926,4 @@ Accessi e copie
   spunte per cosa citare, messaggio breve che si riscrive (`nvMsg`, lingua del proprietario, link con #istruzioni se ci
   sono le istruzioni), "Apri WhatsApp" nella chat della famiglia. Lo manda sempre Paolo.
 - Avvisa la famiglia senza avvisi precedenti: contano come novità solo istruzioni e ultimi 14 giorni (`nvOld`); spuntate di partenza solo le istruzioni (o i documenti se le istruzioni non ci sono). Le voci sanitarie con data futura (in programma) non sono novità; niente doppioni.
+- Eliminare una richiesta arrivata dal sito (Attesa, "wlDel", id "r…"): si toglie anche dalla tabella `requests` (`DELETE /api/requests?id=`) e l'id va in `D.wlGone`, così `wlSync` non la rimette. Il foglio su Drive (Apps Script) resta a parte.
