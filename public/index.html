@@ -654,6 +654,11 @@ body.print-instr .instr-pr{position:absolute;left:0;top:0;width:100%;padding:0 1
 body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:none}body.print-instr #sheetBg{position:static!important;background:none!important}}
 .oi-imp{display:flex;gap:14px;align-items:center;background:#FFF4CC;border:2px solid #E0A800;border-radius:14px;padding:14px 16px;margin:14px 0 6px;text-decoration:none!important;color:#5C4300!important;box-shadow:0 4px 14px rgba(224,168,0,.25)}
 .oi-tri{flex:none;width:54px;height:48px}.oi-imp b{display:block;font-size:1.12rem;color:#3D2D00}.oi-imp span{font-size:.92rem}.oi-imp .oi-go{margin-left:auto;font-weight:700;white-space:nowrap}
+#oiM{position:fixed;inset:0;z-index:2000;background:rgba(20,23,29,.5);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 10px 24px}
+.oi-mb{background:var(--bg);border-radius:14px;padding:14px;max-width:760px;width:100%}.oi-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px}.oi-mh b{font-family:var(--serif);font-size:1.2rem;color:#8A6200}
+.oi-x{border:0;background:#1C2230;color:#fff;border-radius:8px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}.ki a.oi-lk{color:#8C2B23;font-weight:600}
+.oi-imp.oi-small{display:inline-flex;padding:6px 12px;gap:8px;border-width:1px;box-shadow:none;background:#FFF9E0;margin:8px 0 4px;border-radius:999px}
+.oi-imp.oi-small .oi-tri{width:22px;height:20px}.oi-imp.oi-small b{font-size:.92rem}.oi-imp.oi-small span,.oi-imp.oi-small .oi-go{display:none}
 </style>
 </head>
 <body>
@@ -1431,7 +1436,7 @@ function ownerPreview(id){
   ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${ovImp(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
-  ${ovInstr(id)}<h2>Pedigree</h2>${ovParents(id)}
+  <h2>Pedigree</h2>${ovParents(id)}
   <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
    :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
@@ -3077,7 +3082,7 @@ function kitBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";c
 function kitOwner(id){const d=D.dogs[id];if(!d||!d.bred||d.ext)return"";
   /* il proprietario vede SOLO le voci che Paolo ha spuntato (05/10/2026) */
   const K=KIT.filter((x,i)=>(d.kit||[])[i]).concat(KITX().filter(x=>(d.kitx||{})[x.id]).map(x=>[x.it,x.en||x.it]));if(!K.length)return"";
-  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${K.map(x=>`<div class="ki">✔️ ${T(x[0],x[1])}</div>`).join("")}</div>`}
+  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${K.map(x=>`<div class="ki">✔️ ${/^Istruzioni dell'allevatore/.test(x[0])?`<a href="#istruzioni" class="oi-lk" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false">${T(x[0],x[1])} ›</a>`:T(x[0],x[1])}</div>`).join("")}</div>`}
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.kit||RO)return;const [id,i]=t.dataset.kit.split("|"),d=D.dogs[id];if(!d)return;
   d.kit=KIT.map((x,j)=>j===+i?t.checked:!!(d.kit||[])[j]);render();typeof saveNow==="function"&&saveNow()});
 function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&(ctSellerSig()||(c&&c.dataset.used)))}
@@ -4037,7 +4042,19 @@ function instrPrint(id){if(!document.querySelector("#sheet .instr-pr"))instrView
 /* Avviso ⚠️ in cima alla pagina del proprietario (scelta di Paolo, 06/10/2026): istruzioni e avviso si vedono SOLO dopo
    che Paolo spunta "Istruzioni dell'allevatore" nella Consegna. */
 const instrOn=id=>{const d=D.dogs[id];if(!d||d.ext)return false;const i=KIT.findIndex(x=>/^Istruzioni dell'allevatore/.test(x[0]));return i>=0&&!!(d.kit||[])[i]};
-function ovImp(id){if(!instrOn(id))return"";return`<a class="oi-imp" href="#istruzioni" onclick="event.preventDefault();event.stopPropagation();var r=this.closest('.owner-view')||document,e=r.querySelector('.oi-h');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});return false"><svg class="oi-tri" viewBox="0 0 54 48" aria-hidden="true"><path d="M27 3 L51 45 H3 Z" fill="#FFC400" stroke="#8A6200" stroke-width="3" stroke-linejoin="round"/><rect x="24.5" y="16" width="5" height="16" rx="2" fill="#3D2D00"/><circle cx="27" cy="38" r="3" fill="#3D2D00"/></svg><div><b>${T("IMPORTANTE: leggi le istruzioni dell'allevatore","IMPORTANT: read the breeder's instructions")}</b><span>${T("Soprattutto nei primi 8-9 mesi: niente corse forzate, salti e scale.","Above all in the first 8-9 months: no forced running, jumping or stairs.")}</span></div><span class="oi-go">${T("Leggi","Read")} ›</span></a>`}
+/* Istruzioni in una finestra (scelta di Paolo, 06/10/2026): la scheda del proprietario resta leggera; il riquadro giallo
+   e la riga "Istruzioni dell'allevatore ›" di "Cosa ricevi" aprono la finestra; il link personale con #istruzioni la apre
+   già all'arrivo. */
+/* solo nella pagina vera della famiglia: nell'anteprima di Paolo il riquadro resta sempre grande */
+const oiSeen=id=>{if(typeof OWNER_MODE==="undefined")return false;try{return localStorage.getItem("oiSeen:"+id)==="1"}catch(e){return false}};
+function oiOpen(id){const d=D.dogs[id];if(!d)return;if(typeof OWNER_MODE!=="undefined"){try{localStorage.setItem("oiSeen:"+id,"1")}catch(e){}}const o=D.owners[d.owner]||{},old=LANG;if(o.lang)LANG=o.lang==="en"?"en":"it";
+  const body=ovInstr(id,true).replace(/<h2 class="oi-h"[^>]*>.*?<\/h2>/,""),tit=T("Le istruzioni dell'allevatore","The breeder's instructions"),cl=T("Chiudi","Close");LANG=old;
+  oiClose();const w=document.createElement("div");w.id="oiM";w.innerHTML=`<div class="oi-mb" role="dialog" aria-modal="true" aria-label="${esc(tit)}"><div class="oi-mh"><b>⚠️ ${esc(tit)}</b><button type="button" class="oi-x">✕ ${esc(cl)}</button></div>${body}</div>`;
+  document.body.appendChild(w);document.body.style.overflow="hidden";w.querySelector(".oi-x").onclick=oiClose;w.addEventListener("click",e=>{if(e.target===w)oiClose()})}
+function oiClose(){const w=document.getElementById("oiM");if(w){w.remove();document.body.style.overflow=""}
+  document.querySelectorAll(".oi-imp:not(.oi-small)").forEach(a=>{const id=a.dataset.dog;if(id&&oiSeen(id)){a.classList.add("oi-small");const b=a.querySelector("b");if(b)b.textContent="⚠️ "+(LANG==="en"?"The breeder's instructions":"Istruzioni dell'allevatore")+" ›"}})}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")oiClose()});
+function ovImp(id){if(!instrOn(id))return"";const sm=oiSeen(id);return`<a class="oi-imp${sm?" oi-small":""}" data-dog="${id}" href="#istruzioni" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false"><svg class="oi-tri" viewBox="0 0 54 48" aria-hidden="true"><path d="M27 3 L51 45 H3 Z" fill="#FFC400" stroke="#8A6200" stroke-width="3" stroke-linejoin="round"/><rect x="24.5" y="16" width="5" height="16" rx="2" fill="#3D2D00"/><circle cx="27" cy="38" r="3" fill="#3D2D00"/></svg><div><b>${sm?"⚠️ "+T("Istruzioni dell'allevatore","The breeder's instructions")+" ›":T("IMPORTANTE: leggi le istruzioni dell'allevatore","IMPORTANT: read the breeder's instructions")}</b><span>${T("Soprattutto nei primi 8-9 mesi: niente corse forzate, salti e scale.","Above all in the first 8-9 months: no forced running, jumping or stairs.")}</span></div><span class="oi-go">${T("Apri","Open")} ›</span></a>`}
 function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
   const G=[["🍽️",T("Alimentazione del cucciolo","Puppy feeding"),T("quanto, quante volte, il cambio di cibo","how much, how often, changing food"),en?"puppy-initial-feeding":"cuccioli-alimentazione-iniziale"],
     ["🏃",T("Movimento sicuro","Safe exercise"),T("cosa fare e cosa evitare mese per mese","what to do and avoid, month by month"),en?"staffy-safe-exercise":"salute-esercizio-sicuro"],

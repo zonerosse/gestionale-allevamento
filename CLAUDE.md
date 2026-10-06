@@ -909,6 +909,9 @@ Accessi e copie
 - Sulla voce "Istruzioni dell'allevatore" della Consegna, al posto di 📎 Allega: "👁 Visualizza" (`instrView`: riquadro con
   `ovInstr(id,true)`, nella lingua del proprietario) e "🖨 Stampa" (`instrPrint`: stampa solo le istruzioni, classe
   `print-instr`, con intestazione allevamento, cucciolo, data di nascita, famiglia, telefono).
-- Pagina del proprietario (scelta di Paolo): istruzioni (`ovInstr`, prima del Pedigree, titolo con ⚠️, id "istruzioni") e
-  avviso giallo con triangolo "IMPORTANTE: leggi le istruzioni dell'allevatore" (`ovImp`, subito sotto il nome, porta alle
-  istruzioni) si vedono SOLO quando nella Consegna è spuntata "Istruzioni dell'allevatore" (`instrOn`), a qualsiasi età.
+- Pagina del proprietario (scelta di Paolo): avviso giallo con triangolo "IMPORTANTE: leggi le istruzioni dell'allevatore"
+  (`ovImp`, subito sotto il nome) SOLO quando nella Consegna è spuntata "Istruzioni dell'allevatore" (`instrOn`), a
+  qualsiasi età. Le istruzioni NON sono nella scheda (troppo pesante): si aprono in una finestra (`oiOpen`/`oiClose`) dal
+  riquadro giallo, dalla riga "Istruzioni dell'allevatore ›" di "Cosa ricevi" e, nella pagina vera, dal link personale
+  con `#istruzioni` in fondo (si apre già all'arrivo).
+- Dopo la prima apertura delle istruzioni, nella pagina vera della famiglia il riquadro giallo diventa un'etichetta piccola ("oi-small"), ricordato sul dispositivo (localStorage "oiSeen:<cane>"); nell'anteprima di Paolo resta sempre grande.
