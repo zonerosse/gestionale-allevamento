@@ -915,3 +915,13 @@ Accessi e copie
   riquadro giallo, dalla riga "Istruzioni dell'allevatore ›" di "Cosa ricevi" e, nella pagina vera, dal link personale
   con `#istruzioni` in fondo (si apre già all'arrivo).
 - Dopo la prima apertura delle istruzioni, nella pagina vera della famiglia il riquadro giallo diventa un'etichetta piccola ("oi-small"), ricordato sul dispositivo (localStorage "oiSeen:<cane>"); nell'anteprima di Paolo resta sempre grande.
+
+## Novità per la famiglia e "Avvisa la famiglia" (06/10/2026, scelte di Paolo)
+- Pagina della famiglia: riquadro azzurro "🆕 Novità dalla tua ultima visita" (`nvBox`, sopra l'avviso delle istruzioni):
+  ciò che è comparso dall'ultima volta su quel telefono (voci della Consegna spuntate, documenti non privati, ultimo peso,
+  numero di foto nuove, vaccini/sverminazioni/esami). Chiavi viste in localStorage "nv:<cane>", data in "nvAt:<cane>".
+  Sparisce con "Ok, visto" (`nvSeen`) e torna solo con cose nuove. Prima visita su un telefono: contano come nuove solo le
+  istruzioni e ciò che ha meno di 14 giorni. Nell'anteprima di Paolo non compare.
+- Scheda del cane: "💬 Avvisa la famiglia" (`nvSheet`/`nvSend`): cosa è cambiato dall'ultimo avviso (`d.nvSent={at,keys}`),
+  spunte per cosa citare, messaggio breve che si riscrive (`nvMsg`, lingua del proprietario, link con #istruzioni se ci
+  sono le istruzioni), "Apri WhatsApp" nella chat della famiglia. Lo manda sempre Paolo.
