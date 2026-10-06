@@ -888,3 +888,10 @@ Accessi e copie
   con suggerimenti (famiglie dei cuccioli prenotati: nome, cucciolo, telefono, città). La famiglia scelta (`AG.hint`) va a
   Claude come indizio e decide il cucciolo se il messaggio non lo dice. Dal comando rapido il gestionale NON legge da solo:
   mette il cursore su "Chi ti ha scritto?", poi Paolo preme "✨ Leggi il messaggio".
+
+## Visore dei documenti nell'app installata (ottobre 2026)
+- Solo con l'app a schermo intero (`STANDALONE`): i link "Visualizza" (target _blank) e "Scarica" (download) verso file del
+  gestionale, blob o data non escono più in Safari (che non ha l'accesso Cloudflare): i PDF si aprono in `docView` (pagine
+  disegnate con pdf.js 3.11 da cdnjs, caricato solo quando serve), le foto in `lbShow`, "Scarica" apre il pannello
+  Condividi (`dvShare`). `window.open` è intercettato per gli stessi indirizzi (anche lo schema "finestra vuota poi
+  location.href"). Link esterni (WhatsApp, SBT, Gmail) come prima. Nel browser normale non cambia niente.

@@ -634,6 +634,13 @@ nav.bottom{display:none}
 .ag-form label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;font-weight:600}.ag-form input,.ag-form select{font:inherit;font-weight:400;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
 .ag-wide{margin-top:8px}
 @media (max-width:820px){.ag-c{grid-template-columns:52px minmax(0,1fr)}.ag-c .ag-st{grid-column:2;justify-self:start}}
+/* visore dei documenti nell'app */
+#dvw{position:fixed;inset:0;z-index:1200;background:#2B2F36;display:flex;flex-direction:column}
+.dv-bar{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 8px;background:#1C2230;color:#fff}
+.dv-bar button{border:0;border-radius:8px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}.dv-x{background:#fff;color:#1C2230}.dv-sh{background:#25A35A;color:#fff;margin-left:auto}
+.dv-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;opacity:.85}
+.dv-pages{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;flex-direction:column;align-items:center;gap:8px}
+.dv-pages canvas{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);max-width:100%}.dv-wait{color:#fff;margin:30px 10px;text-align:center}
 </style>
 </head>
 <body>
@@ -3948,6 +3955,46 @@ document.addEventListener("input",e=>{if(e.target&&e.target.id==="ag_txt")AG.txt
 let HIDDEN_AT=0;
 document.addEventListener("visibilitychange",()=>{if(document.hidden){HIDDEN_AT=Date.now();return}
   if(HIDDEN_AT&&Date.now()-HIDDEN_AT>20*60e3){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(!busy)location.reload()}HIDDEN_AT=0});
+/* ---------- Visore dei documenti dentro l'app (ottobre 2026) ----------
+   Nell'app installata sul telefono (schermo intero) i "Visualizza" e "Scarica" dei file non funzionavano: l'iPhone apre
+   i link fuori dall'app, in Safari, che non ha l'accesso del gestionale, e non apre i PDF creati al momento (blob).
+   Solo nell'app: i PDF si aprono qui dentro (pagine disegnate con pdf.js da cdnjs, caricato solo quando serve), le foto
+   nel visore delle foto, e "Scarica" apre il pannello Condividi (Salva su File, WhatsApp, Mail…). Nel browser: come prima. */
+const STANDALONE=!!((window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true);
+let PDFJS=null;
+async function pdfLib(){if(PDFJS)return PDFJS;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";s.onload=ok;s.onerror=()=>ko(new Error("pdf.js"));document.head.appendChild(s)});
+  PDFJS=window.pdfjsLib;PDFJS.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return PDFJS}
+async function dvBlob(url){const r=await fetch(url,{credentials:"same-origin"});if(!r.ok)throw new Error("errore "+r.status);return r.blob()}
+async function dvShare(blob,name){const f=new File([blob],name||"documento.pdf",{type:blob.type||"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}return true}return false}
+function dvClose(){const o=document.getElementById("dvw");if(o)o.remove();document.body.style.overflow=""}
+async function docView(url,name){let blob;toast("Apro il documento…");
+  try{blob=await dvBlob(url)}catch(e){toast("Non riesco ad aprire il file.");return}
+  const type=blob.type||"";name=name||decodeURIComponent(String(url).split("/").pop()||"").replace(/\?.*$/,"")||"documento";
+  if(/^image\//.test(type)){lbShow(URL.createObjectURL(blob));return}
+  dvClose();const o=document.createElement("div");o.id="dvw";
+  o.innerHTML=`<div class="dv-bar"><button class="dv-x" aria-label="Chiudi">✕ Chiudi</button><span class="dv-n">${esc(name)}</span><button class="dv-sh">⤴︎ Salva / Condividi</button></div><div class="dv-pages"><p class="dv-wait">⏳ Apro il PDF…</p></div>`;
+  document.body.appendChild(o);document.body.style.overflow="hidden";
+  o.querySelector(".dv-x").onclick=dvClose;o.querySelector(".dv-sh").onclick=async()=>{if(!await dvShare(blob,/\.\w+$/.test(name)?name:name+".pdf"))toast("Il telefono non permette di condividere questo file.")};
+  if(!/pdf/i.test(type)){o.querySelector(".dv-pages").innerHTML=`<p class="dv-wait">Questo file non si può mostrare qui: usa «Salva / Condividi».</p>`;return}
+  try{const lib=await pdfLib(),pdf=await lib.getDocument({data:new Uint8Array(await blob.arrayBuffer())}).promise,box=o.querySelector(".dv-pages");box.innerHTML="";
+    const W=Math.min(box.clientWidth||innerWidth,900),dpr=Math.min(2,window.devicePixelRatio||1);
+    for(let i=1;i<=pdf.numPages;i++){if(!document.getElementById("dvw"))return;const pg=await pdf.getPage(i),v0=pg.getViewport({scale:1}),sc=W/v0.width,vp=pg.getViewport({scale:sc*dpr});
+      const c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;c.style.width=(vp.width/dpr)+"px";c.style.height=(vp.height/dpr)+"px";box.appendChild(c);
+      await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise}}
+  catch(e){o.querySelector(".dv-pages").innerHTML=`<p class="dv-wait">Non riesco a mostrare il PDF qui. Usa «Salva / Condividi» per aprirlo.</p>`}}
+if(STANDALONE){
+  const sameOrigin=h=>{try{const u=new URL(h,location.href);return u.origin===location.origin||u.protocol==="blob:"||u.protocol==="data:"}catch(e){return false}};
+  document.addEventListener("click",e=>{if(e.defaultPrevented)return;const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
+    if(!sameOrigin(h)||h.startsWith("#")||(!a.hasAttribute("download")&&a.getAttribute("target")!=="_blank"))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(a.hasAttribute("download")){dvBlob(h).then(b=>dvShare(b,a.getAttribute("download")||"documento")).then(ok=>{if(!ok)docView(h,a.getAttribute("download"))}).catch(()=>toast("Non riesco a scaricare il file."));return}
+    docView(h,(a.parentElement&&a.parentElement.querySelector("a[download]")||{}).getAttribute?.("download")||"")},true);
+  const _open=window.open.bind(window);
+  window.open=function(u,...r){u=u==null?"":String(u);
+    if(u==="")return{location:{set href(v){docView(v)}},close(){},closed:false};   // schema "apri vuota e poi riempi"
+    if(sameOrigin(u)){docView(u);return null}return _open(u,...r)};
+}
 /* ---------- Salvataggio online ---------- */
 let VERSION=0,lastJ="",EMPTY=false,BUSY=false,SAVE={at:null,msg:"",err:""};
 const nowS=()=>new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
