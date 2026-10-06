@@ -813,3 +813,10 @@ Accessi e copie
 - Foto in cima alla scheda (`.hero-photo`, ottobre 2026, scelta di Paolo): intera (`object-fit:contain`), mai ingrandita oltre
   la misura vera (`width:auto`), al massimo 320×320 px. Così le foto piccole non si sgranano e nessuna viene tagliata.
   Stessa regola per le foto dei genitori nel riquadro Pedigree (`.phi img`): intere, mai ingrandite, al massimo 260 px di altezza.
+
+## Foto più piccole e visore (ottobre 2026, scelta di Paolo)
+- Nelle schede le foto sono piccole e sempre intere: in cima `.hero-photo` max 200 px, genitori nel Pedigree `.phi img`
+  max 150 px di altezza, foto settimanali `.gal` a riquadri da ~105 px con `.wpi` in `contain` (niente tagli).
+- Toccando una foto si apre il visore `lbShow(src)` (anche per tutti i link a immagini, come prima): adattata allo
+  schermo ma mai più grande dell'originale; tocco sulla foto o "Dimensioni originali" → grandezza piena da scorrere;
+  in basso le dimensioni originali. Le foto settimanali nel gestionale di Paolo aprono ancora la loro scheda di modifica.
