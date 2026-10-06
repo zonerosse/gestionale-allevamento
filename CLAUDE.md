@@ -881,3 +881,4 @@ Accessi e copie
   viene / Proponi un giorno, 📅 Al calendario (.ics con avviso 2 ore prima), 🐾 Ritirato, 👍 Visita fatta,
   ➕ Aggiungi all'Attesa (crea la richiesta in `D.waitlist`, source "visita"), ✏️ Modifica con Salva/Annulla, 🗑 Elimina.
 - Il tasto fluttuante 💉 (vaccino · sverminazione · esame, `.hfab`) compare solo in Cani, Cucciolate e Scadenze (`body[data-tab]`).
+- Sulla scheda di ogni appuntamento restano solo 📅 Al calendario, 🐾 Ritirato / 👍 Visita fatta, ✏️ Modifica (scelta di Paolo: tolti Conferma e Promemoria WhatsApp). Claude scrive "chi viene" e le note in modo corto.

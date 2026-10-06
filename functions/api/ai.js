@@ -73,6 +73,7 @@ Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000
 Oggi è ${String(p.today || "")} (${String(p.weekday || "")}). Trasforma "sabato", "domani", "la prossima settimana" in una data AAAA-MM-GG nel futuro più vicino; l'ora in HH:MM (24 ore; "verso le 4 del pomeriggio" = 16:00). Se manca, lascia vuoto: non inventare.
 Famiglie con un cucciolo da ritirare (id, cucciolo, famiglia, telefono, città): ${JSON.stringify(p.families || []).slice(0, 3000)}
 Se è un ritiro, scegli in "dog" l'id della famiglia/cucciolo giusto solo se il messaggio lo fa capire (nome del cucciolo, nome della persona, città); altrimenti "".
+Scrivi corto: in "who" solo i nomi o "la famiglia" (niente frasi come "numero di persone non indicato"); in "note" al massimo poche parole utili, niente ripetizioni di giorno e ora; se un dato manca lascia il campo vuoto senza commentarlo.
 Rispondi solo con JSON: {"type":"ritiro|visita|altro","date":"","time":"","who":"chi viene (nomi, quante persone)","from":"città se detta","dog":"","want":"per le visite: cosa cerca (maschio/femmina, quando) se detto","note":"altro di utile in poche parole","summary":"una riga in italiano"}`,
         String(p.text || "").slice(0, 3000), 600);
       return json({ ok: true, ...o });
