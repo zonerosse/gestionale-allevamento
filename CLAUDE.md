@@ -842,3 +842,15 @@ Accessi e copie
   salvate in `gbp` "maps:cfg"; ultimi 12 controlli in "maps:runs". Controllo da solo se l'ultimo ha più di 7 giorni, o col tasto.
 - **🔎 Ricerche che mostrano il profilo** (`gbpKeywords` in sitestats, `wsGbpkHtml`): Business Profile Performance API,
   ultimi 3 mesi mese per mese; finché Google non approva le API del profilo mostra l'attesa.
+- **💬 Contatti WhatsApp dal sito** (`wsWaHtml`, `waStats` in sitestats): i tasti WhatsApp del sito passano da `/wa/` (funzione
+  del sito) che chiama `POST /api/public/walog` con la chiave `WA_KEY` (stessa nei due progetti Cloudflare). Tabella D1 `wa`
+  (ts, day ora di Roma, path, lang): niente IP né dati personali. Totale, oggi, media, grafico per giorno, pagine, lingue.
+- "Da dove arrivano" (Cloudflare) unisce le voci (`wsRefs`: Google, Facebook, Bing…), scrive "circa" (stime campionate),
+  accanto a Google i "clic veri" di Search Console, e la nota che le stime comprendono robot e audit SEO.
+- Tetto di spesa per Maps (scelta di Paolo): massimo `MAPS_CAP` ricerche al mese (predefinito 100 ≈ 0,20 $), contatore in
+  `gbp` "maps:used:AAAA-MM". Oltre il tetto il controllo non parte; quello automatico non apre finestre, scrive l'avviso.
+- **Tetto per Sottosopra** (`functions/api/public/budget.js`): la funzione `/api/posizioni` di puntowebferrara.com chiede
+  il permesso prima di ogni analisi (chiave `WA_KEY` qui = `GESTIONALE_KEY` là). Massimo `SOTTOSOPRA_CAP` analisi al mese
+  (predefinito 30). Se il gestionale non risponde, Sottosopra non spende.
+- **Visite di Cloudflare tolte** (scelta di Paolo, ottobre 2026): la sezione "Visite sul sito" non c'è più e `cloudflare()`
+  in sitestats non viene chiamata; `CF_API_TOKEN`/`CF_ACCOUNT_ID` non servono. Resta il contatore WhatsApp (tabella D1 `wa`).

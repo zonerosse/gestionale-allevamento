@@ -608,6 +608,8 @@ nav.bottom{display:none}
 .ws-mini li.ws-bl{display:block}.ws-r{display:flex;justify-content:space-between;gap:10px}
 .ws-bar{display:block;height:8px;border-radius:4px;background:var(--accent-soft);position:relative;margin-top:3px}.ws-bar span{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
 .ws-bt{font-weight:600;margin:0 0 8px}
+.ws-wbar{background:#DDF3E5}.ws-wbar span{background:#25A35A}.ws-k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ws-gsc{display:inline-block;font-size:.78rem;font-weight:600;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:1px 8px;margin-left:4px}
 .ws-live{color:var(--ok);font-weight:600}
 @media (max-width:820px){.ws-kpis{grid-template-columns:1fr 1fr}.ws-two{grid-template-columns:1fr}}
 </style>
@@ -3719,28 +3721,16 @@ function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div cl
     const ml=A=>A.length?`<ul class="ws-mini">${A.map(q=>`<li><span>${esc(q.q)}</span>${wsPos(q.dp)}</li>`).join("")}</ul>`:`<p class="row-meta">Niente di rilevante.</p>`;
     h+=`<div class="ws-two"><div><h2>In salita</h2><div class="nbox">${ml(up)}</div></div><div><h2>In discesa</h2><div class="nbox">${ml(dn)}</div></div></div>`;
     h+=`<h2>Pagine più cliccate</h2><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Pagina</th><th>Clic</th><th>Impressioni</th><th>Posizione</th></tr></thead><tbody>${G.pages.map(x=>`<tr><td>${esc(x.u)}</td><td>${wsN(x.c)}</td><td>${wsN(x.i)}</td><td>${wsN(x.p,1)}</td></tr>`).join("")}</tbody></table></div>`}
-  h+=wsMapsHtml()+wsGbpkHtml();
-  // Cloudflare
-  h+=`<h2>Visite sul sito</h2>`;
-  if(X.cfErr)h+=`<p class="fnote">${esc(X.cfErr)}</p>`;
-  else{const C=X.cf,mob=C.devices.reduce((a,d)=>a+(/mobile|tablet/i.test(d.k)?d.v:0),0),all=C.devices.reduce((a,d)=>a+d.v,0);
-    h+=`<p class="ws-src">Da Cloudflare Web Analytics · aggiornate ogni pochi minuti · <span class="ws-live">ultima ora: ${wsN(C.hour.sum.visits)} visite</span></p><div class="ws-kpis">
-      <div class="ws-kpi"><p class="k">Visite oggi</p><p class="v">${wsN(C.today.sum.visits)}</p></div>
-      <div class="ws-kpi"><p class="k">Visite nel periodo</p><p class="v">${wsN(C.per.sum.visits)}</p>${wsPct(C.per.sum.visits,C.prev.sum.visits)}</div>
-      <div class="ws-kpi"><p class="k">Pagine viste</p><p class="v">${wsN(C.per.count)}</p></div>
-      <div class="ws-kpi"><p class="k">Da telefono</p><p class="v">${all?Math.round(mob/all*100):0}%</p></div></div>`;
-    const mr=Math.max(1,...C.refs.map(r=>r.v)),lab=k=>!k?"Diretto (link, WhatsApp, preferiti)":k.replace(/^www\./,"");
-    h+=`<div class="ws-two"><div class="nbox"><p class="ws-bt">Da dove arrivano</p><ul class="ws-mini">${C.refs.map(r=>`<li class="ws-bl"><span class="ws-r"><span>${esc(lab(r.k))}</span><b>${wsN(r.v)}</b></span><span class="ws-bar"><span style="width:${r.v/mr*100}%"></span></span></li>`).join("")}</ul></div>
-      <div class="nbox"><p class="ws-bt">Da quali paesi</p><ul class="ws-mini">${C.countries.map(r=>`<li><span>${esc(r.k||"?")}</span><b>${wsN(r.v)}</b></li>`).join("")}</ul><p class="ws-bt" style="margin-top:14px">Pagine più viste</p><ul class="ws-mini">${C.paths.map(r=>`<li><span>${esc(r.k)}</span><b>${wsN(r.n)}</b></li>`).join("")}</ul></div></div>`}
+  h+=wsWaHtml()+wsMapsHtml()+wsGbpkHtml();
   return h}
 
 /* Posizioni su Google Maps per città (DataForSEO, /api/maps): controllo da solo una volta a settimana all'apertura, o col tasto */
 async function wsMapsLoad(){try{const r=await fetch("/api/maps"),j=await r.json();WS.maps=j;
-    const last=(j.runs||[])[0];if(j.ready&&!WS.mapsAuto&&(!last||Date.now()-Date.parse(last.at)>7*864e5)){WS.mapsAuto=1;wsMapsRun()}}catch(x){WS.maps={err:x.message}}
+    const last=(j.runs||[])[0];if(j.ready&&!WS.mapsAuto&&(j.used||0)<(j.cap||100)&&(!last||Date.now()-Date.parse(last.at)>7*864e5)){WS.mapsAuto=1;wsMapsRun(null,1)}}catch(x){WS.maps={err:x.message}}
   if(tab==="statistiche"&&WS.sub==="sito")render()}
-async function wsMapsRun(b){WS.mapsBusy=1;if(tab==="statistiche"&&WS.sub==="sito")render();
-  try{const r=await fetch("/api/maps",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"run"})}),j=await r.json();if(!j.ok)throw new Error(j.error||"errore");WS.maps.runs=j.runs;toast("Posizioni su Maps aggiornate.")}
-  catch(x){alert("Controllo non riuscito.\n\n"+x.message)}WS.mapsBusy=0;if(tab==="statistiche"&&WS.sub==="sito")render()}
+async function wsMapsRun(b,auto){WS.mapsBusy=1;WS.maps.warn="";if(tab==="statistiche"&&WS.sub==="sito")render();
+  try{const r=await fetch("/api/maps",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"run"})}),j=await r.json();if(j.used!=null){WS.maps.used=j.used;WS.maps.cap=j.cap}if(!j.ok)throw new Error(j.error||"errore");WS.maps.runs=j.runs;toast("Posizioni su Maps aggiornate.")}
+  catch(x){if(auto)WS.maps.warn=x.message;else alert("Controllo non riuscito.\n\n"+x.message)}WS.mapsBusy=0;if(tab==="statistiche"&&WS.sub==="sito")render()}
 async function wsMapsSave(b){const kw=($("#ws_mk").value||"").split("\n"),ci=($("#ws_mc").value||"").split("\n");aiBusy(b,1,"Salvo…");
   try{const r=await fetch("/api/maps",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"cfg",kw,cities:ci})}),j=await r.json();if(!j.ok)throw new Error(j.error||"errore");WS.maps.cfg=j.cfg;WS.mapsEd=0;render();toast("Parole e città salvate. Premi «Controlla adesso» per le nuove posizioni.")}
   catch(x){aiBusy(b,0);alert("Non salvato.\n\n"+x.message)}}
@@ -3754,7 +3744,7 @@ function wsMapsHtml(){const M=WS.maps;let h=`<h2>📍 Posizioni su Google Maps</
     if(v==null)return`<td><span class="ws-eq">oltre 20</span>${p!=null?` <span class="ws-dn">▼</span>`:""}</td>`;
     const d=p==null?null:p-v;return`<td><b class="${v<=3?"ws-up":""}" style="font-size:1rem">${v}°</b>${d>0?` <span class="ws-up">▲${d}</span>`:d<0?` <span class="ws-dn">▼${-d}</span>`:""}</td>`};
   h+=`<div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca</th>${C.cities.map(c=>`<th>${esc(c.n)}</th>`).join("")}</tr></thead><tbody>${C.kw.map(k=>`<tr><td>${esc(k)}</td>${C.cities.map(c=>cell(k,c.n)).join("")}</tr>`).join("")}</tbody></table></div>
-  <div class="toolbar" style="margin-top:8px"><button class="btn ghost small" data-a="wsMapsRun" ${M.ready&&!WS.mapsBusy?"":"disabled"}>${WS.mapsBusy?"⏳ Controllo… (circa un minuto)":"🔄 Controlla adesso"}</button><button class="btn ghost small" data-a="wsMapsEd">✏️ Parole e città</button><span class="ws-src" style="margin:0">Si controlla da solo una volta a settimana, quando apri questa pagina.</span></div>`;
+  <div class="toolbar" style="margin-top:8px"><button class="btn ghost small" data-a="wsMapsRun" ${M.ready&&!WS.mapsBusy?"":"disabled"}>${WS.mapsBusy?"⏳ Controllo… (circa un minuto)":"🔄 Controlla adesso"}</button><button class="btn ghost small" data-a="wsMapsEd">✏️ Parole e città</button><span class="ws-src" style="margin:0">Si controlla da solo una volta a settimana, quando apri questa pagina. Questo mese: <b>${M.used||0}</b> ricerche su <b>${M.cap||100}</b> (tetto di spesa, circa ${((M.cap||100)*0.002).toFixed(2).replace(".",",")} $).</span></div>${M.warn?`<p class="fnote">${esc(M.warn)}</p>`:""}`;
   if(WS.mapsEd)h+=`<div class="nbox"><label class="rv-ft" for="ws_mk">Parole da controllare (una per riga)</label><textarea id="ws_mk" class="gp-tx" style="min-height:90px">${esc(C.kw.join("\n"))}</textarea>
     <label class="rv-ft" for="ws_mc" style="margin-top:10px">Città (una per riga)</label><textarea id="ws_mc" class="gp-tx" style="min-height:110px">${esc(C.cities.map(c=>c.n).join("\n"))}</textarea>
     <p class="ws-src">Più parole e città = più controlli: con 3 parole e 5 città sono 15 ricerche a settimana. Massimo 10 e 10.</p><div class="rv-row"><span></span><span><button class="btn ghost small" data-a="wsMapsEd">Annulla</button> <button class="btn small rv-go" data-a="wsMapsSave">Salva</button></span></div></div>`;
@@ -3764,6 +3754,25 @@ function wsGbpkHtml(){const X=WS.data;let h=`<h2>🔎 Ricerche che mostrano il t
   const K=X.gbpk,mn=m=>{const [y,mm]=m.split("-");return["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"][+mm-1]};
   if(!K.rows.length)return h+`<p class="nbox row-meta">Google non ha ancora dati sulle ricerche per questi mesi.</p>`;
   return h+`<p class="ws-src">Dal profilo Google dell'allevamento · quante volte la scheda è comparsa per ogni ricerca, mese per mese (Google non dà la posizione; «&lt;15» = meno di 15)</p><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca</th>${K.months.map(m=>`<th>${mn(m)}</th>`).join("")}</tr></thead><tbody>${K.rows.map(r=>`<tr><td>${esc(r.k)}</td>${r.v.map((v,i)=>`<td>${i===2?`<b>${esc(v)}</b>`:esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+
+/* Contatti WhatsApp dal sito: tocchi sul tasto WhatsApp (funzione /wa/ del sito → /api/public/walog), conteggio esatto */
+function wsWaHtml(){const X=WS.data;let h=`<h2>💬 Contatti WhatsApp dal sito</h2>`;
+  if(!X||X.waErr)return h+`<p class="fnote">${esc((X&&X.waErr)||"")}</p>`;const W=X.wa;
+  h+=`<p class="ws-src">Ogni volta che qualcuno tocca il tasto WhatsApp sul sito · conteggio esatto, persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
+  if(!W.tot&&!W.prev)return h+`<p class="nbox row-meta">Ancora nessun tocco registrato: il conteggio parte da quando il sito usa il nuovo tasto WhatsApp.</p>`;
+  h+=`<div class="ws-kpis ws-k3"><div class="ws-kpi"><p class="k">Tocchi su WhatsApp</p><p class="v">${wsN(W.tot)}</p>${wsPct(W.tot,W.prev)}</div><div class="ws-kpi"><p class="k">Oggi</p><p class="v">${wsN(W.today)}</p></div><div class="ws-kpi"><p class="k">Media al giorno</p><p class="v">${wsN(W.tot/W.days,1)}</p></div></div>`;
+  if(W.daily.length>1){const mx=Math.max(1,...W.daily.map(d=>d.n)),n=W.daily.length,bw=Math.min(20,600/n-4);
+    h+=`<div class="nbox"><svg viewBox="0 0 620 160" role="img" aria-label="Tocchi su WhatsApp per giorno" style="width:100%;height:auto;display:block">${W.daily.map((d,i)=>`<rect x="${(i*(600/n)+10).toFixed(1)}" y="${(150-d.n/mx*130).toFixed(1)}" width="${bw.toFixed(1)}" height="${(d.n/mx*130).toFixed(1)}" rx="2" fill="#25A35A"><title>${fmt(d.day)}: ${d.n}</title></rect>`).join("")}</svg><p class="ws-src" style="margin:6px 0 0">giorno per giorno, ${fmt(W.daily[0].day)} – ${fmt(W.daily[n-1].day)}</p></div>`}
+  const mp=Math.max(1,...W.paths.map(p=>p.n)),pl=p=>p==="/"?"Home":p==="/en/"?"Home inglese":p==="/de/"?"Home tedesca":!p?"Pagina sconosciuta":decodeURIComponent(p);
+  h+=`<div class="ws-two" style="margin-top:12px"><div class="nbox"><p class="ws-bt">Da quale pagina</p><ul class="ws-mini">${W.paths.map(p=>`<li class="ws-bl"><span class="ws-r"><span>${esc(pl(p.path))}</span><b>${wsN(p.n)}</b></span><span class="ws-bar ws-wbar"><span style="width:${p.n/mp*100}%"></span></span></li>`).join("")}</ul></div>
+    <div class="nbox"><p class="ws-bt">In che lingua</p><ul class="ws-mini">${W.langs.map(l=>`<li><span>${{it:"🇮🇹 Italiano",en:"🇬🇧 Inglese",de:"🇩🇪 Tedesco"}[l.lang]||esc(l.lang)}</span><b>${wsN(l.n)}</b></li>`).join("")}</ul></div></div>`;
+  return h}
+/* Provenienza delle visite (Cloudflare): voci unite (Google, Facebook, Bing…), "circa" perché sono stime campionate */
+function wsRefs(refs){const G={};const name=k=>{k=(k||"").replace(/^www\./,"").replace(/^m\./,"").replace(/^l\./,"").replace(/^lm\./,"");
+    if(!k)return"Senza provenienza";if(/^google\./.test(k)||/\.google\./.test(k))return"Google";if(/(^|\.)facebook\.com$|^fb\.com$/.test(k))return"Facebook";
+    if(/(^|\.)bing\.com$/.test(k))return"Bing";if(/(^|\.)instagram\.com$/.test(k))return"Instagram";if(/duckduckgo/.test(k))return"DuckDuckGo";if(/chatgpt\.com|openai\.com/.test(k))return"ChatGPT";
+    if(/perplexity/.test(k))return"Perplexity";if(k==="delpiccolodiavolo.it")return null;return k};
+  for(const r of refs){const n=name(r.k);if(!n)continue;G[n]=(G[n]||0)+r.v}return Object.entries(G).sort((a,b)=>b[1]-a[1])}
 function wsRows(L){return L.map(q=>`<tr${WS_PRI.includes(q.q)?' class="pri"':""}><td>${esc(q.q)}</td><td>${wsN(q.c)}</td><td>${wsN(q.i)}</td><td>${q.i?wsN(q.c/q.i*100,1):"0"}%</td><td>${wsN(q.p,1)}</td><td>${wsPos(q.dp)}</td></tr>`).join("")||`<tr><td colspan="6" class="row-meta">Nessuna ricerca con «${esc(WS.find)}».</td></tr>`}
 function stChips(){return`<div class="toolbar"><button class="chip" data-a="stSub" data-v="alle" aria-pressed="${WS.sub!=="sito"}">🐾 Allevamento</button><button class="chip" data-a="stSub" data-v="sito" aria-pressed="${WS.sub==="sito"}">🌐 Sito web</button></div>`}
 function wsAct(a,v){if(a==="stSub"){WS.sub=v;render();return}if(a==="wsDays"){WS.days=+v;WS.data=null;render();return}if(a==="wsLoad"){WS.data=null;WS.msg="";render();return}

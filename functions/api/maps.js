@@ -5,12 +5,17 @@ import { gbpGet, gbpSet } from "../_gbp.js";
    di Sottosopra). Parole e città in gbp "maps:cfg"; ultimi 12 controlli in gbp "maps:runs".
    GET → { ok, cfg:{kw:[], cities:[{n,lat,lng}]}, runs:[{at, res:{"parola|città": posizione o null}}] }
    POST { task:"run" } → nuovo controllo (si fa da solo una volta a settimana quando Paolo apre la pagina, o col tasto)
-   POST { task:"cfg", kw:[...], cities:["Nome", ...] } → salva; le città nuove si trovano su OpenStreetMap. */
+   POST { task:"cfg", kw:[...], cities:["Nome", ...] } → salva; le città nuove si trovano su OpenStreetMap.
+   Tetto di spesa (scelta di Paolo): al massimo MAPS_CAP ricerche al mese (predefinito 100, circa 20 centesimi);
+   contatore in gbp "maps:used:AAAA-MM". Oltre il tetto il controllo non parte e lo dice. */
 const DEF = { kw: ["allevamento staffordshire bull terrier", "cuccioli staffordshire bull terrier", "allevamento staffy"],
   cities: [{ n: "Ostellato", lat: 44.7446, lng: 11.9411 }, { n: "Ferrara", lat: 44.8381, lng: 11.6198 }, { n: "Bologna", lat: 44.4949, lng: 11.3426 },
     { n: "Padova", lat: 45.4064, lng: 11.8768 }, { n: "Milano", lat: 45.4642, lng: 9.19 }] };
 const MINE = /piccolo\s*diavolo|delpiccolodiavolo/i;
 async function cfg(env) { const s = await gbpGet(env, "maps:cfg"); return s ? JSON.parse(s) : DEF; }
+const month = () => new Date().toISOString().slice(0, 7);
+const cap = env => Math.max(1, parseInt(env.MAPS_CAP || "100", 10) || 100);
+async function used(env) { return parseInt(await gbpGet(env, "maps:used:" + month()) || "0", 10) || 0; }
 async function runs(env) { const s = await gbpGet(env, "maps:runs"); return s ? JSON.parse(s) : []; }
 async function geocode(name) {
   const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q=" + encodeURIComponent(name),
@@ -32,7 +37,7 @@ async function check(env, kw, c) {
 }
 export async function onRequestGet({ request, env }) {
   if ((await role(request, env)) !== "admin") return deny();
-  return json({ ok: true, ready: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD), cfg: await cfg(env), runs: await runs(env) });
+  return json({ ok: true, ready: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD), cfg: await cfg(env), runs: await runs(env), used: await used(env), cap: cap(env) });
 }
 export async function onRequestPost({ request, env }) {
   if ((await role(request, env)) !== "admin") return deny();
@@ -48,9 +53,13 @@ export async function onRequestPost({ request, env }) {
       if (!env.DATAFORSEO_LOGIN || !env.DATAFORSEO_PASSWORD) return json({ ok: false, error: "Mancano DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD in Cloudflare." });
       const C = await cfg(env), res = {}, jobs = [];
       for (const k of C.kw) for (const c of C.cities) jobs.push([k, c]);
+      const u = await used(env), lim = cap(env);
+      if (u + jobs.length > lim) return json({ ok: false, capped: true, used: u, cap: lim,
+        error: `Tetto del mese raggiunto: ${u} ricerche fatte su ${lim}. Il controllo riparte il mese prossimo (o con meno parole e città).` });
+      await gbpSet(env, "maps:used:" + month(), String(u + jobs.length));
       for (let i = 0; i < jobs.length; i += 5) await Promise.all(jobs.slice(i, i + 5).map(async ([k, c]) => { res[k + "|" + c.n] = await check(env, k, c); }));
       const R = [{ at: new Date().toISOString(), res }].concat(await runs(env)).slice(0, 12);
-      await gbpSet(env, "maps:runs", JSON.stringify(R)); return json({ ok: true, runs: R });
+      await gbpSet(env, "maps:runs", JSON.stringify(R)); return json({ ok: true, runs: R, used: u + jobs.length, cap: lim });
     }
     return json({ ok: false, error: "Richiesta sconosciuta." }, 400);
   } catch (e) { return json({ ok: false, error: String(e.message || e) }); }

@@ -3,6 +3,7 @@ import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
 /* Statistiche di delpiccolodiavolo.it (ottobre 2026, scelta di Paolo: solo questo sito). Solo Paolo.
    GET ?days=1|7|28|90&it=1|0 → { ok, gsc | gscErr, cf | cfErr, gbpk | gbpkErr }
    - days=1: ultime 24 ore con i dati "freschi" di Google (provvisori) e grafico ora per ora; it=1 (predefinito): solo Italia.
+   - wa: tocchi sul tasto WhatsApp del sito (conteggio esatto, persone vere).
    - gbpk: ricerche che mostrano il profilo Google, ultimi 3 mesi, mese per mese (serve l'approvazione delle API del profilo).
    - Search Console (parole chiave vere, dati fino a 2-3 giorni fa): stesso collegamento Google del profilo, permesso
      webmasters.readonly. Proprietà trovata da sola (preferita "sc-domain:delpiccolodiavolo.it"), salvata in gbp "gsc".
@@ -61,6 +62,20 @@ async function searchConsole(env, days, it) {
     queries: q.map(r => ({ q: r.keys[0], c: r.clicks, i: r.impressions, p: r.position, dp: prev[r.keys[0]] != null ? r.position - prev[r.keys[0]] : null })),
     pages: pages.map(r => ({ u: r.keys[0].replace(/^https?:\/\/[^/]+/, ""), c: r.clicks, i: r.impressions, p: r.position })) };
 }
+// Tocchi sul tasto WhatsApp del sito (tabella D1 "wa", riempita da /api/public/walog)
+async function waStats(env, days) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS wa (id INTEGER PRIMARY KEY, ts INTEGER, day TEXT, path TEXT, lang TEXT)").run();
+  const now = Date.now(), from = now - days * 864e5, pfrom = now - 2 * days * 864e5;
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Rome" }).format(new Date());
+  const q = (sql, ...b) => env.DB.prepare(sql).bind(...b).all().then(r => r.results || []);
+  const [[tot], [prev], [td], daily, paths, langs] = await Promise.all([
+    q("SELECT COUNT(*) n FROM wa WHERE ts >= ?", from), q("SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ts < ?", pfrom, from),
+    q("SELECT COUNT(*) n FROM wa WHERE day = ?", today),
+    q("SELECT day, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY day ORDER BY day", from),
+    q("SELECT path, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY path ORDER BY n DESC LIMIT 8", from),
+    q("SELECT lang, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY lang ORDER BY n DESC", from)]);
+  return { tot: tot.n, prev: prev.n, today: td.n, days, daily, paths, langs };
+}
 // Ricerche che mostrano il profilo Google (Business Profile Performance API), mese per mese
 async function gbpKeywords(env) {
   const loc = await gbpGet(env, "loc"); if (!loc) throw new Error("In attesa dell'approvazione di Google per il profilo.");
@@ -103,8 +118,9 @@ export async function onRequestGet({ request, env }) {
   const sp = new URL(request.url).searchParams, days = [1, 7, 28, 90].includes(+sp.get("days")) ? +sp.get("days") : 28, it = sp.get("it") !== "0";
   const out = { ok: true, days, it };
   await Promise.all([
+    waStats(env, days).then(x => out.wa = x, e => { out.waErr = String(e.message || e); }),
     gbpKeywords(env).then(x => out.gbpk = x, e => { out.gbpkErr = String(e.message || e); }),
     searchConsole(env, days, it).then(x => out.gsc = x, e => { out.gscErr = String(e.message || e); out.gscConnect = !!e.connect; }),
-    cloudflare(env, days).then(x => out.cf = x, e => { out.cfErr = String(e.message || e); })]);
+    /* visite di Cloudflare tolte dalla pagina (scelta di Paolo, ottobre 2026): la funzione resta qui, non viene chiamata */]);
   return json(out);
 }
