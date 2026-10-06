@@ -895,3 +895,10 @@ Accessi e copie
   disegnate con pdf.js 3.11 da cdnjs, caricato solo quando serve), le foto in `lbShow`, "Scarica" apre il pannello
   Condividi (`dvShare`). `window.open` è intercettato per gli stessi indirizzi (anche lo schema "finestra vuota poi
   location.href"). Link esterni (WhatsApp, SBT, Gmail) come prima. Nel browser normale non cambia niente.
+
+## Istruzioni dell'allevatore nella pagina del proprietario (ottobre 2026)
+- `ovInstr(id)`, subito sotto nome e contratto nella pagina del proprietario (cani nati da meno di 18 mesi, non esterni):
+  le "istruzioni scritte del cedente" del punto 3.1 del contratto, in italiano o inglese. Riquadro rosso con la regola
+  dei primi 8-9 mesi (scale in braccio: deciso da Paolo, il sito è stato allineato), poi movimento, alimentazione, pasti,
+  cibi vietati, vaccini (testo di Paolo: a tre mesi, poi dopo un anno, salvo parere del veterinario), masticativi morbidi fino al cambio dei denti e niente tira e molla, niente lanci di bastoni o palline, rispetto, contatto; link alle guide del sito. Gli altri numeri sono quelli delle guide del
+  sito: se cambiano lì, vanno cambiati anche qui.

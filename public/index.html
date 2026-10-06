@@ -641,6 +641,12 @@ nav.bottom{display:none}
 .dv-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;opacity:.85}
 .dv-pages{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;flex-direction:column;align-items:center;gap:8px}
 .dv-pages canvas{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);max-width:100%}.dv-wait{color:#fff;margin:30px 10px;text-align:center}
+/* istruzioni dell'allevatore (pagina del proprietario) */
+.oi-h{color:#c05d00}.oi-card{background:var(--paper);border:1px solid var(--line);border-top:4px solid #c05d00;border-radius:12px;padding:16px 18px;background-image:linear-gradient(#fff3e6,transparent 70px);margin:0 0 10px}
+.oi-big{background:#FBE4E1;border:2px solid #B42318;border-radius:12px;padding:12px 14px;margin:0 0 12px;font-weight:700;color:#7A1C14}.oi-big small{display:block;font-weight:400;margin-top:4px;font-size:.92rem}
+.oi-ul{margin:0;padding-left:20px}.oi-ul li{margin:6px 0}
+.oi-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:14px}.oi-g a{display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);text-decoration:none;font-weight:600}.oi-g a span{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
+.oi-note{color:var(--muted);font-size:.88rem;margin:12px 0 0}
 </style>
 </head>
 <body>
@@ -1415,7 +1421,7 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${ovInstr(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${ovParents(id)}
@@ -3995,6 +4001,29 @@ if(STANDALONE){
     if(u==="")return{location:{set href(v){docView(v)}},close(){},closed:false};   // schema "apri vuota e poi riempi"
     if(sameOrigin(u)){docView(u);return null}return _open(u,...r)};
 }
+/* ---------- Istruzioni dell'allevatore nella pagina del proprietario (ottobre 2026, scelta di Paolo) ----------
+   Sono le "istruzioni scritte del cedente" del punto 3.1 del contratto. Ogni frase viene dalle guide del sito (stessi
+   numeri: 5 minuti per mese, cambio cibo in 10 giorni a quarti, 3 pasti fino a 6 mesi, calendario vaccini…), e la regola
+   delle scale è quella del contratto: in braccio nei primi 8-9 mesi. Si vede per i cani nati da meno di 18 mesi. */
+function ovInstr(id){const d=D.dogs[id];if(!d||d.ext||!d.birth||dDiff(todayS(),d.birth)>548)return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
+  const G=[["🍽️",T("Alimentazione del cucciolo","Puppy feeding"),T("quanto, quante volte, il cambio di cibo","how much, how often, changing food"),en?"puppy-initial-feeding":"cuccioli-alimentazione-iniziale"],
+    ["🏃",T("Movimento sicuro","Safe exercise"),T("cosa fare e cosa evitare mese per mese","what to do and avoid, month by month"),en?"staffy-safe-exercise":"salute-esercizio-sicuro"],
+    ["💉",T("Vaccinazioni","Vaccinations"),T("il calendario fino a 12 mesi","the schedule up to 12 months"),en?"puppy-first-vaccinations":"cuccioli-prime-vaccinazioni"],
+    ["🐜",T("Parassiti","Parasites"),T("zecche, pulci, filaria","ticks, fleas, heartworm"),en?"staffy-parasite-prevention":"salute-parassiti-prevenzione"],
+    ["🦷",T("Denti","Teeth"),T("spazzolino e masticativi","brushing and chews"),en?"staffy-dental-health":"salute-denti-igiene"]];
+  return`<h2 class="oi-h">📋 ${T("Le istruzioni dell'allevatore","The breeder's instructions")}</h2><div class="oi-card">
+  <div class="oi-big">${T("Nei primi 8-9 mesi di vita il cucciolo non deve essere forzato a correre, saltare, salire le scale, o a fare sforzi che possano compromettere il suo sviluppo fisico e psicofisico.","During the first 8-9 months the puppy must not be forced to run, jump, climb stairs, or make any effort that could compromise its physical and mental development.")}<small>${T("Le scale si fanno in braccio, in salita e in discesa.","Carry the puppy on stairs, both up and down.")}</small></div>
+  <ul class="oi-ul">
+  <li><b>${T("Movimento:","Exercise:")}</b> ${T("passeggiate di 5 minuti per ogni mese di età, una o due volte al giorno (a 3 mesi 15 minuti, a 4 mesi 20), su erba o terra battuta. Il gioco libero va bene, perché il cucciolo si ferma quando è stanco. Niente salti dall'alto, niente corsa vicino alla bicicletta, niente jogging fino ai 12 mesi, niente lanci di bastoni o palline che costringono il cucciolo ad accelerare in modo innaturale o forzato: le cartilagini di crescita si chiudono fra i 12 e i 18 mesi.","walks of 5 minutes for each month of age, once or twice a day (15 minutes at 3 months, 20 at 4), on grass or packed earth. Free play is fine, because the puppy stops when tired. No jumping down from heights, no running beside a bicycle, no jogging until 12 months, no throwing sticks or balls that make the puppy accelerate in an unnatural or forced way: the growth plates close between 12 and 18 months.")}</li>
+  <li><b>${T("Alimentazione:","Feeding:")}</b> ${T("all'inizio lo stesso cibo dell'allevamento, con la scorta e gli orari che ti do. Se vuoi cambiare, fallo in 10 giorni: un quarto di cibo nuovo per 3 giorni, metà per 3, tre quarti per 3, poi tutto nuovo. Se le feci si ammorbidiscono, torna indietro di un passo.","at first the same food as at the kennel, with the supply and feeding times I give you. If you want to change, do it over 10 days: a quarter of the new food for 3 days, half for 3, three quarters for 3, then all new. If the stools soften, go back one step.")}</li>
+  <li><b>${T("Pasti:","Meals:")}</b> ${T("tre al giorno fino ai 6 mesi, poi due. La ciotola resta giù 15-20 minuti, poi si toglie.","three a day until 6 months, then two. The bowl stays down for 15-20 minutes, then it is taken away.")}</li>
+  <li><b>${T("Mai:","Never:")}</b> ${T("cioccolato, xilitolo (gomme senza zucchero, alcuni burri di arachidi), uva e uvetta, cipolla, aglio, noci di macadamia, alcol, ossa cotte.","chocolate, xylitol (sugar-free gum, some peanut butters), grapes and raisins, onion, garlic, macadamia nuts, alcohol, cooked bones.")}</li>
+  <li><b>${T("Vaccini:","Vaccines:")}</b> ${T("vaccino a tre mesi, poi dopo un anno, salvo diverso parere del veterinario di fiducia.","vaccine at three months, then after one year, unless your own vet advises otherwise.")}</li>
+  <li><b>${T("Masticativi:","Chews:")}</b> ${T("finché non ha cambiato tutti i denti, solo masticativi morbidi (Kong morbidi o di media durezza). Niente tira e molla con stracci, corde o simili.","until all the adult teeth are in, only soft chews (soft or medium Kong). No tug-of-war with rags, ropes or similar.")}</li>
+  <li><b>${T("Rispetto:","Respect:")}</b> ${T("nessun maltrattamento, da parte di nessuno.","no mistreatment, from anyone.")}</li>
+  <li><b>${T("Per ogni dubbio, chiedi a me","For any doubt, ask me")}</b>${T(", per tutta la vita del cane: 392 463 5584.",", for the dog's whole life: +39 392 463 5584.")}</li></ul>
+  <div class="oi-g">${G.map(([i,a,b,s])=>`<a href="${S+s}/" target="_blank" rel="noopener">${i} ${esc(a)}<span>${esc(b)}</span></a>`).join("")}</div>
+  <p class="oi-note">${T("Sono le istruzioni scritte a cui rimanda il contratto, al punto 3.1. Ogni frase viene dalle guide del sito, che si aprono qui sopra.","These are the written instructions referred to in point 3.1 of the contract. Every line comes from the kennel's guides, which open above.")}</p></div>`}
 /* ---------- Salvataggio online ---------- */
 let VERSION=0,lastJ="",EMPTY=false,BUSY=false,SAVE={at:null,msg:"",err:""};
 const nowS=()=>new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
