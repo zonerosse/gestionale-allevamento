@@ -1138,7 +1138,8 @@ function rpSave(v){const [id,t]=v.split("|"),date=$("#rpd").value;if(!date){$("#
 function hsOpenDummy(){}
 /* ---------- Salute del cucciolo ---------- */
 const HK={vacc:"Vaccinazioni",feci:"Esame delle feci",verm:"Vermifugo",pz:"Pulci e zecche",lf:"Leishmania e filaria"};
-function H(d){return d.health||(d.health={vacc:[],feci:[],verm:[]})}
+/* dati sanitari: se una lista manca (schede vecchie o importate) la crea vuota, così la sezione Salute non va in errore */
+function H(d){const h=d.health||(d.health={});["vacc","feci","verm"].forEach(k=>{if(!Array.isArray(h[k]))h[k]=[]});return h}
 let LANG="it";const T=(it,en)=>LANG==="en"?en:it;
 const HKen={vacc:"Vaccinations",feci:"Faecal examination",verm:"Deworming",pz:"Fleas and ticks",lf:"Leishmania and heartworm"};
 const LFK={ple:["Prevenzione leishmania","Leishmania prevention"],pfi:["Prevenzione filaria","Heartworm prevention"],vle:["Vaccino leishmania","Leishmania vaccine"],test:["Test","Test"]};
