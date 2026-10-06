@@ -9,6 +9,7 @@ import { json, role, deny } from "../_lib.js";
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
    - "testmating": { data, media, sire, dam } → { pair, single, coi8, coi3, coi5, uniq, loss, top } pagina di SBTpedigree
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
+   - "agenda":   { text, today, weekday, families } → { type, date, time, who, from, dog, want, note, summary }
    - "post":     { facts, idea? }           → { text }                          post per gli Aggiornamenti del profilo Google
    - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
@@ -62,6 +63,19 @@ Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevament
 Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` Paolo aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
 Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000), 700);
       return json({ ok: true, text: String(o.text || "") });
+    }
+    if (task === "agenda") {
+      // Agenda (ritiri dei cuccioli e visite in allevamento): legge un messaggio WhatsApp e propone l'appuntamento.
+      const o = await ask(env, `Leggi un messaggio WhatsApp arrivato all'allevamento Del Piccolo Diavolo (Ostellato, Ferrara) e capisci se è:
+- "ritiro": una famiglia che fissa il giorno per venire a prendere il suo cucciolo;
+- "visita": qualcuno che vuole venire a vedere i cani e conoscere l'allevamento;
+- "altro": niente di tutto questo.
+Oggi è ${String(p.today || "")} (${String(p.weekday || "")}). Trasforma "sabato", "domani", "la prossima settimana" in una data AAAA-MM-GG nel futuro più vicino; l'ora in HH:MM (24 ore; "verso le 4 del pomeriggio" = 16:00). Se manca, lascia vuoto: non inventare.
+Famiglie con un cucciolo da ritirare (id, cucciolo, famiglia, telefono, città): ${JSON.stringify(p.families || []).slice(0, 3000)}
+Se è un ritiro, scegli in "dog" l'id della famiglia/cucciolo giusto solo se il messaggio lo fa capire (nome del cucciolo, nome della persona, città); altrimenti "".
+Rispondi solo con JSON: {"type":"ritiro|visita|altro","date":"","time":"","who":"chi viene (nomi, quante persone)","from":"città se detta","dog":"","want":"per le visite: cosa cerca (maschio/femmina, quando) se detto","note":"altro di utile in poche parole","summary":"una riga in italiano"}`,
+        String(p.text || "").slice(0, 3000), 600);
+      return json({ ok: true, ...o });
     }
     if (task === "recensione") {
       // Recensione Google (scheda Recensioni): senza idea → 2 ringraziamenti brevi; con idea → 1 risposta che dice quello.

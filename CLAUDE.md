@@ -868,3 +868,15 @@ Accessi e copie
 - "✉️ Email alla delegazione" da computer (`encDesktop`, `encGmail`): scarica il PDF e apre Gmail di zonerosse@gmail.com
   (`authuser`) con destinatario, oggetto e testo già scritti (`maText`/`mbText`); il PDF si trascina nell'email (Gmail non
   allega da un link). Sul telefono resta il pannello Condividi, che allega il file da solo.
+
+## Agenda: ritiri dei cuccioli e visite in allevamento (ottobre 2026, scelte di Paolo)
+- Voce di menu **📅 Agenda** (`agPage`, `AG`, dati in `D.agenda`): ritiri (k "r", legati al cucciolo `dog`) e visite (k "v").
+  Stati: d da confermare, c confermato, r ritirato, f visita fatta. Filtri Tutto / Ritiri / Visite, "➕ Nuova visita".
+- I cuccioli "prenotati" con proprietario e nati da meno di 6 mesi senza ritiro fissato compaiono da soli in "Da fissare".
+- Avvisi: oggi/domani (anche in cima alla pagina Cani, `agBanner`, e numero sul menu `agCount`), appuntamenti a meno di
+  un'ora, ritiro prima dei 60 giorni di vita.
+- Messaggio WhatsApp: comando rapido dell'iPhone "Agenda allevamento" → `#agenda=<testo>` (`agFromHash`), oppure incollato;
+  lo legge Claude (task `agenda`: tipo, data, ora, chi, città, cucciolo, cosa cerca). Paolo controlla e salva.
+- Tasti: ✅ Conferma su WhatsApp (messaggio con indirizzo e link Maps), 🔔 Promemoria del giorno prima, 💬 Chiedi quando
+  viene / Proponi un giorno, 📅 Al calendario (.ics con avviso 2 ore prima), 🐾 Ritirato, 👍 Visita fatta,
+  ➕ Aggiungi all'Attesa (crea la richiesta in `D.waitlist`, source "visita"), ✏️ Modifica con Salva/Annulla, 🗑 Elimina.
