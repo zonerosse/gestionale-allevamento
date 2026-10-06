@@ -812,3 +812,4 @@ Accessi e copie
   mostra "⚠️ La parte «nome» non si è caricata" e il resto della scheda si apre lo stesso.
 - Foto in cima alla scheda (`.hero-photo`, ottobre 2026, scelta di Paolo): intera (`object-fit:contain`), mai ingrandita oltre
   la misura vera (`width:auto`), al massimo 320×320 px. Così le foto piccole non si sgranano e nessuna viene tagliata.
+  Stessa regola per le foto dei genitori nel riquadro Pedigree (`.phi img`): intere, mai ingrandite, al massimo 260 px di altezza.
