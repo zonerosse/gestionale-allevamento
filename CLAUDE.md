@@ -823,3 +823,22 @@ Accessi e copie
 - Nei post (proposte e "Scrivi un post") il primo riquadro delle foto è **"➕ Aggiungi foto"** (`gpUpload`, `GP.up`):
   foto dal telefono o dal computer, ridotte con `shrink` e salvate su R2 con `uploadData`. Scelta di Paolo: nei post si
   vedono SOLO le foto aggiunte così (niente foto già presenti nel gestionale); senza foto aggiunte il post esce senza foto.
+
+## Statistiche del sito (ottobre 2026, scelta di Paolo: solo delpiccolodiavolo.it)
+- In Statistiche due sezioni: "🐾 Allevamento" (`stAllevPage`, quella di prima) e "🌐 Sito web" (`wsPage`, `WS`).
+- `functions/api/sitestats.js` (GET `?days=7|28|90`): Google Search Console (totali e confronto col periodo prima, clic
+  per giorno, 250 parole chiave con variazione di posizione, 10 pagine) e Cloudflare Web Analytics via GraphQL (visite
+  ultima ora/oggi/periodo, provenienza, paesi, dispositivi, pagine). Nessuno script sul sito.
+- Google: stesso collegamento del profilo, ora con permesso `webmasters.readonly` (`/api/google?ret=sito`, ritorno
+  `#sitostat=`). Proprietà Search Console trovata da sola e salvata in `gbp` ("gsc"). Serve la "Google Search Console API"
+  attiva nel progetto Google Cloud; nessuna approvazione di Google.
+- Cloudflare: segreti `CF_API_TOKEN` (permesso Account Analytics: Read) e `CF_ACCOUNT_ID`; `CF_SITE_TAG` facoltativo
+  (senza, filtra per host delpiccolodiavolo.it).
+- Periodi: 24 ore (dati "freschi" di Search Console, provvisori, grafico ora per ora con `hourly_all`), 7, 28, 90 giorni.
+  Filtro **🇮🇹 Solo Italia** (predefinito) / 🌍 Tutto il mondo: `it=1|0`, filtro paese "ita" su tutte le richieste.
+- **📍 Posizioni su Google Maps** (`functions/api/maps.js`, `wsMapsHtml`): DataForSEO Maps live, coordinate di ogni città
+  (zoom 13), posizione della scheda "…Piccolo Diavolo…" nei primi 20 ("oltre 20" se manca), ▲▼ rispetto al controllo prima.
+  Segreti `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD`. Parole e città modificabili (max 10+10; città nuove da OpenStreetMap),
+  salvate in `gbp` "maps:cfg"; ultimi 12 controlli in "maps:runs". Controllo da solo se l'ultimo ha più di 7 giorni, o col tasto.
+- **🔎 Ricerche che mostrano il profilo** (`gbpKeywords` in sitestats, `wsGbpkHtml`): Business Profile Performance API,
+  ultimi 3 mesi mese per mese; finché Google non approva le API del profilo mostra l'attesa.
