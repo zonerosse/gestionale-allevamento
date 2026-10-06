@@ -821,4 +821,5 @@ Accessi e copie
   schermo ma mai più grande dell'originale; tocco sulla foto o "Dimensioni originali" → grandezza piena da scorrere;
   in basso le dimensioni originali. Le foto settimanali nel gestionale di Paolo aprono ancora la loro scheda di modifica.
 - Nei post (proposte e "Scrivi un post") il primo riquadro delle foto è **"➕ Aggiungi foto"** (`gpUpload`, `GP.up`):
-  foto dal telefono o dal computer, ridotte con `shrink` e salvate su R2 con `uploadData`, poi messe in testa all'elenco.
+  foto dal telefono o dal computer, ridotte con `shrink` e salvate su R2 con `uploadData`. Scelta di Paolo: nei post si
+  vedono SOLO le foto aggiunte così (niente foto già presenti nel gestionale); senza foto aggiunte il post esce senza foto.
