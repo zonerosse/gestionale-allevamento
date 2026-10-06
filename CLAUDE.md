@@ -882,3 +882,5 @@ Accessi e copie
   ➕ Aggiungi all'Attesa (crea la richiesta in `D.waitlist`, source "visita"), ✏️ Modifica con Salva/Annulla, 🗑 Elimina.
 - Il tasto fluttuante 💉 (vaccino · sverminazione · esame, `.hfab`) compare solo in Cani, Cucciolate e Scadenze (`body[data-tab]`).
 - Sulla scheda di ogni appuntamento restano solo 📅 Al calendario, 🐾 Ritirato / 👍 Visita fatta, ✏️ Modifica (scelta di Paolo: tolti Conferma e Promemoria WhatsApp). Claude scrive "chi viene" e le note in modo corto.
+- Aggiornamenti sul telefono: `_headers` mette `Cache-Control: no-cache` alle pagine; l'app riaperta dopo più di 20 minuti
+  si ricarica da sola (`visibilitychange`), mai durante una modifica (EDIT/EDIRTY) o con un riquadro aperto.

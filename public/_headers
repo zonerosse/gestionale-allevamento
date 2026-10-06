@@ -1,3 +1,13 @@
 /*
   X-Robots-Tag: noindex, nofollow
   Referrer-Policy: no-referrer
+
+# l'app sul telefono deve sempre chiedere se c'è una versione nuova (ottobre 2026)
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/proprietario.html
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache

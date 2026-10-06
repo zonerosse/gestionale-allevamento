@@ -3931,6 +3931,11 @@ function agFromHash(){const h=location.hash||"";if(!h.startsWith("#agenda="))ret
   AG.txt=t;AG.read=null;tab="agenda";view=null;render();setTimeout(agRead,200)}
 window.addEventListener("hashchange",agFromHash);
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="ag_txt")AG.txt=e.target.value});
+/* App sul telefono: riaperta dopo più di 20 minuti si ricarica da sola, così prende l'ultima versione pubblicata
+   (l'iPhone altrimenti rimette la pagina com'era). Mai se c'è una modifica in corso o un riquadro aperto. */
+let HIDDEN_AT=0;
+document.addEventListener("visibilitychange",()=>{if(document.hidden){HIDDEN_AT=Date.now();return}
+  if(HIDDEN_AT&&Date.now()-HIDDEN_AT>20*60e3){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(!busy)location.reload()}HIDDEN_AT=0});
 /* ---------- Salvataggio online ---------- */
 let VERSION=0,lastJ="",EMPTY=false,BUSY=false,SAVE={at:null,msg:"",err:""};
 const nowS=()=>new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
