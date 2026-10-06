@@ -662,6 +662,8 @@ body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:no
 .nv-box{background:#EAF4FF;border:2px solid #6FA8E8;border-radius:14px;padding:12px 14px;margin:12px 0}.nv-t{display:block;color:#1F4E8C;margin:0 0 6px}
 .nv-box ul{margin:0;padding-left:18px}.nv-box li{margin:3px 0}.nv-r{display:flex;justify-content:flex-end;margin-top:8px}
 .nv-pick label{display:block;margin:5px 0}
+.tr-int{display:flex;align-items:center;gap:12px;width:100%;background:#F1E9FB;border:2px solid #7A4FC2;border-radius:14px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;box-shadow:0 4px 12px rgba(122,79,194,.18);margin:4px 0 6px;color:inherit}
+.tr-int .i{font-size:1.8rem}.tr-int b{display:block;color:#4B2A86;font-size:1.08rem}.tr-int .d{color:#5C4A7A;font-size:.9rem}.tr-int .go{margin-left:auto;background:#7A4FC2;color:#fff;border-radius:999px;padding:6px 14px;font-weight:700;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2040,11 +2042,11 @@ let TR={to:null,inTxt:"",inIt:"",inLang:"",outIt:"",out:"",lang:"en"};
    Da un proprietario (💬 Messaggio tradotto) sa già numero, email e lingua. Dal comando rapido dell'iPhone arriva con
    #traduci=<testo>: il messaggio è già incollato e tradotto. */
 function trPage(){const o=trContact(),wa=(TR.num||"").trim()?lkPhone({phone:TR.num,country:"Italia"}):(o&&o.phone?lkPhone(o):"");
-  return `<h1>💬 Traduci</h1>${o?`<p class="nick">Con <b>${esc(o.name)}</b>${TR.wl?" · lista d'attesa":TR.int?" · interessati":""} <button class="plink" data-a="trFree">nessuno in particolare</button></p>`:`<p class="nick">Messaggi in un'altra lingua: WhatsApp, email, chiunque.</p>`}
+  return `<h1>💬 Traduci</h1>${o?`<p class="nick">Con <b>${esc(o.name)}</b>${TR.wl?" · lista d'attesa":TR.int?" · interessati":""} <button class="plink" data-a="trFree">nessuno in particolare</button></p>`:`<p class="nick">Messaggi in un'altra lingua: WhatsApp, email, chiunque.</p>`}${TR.wl||TR.int||TR.to||!(TR.inTxt||"").trim()?"":`<button class="tr-int" data-a="intFromTr"><span class="i" aria-hidden="true">👀</span><span><b>➕ Metti negli interessati</b><span class="d">Chi ti ha scritto finisce nella lista «Interessati» di Attesa: Claude legge nome, cosa cerca e quando.</span></span><span class="go">Salva ›</span></button>`}
   <h2>Ti hanno scritto</h2><div class="cs" style="gap:8px"><textarea id="tr_in" rows="4" class="tr-ta" placeholder="Incolla qui il messaggio che ti è arrivato">${esc(TR.inTxt)}</textarea>
   <div class="row2"><button class="btn" data-a="trIn">✨ Traduci in italiano</button></div>
   ${TR.inIt?`<div class="tr-out"><b>🇮🇹 ${TR.inLang==="italiano"?"Il suo messaggio":"Cosa dice"}${TR.inLang&&TR.inLang!=="italiano"?` · era in ${esc(TR.inLang)}`:""}</b>${esc(TR.inIt)}</div>
-  <div class="row2"><button class="btn" data-a="trProp">✨ Proponi risposte</button>${TR.wl||TR.int||TR.to?"":`<button class="btn ghost" data-a="intFromTr">➕ Metti negli interessati</button>`}<a class="btn mb-wa" href="${wa?"https://wa.me/"+wa:"whatsapp://"}" rel="noopener">WhatsApp${o?" "+esc(o.name.split(" ")[0]):""}</a><button class="btn ghost" data-a="trReply">✍️ Rispondi</button></div>
+  <div class="row2"><button class="btn" data-a="trProp">✨ Proponi risposte</button><a class="btn mb-wa" href="${wa?"https://wa.me/"+wa:"whatsapp://"}" rel="noopener">WhatsApp${o?" "+esc(o.name.split(" ")[0]):""}</a><button class="btn ghost" data-a="trReply">✍️ Rispondi</button></div>
   ${(TR.opts||[]).map((x,i)=>`<div class="tr-out"><b>${esc(x.label)}</b><span style="display:block;margin-bottom:6px;color:var(--ink)">${TR.lang==="it"?esc(x.it):esc(x.out)}</span>${TR.lang==="it"?"":`<span style="display:block;color:var(--muted);font-size:.88rem">🇮🇹 ${esc(x.it)}</span>`}
   <div class="row2" style="margin-top:8px"><a class="btn mb-wa" href="https://wa.me/${wa}?text=${encodeURIComponent(x.out)}" target="_blank" rel="noopener">WhatsApp</a><button class="btn ghost" data-a="trOptCopy" data-v="${i}">Copia</button><button class="btn ghost" data-a="trOptEdit" data-v="${i}">✏️ Modifica</button></div></div>`).join("")}`:""}</div>
   ${TR.inIt?`<h2>Dimmi cosa vuoi rispondere</h2><div class="cs" style="gap:8px"><textarea id="tr_idea" rows="2" class="tr-ta" placeholder="es. ringrazialo, digli che Maris sta bene e che il 15 gli mando le foto">${esc(TR.idea||"")}</textarea>
