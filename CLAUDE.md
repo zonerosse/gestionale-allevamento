@@ -860,3 +860,6 @@ Accessi e copie
 - Correzione (ottobre 2026): il contatore di Maps conta solo le ricerche riuscite (chiave `maps:used2:AAAA-MM`; il primo
   contava anche i tentativi falliti per credito esaurito). Senza credito la pagina dice "DataForSEO è senza credito".
   Niente bandierine emoji (su Windows non si vedono): "Solo Italia", "Italiano/Inglese/Tedesco" in testo.
+- Ordine della pagina Sito web (scelta di Paolo): prima 💬 Contatti WhatsApp, poi "Ricerche su Google" (con Solo Italia /
+  Tutto il mondo), poi Maps e profilo. Parole chiave: prime 10, il resto con "▾ Mostra le altre N" (`WS.allq`); scrivendo
+  nel campo di ricerca compaiono tutte quelle che corrispondono. "Payment Required" di DataForSEO = senza credito.

@@ -79,7 +79,7 @@ export async function onRequestPost({ request, env }) {
         try { res[k + "|" + c.n] = await check(env, k, c); ok++; } catch (e) { err = err || String(e.message || e); }
       }));
       if (ok) await gbpSet(env, UKEY(), String(u + ok));
-      if (!ok) return json({ ok: false, used: u, cap: lim, error: /fund|balance|credit|money|402/i.test(err)
+      if (!ok) return json({ ok: false, used: u, cap: lim, error: /fund|balance|credit|money|payment|402/i.test(err)
         ? "DataForSEO è senza credito: ricarica il conto e riprova." : "Nessuna ricerca riuscita. " + err });
       const R = [{ at: new Date().toISOString(), res, partial: ok < jobs.length }].concat(await runs(env)).slice(0, 12);
       await gbpSet(env, "maps:runs", JSON.stringify(R)); return json({ ok: true, runs: R, used: u + ok, cap: lim, warn: ok < jobs.length ? err : "" });
