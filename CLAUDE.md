@@ -863,3 +863,8 @@ Accessi e copie
 - Ordine della pagina Sito web (scelta di Paolo): prima 💬 Contatti WhatsApp, poi "Ricerche su Google" (con Solo Italia /
   Tutto il mondo), poi Maps e profilo. Parole chiave: prime 10, il resto con "▾ Mostra le altre N" (`WS.allq`); scrivendo
   nel campo di ricerca compaiono tutte quelle che corrispondono. "Payment Required" di DataForSEO = senza credito.
+
+## Email dei Modelli A e B ENCI dal computer (ottobre 2026)
+- "✉️ Email alla delegazione" da computer (`encDesktop`, `encGmail`): scarica il PDF e apre Gmail di zonerosse@gmail.com
+  (`authuser`) con destinatario, oggetto e testo già scritti (`maText`/`mbText`); il PDF si trascina nell'email (Gmail non
+  allega da un link). Sul telefono resta il pannello Condividi, che allega il file da solo.

@@ -1717,6 +1717,12 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   <p class="row-meta" style="margin:0">${l.enciA?"✅ Consegnato il "+fmt(l.enciA):l.date?"Scadenza "+fmt(addD(l.date,25))+" · entro 25 giorni dalla nascita":"Scadenza: entro 25 giorni dalla nascita"}</p>
   ${ma.saved?`<p class="row-meta" style="margin:0">Salvato il ${fmt(ma.saved)}${ma.file&&/^\/files\//.test(ma.file)?` · ${fBtns(ma.file,maName(lid))}`:""} · con "Salva in Drive" va nella cartella "Modelli A"</p>`:""}
   <p class="small" style="margin:0">Già scritti: i tuoi dati, "controllabile presso" e Delegazione di ${MA_TO.deleg}; fattrice, stallone, monta e cuccioli quando ci sono. I dati del proprietario dello stallone (oltre al nome) si scrivono a mano. Va a: <b>${MA_TO.email}</b> · WhatsApp <b>${MA_TO.who} 338 214 1637</b>. Dal telefono Email e WhatsApp aprono la condivisione con il PDF già allegato; dal computer lo scaricano e lo alleghi tu.</p></div>`}
+/* Email ENCI da computer (ottobre 2026, scelta di Paolo): apre Gmail di zonerosse@gmail.com con destinatario, oggetto e
+   testo già scritti, e scarica il PDF da trascinare nell'email (Gmail non permette di allegare da un link). Sul telefono
+   resta il pannello Condividi, che allega il file da solo. */
+function encGmail(to,subj,txt){const u="https://mail.google.com/mail/?authuser="+encodeURIComponent("zonerosse@gmail.com")+"&view=cm&fs=1&to="+encodeURIComponent(to||"")+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt);
+  window.open(u,"_blank","noopener");toast("Il PDF è nella cartella Download: trascinalo nell'email di Gmail.")}
+const encDesktop=()=>!(window.matchMedia&&matchMedia("(pointer:coarse)").matches);
 async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
   if(mode==="done"){if(!confirm("Segnare il Modello A come consegnato? La scadenza sparisce."))return;l.enciA=todayS();render();if(sheetOpen())litterSheet(lid);typeof saveNow==="function"&&saveNow();toast("Modello A consegnato.");return}
   toast("Preparo il Modello A…");let blob;try{blob=await maBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
@@ -1726,6 +1732,7 @@ async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Obj
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  if(mode==="mail"&&encDesktop()){dl();encGmail(MA_TO.email,subj,txt);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
@@ -1907,6 +1914,7 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
   if(mode==="save"){l.mbFile=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.mbSaved=todayS();
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
+  if(mode==="mail"&&encDesktop()){dl();encGmail(S.email,subj,txt);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
