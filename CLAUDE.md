@@ -774,3 +774,5 @@ Accessi e copie
   scarica i 2 PDF da allegare.
 - `isPhone()`: il pannello "Condividi" con i file (navigator.share) si usa solo su telefono/tablet; su Windows apriva il pannello di
   sistema (Teams, Outlook, Condivisione in prossimità). Dal PC: Gmail nel browser (anagrafe) o mailto/scarica come prima.
+- Anagrafe: "Dichiarazione firmata" (`anagSign` → `anag.signed`, nome, data; ✓ e Visualizza/Cambia). "📎 PDF unico" e l'email
+  mandano un solo file: dichiarazione (firmata se caricata, se no quella da firmare, con avviso) + allegati scelti.
