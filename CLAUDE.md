@@ -982,3 +982,4 @@ Accessi e copie
 - Se il COI SBT è sopra il 9%, la pagina mostra la spiegazione scelta da Paolo (proposta B): "sopra la fascia che usiamo di
   solito (6-9%). Lo mostriamo lo stesso, perché i numeri si pubblicano anche quando non sono quelli ideali" + l'antenato su
   cui cade la parte più grande della parentela.
+- "📷 Aggiungi foto" (`qPh`/`qPhOpen`, 07/10/2026): riquadro tratteggiato dove manca la foto: scheda del cane (grande), Accoppiamenti sotto il titolo della coppia (medio), miniatura nell'elenco dei Cani (piccolo). Foto ridotta a 900 px, salvata subito in d.photo (poi diventa /files/ al salvataggio). Non per chi consulta.
