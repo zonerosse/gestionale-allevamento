@@ -979,7 +979,7 @@ Accessi e copie
 - `coppia.html` ha lo stile delle schede delle cucciolate del sito (Programma allevamento): due cani affiancati con foto
   (`/api/public/coppia/<token>/f/sire|dam`, solo i due cani di quel link), test e titoli, genitori, link SBT; sotto COI,
   calcolo del gestionale, spiegazione, su chi cade, parto previsto, "Test mating: vedi su SBTPedigree". Lingue ?l=en / ?l=de.
-- Se il COI SBT è sopra il 9%, la pagina mostra la spiegazione scelta da Paolo (proposta B): "sopra la fascia che usiamo di
+- (TOLTA il 07/10/2026 su richiesta di Paolo: nessuna spiegazione sotto il COI.) Prima: se il COI SBT era sopra il 9%, la pagina mostrava la spiegazione (proposta B): "sopra la fascia che usiamo di
   solito (6-9%). Lo mostriamo lo stesso, perché i numeri si pubblicano anche quando non sono quelli ideali" + l'antenato su
   cui cade la parte più grande della parentela.
 - "📷 Aggiungi foto" (`qPh`/`qPhOpen`, 07/10/2026): riquadro tratteggiato dove manca la foto: scheda del cane (grande), Accoppiamenti sotto il titolo della coppia (medio; lì si vedono SEMPRE i due cani, con la foto che si ingrandisce al tocco o con il riquadro), miniatura nell'elenco dei Cani (piccolo). Foto ridotta a 900 px, salvata subito in d.photo (poi diventa /files/ al salvataggio). Non per chi consulta.
