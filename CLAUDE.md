@@ -772,3 +772,5 @@ Accessi e copie
 - Anagrafe, "✉️ Email all'anagrafe canina" (non più "a Piera", saluto "Buongiorno,"): dal telefono foglio di condivisione con i 2 PDF
   (Paolo sceglie Gmail o Edison Mail; indirizzo copiato); dal computer apre la scrittura di Gmail nel browser già compilata e
   scarica i 2 PDF da allegare.
+- `isPhone()`: il pannello "Condividi" con i file (navigator.share) si usa solo su telefono/tablet; su Windows apriva il pannello di
+  sistema (Teams, Outlook, Condivisione in prossimità). Dal PC: Gmail nel browser (anagrafe) o mailto/scarica come prima.

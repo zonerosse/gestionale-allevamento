@@ -1622,7 +1622,7 @@ async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Obj
     if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   const f=new File([blob],name,{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
+  if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(MA_TO.email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
   else setTimeout(()=>window.open("https://wa.me/39"+MA_TO.wa+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900);
@@ -1773,7 +1773,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
-  const f=new File([blob],name,{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
+  const f=new File([blob],name,{type:"application/pdf"});if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(o.email||"")+"?subject="+encodeURIComponent(en?"Deposit receipt – "+(d.nick||d.name):"Ricevuta caparra – "+(d.nick||d.name))+"&body="+encodeURIComponent(txt)},900);
   else{const ph=lkPhone(o);setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n"+(en?"(I'm attaching the PDF here)":"(il PDF te lo allego qui)")),"_blank","noopener"),900)}
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
@@ -1803,7 +1803,7 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
   const f=new File([blob],name,{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
+  if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(S.email||"")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
   else{const ph=lkPhone({phone:S.wa,country:"Italia"});setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900)}
@@ -2089,6 +2089,9 @@ function mateHist(){const E=Object.entries(D.matings||{}).filter(([k,m])=>{const
   return `<label class="mate-h">🕘 Coppie già guardate (${E.length})<select id="mateHist"><option value="">— scegli una coppia —</option>${E.map(([k,m])=>{const [s,d]=k.split("|"),p=pairCoi(s,d);
     return `<option value="${k}" ${k===cur?"selected":""}>${esc((D.dogs[d].nick||D.dogs[d].name)+" × "+D.dogs[s].name)} · ${p.src==="low"?"COI ?":(p.src==="sbt"?"SBT ":"")+pf(p.v)+"%"}${m.seen?" · "+fmt(m.seen.slice(0,10)):""}</option>`}).join("")}</select></label>`}
 document.addEventListener("change",e=>{if(e.target&&e.target.id==="mateHist"&&e.target.value){const [s,d]=e.target.value.split("|");mateS=s;mateD=d;render();scrollTo(0,0)}});
+/* Il pannello "Condividi" con i file solo sul telefono: su Windows apre il pannello di sistema (Teams, Outlook…) invece di
+   Gmail. Dal computer ogni invio usa la sua strada per il PC (Gmail nel browser o il programma di posta). (Paolo, 07/10/2026) */
+const isPhone=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 /* ---------- Programma, Diario e Novità in Home dal gestionale (ottobre 2026, scelte di Paolo) ----------
    l.site = {stage:"prog"|"arr"|"nat", prog, diar, home, homeSince, txt:{it,en,de}, diarDone}. Solo per le cucciolate da
    ottobre 2026 in poi (SI_FROM): quelle di prima hanno schede e pagine scritte a mano, che il gestionale non tocca mai.

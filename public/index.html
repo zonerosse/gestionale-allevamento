@@ -1624,7 +1624,7 @@ async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Obj
     if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   const f=new File([blob],name,{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
+  if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(MA_TO.email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
   else setTimeout(()=>window.open("https://wa.me/39"+MA_TO.wa+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900);
@@ -1775,7 +1775,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
-  const f=new File([blob],name,{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
+  const f=new File([blob],name,{type:"application/pdf"});if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(o.email||"")+"?subject="+encodeURIComponent(en?"Deposit receipt – "+(d.nick||d.name):"Ricevuta caparra – "+(d.nick||d.name))+"&body="+encodeURIComponent(txt)},900);
   else{const ph=lkPhone(o);setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n"+(en?"(I'm attaching the PDF here)":"(il PDF te lo allego qui)")),"_blank","noopener"),900)}
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
@@ -1805,7 +1805,7 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
   const f=new File([blob],name,{type:"application/pdf"});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
+  if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
   dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(S.email||"")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
   else{const ph=lkPhone({phone:S.wa,country:"Italia"});setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900)}
@@ -2304,7 +2304,7 @@ async function anagAct(a,k,b){try{
   if(a==="anagAll"){aiBusy(b,1,"Unisco…");const bl=await anagAllBlob(k);aiBusy(b,0);window.open(URL.createObjectURL(bl),"_blank");return}
   if(a==="anagMail"){aiBusy(b,1,"Preparo…");const d=D.dogs[k],A=anagRead(k),H=anagHolders()[A.holder]||{},f1=new File([await anagPdfBlob(k)],anagName(k,"dichiarazione-anagrafe"),{type:"application/pdf"});let f2=null;try{f2=new File([await anagAllBlob(k)],anagName(k,"allegati"),{type:"application/pdf"})}catch(e){}aiBusy(b,0);
     const subj=`Iscrizione anagrafe canina – ${A.nm||d.nick||d.name}${A.chip?" (microchip "+A.chip.replace(/\D/g,"")+")":""}`,txt=`Buongiorno,\nin allegato la dichiarazione di iscrizione all'anagrafe canina di ${A.nm||d.nick||d.name}${A.prov&&!/italia/i.test(A.prov)?", cane acquisito all'estero":""} e ${(H.sex==="F")?"intestato a":"intestato a"} ${H.name||""}${A.chip?" (microchip "+A.chip.replace(/(\d{3})(?=\d)/g,"$1 ").trim()+")":""}, con copia ${(A.att||[]).length?"dei documenti richiesti":"dei documenti"}.\nGrazie, cordiali saluti\nPaolo Boldrini`,F=[f1,f2].filter(Boolean);
-    if(navigator.canShare&&navigator.canShare({files:F})){try{await navigator.clipboard.writeText(ppAddr());toast("Indirizzo di Piera copiato: incollalo in “A:”.")}catch(x){}try{await navigator.share({files:F,title:subj,text:txt})}catch(x){}return}
+    if(isPhone()&&navigator.canShare&&navigator.canShare({files:F})){try{await navigator.clipboard.writeText(ppAddr());toast("Indirizzo di Piera copiato: incollalo in “A:”.")}catch(x){}try{await navigator.share({files:F,title:subj,text:txt})}catch(x){}return}
     /* dal computer: Gmail nel browser con destinatario, oggetto e testo già scritti; i PDF vengono scaricati da allegare */
     F.forEach(f=>{const u=URL.createObjectURL(f),e=document.createElement("a");e.href=u;e.download=f.name;document.body.appendChild(e);e.click();e.remove()});
     window.open("https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent(ppAddr())+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt),"_blank");toast("Ho scaricato i 2 PDF: in Gmail premi la graffetta e allegali.");return}
@@ -2321,6 +2321,9 @@ function anagDel(k){const d=D.dogs[k];if(!d)return;const bare=!d.sire&&!d.dam&&!
   if(sheetOpen())closeSheet();render();typeof saveNow==="function"&&saveNow()}
 function anagNew(){const n=(prompt("Nome di chiamata del cane (es. Tikus):")||"").trim();if(!n)return;const p=(prompt("Nome di pedigree:",n)||n).trim(),sx=confirm("È un maschio? (OK = maschio, Annulla = femmina)")?"M":"F";
   const k=newId("d");D.dogs[k]={name:p,nick:n,sex:sx,status:"",anag:{holder:"paolo"}};typeof saveNow==="function"&&saveNow();render();anagOpen(k)}
+/* Il pannello "Condividi" con i file solo sul telefono: su Windows apre il pannello di sistema (Teams, Outlook…) invece di
+   Gmail. Dal computer ogni invio usa la sua strada per il PC (Gmail nel browser o il programma di posta). (Paolo, 07/10/2026) */
+const isPhone=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 /* ---------- Programma, Diario e Novità in Home dal gestionale (ottobre 2026, scelte di Paolo) ----------
    l.site = {stage:"prog"|"arr"|"nat", prog, diar, home, homeSince, txt:{it,en,de}, diarDone}. Solo per le cucciolate da
    ottobre 2026 in poi (SI_FROM): quelle di prima hanno schede e pagine scritte a mano, che il gestionale non tocca mai.
