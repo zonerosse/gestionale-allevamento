@@ -7,12 +7,3 @@ export async function onRequestGet({ request, env }) {
   const { results } = await env.DB.prepare("SELECT id, json, created FROM requests ORDER BY created").all();
   return json((results || []).map(r => Object.assign(JSON.parse(r.json), { rid: r.id, created: r.created })));
 }
-// Per Paolo: quando elimina una richiesta del sito dalla Lista d'attesa, si toglie anche da qui, così non torna (06/10/2026)
-export async function onRequestDelete({ request, env }) {
-  if (!(await isAdmin(request, env))) return deny();
-  const id = new URL(request.url).searchParams.get("id") || "";
-  if (!/^r[0-9a-f]{12}$/.test(id)) return json({ ok: false, error: "id non valido" }, 400);
-  await ensureRequests(env);
-  await env.DB.prepare("DELETE FROM requests WHERE id = ?").bind(id).run();
-  return json({ ok: true });
-}
