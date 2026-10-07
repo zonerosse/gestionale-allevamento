@@ -31,10 +31,18 @@ a{color:#8b5a2b;text-decoration:underline;text-underline-offset:2px}
 .foot{margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(139,115,85,.12);font-size:.85rem;font-weight:600;color:#5c4a3a}
 .ft{font-size:.8rem;color:#8a7d70;text-align:center;margin-top:2rem}
 @media(max-width:600px){.pair{grid-template-columns:1fr}.x{padding:0;text-align:center}.big{font-size:2.2rem}}
-.ph img{width:100%;height:100%;object-fit:cover;border-radius:8px}.ph.no{background:linear-gradient(135deg,#efe6da,#e2d5c4)}.empty{padding:60px 0;text-align:center;color:#8a7d70}.trio{font-size:.82rem;color:#6b5d52;margin:.35rem 0 0}</style></head><body>
+.ph img{width:100%;height:100%;object-fit:cover;border-radius:8px}.ph.no{background:linear-gradient(135deg,#efe6da,#e2d5c4)}.empty{padding:60px 0;text-align:center;color:#8a7d70}.trio{font-size:.82rem;color:#6b5d52;margin:.35rem 0 0}.lgB{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;background:#f5ebe0;border-bottom:1px solid rgba(139,115,85,.2);padding:10px 12px;font-size:.88rem}
+.lgB .t{color:#6b5d52;font-weight:600}.lgB a{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:#fff;border:1.5px solid #e2d5c4;color:#5c4a3a;font-weight:700;text-decoration:none}
+.lgB a.on{border-color:#8b5a2b;box-shadow:0 0 0 2px rgba(139,90,43,.2)}.fl{width:22px;height:15px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.12);flex:none;display:block}
+</style></head><body>
 <!-- Pagina condivisa di una coppia (link segreto da Accoppiamenti). Stile delle schede delle cucciolate del sito (scelta di
      Paolo, 07/10/2026). Niente regole ENCI. Lingue: ?l=en, ?l=de (di base italiano). -->
-<div class="nav"><img src="https://delpiccolodiavolo.it/images/logo.webp" alt=""><b>Del Piccolo Diavolo</b><span class="lg" id="lg"></span></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="fl-it" viewBox="0 0 3 2"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ce2b37"/></symbol>
+<symbol id="fl-en" viewBox="0 0 60 30"><clipPath id="flc"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="fld"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#flc)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#fld)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></symbol>
+<symbol id="fl-de" viewBox="0 0 5 3"><rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#DD0000"/><rect y="2" width="5" height="1" fill="#FFCE00"/></symbol></defs></svg>
+<div class="nav"><img src="https://delpiccolodiavolo.it/images/logo.webp" alt=""><b>Del Piccolo Diavolo</b></div>
+<div class="lgB" id="lg"></div>
 <div class="wrap" id="app"><p class="empty">…</p></div>
 <script>
 const LQ=new URLSearchParams(location.search).get("l"),L=LQ==="en"||LQ==="de"?LQ:"it",T=(i,e,d)=>L==="en"?e:L==="de"?(d||e):i;
@@ -42,7 +50,7 @@ const N=x=>x==null||x===""?"—":(L==="en"?String(x).replace(",","."):String(x).
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const tok=location.pathname.split("/").filter(Boolean).pop();
 document.documentElement.lang=L;
-document.getElementById("lg").innerHTML=[["it","IT"],["en","EN"],["de","DE"]].filter(x=>x[0]!==L).map(x=>`<a href="?l=${x[0]}">${x[1]}</a>`).join("");
+document.getElementById("lg").innerHTML=`<span class="t">${T("Leggi in:","Read in:","Lesen auf:")}</span>`+[["it","Italiano"],["en","English"],["de","Deutsch"]].map(x=>`<a href="?l=${x[0]}" lang="${x[0]}"${x[0]===L?' class="on" aria-current="true"':""}><svg class="fl" aria-hidden="true"><use href="#fl-${x[0]}"/></svg>${x[1]}</a>`).join("");
 const ord=n=>L==="en"?n+(n==1?"st":n==2?"nd":n==3?"rd":"th"):L==="de"?n+".":n+"ª";
 function page(d){const r=d.read||{},P=d.pub||null,v=pc(d.coi),pos=x=>Math.max(1,Math.min(99,x/12*100));
   const tm=d.tmUrl||(d.sire.sbt&&d.dam.sbt?`https://sbtpedigree.com/pedigree?SIRE=${encodeURIComponent(d.sire.sbt)}&DAM=${encodeURIComponent(d.dam.sbt)}&generation=8`:"");
