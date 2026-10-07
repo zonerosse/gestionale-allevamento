@@ -968,3 +968,4 @@ Accessi e copie
   sotto l'anno, con "💬 avvisa"), Anagrafe da iscrivere, Fattrici (parto previsto, calore nelle prossime 3 settimane),
   Google (recensioni da rispondere). Nessun dato nuovo: legge quelli che ci sono.
 - "✓ Non serve avvisare" (`nvSkip`): segna la famiglia come aggiornata senza mandare niente (d.nvSent con skip). Riquadri di Oggi mai più larghi dello schermo (minmax(min(300px,100%),1fr)).
+- Avvisa la famiglia: "Apri WhatsApp" NON segna più l'avviso; dopo chiede "Il messaggio è partito?" e segna solo con "✓ Sì, l'ho mandato" (`nvDone`). "↺ Annulla l'ultimo avviso" (`nvUndo`, ripristina `d.nvPrev`) per gli avvisi segnati per sbaglio.
