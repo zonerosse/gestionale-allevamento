@@ -3557,6 +3557,12 @@ function calcMate(){
    <div class="actions">${lit?`<button class="btn" data-a="litterSheet" data-v="${lit[0]}">Scheda della cucciolata</button>`:`<button class="btn" data-a="planLitter">🐾 Pianifica la cucciolata</button>`}
    ${ds.sbt?`<a class="btn ghost" href="https://sbtpedigree.com/dog_details?dogs_id=${encodeURIComponent(ds.sbt)}" target="_blank" rel="noopener">${esc(ds.name.split(" ")[0])} su SBT ↗</a>`:""}${miss}</div></div>`;
   roClean(o);
+  /* Pagina pubblica della coppia (07/10/2026): se il link è attivo, salvo un riassunto di quello che si vede qui (calcolo del
+     gestionale, albero, regole ENCI, parto previsto, su chi cade) da mostrare nella pagina condivisa. Solo dati del calcolo. */
+  if(!RO&&m.share&&D.matings&&D.matings[mateS+"|"+mateD]){try{const P=coiParts(mateS,mateD),ids=Object.keys(P).filter(k=>P[k]>0).sort((a,b)=>P[b]-P[a]),tot=ids.reduce((t,k)=>t+P[k],0)||1,sb=mateSbt(mateS,mateD);
+    const pub={coiG:Math.round(w*100)/100,known:cov.known,tot:cov.tot,mdt,due:addD(mdt,63),enci:ER.map(r=>({lvl:r.lvl,t:r.t,s:r.s||""})),
+      anc:ids.slice(0,8).map(k=>({n:(D.dogs[k]||{}).name||"",pg:gensOf(mateS,k),mg:gensOf(mateD,k),p:Math.round((sb?P[k]/tot*sb:P[k]*100)*100)/100,sh:Math.round(P[k]/tot*100)})),ancMore:Math.max(0,ids.length-8),approx:!!sb};
+    const x=D.matings[mateS+"|"+mateD];if(JSON.stringify(x.pub||null)!==JSON.stringify(pub)){x.pub=pub;typeof saveNow==="function"&&saveNow()}}catch(e){console.warn(e)}}
 }
 function loadDemo(){
   if(D.dogs.ex_cap){mateS="ex_x";mateD="ex_y";render();return}

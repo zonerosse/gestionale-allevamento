@@ -971,3 +971,14 @@ Accessi e copie
 - Avvisa la famiglia: "Apri WhatsApp" NON segna più l'avviso; dopo chiede "Il messaggio è partito?" e segna solo con "✓ Sì, l'ho mandato" (`nvDone`). "↺ Annulla l'ultimo avviso" (`nvUndo`, ripristina `d.nvPrev`) per gli avvisi segnati per sbaglio.
 - Una tantum (07/10/2026, `nvFixOnce`, flag `D.settings.nvFix1`): tolti gli avvisi segnati prima della conferma (senza `conf`/`skip`), così le famiglie tornano da avvisare.
 - Oggi → Famiglie da avvisare: tasto "✓ Già avvisati tutti" (`nvAllDone`, con conferma): segna tutte come avvisate senza messaggi.
+
+## Pagina pubblica della coppia, completa (07/10/2026)
+- Quando Paolo apre una coppia con il link attivo, `calcMate` salva in `D.matings[k].pub` un riassunto del calcolo: COI del
+  gestionale, antenati inseriti/510, monta ipotizzata e parto previsto, regole ENCI (`enciCheck`), su chi cade (`coiParts`,
+  primi 8 + quanti altri). L'API pubblica lo restituisce come `pub`; `coppia.html` lo mostra. Le regole ENCI NON si mostrano (scelta di Paolo).
+- `coppia.html` ha lo stile delle schede delle cucciolate del sito (Programma allevamento): due cani affiancati con foto
+  (`/api/public/coppia/<token>/f/sire|dam`, solo i due cani di quel link), test e titoli, genitori, link SBT; sotto COI,
+  calcolo del gestionale, spiegazione, su chi cade, parto previsto, "Test mating: vedi su SBTPedigree". Lingue ?l=en / ?l=de.
+- Se il COI SBT è sopra il 9%, la pagina mostra la spiegazione scelta da Paolo (proposta B): "sopra la fascia che usiamo di
+  solito (6-9%). Lo mostriamo lo stesso, perché i numeri si pubblicano anche quando non sono quelli ideali" + l'antenato su
+  cui cade la parte più grande della parentela.
