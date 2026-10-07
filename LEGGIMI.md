@@ -1,3 +1,26 @@
+# PRIMA DI PUBBLICARE UNO ZIP (da leggere sempre)
+
+Dal 07/10/2026 ogni pubblicazione si fa così, sempre uguale:
+```
+cd C:\Hugo\gestionale-allevamento
+git pull
+Expand-Archive -Path "$env:USERPROFILE\Downloads\NOME-DELLO-ZIP.zip" -DestinationPath "C:\Hugo\gestionale-allevamento" -Force
+python tools/controlla.py
+```
+- Se l'ultima riga dice **TUTTO A POSTO** → `git add .` → `git commit -m "..."` → `git push`.
+- Se dice **ATTENZIONE** → NON fare il push. Copia il testo e mandalo a Claude. Per annullare l'estrazione dello zip:
+  `git checkout -- .` (rimette i file come sono su GitHub).
+
+Regole d'oro:
+- Pubblica solo lo zip **più recente** della conversazione in cui stai lavorando. Mai zip vecchi o di altre conversazioni.
+- In una conversazione nuova sul gestionale, scrivi a Claude per prima cosa:
+  «Parti dal repository su GitHub: https://github.com/zonerosse/gestionale-allevamento»
+
+**Se una sezione sparisce dopo un push:** non toccare niente e scrivilo a Claude. Si recupera sempre: GitHub conserva tutte
+le versioni, e i dati (cani, agenda, proprietari…) stanno nel database, non nel codice.
+
+---
+
 # Gestionale Del Piccolo Diavolo – versione online
 
 Indirizzo previsto: **https://gestionale.delpiccolodiavolo.it**

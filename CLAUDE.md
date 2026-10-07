@@ -1,10 +1,16 @@
 # CLAUDE.md – Gestionale Del Piccolo Diavolo
 
-> **REGOLA PER OGNI SESSIONE (07/10/2026):** prima di modificare qualsiasi file, scarica l'ultima versione da GitHub
-> (`git pull`, o l'ultimo commit di `zonerosse/gestionale-allevamento`) e lavora SOLO su quella. Il 07/10 una modifica
-> partita da una copia vecchia (5 ottobre) ha cancellato un giorno di lavoro (Agenda, Google, statistiche del sito,
-> istruzioni, novità…): è stato recuperato unendo le due versioni. Prima di consegnare, controlla che le funzioni già
-> presenti nel file su GitHub ci siano ancora tutte.
+> **REGOLE PER OGNI SESSIONE (07/10/2026, dopo la perdita di un giorno di lavoro):**
+> 1. Prima di modificare qualsiasi file, parti dall'ULTIMO commit su GitHub (`git pull`, https://github.com/zonerosse/gestionale-allevamento),
+>    mai da uno zip vecchio, da una copia locale o da una versione di un'altra conversazione.
+> 2. Prima di consegnare lo zip, esegui `python tools/controlla.py`: deve dire "TUTTO A POSTO" (nessuna funzione, voce del
+>    menu o file del server sparisce rispetto a GitHub). Se una cosa va tolta davvero, dillo a Paolo e scrivilo qui.
+> 3. Lo zip contiene solo i file toccati, ognuno nella versione completa e aggiornata.
+> 4. Il 07/10 il commit "gestionale tikus" (partito da una copia del 05/10) aveva cancellato Agenda, Google, Statistiche del
+>    sito, istruzioni, novità e altro: recuperati nel commit "recupero" unendo le due versioni.
+>
+> **Menu del gestionale (07/10/2026), tutte voci che devono esserci:** Cani · Cucciolate · Proprietari · Accoppiamenti ·
+> Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web).
 
 
 Istruzioni per chi (Claude, in chat o in Claude Code) lavora su questo repository.
