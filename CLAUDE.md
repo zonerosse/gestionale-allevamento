@@ -767,3 +767,5 @@ Accessi e copie
   📎 allegati in un solo PDF (pdf-lib, PDF e foto), ✉️ email a Piera (ppAddr) con le due righe e i due PDF, ✅ segna iscritto.
   "＋ Cane acquisito" crea un cane di casa. Tikus (Virtus et Honor Amazing Paddy the Baddy, intestato a Daniela) entrato con il
   file "Importa modifiche" del 07/10/2026, con passaporto, libretto e documento di Daniela ridotti (l'originale era 41 MB).
+- Anagrafe, su ogni riga: "✓ Già iscritto" (`anag.already`, senza data) / "Non iscritto", e 🗑 (`anagDel`): cancella del tutto
+  solo i cani creati vuoti da "Cane acquisito"; gli altri vengono solo tolti dall'elenco (`anag.hidden`) e restano nel gestionale.
