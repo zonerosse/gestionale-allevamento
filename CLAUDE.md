@@ -769,3 +769,6 @@ Accessi e copie
   file "Importa modifiche" del 07/10/2026, con passaporto, libretto e documento di Daniela ridotti (l'originale era 41 MB).
 - Anagrafe, su ogni riga: "✓ Già iscritto" (`anag.already`, senza data) / "Non iscritto", e 🗑 (`anagDel`): cancella del tutto
   solo i cani creati vuoti da "Cane acquisito"; gli altri vengono solo tolti dall'elenco (`anag.hidden`) e restano nel gestionale.
+- Anagrafe, "✉️ Email all'anagrafe canina" (non più "a Piera", saluto "Buongiorno,"): dal telefono foglio di condivisione con i 2 PDF
+  (Paolo sceglie Gmail o Edison Mail; indirizzo copiato); dal computer apre la scrittura di Gmail nel browser già compilata e
+  scarica i 2 PDF da allegare.
