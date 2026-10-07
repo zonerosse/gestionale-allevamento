@@ -9,7 +9,7 @@
 > 4. Il 07/10 il commit "gestionale tikus" (partito da una copia del 05/10) aveva cancellato Agenda, Google, Statistiche del
 >    sito, istruzioni, novità e altro: recuperati nel commit "recupero" unendo le due versioni.
 >
-> **Menu del gestionale (07/10/2026), tutte voci che devono esserci:** Cani · Cucciolate · Proprietari · Accoppiamenti ·
+> **Menu del gestionale (07/10/2026), tutte voci che devono esserci:** ☀️ Oggi (pagina d'apertura) · Cani · Cucciolate · Proprietari · Accoppiamenti ·
 > Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web).
 
 
@@ -958,3 +958,12 @@ Accessi e copie
   sistema (Teams, Outlook, Condivisione in prossimità). Dal PC: Gmail nel browser (anagrafe) o mailto/scarica come prima.
 - Anagrafe: "Dichiarazione firmata" (`anagSign` → `anag.signed`, nome, data; ✓ e Visualizza/Cambia). "📎 PDF unico" e l'email
   mandano un solo file: dichiarazione (firmata se caricata, se no quella da firmare, con avviso) + allegati scelti.
+
+## ☀️ Oggi (07/10/2026, scelte di Paolo)
+- Prima voce del menu e pagina d'apertura (`let tab="oggi"`; per chi consulta e per "conti" non c'è). `ogPage`, `OG`.
+- In cima, largo: "🌐 Sito web · ultime 24 ore" (`/api/sitestats?days=1&it=1`: clic, impressioni con confronto, posizione,
+  tocchi WhatsApp, ricerca con più clic; tasto "Apri le statistiche" = Statistiche → Sito web, 24 ore).
+- Poi riquadri con il numero e il tasto per la sezione: Agenda (oggi/domani e avvisi), Scadenze (in ritardo + 7 giorni,
+  da `scEvents`), Richieste e interessati nuovi, Famiglie da avvisare (`ogFamilies`: novità non ancora mandate, cuccioli
+  sotto l'anno, con "💬 avvisa"), Anagrafe da iscrivere, Fattrici (parto previsto, calore nelle prossime 3 settimane),
+  Google (recensioni da rispondere). Nessun dato nuovo: legge quelli che ci sono.
