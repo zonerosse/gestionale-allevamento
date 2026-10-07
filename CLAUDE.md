@@ -1,5 +1,12 @@
 # CLAUDE.md – Gestionale Del Piccolo Diavolo
 
+> **REGOLA PER OGNI SESSIONE (07/10/2026):** prima di modificare qualsiasi file, scarica l'ultima versione da GitHub
+> (`git pull`, o l'ultimo commit di `zonerosse/gestionale-allevamento`) e lavora SOLO su quella. Il 07/10 una modifica
+> partita da una copia vecchia (5 ottobre) ha cancellato un giorno di lavoro (Agenda, Google, statistiche del sito,
+> istruzioni, novità…): è stato recuperato unendo le due versioni. Prima di consegnare, controlla che le funzioni già
+> presenti nel file su GitHub ci siano ancora tutte.
+
+
 Istruzioni per chi (Claude, in chat o in Claude Code) lavora su questo repository.
 Leggere tutto prima di proporre o scrivere modifiche.
 
@@ -759,6 +766,175 @@ Accessi e copie
 - Test genetici "presenti" (`gtHas`): testo nei test O referto allegato (`gtDocs`: flag `gt` dei file caricati con 🧬, o titolo/nome
   riconosciuto). ✓ in Accoppiamenti, nella scheda e in "Cosa c'è"; 🧬 mostra prima i file anche se dal file non è uscito testo.
 
+## Google: recensioni e post (ottobre 2026)
+- Voce di menu **Google** (chiave `recensioni`) con due sezioni: **⭐ Recensioni** e **📣 Post** (`RV.sub`, scelta di Paolo:
+  una sola voce). Numero sul menu = recensioni da rispondere + post da proporre (`rvBadge`).
+- Sezione **Recensioni** (solo Paolo; tolta a chi consulta e a "conti"): legge le recensioni del profilo Google, per ogni
+  recensione senza risposta Claude propone **due ringraziamenti brevi** (`/api/ai`, task `recensione`) oppure scrive la
+  risposta dallo **spunto** di Paolo; la risposta resta modificabile e parte solo con **"Pubblica su Google"**.
+  Le risposte già date si cambiano con "Modifica" → "Salva su Google" / "Annulla modifiche". Numero da rispondere sul menu.
+- In alto "Su Google" (voto e numero) e "Sul sito" (letto da `hugo.toml` del sito). Il sito si aggiorna **solo con il tasto
+  "Aggiorna il sito a N"** (scelta di Paolo, mai da solo): `POST /api/reviews {task:"site"}` cambia solo
+  `recensioniTotale` e `recensioniVoto` in `hugo.toml` di `zonerosse/delpiccolodiavolo-hugo` con un commit (`GITHUB_TOKEN`).
+- Server: `functions/api/reviews.js` (GET elenco, POST `reply` / `site`), `functions/api/google.js` (collegamento OAuth una
+  volta sola, trova da sé la scheda "…Piccolo Diavolo…"), `functions/_gbp.js` (token e tabella D1 `gbp` con refresh token e
+  scheda: **mai nel repository**). Segreti Cloudflare: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+  URI di reindirizzamento da registrare in Google Cloud: `https://gestionale.delpiccolodiavolo.it/api/google`.
+- Google dà l'accesso alle API del profilo solo dopo la richiesta "Application for Basic API Access" (numero del progetto):
+  finché non approva le chiamate danno 403/429 e la scheda lo dice in italiano.
+- Codice client: blocco "Recensioni Google" (`RV`, `rvPage`, `rvAct`, `rvSite`, `rvFromHash`) nel blocco comune, uguale nei due file.
+- Sezione **Post** (`gpPage`, `GP`): propone un post per gli "Aggiornamenti" del profilo Google quando c'è una novità
+  (`gpEvents`): cucciolata nata con la pagina del Diario sul sito e foto più nuove dell'ultimo post (`l.gpost={date,at}`),
+  oppure risultato d'esposizione sul sito (`s.web`) degli ultimi 60 giorni non ancora raccontato (`s.gpost`).
+  Claude scrive il testo (`/api/ai`, task `post`: notizia, mai vendita, niente telefono, non dice quanti cuccioli),
+  Paolo sceglie la foto e pubblica con il tasto (`POST /api/posts`); "Non serve" segna la novità senza pubblicare.
+  La foto Google la scarica da `/api/public/gpost/<chiave>`: aperto solo 2 giorni e solo per le chiavi registrate
+  (tabella `gbp`, `media:<chiave>`). Controlli anche sul server: niente numeri di telefono, max 1.500 caratteri.
+- **"✍️ Scrivi un post"** (`gpFreeHtml`, `gpFreeAct`, `GP.free`): post libero di Paolo. Due righe sue → testo di Claude
+  (task `post` con `idea`); foto fra le ultime 16 caricate (`gpRecent`: foto settimanali, di cucciolata, dei cani) o senza
+  foto; tasto "Scopri di più" verso Home, Cuccioli, Diario di una cucciolata, Palmarès o nessuno (`gpLinks`).
+
+## App sul telefono (ottobre 2026)
+- Il gestionale si installa come app web: `public/manifest.webmanifest` (nome "Gestionale", schermo intero), icone dal logo
+  dell'allevamento (scelta A di Paolo: `apple-touch-icon.png` 180, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`,
+  `favicon-32.png`, fondo bianco), meta tag in `index.html`. Il manifest ha `crossorigin="use-credentials"` per Cloudflare Access.
+- iPhone: Safari → Condividi → "Aggiungi alla schermata Home". La prima apertura dall'icona chiede il codice di Access
+  (l'app sulla Home non condivide i cookie con Safari). Durata della sessione di Access: 1 mese (impostata da Paolo in Zero Trust).
+
+## Eliminare un cane (ottobre 2026)
+- In Modifica del cane, in fondo e separato: "🗑 Elimina questo cane" (`dogDelAsk`, `dogDel`, `dogLinks`). Si elimina solo un
+  cane senza legami: niente figli in archivio, nessuna cucciolata come padre/madre, nessun proprietario, nessun contratto;
+  altrimenti il riquadro spiega cosa lo blocca. Si tolgono anche le voci di `D.matings` con quel cane. I file in R2 restano;
+  per recuperare c'è la copia di sicurezza della notte. Per un dato sbagliato (es. il sesso) si usa Modifica.
+
+## Ricerca con suggerimenti (ottobre 2026)
+- In Cani il campo "Cerca in tutti i cani" (`#srch`) cerca sempre in tutto l'archivio (nome, soprannome, LOI, microchip),
+  qualunque filtro sia scelto, e mostra fino a 8 suggerimenti (`sxShow`, `sxGo`, `#sxsug`): ♂ azzurro/♀ rosa, lettere
+  evidenziate, gruppo (Mio/Esterno/Ceduto/Prenotato/Sterilizzata…). Tocco, o frecce e Invio, aprono la scheda.
+  Il campo non filtra più l'elenco sotto (`q` resta vuoto): l'elenco segue solo i bottoni (scelta di Paolo).
+
+## Schede che non si aprono (ottobre 2026)
+- `dogDetail` è chiamata tramite `dogDetailSafe`: se la scheda va in errore, al posto del nulla compare un riquadro con il
+  messaggio d'errore da mandare a Claude. Ogni sezione della scheda passa da `safe(()=>…,"nome")`: una sezione rotta
+  mostra "⚠️ La parte «nome» non si è caricata" e il resto della scheda si apre lo stesso.
+- Foto in cima alla scheda (`.hero-photo`, ottobre 2026, scelta di Paolo): intera (`object-fit:contain`), mai ingrandita oltre
+  la misura vera (`width:auto`), al massimo 320×320 px. Così le foto piccole non si sgranano e nessuna viene tagliata.
+  Stessa regola per le foto dei genitori nel riquadro Pedigree (`.phi img`): intere, mai ingrandite, al massimo 260 px di altezza.
+
+## Foto più piccole e visore (ottobre 2026, scelta di Paolo)
+- Nelle schede le foto sono piccole e sempre intere: in cima `.hero-photo` max 200 px, genitori nel Pedigree `.phi img`
+  max 150 px di altezza, foto settimanali `.gal` a riquadri da ~105 px con `.wpi` in `contain` (niente tagli).
+- Toccando una foto si apre il visore `lbShow(src)` (anche per tutti i link a immagini, come prima): adattata allo
+  schermo ma mai più grande dell'originale; tocco sulla foto o "Dimensioni originali" → grandezza piena da scorrere;
+  in basso le dimensioni originali. Le foto settimanali nel gestionale di Paolo aprono ancora la loro scheda di modifica.
+- Nei post (proposte e "Scrivi un post") il primo riquadro delle foto è **"➕ Aggiungi foto"** (`gpUpload`, `GP.up`):
+  foto dal telefono o dal computer, ridotte con `shrink` e salvate su R2 con `uploadData`. Scelta di Paolo: nei post si
+  vedono SOLO le foto aggiunte così (niente foto già presenti nel gestionale); senza foto aggiunte il post esce senza foto.
+
+## Statistiche del sito (ottobre 2026, scelta di Paolo: solo delpiccolodiavolo.it)
+- In Statistiche due sezioni: "🐾 Allevamento" (`stAllevPage`, quella di prima) e "🌐 Sito web" (`wsPage`, `WS`).
+- `functions/api/sitestats.js` (GET `?days=7|28|90`): Google Search Console (totali e confronto col periodo prima, clic
+  per giorno, 250 parole chiave con variazione di posizione, 10 pagine) e Cloudflare Web Analytics via GraphQL (visite
+  ultima ora/oggi/periodo, provenienza, paesi, dispositivi, pagine). Nessuno script sul sito.
+- Google: stesso collegamento del profilo, ora con permesso `webmasters.readonly` (`/api/google?ret=sito`, ritorno
+  `#sitostat=`). Proprietà Search Console trovata da sola e salvata in `gbp` ("gsc"). Serve la "Google Search Console API"
+  attiva nel progetto Google Cloud; nessuna approvazione di Google.
+- Cloudflare: segreti `CF_API_TOKEN` (permesso Account Analytics: Read) e `CF_ACCOUNT_ID`; `CF_SITE_TAG` facoltativo
+  (senza, filtra per host delpiccolodiavolo.it).
+- Periodi: 24 ore (dati "freschi" di Search Console, provvisori, grafico ora per ora con `hourly_all`), 7, 28, 90 giorni.
+  Filtro **🇮🇹 Solo Italia** (predefinito) / 🌍 Tutto il mondo: `it=1|0`, filtro paese "ita" su tutte le richieste.
+- **📍 Posizioni su Google Maps** (`functions/api/maps.js`, `wsMapsHtml`): DataForSEO Maps live, coordinate di ogni città
+  (zoom 13), posizione della scheda "…Piccolo Diavolo…" nei primi 20 ("oltre 20" se manca), ▲▼ rispetto al controllo prima.
+  Segreti `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD`. Parole e città modificabili (max 10+10; città nuove da OpenStreetMap),
+  salvate in `gbp` "maps:cfg"; ultimi 12 controlli in "maps:runs". Controllo da solo se l'ultimo ha più di 7 giorni, o col tasto.
+- **🔎 Ricerche che mostrano il profilo** (`gbpKeywords` in sitestats, `wsGbpkHtml`): Business Profile Performance API,
+  ultimi 3 mesi mese per mese; finché Google non approva le API del profilo mostra l'attesa.
+- **💬 Contatti WhatsApp dal sito** (`wsWaHtml`, `waStats` in sitestats): i tasti WhatsApp del sito passano da `/wa/` (funzione
+  del sito) che chiama `POST /api/public/walog` con la chiave `WA_KEY` (stessa nei due progetti Cloudflare). Tabella D1 `wa`
+  (ts, day ora di Roma, path, lang): niente IP né dati personali. Totale, oggi, media, grafico per giorno, pagine, lingue.
+- "Da dove arrivano" (Cloudflare) unisce le voci (`wsRefs`: Google, Facebook, Bing…), scrive "circa" (stime campionate),
+  accanto a Google i "clic veri" di Search Console, e la nota che le stime comprendono robot e audit SEO.
+- Tetto di spesa per Maps (scelta di Paolo): massimo `MAPS_CAP` ricerche al mese (predefinito 100 ≈ 0,20 $), contatore in
+  `gbp` "maps:used:AAAA-MM". Oltre il tetto il controllo non parte; quello automatico non apre finestre, scrive l'avviso.
+- **Tetto per Sottosopra** (`functions/api/public/budget.js`): la funzione `/api/posizioni` di puntowebferrara.com chiede
+  il permesso prima di ogni analisi (chiave `WA_KEY` qui = `GESTIONALE_KEY` là). Massimo `SOTTOSOPRA_CAP` analisi al mese
+  (predefinito 30). Se il gestionale non risponde, Sottosopra non spende.
+- **Visite di Cloudflare tolte** (scelta di Paolo, ottobre 2026): la sezione "Visite sul sito" non c'è più e `cloudflare()`
+  in sitestats non viene chiamata; `CF_API_TOKEN`/`CF_ACCOUNT_ID` non servono. Resta il contatore WhatsApp (tabella D1 `wa`).
+- Luoghi di Maps (scelta di Paolo, ottobre 2026): Italia e regione con `location_name` del fornitore (come in Sottosopra:
+  "Italy", "Emilia-Romagna,Italy"), i capoluoghi con le coordinate (zoom 12): tutti quelli dell'Emilia-Romagna più Padova
+  e Rovigo. Massimo 15 luoghi e 10 parole. Controllo automatico ogni due settimane (tetto 100 ricerche al mese invariato).
+- Correzione (ottobre 2026): il contatore di Maps conta solo le ricerche riuscite (chiave `maps:used2:AAAA-MM`; il primo
+  contava anche i tentativi falliti per credito esaurito). Senza credito la pagina dice "DataForSEO è senza credito".
+  Niente bandierine emoji (su Windows non si vedono): "Solo Italia", "Italiano/Inglese/Tedesco" in testo.
+- Ordine della pagina Sito web (scelta di Paolo): prima 💬 Contatti WhatsApp, poi "Ricerche su Google" (con Solo Italia /
+  Tutto il mondo), poi Maps e profilo. Parole chiave: prime 10, il resto con "▾ Mostra le altre N" (`WS.allq`); scrivendo
+  nel campo di ricerca compaiono tutte quelle che corrispondono. "Payment Required" di DataForSEO = senza credito.
+
+## Email dei Modelli A e B ENCI dal computer (ottobre 2026)
+- "✉️ Email alla delegazione" da computer (`encDesktop`, `encGmail`): scarica il PDF e apre Gmail di zonerosse@gmail.com
+  (`authuser`) con destinatario, oggetto e testo già scritti (`maText`/`mbText`); il PDF si trascina nell'email (Gmail non
+  allega da un link). Sul telefono resta il pannello Condividi, che allega il file da solo.
+
+## Agenda: ritiri dei cuccioli e visite in allevamento (ottobre 2026, scelte di Paolo)
+- Voce di menu **📅 Agenda** (`agPage`, `AG`, dati in `D.agenda`): ritiri (k "r", legati al cucciolo `dog`) e visite (k "v").
+  Stati: d da confermare, c confermato, r ritirato, f visita fatta. Filtri Tutto / Ritiri / Visite, "➕ Nuova visita".
+- I cuccioli "prenotati" con proprietario e nati da meno di 6 mesi senza ritiro fissato compaiono da soli in "Da fissare".
+- Avvisi: oggi/domani (anche in cima alla pagina Cani, `agBanner`, e numero sul menu `agCount`), appuntamenti a meno di
+  un'ora, ritiro prima dei 60 giorni di vita.
+- Messaggio WhatsApp: comando rapido dell'iPhone "Agenda allevamento" → `#agenda=<testo>` (`agFromHash`), oppure incollato;
+  lo legge Claude (task `agenda`: tipo, data, ora, chi, città, cucciolo, cosa cerca). Paolo controlla e salva.
+- Tasti: ✅ Conferma su WhatsApp (messaggio con indirizzo e link Maps), 🔔 Promemoria del giorno prima, 💬 Chiedi quando
+  viene / Proponi un giorno, 📅 Al calendario (.ics con avviso 2 ore prima), 🐾 Ritirato, 👍 Visita fatta,
+  ➕ Aggiungi all'Attesa (crea la richiesta in `D.waitlist`, source "visita"), ✏️ Modifica con Salva/Annulla, 🗑 Elimina.
+- Il tasto fluttuante 💉 (vaccino · sverminazione · esame, `.hfab`) compare solo in Cani, Cucciolate e Scadenze (`body[data-tab]`).
+- Sulla scheda di ogni appuntamento restano solo 📅 Al calendario, 🐾 Ritirato / 👍 Visita fatta, ✏️ Modifica (scelta di Paolo: tolti Conferma e Promemoria WhatsApp). Claude scrive "chi viene" e le note in modo corto.
+- Aggiornamenti sul telefono: `_headers` mette `Cache-Control: no-cache` alle pagine; l'app riaperta dopo più di 20 minuti
+  si ricarica da sola (`visibilitychange`), mai durante una modifica (EDIT/EDIRTY) o con un riquadro aperto.
+- "Chi ti ha scritto?" (scelta di Paolo): WhatsApp non passa il numero, quindi sotto il messaggio c'è un campo facoltativo
+  con suggerimenti (famiglie dei cuccioli prenotati: nome, cucciolo, telefono, città). La famiglia scelta (`AG.hint`) va a
+  Claude come indizio e decide il cucciolo se il messaggio non lo dice. Dal comando rapido il gestionale NON legge da solo:
+  mette il cursore su "Chi ti ha scritto?", poi Paolo preme "✨ Leggi il messaggio".
+
+## Visore dei documenti nell'app installata (ottobre 2026)
+- Solo con l'app a schermo intero (`STANDALONE`): i link "Visualizza" (target _blank) e "Scarica" (download) verso file del
+  gestionale, blob o data non escono più in Safari (che non ha l'accesso Cloudflare): i PDF si aprono in `docView` (pagine
+  disegnate con pdf.js 3.11 da cdnjs, caricato solo quando serve), le foto in `lbShow`, "Scarica" apre il pannello
+  Condividi (`dvShare`). `window.open` è intercettato per gli stessi indirizzi (anche lo schema "finestra vuota poi
+  location.href"). Link esterni (WhatsApp, SBT, Gmail) come prima. Nel browser normale non cambia niente.
+
+## Istruzioni dell'allevatore nella pagina del proprietario (ottobre 2026)
+- `ovInstr(id)`, subito sotto nome e contratto nella pagina del proprietario (cani nati da meno di 18 mesi, non esterni):
+  le "istruzioni scritte del cedente" del punto 3.1 del contratto, in italiano o inglese. Riquadro rosso con la regola
+  dei primi 8-9 mesi (scale in braccio: deciso da Paolo, il sito è stato allineato), poi movimento, alimentazione, pasti,
+  cibi vietati, vaccini (testo di Paolo: a tre mesi, poi dopo un anno, salvo parere del veterinario), masticativi morbidi fino al cambio dei denti e niente tira e molla, niente lanci di bastoni o palline, rispetto, contatto; link alle guide del sito. Gli altri numeri sono quelli delle guide del
+  sito: se cambiano lì, vanno cambiati anche qui.
+- Consegna (06/10/2026): aggiunta in fondo a KIT la voce "Istruzioni dell'allevatore" (posizione 6, d.kit resta per
+  posizione). In più Paolo può aggiungere voci sue dal riquadro ("➕ Aggiungi voce", nome e inglese facoltativo): stanno in
+  `D.settings.kitExtra` [{id,it,en,off}], valgono per tutti i cani, spunte in `d.kitx`; "✕" le nasconde (off) senza perdere
+  le spunte. Compaiono anche in "Cosa c'è" e, se spuntate, in "Cosa ricevi" del proprietario. Le voci aggiunte non hanno 📎.
+- Sulla voce "Istruzioni dell'allevatore" della Consegna, al posto di 📎 Allega: "👁 Visualizza" (`instrView`: riquadro con
+  `ovInstr(id,true)`, nella lingua del proprietario) e "🖨 Stampa" (`instrPrint`: stampa solo le istruzioni, classe
+  `print-instr`, con intestazione allevamento, cucciolo, data di nascita, famiglia, telefono).
+- Pagina del proprietario (scelta di Paolo): avviso giallo con triangolo "IMPORTANTE: leggi le istruzioni dell'allevatore"
+  (`ovImp`, subito sotto il nome) SOLO quando nella Consegna è spuntata "Istruzioni dell'allevatore" (`instrOn`), a
+  qualsiasi età. Le istruzioni NON sono nella scheda (troppo pesante): si aprono in una finestra (`oiOpen`/`oiClose`) dal
+  riquadro giallo, dalla riga "Istruzioni dell'allevatore ›" di "Cosa ricevi" e, nella pagina vera, dal link personale
+  con `#istruzioni` in fondo (si apre già all'arrivo).
+- Dopo la prima apertura delle istruzioni, nella pagina vera della famiglia il riquadro giallo diventa un'etichetta piccola ("oi-small"), ricordato sul dispositivo (localStorage "oiSeen:<cane>"); nell'anteprima di Paolo resta sempre grande.
+
+## Novità per la famiglia e "Avvisa la famiglia" (06/10/2026, scelte di Paolo)
+- Pagina della famiglia: riquadro azzurro "🆕 Novità dalla tua ultima visita" (`nvBox`, sopra l'avviso delle istruzioni):
+  ciò che è comparso dall'ultima volta su quel telefono (voci della Consegna spuntate, documenti non privati, ultimo peso,
+  numero di foto nuove, vaccini/sverminazioni/esami). Chiavi viste in localStorage "nv:<cane>", data in "nvAt:<cane>".
+  Sparisce con "Ok, visto" (`nvSeen`) e torna solo con cose nuove. Prima visita su un telefono: contano come nuove solo le
+  istruzioni e ciò che ha meno di 14 giorni. Nell'anteprima di Paolo compare con ciò che è cambiato dall'ultimo avviso (o istruzioni + ultimi 14 giorni).
+- Scheda del cane: "💬 Avvisa la famiglia" (`nvSheet`/`nvSend`): cosa è cambiato dall'ultimo avviso (`d.nvSent={at,keys}`),
+  spunte per cosa citare, messaggio breve che si riscrive (`nvMsg`, lingua del proprietario, link con #istruzioni se ci
+  sono le istruzioni), "Apri WhatsApp" nella chat della famiglia. Lo manda sempre Paolo.
+- Avvisa la famiglia senza avvisi precedenti: contano come novità solo istruzioni e ultimi 14 giorni (`nvOld`); spuntate di partenza solo le istruzioni (o i documenti se le istruzioni non ci sono). Le voci sanitarie con data futura (in programma) non sono novità; niente doppioni.
+- Eliminare una richiesta arrivata dal sito (Attesa, "wlDel", id "r…"): si toglie anche dalla tabella `requests` (`DELETE /api/requests?id=`) e l'id va in `D.wlGone`, così `wlSync` non la rimette. Il foglio su Drive (Apps Script) resta a parte.
+- Traduci: "➕ Metti negli interessati" è un riquadro viola in cima (`.tr-int`), visibile appena c'è un messaggio e Traduci non è legato a nessuno; tolto dalla fila di tasti in basso (scelta di Paolo).
 ## 🪪 Anagrafe canina (07/10/2026)
 - Voce di menu "Anagrafe" (`anagPage`): cani di casa (non esterni, non ceduti, non deceduti, o con `d.anag`) con stato
   ✓ iscritto / ⏳ da iscrivere / stato non segnato. Pratica (`anagOpen`): intestatario fra `D.settings.holders` (paolo,

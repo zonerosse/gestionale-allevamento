@@ -66,7 +66,7 @@ h2{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:32px 0 12px}
 .thumb{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--bg);flex:none}
 .thumb.ph{display:grid;place-items:center;color:var(--muted);font-family:var(--serif)}
 .rowwrap{display:flex;gap:12px;align-items:center;min-width:0}
-.hero-photo{width:100%;max-width:420px;max-height:460px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block;margin:0 0 16px}
+.hero-photo{cursor:zoom-in;width:auto;height:auto;max-width:min(100%,200px);max-height:200px;object-fit:contain;border-radius:12px;border:1px solid var(--line);display:block;margin:0 0 16px;background:var(--paper)}
 .pcell img{width:100%;height:120px;object-fit:contain;background:var(--bg);border-radius:4px;margin:0 0 5px;display:block}
 .photo-edit{display:flex;gap:12px;align-items:center}
 .photo-edit img{width:72px;height:72px;object-fit:cover;border-radius:8px}
@@ -167,7 +167,9 @@ h2{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:32px 0 12px}
 .row .badge{justify-self:end;max-width:100%}
 .pups summary{flex-wrap:wrap}.pups summary span{min-width:0}
 .hfab{position:fixed;right:90px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.25);cursor:pointer;z-index:9}
-.hfab svg{width:24px;height:24px}.hfab .fabl{right:66px}
+.hfab svg{width:24px;height:24px}
+/* tasto 💉 solo dove serve (scelta di Paolo): Cani, Cucciolate, Scadenze */
+body[data-tab]:not([data-tab="cani"]):not([data-tab="cucciolate"]):not([data-tab="scadenze"]) .hfab{display:none}.hfab .fabl{right:66px}
 .hfab:hover .fabl,.hfab:focus-visible .fabl{opacity:1}
 @media (max-width:760px){.hfab{bottom:calc(84px + env(safe-area-inset-bottom,0px));right:84px}}
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:.92rem;opacity:0;pointer-events:none;transition:all .2s;z-index:40}
@@ -452,12 +454,15 @@ h2.cz::before{content:attr(data-ic);width:34px;height:34px;border-radius:9px;dis
 .twrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:12px 0}.tcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem;min-width:0}
 body.ro .hfab{display:none!important}
 #lbx{position:fixed;inset:0;z-index:1000;background:rgba(10,10,15,.92);display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
-#lbx img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+#lbx img{max-width:calc(100vw - 20px);max-height:calc(100vh - 100px);object-fit:contain;border-radius:6px;cursor:zoom-in;display:block;margin:auto}
+#lbx.full{display:block;overflow:auto}#lbx.full img{max-width:none;max-height:none;cursor:zoom-out;margin:64px auto}
+.lbx-bar{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);transform:translateX(-50%);background:#fff;color:#111;border-radius:999px;padding:6px 14px;font-size:.85rem;z-index:1001;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.lbx-bar button{border:0;background:#1C2230;color:#fff;border-radius:999px;padding:4px 10px;margin-left:8px;font-weight:600;cursor:pointer}
 .lbx-x{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#111;font-size:1.2rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .par{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pc{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;border-top:4px solid var(--c)}
 .pc .ph{display:grid;place-items:center;aspect-ratio:4/3;background:#e9e4dc;font-size:1.6rem;color:#a99}
-.pc .phi{display:flex;align-items:center;justify-content:center;background:#f1ede6}.pc .phi img{display:block;width:100%;height:auto;max-height:520px;object-fit:contain}
+.pc .phi{display:flex;align-items:center;justify-content:center;background:#f1ede6}.pc .phi img{cursor:zoom-in;display:block;width:auto;height:auto;max-width:100%;max-height:150px;margin:0 auto;object-fit:contain}
 .pc .tx{padding:10px 12px}.pc .r{font-size:.75rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
 .pc .n{font-family:var(--serif);font-size:1.05rem;margin:2px 0}.pc .m{font-size:.82rem;color:var(--muted);margin-top:2px}
 .sbtl{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid #efd9bf;text-decoration:none;color:inherit}
@@ -484,9 +489,9 @@ table.nb input,table.nb select{font:inherit;padding:6px 8px;border:1px solid var
 .wgrid{display:grid;grid-template-columns:minmax(0,1fr) 110px 90px;gap:6px 10px;align-items:center;margin:10px 0}
 .wgrid input{font:inherit;padding:9px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;text-align:right}.wgrid input.bad{border-color:#c0392b;background:#fdecea}
 .wdiff{font-size:.82rem}.wdiff.up{color:#2e7d32}.wdiff.dn{color:#c0392b;font-weight:600}
-.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px;margin-top:10px}
 .wpt{display:block;border-radius:12px;overflow:hidden;background:var(--paper);border:1px solid var(--line);padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;text-decoration:none}
-.wpi{display:block;aspect-ratio:1;background:#e9e4dc center/cover no-repeat}.wpc{display:block;padding:6px 8px;font-size:.8rem;color:var(--muted)}.wpc b{display:block;color:var(--ink);font-size:.86rem}
+.wpi{display:block;aspect-ratio:4/3;background:#f1ede6 center/contain no-repeat}.wpc{display:block;padding:6px 8px;font-size:.8rem;color:var(--muted)}.wpc b{display:block;color:var(--ink);font-size:.86rem}
 .wk{font-family:var(--serif);font-size:1.02rem;margin:14px 0 0;color:#1f7a68}
 .wpas{display:flex;flex-direction:column;gap:10px}.wpa{display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start}.wpa .wpi{border-radius:8px}
 .wpa select,.wpa input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box;margin-bottom:6px}
@@ -513,6 +518,142 @@ nav.bottom{display:none}
   .coi-num{font-size:2.4rem}
 }
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}to{transform:none;opacity:1}}}
+/* Recensioni Google */
+.navbtn .nb{margin-left:auto;background:var(--accent);color:#fff;border-radius:999px;font-size:.72rem;font-weight:600;min-width:19px;height:19px;display:inline-grid;place-items:center;padding:0 5px}
+.rv-state{display:grid;grid-template-columns:1fr 1fr auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 18px}
+.rv-state>div{padding:14px 18px}.rv-state>div+div{border-left:1px solid var(--line)}
+.rv-state .k{color:var(--muted);font-size:.85rem;margin:0}.rv-state .v{font-family:var(--serif);font-size:1.5rem;line-height:1.2;margin:2px 0 0}
+.rv-state .v small{font-family:var(--sans);font-size:.9rem;color:var(--muted)}
+.rv-state .act{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:6px}.rv-state .when{color:var(--muted);font-size:.8rem;margin:0;text-align:right}
+.rv-st{color:#C98A0B;letter-spacing:1px;margin-right:6px}
+.rv-ok,.rv-todo{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:600;border-radius:999px;padding:2px 10px;vertical-align:4px}
+.rv-ok{color:var(--ok);background:var(--ok-soft)}.rv-todo{color:var(--warn);background:var(--warn-soft)}
+.btn.rv-go{background:var(--accent);color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
+.rv-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.rv{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 10px}.rv.open{border-color:var(--accent)}
+.rv-h{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:2px 12px;align-items:center}
+.rv-av{grid-row:span 2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:600;color:#fff;background:#5B6B8C}
+.rv-h .badge{grid-row:span 2}
+.rv-who{font-weight:600;margin:0}.rv-meta{color:var(--muted);font-size:.85rem;margin:0}
+.rv-text{margin:10px 0 0;max-width:72ch;white-space:pre-wrap}
+.rv-reply{margin:12px 0 0 52px;padding:10px 14px;border-left:3px solid var(--ok);background:var(--bg);border-radius:0 8px 8px 0}
+.rv-reply .rl{font-size:.85rem;color:var(--ok);font-weight:600;margin:0 0 2px}.rv-reply p{margin:0;white-space:pre-wrap}
+.rv-form{margin:12px 0 0 52px}.rv-ft{display:block;font-weight:600;font-size:.9rem;margin:0 0 6px}
+.rv-sugg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.rv-sug{text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink)}
+.rv-sug:hover{border-color:var(--ink)}.rv-sug[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-soft)}
+.rv-sug span{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin:0 0 2px}.rv-sug[aria-pressed="true"] span{color:var(--ok)}
+.rv-hint{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}.rv-hint input{flex:1 1 240px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.rv-form textarea{width:100%;min-height:96px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
+.rv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+@media (max-width:820px){.rv-state{grid-template-columns:1fr 1fr}.rv-state .act{grid-column:1/-1;border-left:0!important;border-top:1px solid var(--line);flex-direction:row;justify-content:space-between;align-items:center}.rv-state .when{text-align:left}.rv-reply,.rv-form{margin-left:0}.rv-sugg{grid-template-columns:1fr}}
+/* Post su Google */
+.gp-ev{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center}
+.gp-ev .ic{font-size:1.4rem;grid-row:span 2}.gp-ev .t{font-weight:600;margin:0}.gp-ev .s{color:var(--muted);font-size:.88rem;margin:0}.gp-ev .b{grid-row:span 2;text-align:right}
+.gp-ed{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px;background:var(--paper);border:1px solid var(--accent);border-radius:12px;padding:18px;margin:0 0 14px}
+.gp-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
+.gp-ph{aspect-ratio:4/3;border-radius:8px;border:2px solid transparent;padding:0;overflow:hidden;background:var(--bg);position:relative}
+.gp-ph img{width:100%;height:100%;object-fit:cover;display:block}.gp-ph[aria-pressed="true"]{border-color:var(--ok)}
+.gp-add{display:grid;place-items:center;border:2px dashed var(--line);background:var(--paper);color:var(--muted);font-size:.8rem;text-align:center;cursor:pointer;line-height:1.3}
+.gp-ph .ck{position:absolute;top:4px;right:4px;background:var(--ok);color:#fff;border-radius:999px;font-size:.7rem;font-weight:700;padding:1px 6px}
+.gp-tx{width:100%;min-height:150px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
+.gp-lnk{padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);max-width:100%}
+.gp-sel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 0;font-size:.9rem}
+.gp-checks{list-style:none;padding:0;margin:10px 0 0;font-size:.9rem}.gp-checks li{margin:3px 0}.gp-checks .y{color:var(--ok);font-weight:600}.gp-checks .n{color:var(--accent);font-weight:600}
+.gp-prev{background:#fff;color:#202124;border:1px solid #dadce0;border-radius:12px;overflow:hidden;font-family:Roboto,Arial,sans-serif;max-width:360px}
+.gp-prev .gh{display:flex;gap:10px;align-items:center;padding:10px 12px}.gp-prev .ga{width:32px;height:32px;border-radius:50%;background:#5f6368;color:#fff;display:grid;place-items:center;font-size:.75rem;font-weight:700}
+.gp-prev .gn{font-size:.85rem;font-weight:500;margin:0}.gp-prev .gd{font-size:.75rem;color:#5f6368;margin:0}.gp-prev img{display:block;width:100%;height:auto}
+.gp-prev .gt{font-size:.85rem;line-height:1.45;padding:10px 12px 4px;margin:0;white-space:pre-wrap}
+.gp-prev .gb{display:inline-block;margin:6px 12px 12px;color:#1a73e8;font-size:.85rem;font-weight:500;border:1px solid #dadce0;border-radius:18px;padding:5px 14px}
+.gp-post{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.gp-post .th{grid-row:span 2;width:64px;height:48px;border-radius:6px;overflow:hidden;background:var(--bg)}.gp-post .th img{width:100%;height:100%;object-fit:cover}
+.gp-post .pt{margin:0;font-weight:600}.gp-post .pd{margin:0;color:var(--muted);font-size:.85rem}.gp-post .badge{grid-row:span 2}
+@media (max-width:820px){.gp-ed{grid-template-columns:1fr}.gp-photos{grid-template-columns:repeat(2,1fr)}.gp-ev{grid-template-columns:auto minmax(0,1fr)}.gp-ev .b{grid-column:1/-1;grid-row:auto;text-align:left}}
+.dl-zone{margin:28px 0 0;padding:14px 16px;border:1px dashed #B42318;border-radius:12px;background:var(--paper)}
+.dl-zone p{margin:0 0 10px;color:var(--muted);font-size:.92rem}
+.dl-link{background:none;border:0;color:#B42318;font-weight:600;padding:0;text-decoration:underline}
+.btn.dl-del{background:#B42318;color:#fff}.dl-ok{color:var(--ok);font-weight:600}.dl-no{color:#B42318;font-weight:600}
+.sxw{position:relative}
+.sxsug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden;z-index:30}
+.sxsug button{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:2px 10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px}
+.sxsug button:last-child{border-bottom:0}.sxsug button[aria-selected="true"],.sxsug button:hover{background:var(--bg)}
+.sxsug .sx-m{color:#2B7BD8;font-weight:700}.sxsug .sx-f{color:#D6337A;font-weight:700}
+.sxsug .n{font-weight:600}.sxsug .nk{font-weight:400;color:var(--muted)}.sxsug mark{background:#FFE9A8;color:inherit;border-radius:2px}
+.sxsug .m{grid-column:2;color:var(--muted);font-size:.82rem}
+.sxsug .g{grid-row:span 2;font-size:.75rem;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.sxsug .g.ext{background:var(--warn-soft);color:var(--warn)}.sxsug .g.mio{background:var(--ok-soft);color:var(--ok)}
+.sxsug .none{padding:12px;margin:0;color:var(--muted);font-style:italic}
+/* Statistiche del sito */
+.ws-src{color:var(--muted);font-size:.82rem;margin:0 0 6px}
+.ws-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 10px}
+.ws-kpi{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.ws-kpi .k{color:var(--muted);font-size:.82rem;margin:0}.ws-kpi .v{font-family:var(--serif);font-size:1.55rem;margin:2px 0 0;line-height:1.2}
+.ws-up{color:var(--ok);font-size:.82rem;font-weight:600}.ws-dn{color:var(--accent);font-size:.82rem;font-weight:600}.ws-eq{color:var(--muted);font-size:.82rem}
+.ws-chart svg{width:100%;height:auto;display:block}.ws-leg{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--muted);margin:6px 0 0}.ws-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.ws-tw{overflow-x:auto;padding:0}
+.ws-t{border-collapse:collapse;width:100%;font-size:.9rem}.ws-t th,.ws-t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.ws-t th{color:var(--muted);font-weight:600;font-size:.8rem;cursor:pointer}.ws-t th:first-child,.ws-t td:first-child{text-align:left;white-space:normal}
+.ws-t tr.pri td:first-child{font-weight:600}.ws-t tr.pri td:first-child::before{content:"⭐ "}
+.ws-find{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);width:min(100%,320px);margin:0 0 8px;font:inherit}
+.ws-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ws-mini{padding:0;margin:0;list-style:none}.ws-mini li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+.ws-mini li.ws-bl{display:block}.ws-r{display:flex;justify-content:space-between;gap:10px}
+.ws-bar{display:block;height:8px;border-radius:4px;background:var(--accent-soft);position:relative;margin-top:3px}.ws-bar span{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+.ws-bt{font-weight:600;margin:0 0 8px}
+.ws-more{display:block;width:100%;border:0;border-top:1px solid var(--line);background:var(--bg);padding:10px;font-weight:600;cursor:pointer;color:var(--ink);font:inherit;font-weight:600}
+.ws-wbar{background:#DDF3E5}.ws-wbar span{background:#25A35A}.ws-k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ws-gsc{display:inline-block;font-size:.78rem;font-weight:600;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:1px 8px;margin-left:4px}
+.ws-live{color:var(--ok);font-weight:600}
+@media (max-width:820px){.ws-kpis{grid-template-columns:1fr 1fr}.ws-two{grid-template-columns:1fr}}
+/* Agenda */
+.ag-al{border-radius:12px;padding:12px 16px;margin:0 0 10px;font-size:.95rem}.ag-today{background:#FFF1D6;border:1px solid #E9C46A}.ag-warn{background:#FBE4E1;border:1px solid #E7A39A}
+.ag-paste{background:var(--paper);border:1px dashed var(--accent);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.ag-paste textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;box-sizing:border-box}
+.ag-found{background:var(--ok-soft);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.92rem}.ag-found select{font:inherit;padding:6px;border-radius:8px;border:1px solid var(--line);margin-left:6px}
+.ag-who{position:relative;margin-top:8px}.ag-who label{display:block;font-weight:600;font-size:.9rem;margin:0 0 4px}.ag-who input{width:100%;box-sizing:border-box;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px}
+.ag-hs{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:20;overflow:hidden}.ag-hs button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;font:inherit}.ag-hs button:hover{background:var(--bg)}
+.ag-chip{display:inline-flex;align-items:center;gap:8px;background:var(--ok-soft);color:var(--ok);font-weight:600;border-radius:999px;padding:4px 6px 4px 12px}.ag-chip button{border:0;background:none;color:var(--ok);font-weight:700;cursor:pointer}
+.ag-day{margin:0 0 14px}.ag-dh{font-weight:600;margin:0 0 6px;color:var(--muted);text-transform:capitalize}
+.ag-c{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 8px;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.ag-h{font-family:var(--serif);font-size:1.3rem}.ag-n{font-weight:600}.ag-s{color:var(--muted);font-size:.88rem}.ag-acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ag-st{font-size:.78rem;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}.ag-st.c{background:var(--ok-soft);color:var(--ok)}.ag-st.d{background:var(--warn-soft);color:var(--warn)}
+.btn.ag-wa{background:#25A35A;color:#fff}
+.ag-todo{padding:0;margin:0}.ag-todo li{list-style:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.ag-form{grid-column:1/-1;width:100%;border-top:1px solid var(--line);margin-top:8px;padding-top:10px}
+.ag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.ag-form label{display:flex;flex-direction:column;gap:3px;font-size:.85rem;font-weight:600}.ag-form input,.ag-form select{font:inherit;font-weight:400;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.ag-wide{margin-top:8px}
+@media (max-width:820px){.ag-c{grid-template-columns:52px minmax(0,1fr)}.ag-c .ag-st{grid-column:2;justify-self:start}}
+/* visore dei documenti nell'app */
+#dvw{position:fixed;inset:0;z-index:1200;background:#2B2F36;display:flex;flex-direction:column}
+.dv-bar{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 8px;background:#1C2230;color:#fff}
+.dv-bar button{border:0;border-radius:8px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}.dv-x{background:#fff;color:#1C2230}.dv-sh{background:#25A35A;color:#fff;margin-left:auto}
+.dv-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;opacity:.85}
+.dv-pages{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;flex-direction:column;align-items:center;gap:8px}
+.dv-pages canvas{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);max-width:100%}.dv-wait{color:#fff;margin:30px 10px;text-align:center}
+/* istruzioni dell'allevatore (pagina del proprietario) */
+.oi-h{color:#c05d00}.oi-card{background:var(--paper);border:1px solid var(--line);border-top:4px solid #c05d00;border-radius:12px;padding:16px 18px;background-image:linear-gradient(#fff3e6,transparent 70px);margin:0 0 10px}
+.oi-big{background:#FBE4E1;border:2px solid #B42318;border-radius:12px;padding:12px 14px;margin:0 0 12px;font-weight:700;color:#7A1C14}.oi-big small{display:block;font-weight:400;margin-top:4px;font-size:.92rem}
+.oi-ul{margin:0;padding-left:20px}.oi-ul li{margin:6px 0}
+.oi-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:14px}.oi-g a{display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);text-decoration:none;font-weight:600}.oi-g a span{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
+.oi-note{color:var(--muted);font-size:.88rem;margin:12px 0 0}
+.kx-add{padding:8px 0}.kx-form{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0}.kx-form input{flex:1 1 180px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px}
+.instr-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 30px 8px 0}.instr-pr .pr-head{display:none}
+@media print{body.print-instr *{visibility:hidden!important}body.print-instr .instr-pr,body.print-instr .instr-pr *{visibility:visible!important}
+body.print-instr .instr-pr{position:absolute;left:0;top:0;width:100%;padding:0 10px}body.print-instr .instr-pr .pr-head{display:block;margin:0 0 10px;font-size:.95rem}
+body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:none}body.print-instr #sheetBg{position:static!important;background:none!important}}
+.oi-imp{display:flex;gap:14px;align-items:center;background:#FFF4CC;border:2px solid #E0A800;border-radius:14px;padding:14px 16px;margin:14px 0 6px;text-decoration:none!important;color:#5C4300!important;box-shadow:0 4px 14px rgba(224,168,0,.25)}
+.oi-tri{flex:none;width:54px;height:48px}.oi-imp b{display:block;font-size:1.12rem;color:#3D2D00}.oi-imp span{font-size:.92rem}.oi-imp .oi-go{margin-left:auto;font-weight:700;white-space:nowrap}
+#oiM{position:fixed;inset:0;z-index:2000;background:rgba(20,23,29,.5);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 10px 24px}
+.oi-mb{background:var(--bg);border-radius:14px;padding:14px;max-width:760px;width:100%}.oi-mh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px}.oi-mh b{font-family:var(--serif);font-size:1.2rem;color:#8A6200}
+.oi-x{border:0;background:#1C2230;color:#fff;border-radius:8px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}.ki a.oi-lk{color:#8C2B23;font-weight:600}
+.oi-imp.oi-small{display:inline-flex;padding:6px 12px;gap:8px;border-width:1px;box-shadow:none;background:#FFF9E0;margin:8px 0 4px;border-radius:999px}
+.oi-imp.oi-small .oi-tri{width:22px;height:20px}.oi-imp.oi-small b{font-size:.92rem}.oi-imp.oi-small span,.oi-imp.oi-small .oi-go{display:none}
+.nv-box{background:#EAF4FF;border:2px solid #6FA8E8;border-radius:14px;padding:12px 14px;margin:12px 0}.nv-t{display:block;color:#1F4E8C;margin:0 0 6px}
+.nv-box ul{margin:0;padding-left:18px}.nv-box li{margin:3px 0}.nv-r{display:flex;justify-content:flex-end;margin-top:8px}
+.nv-pick label{display:block;margin:5px 0}
+.tr-int{display:flex;align-items:center;gap:12px;width:100%;background:#F1E9FB;border:2px solid #7A4FC2;border-radius:14px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;box-shadow:0 4px 12px rgba(122,79,194,.18);margin:4px 0 6px;color:inherit}
+.tr-int .i{font-size:1.8rem}.tr-int b{display:block;color:#4B2A86;font-size:1.08rem}.tr-int .d{color:#5C4A7A;font-size:.9rem}.tr-int .go{margin-left:auto;background:#7A4FC2;color:#fff;border-radius:999px;padding:6px 14px;font-weight:700;white-space:nowrap}
 </style>
 </head>
 <body class="owner-mode">
@@ -590,7 +731,9 @@ const TABS=[
  ["cucciolate","Cucciolate",'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'],
  ["proprietari","Proprietari",'<circle cx="12" cy="9" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/>'],
  ["coi","Accoppiamenti",'<circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/>'],
+ ["agenda","Agenda",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/>'],
  ["attesa","Attesa",'<path d="M8 6h11M8 12h11M8 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>'],
+ ["recensioni","Google",'<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>'],
  ["traduci","Traduci",'<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6 8M11 6c-1 4-4 7-7 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>'],
  ["conti","Conti",'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
  ["scadenze","Scadenze",'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3M8 17h6"/>'],
@@ -600,7 +743,7 @@ let tab="cani",view=null,filter="miei",q="";
 function nav(){
   // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
   const ico=ic=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>`;
-  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}</button>`).join("");
+  const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}${k==="recensioni"&&typeof rvBadge==="function"&&rvBadge()?`<span class="nb">${rvBadge()}</span>`:""}${k==="agenda"&&typeof agCount==="function"&&agCount()?`<span class="nb">${agCount()}</span>`:""}</button>`).join("");
   $("#navSide").innerHTML=B(TABS,false);$("#navBottom").classList.remove("more-on");
   // sul telefono: le prime 4 voci, poi "Altro" con un menu a tendina per le altre (Attesa, Conti e quelle che verranno)
   if(TABS.length<=5){$("#navBottom").innerHTML=B(TABS,true);return}
@@ -644,9 +787,18 @@ document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest
 function lbClose(fromPop){const l=document.getElementById("lbx");if(!l)return false;l.remove();if(!fromPop&&history.state&&history.state.lb){LB_BACK=true;history.back()}return true}
 document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
   if(a.classList.contains("fb-dl"))return;const fn=a.getAttribute("download")||"",im=/\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i;if(!(im.test(h)||im.test(fn)||h.startsWith("data:image/")))return;e.preventDefault();
-  const l=document.createElement("div");l.id="lbx";l.innerHTML=`<button class="lbx-x" aria-label="Chiudi">✕</button><img src="${h.replace(/"/g,"&quot;")}" alt="">`;
-  l.addEventListener("click",ev=>{if(ev.target.tagName!=="IMG"||ev.target.closest(".lbx-x"))lbClose(false)});document.body.appendChild(l);
-  try{history.pushState(Object.assign({},history.state||{},{lb:1}),"")}catch(err){}},true);
+  lbShow(h)},true);
+/* Visore delle foto (ottobre 2026, scelta di Paolo): foto adattata allo schermo ma mai più grande della sua misura vera;
+   tocco sulla foto o "Dimensioni originali" → grandezza piena, si scorre; sotto le dimensioni originali. Chiude ✕ o fondo. */
+function lbShow(h){lbClose(true);const l=document.createElement("div");l.id="lbx";
+  l.innerHTML=`<button class="lbx-x" aria-label="Chiudi">✕</button><img src="${h.replace(/"/g,"&quot;")}" alt=""><div class="lbx-bar"><span class="lbi">…</span><button type="button" class="lbb">Dimensioni originali</button></div>`;
+  const im=l.querySelector("img"),info=()=>{const w=im.naturalWidth,ht=im.naturalHeight,f=l.classList.contains("full");l.querySelector(".lbi").textContent=w?(f?"Originale "+w+"×"+ht:"Adattata allo schermo · originale "+w+"×"+ht):"";
+    const b=l.querySelector(".lbb");b.textContent=f?"Adatta allo schermo":"Dimensioni originali";b.hidden=!f&&w<=innerWidth-20&&ht<=innerHeight-100};
+  im.complete?info():im.addEventListener("load",info);
+  const tog=e=>{e.stopPropagation();l.classList.toggle("full");info()};im.addEventListener("click",tog);l.querySelector(".lbb").addEventListener("click",tog);
+  l.addEventListener("click",ev=>{if(ev.target===l||ev.target.closest(".lbx-x"))lbClose(false)});document.body.appendChild(l);
+  try{history.pushState(Object.assign({},history.state||{},{lb:1}),"")}catch(err){}}
+document.addEventListener("click",e=>{const i=e.target.closest&&e.target.closest("img.hero-photo");if(i){e.preventDefault();lbShow(i.getAttribute("src"))}});
 /* Solo consultazione (VIEWERS su Cloudflare): si vede tutto tranne i dati dei proprietari, non si può cambiare niente */
 var RO=window.RO||false;
 const RO_OK=new Set(["more","open","close","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
@@ -662,10 +814,10 @@ function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{
   const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
   const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
-function render(){resetCalc();nav();
+function render(){resetCalc();nav();document.body.setAttribute("data-tab",tab);
   const m=$("#main");
   const banner=bannerHtml();
-  if(tab==="cani")m.innerHTML=banner+(view?dogDetail(view):mbBanners()+dogList());
+  if(tab==="cani")m.innerHTML=banner+(view?dogDetailSafe(view):(typeof agBanner==="function"?agBanner():"")+mbBanners()+dogList());
   if(tab==="cucciolate")m.innerHTML=banner+litterList();
   if(tab==="proprietari")m.innerHTML=banner+(view?ownerDetail(view):ownerList());
   if(tab==="coi")m.innerHTML=banner+mating();
@@ -674,6 +826,8 @@ function render(){resetCalc();nav();
   if(tab==="scadenze")m.innerHTML=banner+scPage();
   if(tab==="statistiche")m.innerHTML=banner+stPage();
   if(tab==="traduci")m.innerHTML=banner+trPage();
+  if(tab==="agenda")m.innerHTML=banner+agPage();
+  if(tab==="recensioni")m.innerHTML=banner+rvPage();
   if(tab==="coi")calcMate();
   colorize(m);roClean(document);dRestore();navPush();
 }
@@ -722,7 +876,7 @@ function dogList(){
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
   return `${hero()}
-  <p class="lab">Cerca</p><label class="sx"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input placeholder="Nome, soprannome, LOI o microchip" value="${esc(q)}" id="srch"></label>
+  <p class="lab">Cerca in tutti i cani</p><div class="sxw"><label class="sx"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input placeholder="Nome, soprannome, LOI o microchip" value="" id="srch" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sxsug"></label><div class="sxsug" id="sxsug" role="listbox" hidden></div></div>
   <button class="fab" data-a="dogForm" aria-label="Nuovo cane"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="fabl">Nuovo cane</span></button>
   <div class="toolbar" style="margin-top:12px">${f.map(([k,l])=>`<button class="chip" aria-pressed="${filter===k}" data-a="filter" data-v="${k}">${l}</button>`).join("")}</div>
   <p class="row-meta" style="margin:0 0 10px">${Object.keys(D.dogs).length} cani in archivio, compresi antenati e stalloni esterni.</p>
@@ -761,6 +915,9 @@ function coiScale(a,me){const N=s=>LANG==="en"?String(s).replace(",","."):String
   ${a.uniq&&a.max?`<div class="ca-sec"><p class="ca-sub">${a.uniq} ${T("antenati diversi su","different ancestors in")} ${a.max}${a.loss?` · ${T("perdita di antenati","ancestor loss")} ${N(a.loss)}%`:""}</p></div>`:""}
   ${(a.top||[]).length?`<div class="ca-sec"><p class="ca-h">${a.topH||T("Antenati più ripetuti","Most repeated ancestors")}</p><ul class="ca-anc">${a.top.map(x=>`<li><span class="n">${esc(x.name)}</span><span class="x"><b>${esc(String(x.n))}×</b>${x.pct?` · ${N(x.pct)}%`:""}</span></li>`).join("")}</ul></div>`:""}
   ${a.src||a.pdf?`<div class="ca-foot">${a.src?`${T("Fonte: SBTpedigree, test mating","Source: SBTpedigree, test mating")} ${esc(a.src)}`:""}${a.pdf?`<br><a href="${esc(a.pdf)}" target="_blank" rel="noopener">📎 ${T("Analisi completa (PDF)","Full analysis (PDF)")}</a>`:""}</div>`:""}</div>`}
+/* Una sezione della scheda che va in errore non deve bloccare tutta la scheda (ottobre 2026): mostra l'avviso con il motivo. */
+function safe(f,name){try{return f()}catch(e){console.error(name,e);return`<div class="fnote">⚠️ La parte «${esc(name)}» non si è caricata: ${esc(e&&e.message||e)}</div>`}}
+function dogDetailSafe(id){try{return dogDetail(id)}catch(e){console.error(e);const d=D.dogs[id]||{};return`<button class="back" data-a="back">‹ Indietro</button><h1>${esc(d.name||"Scheda")}</h1><div class="fnote">⚠️ Questa scheda non si apre per un errore: <b>${esc(e&&e.message||e)}</b>.<br>Fai uno screenshot di questo riquadro e mandalo a Claude.<br><small>${esc(String(e&&e.stack||"").split("\n").slice(0,3).join(" · "))}</small></div>`}}
 function dogDetail(id){
   const d=D.dogs[id];if(!d)return "";
   const f=F(id)*100,cov=coverage(d.sire,d.dam);
@@ -776,31 +933,31 @@ function dogDetail(id){
   return `<button class="back" data-a="back">‹ Tutti i cani</button>
   ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="${esc(d.name)}">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${[st,d.bred?"Allevato da te":""].filter(Boolean).join(" · ")||"&nbsp;"}</p>
   <div class="actions" style="margin:0 0 16px">${EDIT===id?"":`<button class="btn" data-a="editOn" data-v="${id}|">Modifica</button><button class="btn ghost" data-a="dogForm" data-v="${id}">Foto, test, titoli e note</button>`}
-  ${!d.ext?`<button class="btn ghost" data-a="ownerPreview" data-v="${id}">Come la vede il proprietario</button>`:""}
+  ${!d.ext?`<button class="btn ghost" data-a="ownerPreview" data-v="${id}">Come la vede il proprietario</button>`:""}${!d.ext&&d.owner&&D.owners[d.owner]?`<button class="btn ghost" data-a="nvSheet" data-v="${id}">💬 Avvisa la famiglia</button>`:""}
   <button class="btn ghost" data-a="mate" data-v="${id}">Prova un accoppiamento</button></div>
   <h2 style="margin-top:8px">Dati</h2>
-  ${dogFacts(d,id,st,own)}
+  ${safe(()=>dogFacts(d,id,st,own),"dogFacts")}
 
-  <p class="row-meta">${sbtLink(d)}</p>
-  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}${ownLinkMini(d.owner)}</div>`:""}
-  ${contractBox(id)}
-  ${depBox(id)}
-  ${abroadBox(id)}
-  ${ppBox(id)}
-  ${kitBox(id)}
-  ${isFattrice(d)?`<h2>Calori e monte</h2>${reproHtml(id)}`:""}
-  ${wSeries(id).length>=3?`<h2>Crescita</h2>${growthDog(id)}`:""}
-  ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${wphotosHtml(id)}`:""}
-  ${!d.ext?`<h2>Salute</h2>${scPlanned(id)}${healthHtml(id,false)}`:""}
-  ${certHtml(id,false,false)}
-  <h2>Referti e documenti</h2>${docsHtml(id,false,false)}
-  ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${parentDocsHtml(id)}`:""}
-  ${d.dna?`<h2>Profilo genetico (DNA)</h2>${dnaHtml(d)}`:""}
+  <p class="row-meta">${safe(()=>sbtLink(d),"sbtLink")}</p>
+  ${own?`<h2>Proprietario</h2><div class="note">${esc(own.name)}${own.country?" · "+esc(own.country):""}${own.phone?"\nTel. "+esc(own.phone):""}${own.email?"\n"+esc(own.email):""}${own.addr?"\n"+esc(own.addr):""}${own.notes?"\n"+esc(own.notes):""}${safe(()=>ownLinkMini(d.owner),"ownLinkMini")}</div>`:""}
+  ${safe(()=>contractBox(id),"contractBox")}
+  ${safe(()=>depBox(id),"depBox")}
+  ${safe(()=>abroadBox(id),"abroadBox")}
+  ${safe(()=>ppBox(id),"ppBox")}
+  ${safe(()=>kitBox(id),"kitBox")}
+  ${isFattrice(d)?`<h2>Calori e monte</h2>${safe(()=>reproHtml(id),"reproHtml")}`:""}
+  ${wSeries(id).length>=3?`<h2>Crescita</h2>${safe(()=>growthDog(id),"growthDog")}`:""}
+  ${d.bred&&d.litter&&!d.ext?`<h2>Foto della crescita</h2>${safe(()=>wphotosHtml(id),"wphotosHtml")}`:""}
+  ${!d.ext?`<h2>Salute</h2>${safe(()=>scPlanned(id),"scPlanned")}${safe(()=>healthHtml(id,false),"healthHtml")}`:""}
+  ${safe(()=>certHtml(id,false,false),"certHtml")}
+  <h2>Referti e documenti</h2>${safe(()=>docsHtml(id,false,false),"docsHtml")}
+  ${!d.ext&&parentDocsHtml(id)?`<h2>Test dei genitori</h2>${safe(()=>parentDocsHtml(id),"parentDocsHtml")}`:""}
+  ${d.dna?`<h2>Profilo genetico (DNA)</h2>${safe(()=>dnaHtml(d),"dnaHtml")}`:""}
   <h2>Test sanitari</h2>${d.tests?`<div class="note">${esc(d.tests)}</div>`:'<p class="empty">Nessun test inserito.</p>'}
-  ${showsBox(id)}
-  <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:""}${shTitles(id)}${!d.titles&&!shTitles(id)?'<p class="empty">Nessun titolo inserito.</p>':""}
+  ${safe(()=>showsBox(id),"showsBox")}
+  <h2>Titoli</h2>${d.titles?`<div class="note">${esc(d.titles)}</div>`:""}${safe(()=>shTitles(id),"shTitles")}${!d.titles&&!shTitles(id)?'<p class="empty">Nessun titolo inserito.</p>':""}
   <h2>Pedigree</h2>${(()=>{const L0=LANG;LANG="it";const h=ovParents(id,true);LANG=L0;return h})()}
-  <details class="ped-more"><summary>Albero a 4 generazioni (per controllare e completare gli antenati)</summary>${pedigree(id)}</details>
+  <details class="ped-more"><summary>Albero a 4 generazioni (per controllare e completare gli antenati)</summary>${safe(()=>pedigree(id),"pedigree")}</details>
   <h2>Consanguineità</h2>
   ${litA(id)?(()=>{const a=litA(id),bb=band(pc(a.c8));return coiScale(a,true)+`<div class="ca-mine"><span class="badge ${bb[1]}">${bb[0]}</span><span>Calcolo del gestionale (Wright, 8 gen.): <strong>${pf(f)}%</strong> · antenati noti ${cov.known} di ${cov.tot} · solo per te</span></div>`})():(()=>{const sb=pc(d.coiSbt),hs=!isNaN(sb),bb=hs?band(sb):null;
    return `<div class="coi ${hs?"":"coi-empty"}"><div class="coi-num">${hs?pf(sb)+"%":"—"}</div>
@@ -808,9 +965,9 @@ function dogDetail(id){
    <div class="coi-cov"><strong>COI 8 generazioni SBT</strong>${hs?"":" · da inserire con Modifica"}</div></div>
    <div class="coi2"><span>Calcolo del gestionale (Wright, 8 generazioni): <strong>${pf(f)}%</strong></span><span class="row-meta">Antenati noti ${cov.known} di ${cov.tot}.</span></div>`})()}
   ${born_in?`<h2>Cucciolata di nascita</h2><div class="note">${fmt(born_in.date)||"Data da inserire"} · ${esc(dn(born_in.sire)||"padre da inserire")} × ${esc(dn(born_in.dam))}${born_in.notes?"\n"+esc(born_in.notes):""}</div>`:""}
-  ${sibs.length?`<h2>Fratelli</h2><div class="list">${rows(sibs)}</div>`:""}
+  ${sibs.length?`<h2>Fratelli</h2><div class="list">${safe(()=>rows(sibs),"rows")}</div>`:""}
   ${myLitters.length?`<h2>Cucciolate</h2><div class="list">${myLitters.map(litterRow).join("")}</div>`:""}
-  ${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${rows(rk)}</div>`:""}`})():""}
+  ${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${safe(()=>rows(rk),"rows")}</div>`:""}`})():""}
   <h2>Note</h2>${d.notes?`<div class="note">${esc(d.notes)}</div>`:'<p class="empty">Nessuna nota.</p>'}`;
 }
 
@@ -1034,7 +1191,8 @@ function rpSave(v){const [id,t]=v.split("|"),date=$("#rpd").value;if(!date){$("#
 function hsOpenDummy(){}
 /* ---------- Salute del cucciolo ---------- */
 const HK={vacc:"Vaccinazioni",feci:"Esame delle feci",verm:"Vermifugo",pz:"Pulci e zecche",lf:"Leishmania e filaria"};
-function H(d){return d.health||(d.health={vacc:[],feci:[],verm:[]})}
+/* dati sanitari: se una lista manca (schede vecchie o importate) la crea vuota, così la sezione Salute non va in errore */
+function H(d){const h=d.health||(d.health={});["vacc","feci","verm"].forEach(k=>{if(!Array.isArray(h[k]))h[k]=[]});return h}
 let LANG="it";const T=(it,en)=>LANG==="en"?en:it;
 const HKen={vacc:"Vaccinations",feci:"Faecal examination",verm:"Deworming",pz:"Fleas and ticks",lf:"Leishmania and heartworm"};
 const LFK={ple:["Prevenzione leishmania","Leishmania prevention"],pfi:["Prevenzione filaria","Heartworm prevention"],vle:["Vaccino leishmania","Leishmania vaccine"],test:["Test","Test"]};
@@ -1197,7 +1355,8 @@ function dogFacts(d,id,st,own){
     <div id="ef_newown" class="newown" style="display:none"><input id="no_name" placeholder="Nome e cognome (obbligatorio)"><input id="no_country" placeholder="Paese"><input id="no_phone" type="tel" placeholder="Telefono"><input id="no_email" type="email" placeholder="Email">
     <select id="no_lang"><option value="it">Pagina privata in italiano</option><option value="en">Pagina privata in inglese</option></select></div>`)}
     ${L("COI 8 generazioni SBT (%)",`<input id="ef_coi" inputmode="decimal" placeholder="es. 6,924" value="${esc(d.coiSbt||"")}">`)}
-    </div><div class="actions savebar"><button class="btn save" data-a="editSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`}
+    </div><div class="actions savebar"><button class="btn save" data-a="editSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div>
+    <div class="dl-zone"><p>Hai inserito un cane per sbaglio? Puoi toglierlo dal gestionale. Se è solo un dato sbagliato, per esempio il sesso, correggilo qui sopra.</p><button class="dl-link" data-a="dogDelAsk" data-v="${id}">🗑 Elimina questo cane</button></div></div>`}
   const ins=f=>`<span class="empty">da inserire</span>`;
   const F=(l,v,f)=>`<div class="fact"><dt>${l}</dt><dd>${v||(f?ins(f):'<span class="empty">—</span>')}</dd></div>`;
   return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",d.loi?esc(d.loi):d.bred&&!d.ext?'<i class="row-meta">In attesa N. LOI</i>':"","loi")}${F("Microchip",esc(d.chip||""),"chip")}
@@ -1269,7 +1428,7 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${nvBox(id)}${ovImp(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${ovParents(id)}
@@ -1612,6 +1771,12 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   <p class="row-meta" style="margin:0">${l.enciA?"✅ Consegnato il "+fmt(l.enciA):l.date?"Scadenza "+fmt(addD(l.date,25))+" · entro 25 giorni dalla nascita":"Scadenza: entro 25 giorni dalla nascita"}</p>
   ${ma.saved?`<p class="row-meta" style="margin:0">Salvato il ${fmt(ma.saved)}${ma.file&&/^\/files\//.test(ma.file)?` · ${fBtns(ma.file,maName(lid))}`:""} · con "Salva in Drive" va nella cartella "Modelli A"</p>`:""}
   <p class="small" style="margin:0">Già scritti: i tuoi dati, "controllabile presso" e Delegazione di ${MA_TO.deleg}; fattrice, stallone, monta e cuccioli quando ci sono. I dati del proprietario dello stallone (oltre al nome) si scrivono a mano. Va a: <b>${MA_TO.email}</b> · WhatsApp <b>${MA_TO.who} 338 214 1637</b>. Dal telefono Email e WhatsApp aprono la condivisione con il PDF già allegato; dal computer lo scaricano e lo alleghi tu.</p></div>`}
+/* Email ENCI da computer (ottobre 2026, scelta di Paolo): apre Gmail di zonerosse@gmail.com con destinatario, oggetto e
+   testo già scritti, e scarica il PDF da trascinare nell'email (Gmail non permette di allegare da un link). Sul telefono
+   resta il pannello Condividi, che allega il file da solo. */
+function encGmail(to,subj,txt){const u="https://mail.google.com/mail/?authuser="+encodeURIComponent("zonerosse@gmail.com")+"&view=cm&fs=1&to="+encodeURIComponent(to||"")+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt);
+  window.open(u,"_blank","noopener");toast("Il PDF è nella cartella Download: trascinalo nell'email di Gmail.")}
+const encDesktop=()=>!(window.matchMedia&&matchMedia("(pointer:coarse)").matches);
 async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
   if(mode==="done"){if(!confirm("Segnare il Modello A come consegnato? La scadenza sparisce."))return;l.enciA=todayS();render();if(sheetOpen())litterSheet(lid);typeof saveNow==="function"&&saveNow();toast("Modello A consegnato.");return}
   toast("Preparo il Modello A…");let blob;try{blob=await maBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
@@ -1621,6 +1786,7 @@ async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Obj
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  if(mode==="mail"&&encDesktop()){dl();encGmail(MA_TO.email,subj,txt);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
@@ -1802,6 +1968,7 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
   if(mode==="save"){l.mbFile=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.mbSaved=todayS();
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
+  if(mode==="mail"&&encDesktop()){dl();encGmail(S.email,subj,txt);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
@@ -1820,7 +1987,8 @@ function mbBanners(only){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=
 function stLit(lid){const l=D.litters[lid],P=Object.values(D.dogs).filter(d=>d.litter===lid);
   if(P.length)return{n:P.length,m:P.filter(d=>d.sex==="M").length,f:P.filter(d=>d.sex==="F").length,man:false};
   if(l.bornM!=null||l.bornF!=null){const m=+l.bornM||0,f=+l.bornF||0;return{n:m+f,m,f,man:true}}return null}
-function stPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"?";
+function stPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(WS.sub==="sito")return wsPage();const _h=stAllevPage();return _h.replace("</h1>","</h1>"+stChips())}
+function stAllevPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"?";
   const L=Object.entries(D.litters).filter(([,l])=>l.state==="nata").sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||""));
   const S=L.map(([k,l])=>[k,l,stLit(k)]),K=S.filter(x=>x[2]),N=K.reduce((a,x)=>a+x[2].n,0),M=K.reduce((a,x)=>a+x[2].m,0),F=K.reduce((a,x)=>a+x[2].f,0);
   const avg=K.length?(N/K.length).toFixed(1).replace(".",","):"–";
@@ -1864,11 +2032,11 @@ let TR={to:null,inTxt:"",inIt:"",inLang:"",outIt:"",out:"",lang:"en"};
    Da un proprietario (💬 Messaggio tradotto) sa già numero, email e lingua. Dal comando rapido dell'iPhone arriva con
    #traduci=<testo>: il messaggio è già incollato e tradotto. */
 function trPage(){const o=trContact(),wa=(TR.num||"").trim()?lkPhone({phone:TR.num,country:"Italia"}):(o&&o.phone?lkPhone(o):"");
-  return `<h1>💬 Traduci</h1>${o?`<p class="nick">Con <b>${esc(o.name)}</b>${TR.wl?" · lista d'attesa":TR.int?" · interessati":""} <button class="plink" data-a="trFree">nessuno in particolare</button></p>`:`<p class="nick">Messaggi in un'altra lingua: WhatsApp, email, chiunque.</p>`}
+  return `<h1>💬 Traduci</h1>${o?`<p class="nick">Con <b>${esc(o.name)}</b>${TR.wl?" · lista d'attesa":TR.int?" · interessati":""} <button class="plink" data-a="trFree">nessuno in particolare</button></p>`:`<p class="nick">Messaggi in un'altra lingua: WhatsApp, email, chiunque.</p>`}${TR.wl||TR.int||TR.to||!(TR.inTxt||"").trim()?"":`<button class="tr-int" data-a="intFromTr"><span class="i" aria-hidden="true">👀</span><span><b>➕ Metti negli interessati</b><span class="d">Chi ti ha scritto finisce nella lista «Interessati» di Attesa: Claude legge nome, cosa cerca e quando.</span></span><span class="go">Salva ›</span></button>`}
   <h2>Ti hanno scritto</h2><div class="cs" style="gap:8px"><textarea id="tr_in" rows="4" class="tr-ta" placeholder="Incolla qui il messaggio che ti è arrivato">${esc(TR.inTxt)}</textarea>
   <div class="row2"><button class="btn" data-a="trIn">✨ Traduci in italiano</button></div>
   ${TR.inIt?`<div class="tr-out"><b>🇮🇹 ${TR.inLang==="italiano"?"Il suo messaggio":"Cosa dice"}${TR.inLang&&TR.inLang!=="italiano"?` · era in ${esc(TR.inLang)}`:""}</b>${esc(TR.inIt)}</div>
-  <div class="row2"><button class="btn" data-a="trProp">✨ Proponi risposte</button>${TR.wl||TR.int||TR.to?"":`<button class="btn ghost" data-a="intFromTr">➕ Metti negli interessati</button>`}<a class="btn mb-wa" href="${wa?"https://wa.me/"+wa:"whatsapp://"}" rel="noopener">WhatsApp${o?" "+esc(o.name.split(" ")[0]):""}</a><button class="btn ghost" data-a="trReply">✍️ Rispondi</button></div>
+  <div class="row2"><button class="btn" data-a="trProp">✨ Proponi risposte</button><a class="btn mb-wa" href="${wa?"https://wa.me/"+wa:"whatsapp://"}" rel="noopener">WhatsApp${o?" "+esc(o.name.split(" ")[0]):""}</a><button class="btn ghost" data-a="trReply">✍️ Rispondi</button></div>
   ${(TR.opts||[]).map((x,i)=>`<div class="tr-out"><b>${esc(x.label)}</b><span style="display:block;margin-bottom:6px;color:var(--ink)">${TR.lang==="it"?esc(x.it):esc(x.out)}</span>${TR.lang==="it"?"":`<span style="display:block;color:var(--muted);font-size:.88rem">🇮🇹 ${esc(x.it)}</span>`}
   <div class="row2" style="margin-top:8px"><a class="btn mb-wa" href="https://wa.me/${wa}?text=${encodeURIComponent(x.out)}" target="_blank" rel="noopener">WhatsApp</a><button class="btn ghost" data-a="trOptCopy" data-v="${i}">Copia</button><button class="btn ghost" data-a="trOptEdit" data-v="${i}">✏️ Modifica</button></div></div>`).join("")}`:""}</div>
   ${TR.inIt?`<h2>Dimmi cosa vuoi rispondere</h2><div class="cs" style="gap:8px"><textarea id="tr_idea" rows="2" class="tr-ta" placeholder="es. ringrazialo, digli che Maris sta bene e che il 15 gli mando le foto">${esc(TR.idea||"")}</textarea>
@@ -2723,16 +2891,29 @@ async function ppGo(id){const d=D.dogs[id],g=k=>{const e=document.getElementById
     d.docs.push({title:"Passaggio di proprietà firmato",title_en:"Transfer of ownership – official Italian form, signed",date:day,file:"data:application/pdf;base64,"+btoa(doc.output()),fname:"passaggio-proprieta-"+slug+".pdf",private:false,pp:true});
     d.pp={date:day,at:new Date().toISOString()};closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Fatto: il PDF è nei documenti del cucciolo.")}
   catch(x){console.error(x);say("Non riesco a creare il PDF: controlla la connessione e riprova.")}}
-const KIT=[["Kit puppy Farmina (crocchette)","Farmina puppy kit (kibble)"],["Libretto veterinario","Veterinary booklet"],["Certificato di buona salute","Certificate of good health"],["Passaporto","Pet passport"],["Avvio pratica export pedigree","Export pedigree application started"],["Vaccino antirabbica","Rabies vaccination"]];
+const KIT=[["Kit puppy Farmina (crocchette)","Farmina puppy kit (kibble)"],["Libretto veterinario","Veterinary booklet"],["Certificato di buona salute","Certificate of good health"],["Passaporto","Pet passport"],["Avvio pratica export pedigree","Export pedigree application started"],["Vaccino antirabbica","Rabies vaccination"],["Istruzioni dell'allevatore","The breeder's instructions"]];
 /* KIT: Paolo spunta a mano cosa ha fatto/consegnato (05/10/2026: aggiunti passaporto, export pedigree, antirabbica, servono
    per i cuccioli che vanno all'estero). Sempre in fondo: d.kit è per posizione. */
+/* Voci in più della Consegna (Paolo, 06/10/2026): le aggiunge lui dal riquadro, valgono per tutti i cani.
+   D.settings.kitExtra=[{id,it,en,off}], spunte per cane in d.kitx={id:true}. Togliere una voce la nasconde (off), non
+   la cancella, così le spunte già date restano. */
+let KITX_ADD=null;
+const KITX=()=>((D.settings||{}).kitExtra||[]).filter(x=>!x.off);
+function kitxForm(id){return`<div class="kx-form"><input id="kx_it" placeholder="Nuova voce, es. Guinzaglio e pettorina"><input id="kx_en" placeholder="In inglese (facoltativo)"><button class="btn small" data-a="kitxSave" data-v="${id}">Aggiungi</button><button class="btn small ghost" data-a="kitxCancel">Annulla</button></div>`}
+function kitxAct(a,v){if(a==="kitxAdd"){KITX_ADD=v;render();setTimeout(()=>{const i=document.getElementById("kx_it");i&&i.focus()},50);return}
+  if(a==="kitxCancel"){KITX_ADD=null;render();return}
+  if(a==="kitxSave"){const it=(document.getElementById("kx_it")||{}).value||"",en=(document.getElementById("kx_en")||{}).value||"";if(!it.trim()){toast("Scrivi il nome della voce.");return}
+    D.settings=D.settings||{};D.settings.kitExtra=D.settings.kitExtra||[];D.settings.kitExtra.push({id:"k"+Date.now().toString(36),it:it.trim(),en:en.trim()||it.trim()});KITX_ADD=null;render();typeof saveNow==="function"&&saveNow();toast("Voce aggiunta per tutti i cani.");return}
+  if(a==="kitxDel"){const x=((D.settings||{}).kitExtra||[]).find(y=>y.id===v);if(x&&confirm("Togliere «"+x.it+"» dalla Consegna di tutti i cani?")){x.off=true;render();typeof saveNow==="function"&&saveNow()}}}
+document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.kitx||(typeof RO!=="undefined"&&RO))return;const [id,x]=t.dataset.kitx.split("|"),d=D.dogs[id];if(!d)return;
+  d.kitx=d.kitx||{};if(t.checked)d.kitx[x]=true;else delete d.kitx[x];render();typeof saveNow==="function"&&saveNow()});
 function kitBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";const k=D.dogs[id].kit||[],n=KIT.filter((x,i)=>k[i]).length;
   return `<h2>Consegna</h2><div class="kit">${KIT.map((x,i)=>`<label><input type="checkbox" data-kit="${id}|${i}" ${k[i]?"checked":""}> ${x[0]}</label>`).join("")}
   <p class="small">${n===KIT.length?"✅ Tutto consegnato.":"Spunta quello che hai consegnato. Il proprietario vede l'elenco nella sua pagina."}</p></div>`}
 function kitOwner(id){const d=D.dogs[id];if(!d||!d.bred||d.ext)return"";
   /* il proprietario vede SOLO le voci che Paolo ha spuntato (05/10/2026) */
-  const K=KIT.filter((x,i)=>(d.kit||[])[i]);if(!K.length)return"";
-  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${K.map(x=>`<div class="ki">✔️ ${T(x[0],x[1])}</div>`).join("")}</div>`}
+  const K=KIT.filter((x,i)=>(d.kit||[])[i]).concat(KITX().filter(x=>(d.kitx||{})[x.id]).map(x=>[x.it,x.en||x.it]));if(!K.length)return"";
+  return `<h2>${T("Cosa ricevi con","What you receive with")} ${esc(d.nick||d.name)}</h2><div class="kit">${K.map(x=>`<div class="ki">✔️ ${/^Istruzioni dell'allevatore/.test(x[0])?`<a href="#istruzioni" class="oi-lk" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false">${T(x[0],x[1])} ›</a>`:T(x[0],x[1])}</div>`).join("")}</div>`}
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.kit||RO)return;const [id,i]=t.dataset.kit.split("|"),d=D.dogs[id];if(!d)return;
   d.kit=KIT.map((x,j)=>j===+i?t.checked:!!(d.kit||[])[j]);render();typeof saveNow==="function"&&saveNow()});
 function ctCheck(){const b=document.getElementById("ctGoBtn"),p=document.getElementById("ctPrice"),c=document.getElementById("ctMe");if(b)b.disabled=!(p&&p.value.trim()&&(ctSellerSig()||(c&&c.dataset.used)))}
@@ -3122,7 +3303,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "instrView":instrView(v);break;case "instrPrint":instrPrint(v);break;case "nvSheet":nvSheet(v);break;case "nvSend":nvSend(v);break;case "kitxAdd":case "kitxSave":case "kitxCancel":case "kitxDel":kitxAct(a,v);break;case "agHint":case "agHintX":case "agF":case "agRead":case "agApply":case "agNope":case "agNewV":case "agCancel":case "agSave":case "agEdit":case "agDel":case "agConf":case "agRem":case "agAsk":case "agIcs":case "agDone":case "agVdone":case "agAtt":agAct(a,v);break;case "stSub":case "wsDays":case "wsLoad":case "wsSort":case "wsIt":case "wsMapsEd":case "wsAllQ":wsAct(a,v);break;case "wsMapsRun":wsMapsRun(el);break;case "wsMapsSave":wsMapsSave(el);break;case "dogDelAsk":dogDelAsk(v);break;case "dogDel":dogDel(v);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "gpFree":case "gpFreeClose":case "gpFreePh":case "gpFreeWrite":case "gpFreePub":gpFreeAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
@@ -3131,7 +3312,7 @@ document.addEventListener("click",e=>{
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}
-    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);closeSheet();render();typeof saveNow==="function"&&saveNow();break}
+    case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);/* richiesta del sito: non deve tornare al prossimo caricamento */if(/^r[0-9a-f]{12}$/.test(v)){D.wlGone=(D.wlGone||[]).concat(v);try{fetch("/api/requests?id="+encodeURIComponent(v),{method:"DELETE"}).catch(()=>{})}catch(e){}}closeSheet();render();typeof saveNow==="function"&&saveNow();break}
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
@@ -3178,7 +3359,7 @@ document.addEventListener("click",e=>{
     case "mateWith":{closeSheet();const [s1,d1]=v.split("|");mateS=s1;mateD=d1;tab="coi";view=null;render();break}
   }
 });
-document.addEventListener("input",e=>{if(e.target.id==="srch"){q=e.target.value;rerenderList()}});
+/* il campo Cerca ora mostra i suggerimenti (sxShow) e non filtra più l'elenco: q resta vuoto */
 document.addEventListener("change",e=>{if(e.target.id==="mateSbt")setMateSbt(e.target.value)});
 document.addEventListener("change",e=>{
   const t=e.target;
@@ -3196,6 +3377,583 @@ $("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelShee
 addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
 
 
+/* ---------- Recensioni Google (ottobre 2026, scelte di Paolo) ----------
+   Scheda solo per Paolo. Legge le recensioni del profilo Google (/api/reviews), per ognuna senza risposta propone due
+   ringraziamenti brevi scritti da Claude (/api/ai, task "recensione") o una risposta dal suo spunto; la risposta parte
+   solo con "Pubblica su Google". Il numero delle recensioni sul sito (hugo.toml) cambia SOLO con il tasto
+   "Aggiorna il sito", mai da solo. Collegamento a Google: /api/google (una volta sola). */
+let RV={st:"",list:[],total:0,rating:0,site:null,checked:"",f:"todo",ed:null,dr:{},pk:{},sg:{},sgw:{},id:{},msg:""};
+const rvTodo=()=>RV.list.filter(r=>r.reply==null).length;
+const rvStars=n=>"★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
+const rvVoto=x=>Number(x||0).toFixed(1);
+async function rvApi(p){const r=await fetch("/api/reviews",p?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)}:{});
+  const raw=await r.text();let j={};try{j=JSON.parse(raw)}catch(e){}if(r.status===403)throw new Error("Accesso non autorizzato.");if(!raw)throw new Error("errore "+r.status);return j}
+async function rvLoad(){RV.st="load";if(tab==="recensioni")render();
+  try{const j=await rvApi();if(!j.ok){RV.st=j.connect?"connect":"err";RV.err=j.error||"Errore";RV.setup=!!j.setup}
+    else{RV.st="ok";RV.list=(j.reviews||[]).sort((a,b)=>a.date<b.date?1:-1);RV.total=j.total||RV.list.length;RV.rating=j.rating||0;RV.site=j.site;RV.title=j.title||"";
+      RV.checked=new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}}
+  catch(x){RV.st="err";RV.err=x.message}
+  if(tab==="recensioni")render();else nav();if(RV.st==="ok")rvSuggAll()}
+function rvSugHtml(i){const r=RV.list[i];if(!r||r.reply!=null)return"";const s=RV.sg[r.name];
+  if(RV.sgw[r.name]==="err")return`<p class="small">Claude non ha risposto. <button class="plink" data-a="rvSugRetry" data-v="${i}">Riprova</button></p>`;
+  if(!s)return`<p class="small">⏳ Claude scrive due risposte…</p>`;
+  return`<p class="rv-ft">Due risposte pronte: tocca quella che vuoi</p><div class="rv-sugg">${s.map((t,k)=>`<button type="button" class="rv-sug" data-a="rvUse" data-v="${i}|${k}" aria-pressed="${RV.pk[r.name]===k}"><span>${RV.pk[r.name]===k?"✓ Scelta":"Risposta "+(k+1)}</span>${esc(t)}</button>`).join("")}</div>`}
+async function rvSuggAll(){for(let i=0;i<RV.list.length;i++){const r=RV.list[i];if(r.reply!=null||RV.sg[r.name]||RV.sgw[r.name]===1)continue;
+  RV.sgw[r.name]=1;try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text});RV.sg[r.name]=j.options||[];RV.sgw[r.name]=0}catch(x){RV.sgw[r.name]="err"}
+  const box=document.getElementById("rvs_"+i);if(box&&tab==="recensioni")box.innerHTML=rvSugHtml(i)}}
+function rvRevPage(){
+  let h=`<p class="lead">Le recensioni del profilo Google. La risposta che scrivi qui va su Google, e il numero delle recensioni sul sito si aggiorna da qui.</p>`;
+  if(RV.msg)h+=`<p class="fnote">${esc(RV.msg)}</p>`;
+  if(!RV.st){RV.st="load";setTimeout(rvLoad,0)}
+  if(RV.st==="load"&&!RV.list.length)return h+`<p class="empty">⏳ Leggo le recensioni da Google…</p>`;
+  if(RV.st==="connect")return h+(RV.setup?`<p class="fnote">Manca ancora la chiave di Google in Cloudflare (GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET): segui i passi che ti ha dato Claude.</p>`:
+    `<div class="rv-box"><p style="margin:0 0 10px">Il gestionale non è ancora collegato al profilo Google dell'allevamento.</p><a class="btn" href="/api/google">Collega il profilo Google</a><p class="small" style="margin:10px 0 0">Si apre Google: scegli l'account con cui gestisci il profilo e premi «Consenti». Si fa una volta sola.</p></div>`);
+  if(RV.st==="err"&&!RV.list.length)return h+`<p class="fnote">${esc(RV.err)}</p><button class="btn ghost" data-a="rvLoad">Riprova</button>`;
+  const todo=RV.list.filter(r=>r.reply==null),s=RV.site,same=s&&s.total===RV.total&&String(s.rating)===rvVoto(RV.rating);
+  h+=`<div class="rv-state"><div><p class="k">Su Google</p><p class="v"><span class="rv-st">★</span> ${rvVoto(RV.rating).replace(".",",")} <small>· ${RV.total} recensioni</small></p></div>
+  <div><p class="k">Sul sito</p><p class="v">${s?esc(s.total)+" "+(same?`<span class="rv-ok">✓ uguale a Google</span>`:`<span class="rv-todo">da aggiornare</span>`):`<small>non letto</small>`}</p></div>
+  <div class="act">${same||!s?`<button class="btn ghost small" data-a="rvLoad">${RV.st==="load"?"⏳ Controllo…":"Controlla adesso"}</button>`:`<button class="btn small rv-go" data-a="rvSite">Aggiorna il sito a ${RV.total}</button>`}<p class="when">Ultimo controllo: ${esc(RV.checked)}</p></div></div>`;
+  if(RV.st==="err")h+=`<p class="fnote">${esc(RV.err)}</p>`;
+  h+=`<div class="toolbar"><button class="chip" data-a="rvF" data-v="todo" aria-pressed="${RV.f==="todo"}">Da rispondere (${todo.length})</button><button class="chip" data-a="rvF" data-v="all" aria-pressed="${RV.f==="all"}">Tutte (${RV.list.length})</button></div>`;
+  const L=RV.list.map((r,i)=>[r,i]).filter(([r])=>RV.f==="all"||r.reply==null||RV.ed===r.name);
+  if(!L.length)h+=`<p class="empty">Hai risposto a tutte le recensioni.</p>`;
+  for(const [r,i] of L){const ed=RV.ed===r.name,open=r.reply==null||ed,val=RV.dr[r.name]!=null?RV.dr[r.name]:(ed?r.reply:"");
+    h+=`<article class="rv${open?" open":""}"><div class="rv-h"><div class="rv-av" aria-hidden="true">${esc((r.who||"?").trim().charAt(0).toUpperCase())}</div><p class="rv-who">${esc(r.who)}</p>
+    ${r.reply!=null?`<span class="badge ok">✓ Risposta</span>`:`<span class="badge f">Da rispondere</span>`}<p class="rv-meta"><span class="rv-st" aria-label="${r.stars} stelle su 5">${rvStars(r.stars)}</span>${fmt(r.date)}</p></div>
+    ${r.text?`<p class="rv-text">${esc(r.text)}</p>`:`<p class="rv-text small">Solo stelle, senza testo.</p>`}`;
+    if(r.reply!=null&&!ed)h+=`<div class="rv-reply"><p class="rl">✓ La tua risposta${r.replyDate?", pubblicata il "+fmt(r.replyDate):""}</p><p>${esc(r.reply)}</p><div class="row2" style="margin-top:8px"><button class="btn ghost small" data-a="rvEdit" data-v="${i}">Modifica</button></div></div>`;
+    else{h+=`<div class="rv-form">`;
+      if(r.reply==null)h+=`<div id="rvs_${i}">${rvSugHtml(i)}</div><p class="rv-ft">Oppure dai uno spunto e la scrivo io</p><div class="rv-hint"><input data-rvi="${i}" value="${esc(RV.id[r.name]||"")}" placeholder="Es. verranno a prendere Rocco tra una decina di giorni" aria-label="Spunto per la risposta"><button class="btn ghost small" data-a="rvGen" data-v="${i}">✨ Scrivi la risposta</button></div>`;
+      h+=`<label class="rv-ft" for="rvt_${i}">${r.reply!=null?"Modifica la risposta":"La risposta che pubblichi (puoi correggerla)"}</label><textarea id="rvt_${i}" data-rvt="${i}" maxlength="4000" rows="4" placeholder="Scrivi la risposta che vedranno tutti su Google">${esc(val||"")}</textarea>
+      <div class="rv-row"><span class="small" id="rvc_${i}">${(val||"").length}/4.000</span><span>${r.reply!=null?`<button class="btn ghost small" data-a="rvCancel" data-v="${i}">Annulla modifiche</button> `:""}<button class="btn small rv-go" data-a="rvPub" data-v="${i}" ${(val||"").trim()?"":"disabled"}>${r.reply!=null?"Salva su Google":"Pubblica su Google"}</button></span></div>
+      <p class="small" style="margin:6px 0 0">${esc(r.who)} riceverà una notifica, e la risposta sarà visibile a tutti sul profilo.</p></div>`}
+    h+=`</article>`}
+  return h}
+/* ---------- Post su Google (ottobre 2026, scelte di Paolo) ----------
+   Dentro la voce "Google" (insieme alle Recensioni). Il gestionale propone un post quando c'è una novità:
+   - cucciolata nata con la pagina del Diario sul sito e foto più nuove dell'ultimo post (l.gpost = {date: foto, at: giorno});
+   - risultato d'esposizione messo sul sito (s.web) degli ultimi 60 giorni, non ancora raccontato (s.gpost).
+   Claude scrive il testo (/api/ai, task "post"), Paolo sceglie la foto, controlla e pubblica (/api/posts). Mai da solo.
+   "Non serve" toglie la proposta senza pubblicare. Controlli: niente telefono, niente parole da vendita, max 1.500 caratteri. */
+let GP={ed:null,text:"",photo:0,btn:1,busy:0,list:null,lerr:"",up:[]};
+const gpFile=p=>p&&/^\/files\//.test(p.file||"")?p.file:"";
+function gpEvents(){const out=[],today=todayS(),lim=new Date(Date.now()-60*864e5).toISOString().slice(0,10);
+  for(const [lid,l] of Object.entries(D.litters||{})){if(l.state!=="nata"||!l.date||!(l.site&&l.site.diarDone)||!siOk(lid))continue;
+    const ph=[];(l.gphotos||[]).forEach(p=>gpFile(p)&&ph.push(p));Object.values(D.dogs).filter(d=>d.litter===lid).forEach(d=>(d.wphotos||[]).forEach(p=>gpFile(p)&&ph.push(p)));
+    ph.sort((a,b)=>(b.date||"").localeCompare(a.date||""));const newest=ph.length?(ph[0].date||l.date):l.date,last=(l.gpost||{}).date||"";
+    if(last&&newest<=last)continue;const wk=Math.max(0,Math.floor((new Date(today)-new Date(l.date))/(7*864e5)));
+    out.push({k:"l|"+lid,ic:"📖",t:`Cucciolata ${litPair(lid)}: ${wk<1?"sono nati":wk+(wk===1?" settimana":" settimane")}`,s:"Pagina del Diario sul sito"+(ph.length?" · foto del "+fmt(newest):""),
+      url:litUrl(lid,"it"),photos:ph.slice(0,8).map(p=>p.file),newest,
+      facts:{tipo:"cucciolata",coppia:litPair(lid),nati_il:l.date,settimane:wk,didascalie_foto:ph.slice(0,6).map(p=>p.cap||"").filter(Boolean)}})}
+  for(const [k,d] of Object.entries(D.dogs||{}))for(const s of d.shows||[]){if(!s.web||s.gpost||!s.date||s.date<lim)continue;
+    const res=[s.qual,s.rank,(s.titles||[]).join(" ")].filter(Boolean).join(" · ");
+    out.push({k:"s|"+k+"|"+s.id,ic:"🏆",t:`${d.name}: ${res||"esposizione"}${s.name?" a "+s.name:""}`,s:"Esposizione del "+fmt(s.date),
+      url:SITE+"/palmares-del-piccolo-diavolo/",photos:[gpFile({file:s.photo}),gpFile({file:d.photo})].filter(Boolean),
+      facts:{tipo:"esposizione",cane:d.name,data:s.date,esposizione:s.name||"",tipo_esposizione:s.type||"",giudice:s.judge||"",classe:s.cls||"",qualifica:s.qual||"",classifica:s.rank||"",titoli:s.titles||[]}})}
+  return out}
+const gpChecks=t=>[[!/\+?\d[\d\s.\-]{7,}\d/.test(t),"Niente numero di telefono nel testo (Google non lo accetta)"],
+  [!/\b(prezz\w*|euro|€|vend\w*|disponibil\w*|prenot\w*|client[ei]|acquist\w*|caparr\w*)\b/i.test(t),"Niente prezzi, vendite o «disponibili»: è una notizia"],
+  [t.trim().length>0&&t.length<=1500,t.length+"/1.500 caratteri"]];
+function gpChecksHtml(t){return gpChecks(t).map(([ok,l])=>`<li class="${ok?"y":"n"}">${ok?"✓":"✗"} ${esc(l)}</li>`).join("")}
+async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok)GP.list=j.posts;else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
+function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa, oppure lo scrivi tu; lo pubblichi sempre tu, con il tasto.</p>`+(GP.free?gpFreeHtml():`<p style="margin:0 0 6px"><button class="btn rv-go" data-a="gpFree">✍️ Scrivi un post</button></p>`)+`<h2>Da proporre (${E.length})</h2>`;
+  if(!E.length)h+=`<p class="empty">Niente di nuovo da raccontare per ora.</p>`;
+  for(const e of E){if(GP.ed!==e.k){h+=`<div class="gp-ev"><span class="ic" aria-hidden="true">${e.ic}</span><p class="t">${esc(e.t)}</p><span class="b"><button class="btn small" data-a="gpOpen" data-v="${esc(e.k)}">Prepara il post</button> <button class="plink" data-a="gpSkip" data-v="${esc(e.k)}">Non serve</button></span><p class="s">${esc(e.s)}</p></div>`;continue}
+    const ph=GP.up,sel=ph[GP.photo]||"",ok=gpChecks(GP.text).every(x=>x[0]);
+    h+=`<div class="gp-ed"><div><span class="rv-ft">Foto</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${ph.map((f,i)=>`<button type="button" class="gp-ph" data-a="gpPh" data-v="${i}" aria-pressed="${GP.photo===i}"><img src="${esc(f)}" alt="" loading="lazy">${GP.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}</div>`}${ph.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}
+      <label class="rv-ft" for="gp_tx">Testo (scritto da Claude, puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":""}">${esc(GP.text)}</textarea>
+      <div class="gp-sel"><label><input type="checkbox" id="gp_btn" ${GP.btn?"checked":""}> Tasto «Scopri di più» verso</label> <a href="${esc(e.url)}" target="_blank" rel="noopener" class="small">${esc(e.url.replace(SITE,""))}</a></div>
+      <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
+      <div class="rv-row"><button class="btn ghost small" data-a="gpRedo" data-v="${esc(e.k)}">✨ Riscrivi il testo</button><span><button class="btn ghost small" data-a="gpClose">Annulla</button> <button class="btn small rv-go" data-a="gpPub" data-v="${esc(e.k)}" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
+      <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">Allevamento Staffordshire Bull Terrier Del Piccolo Diavolo</p><p class="gd">Adesso</p></div></div>${sel?`<img src="${esc(sel)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${GP.btn?`<span class="gb">Scopri di più</span>`:""}</div>
+      <p class="small" style="margin:10px 0 0">Google controlla ogni post prima di mostrarlo: di solito pochi minuti, a volte di più.</p></div></div>`}
+  h+=`<h2>Pubblicati</h2>`;if(GP.list===null){setTimeout(gpLoad,0);GP.list=undefined}
+  if(!GP.list)h+=`<p class="empty">⏳ Leggo i post da Google…</p>`;else if(GP.lerr)h+=`<p class="fnote">${esc(GP.lerr)}</p>`;else if(!GP.list.length)h+=`<p class="empty">Ancora nessun post.</p>`;
+  else h+=GP.list.map(p=>`<div class="gp-post"><div class="th">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))}</p>${p.state==="LIVE"?`<span class="badge ok">✓ Online su Google</span>`:p.state==="REJECTED"?`<span class="badge f">Rifiutato da Google</span>`:`<span class="badge warn">In controllo da Google</span>`}<p class="pd">${fmt(p.date)}</p></div>`).join("");
+  return h}
+/* Post libero (scelta di Paolo): "✍️ Scrivi un post" su quello che vuole lui. Foto fra le ultime caricate nel gestionale,
+   tasto verso Home / Cuccioli / Diario di una cucciolata / Palmarès / nessuno. Claude scrive dalle sue due righe. */
+function gpRecent(){const out=[];for(const [k,d] of Object.entries(D.dogs||{})){(d.wphotos||[]).forEach(p=>gpFile(p)&&out.push({f:p.file,date:p.date||"",lab:d.nick||d.name}));
+    if(gpFile({file:d.photo})&&!d.ext)out.push({f:d.photo,date:"",lab:d.name})}
+  for(const [lid,l] of Object.entries(D.litters||{}))(l.gphotos||[]).forEach(p=>gpFile(p)&&out.push({f:p.file,date:p.date||"",lab:litPair(lid)}));
+  const seen=new Set();return out.sort((a,b)=>(b.date||"").localeCompare(a.date||"")).filter(x=>!seen.has(x.f)&&seen.add(x.f)).slice(0,16)}
+function gpLinks(){const L=[["Home",SITE+"/"],["Cuccioli",SITE+CUC_URL.it]];
+  Object.entries(D.litters||{}).filter(([lid,l])=>l.state==="nata"&&l.site&&l.site.diarDone&&siOk(lid)).sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||"")).forEach(([lid])=>L.push(["Diario: "+litPair(lid),litUrl(lid,"it")]));
+  L.push(["Palmarès",SITE+"/palmares-del-piccolo-diavolo/"],["Nessun tasto",""]);return L}
+function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata ora"})),sel=P[F.photo],ok=gpChecks(GP.text).every(x=>x[0]),L=gpLinks(),lk=L[F.link]||L[0];
+  return `<div class="gp-ed"><div><label class="rv-ft" for="gp_idea">Di cosa vuoi parlare? (due righe, anche scritte male)</label><textarea id="gp_idea" class="gp-tx" style="min-height:70px" placeholder="Es. Rocco va a casa sabato con la sua famiglia, foto tutti insieme">${esc(F.idea)}</textarea>
+    <div class="rv-row" style="margin:6px 0 14px"><span></span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il testo</button></div>
+    <span class="rv-ft">Foto (dal telefono o dal computer)</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${P.map((p,i)=>`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="${i}" aria-pressed="${F.photo===i}" title="${esc(p.lab)}"><img src="${esc(p.f)}" alt="" loading="lazy">${F.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}${P.length?`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="-1" aria-pressed="${F.photo===-1}" style="display:grid;place-items:center;font-size:.8rem;color:var(--muted)">Senza foto${F.photo===-1?`<span class="ck">✓</span>`:""}</button>`:""}</div>`}${P.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}
+    <label class="rv-ft" for="gp_tx">Testo (puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":"Qui compare il testo di Claude, o scrivilo tu"}">${esc(GP.text)}</textarea>
+    <label class="rv-ft" for="gp_lnk" style="margin-top:10px">Il tasto «Scopri di più» porta a</label><select id="gp_lnk" class="gp-lnk">${L.map(([n],i)=>`<option value="${i}" ${F.link===i?"selected":""}>${esc(n)}</option>`).join("")}</select>
+    <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
+    <div class="rv-row"><span></span><span><button class="btn ghost small" data-a="gpFreeClose">Annulla</button> <button class="btn small rv-go" data-a="gpFreePub" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
+    <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">Allevamento Staffordshire Bull Terrier Del Piccolo Diavolo</p><p class="gd">Adesso</p></div></div>${sel&&F.photo>=0?`<img src="${esc(sel.f)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${lk[1]?`<span class="gb">Scopri di più</span>`:""}</div></div></div>`}
+async function gpFreeAct(a,v,b){const F=GP.free;
+  if(a==="gpFree"){GP.ed=null;GP.free={idea:"",photo:0,link:0};GP.text="";render();const e=document.getElementById("gp_idea");e&&e.focus();return}
+  if(!F)return;
+  if(a==="gpFreeClose"){GP.free=null;GP.text="";render();return}
+  if(a==="gpFreePh"){F.photo=+v;render();return}
+  if(a==="gpFreeWrite"){if(!F.idea.trim()){toast("Scrivi prima in due righe di cosa vuoi parlare.");return}GP.busy=1;GP.text="";render();
+    try{const j=await aiCall("post",{facts:{tipo:"post libero di Paolo"},idea:F.idea});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render();return}
+  if(a==="gpFreePub"){const P=GP.up.map(f=>({f,date:"",lab:""})),p=F.photo>=0?P[F.photo]:null,lk=gpLinks()[F.link]||["",""];aiBusy(b,1,"Pubblico…");
+    try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:lk[1],file:p?p.f.replace(/^\/files\//,""):""})}),j=await r.json();
+      if(!j.ok)throw new Error(j.error||"errore");GP.free=null;GP.text="";GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}
+    catch(x){aiBusy(b,0);alert("Post non pubblicato.\n\n"+x.message)}}}
+document.addEventListener("input",e=>{const t=e.target;if(t&&t.id==="gp_idea"&&GP.free)GP.free.idea=t.value});
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="gp_lnk"&&GP.free){GP.free.link=+t.value;render()}});
+async function gpUpload(inp){const fs=[...inp.files];if(!fs.length)return;toast(fs.length===1?"Carico la foto…":"Carico "+fs.length+" foto…");let n=0;
+  for(const f of fs){try{const s=await shrink(f);if(!s)continue;const url=await uploadData(s.data);GP.up.unshift(url);n++}catch(x){alert("Foto non caricata.\n\n"+x.message)}}
+  if(n){if(GP.free)GP.free.photo=0;else GP.photo=0;render();toast(n===1?"Foto aggiunta.":"Foto aggiunte: "+n)}}
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("gpUp"))gpUpload(t)});
+function gpFind(k){return gpEvents().find(e=>e.k===k)}
+function gpMark(k,newest){const [t,a,b]=k.split("|");if(t==="l"&&D.litters[a])D.litters[a].gpost={date:newest||todayS(),at:todayS()};
+  if(t==="s"&&D.dogs[a]){const s=(D.dogs[a].shows||[]).find(x=>x.id===b);if(s)s.gpost=todayS()}typeof saveNow==="function"&&saveNow()}
+async function gpWrite(e,b){GP.busy=1;GP.text="";render();try{const j=await aiCall("post",{facts:e.facts});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render()}
+async function gpAct(a,v,b){
+  if(a==="gpOpen"){const e=gpFind(v);if(!e)return;GP.free=null;GP.ed=v;GP.photo=0;GP.btn=1;gpWrite(e,b);return}
+  if(a==="gpClose"){GP.ed=null;render();return}
+  if(a==="gpSkip"){const e=gpFind(v);if(e&&confirm("Togliere questa proposta senza pubblicare niente?")){gpMark(v,e.newest);if(GP.ed===v)GP.ed=null;render()}return}
+  if(a==="gpPh"){GP.photo=+v;render();return}
+  if(a==="gpRedo"){const e=gpFind(v);if(e)gpWrite(e,b);return}
+  if(a==="gpPub"){const e=gpFind(v);if(!e)return;const f=GP.up[GP.photo]||"";aiBusy(b,1,"Pubblico…");
+    try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:GP.btn?e.url:"",file:f?f.replace(/^\/files\//,""):""})}),j=await r.json();
+      if(!j.ok)throw new Error(j.error||"errore");gpMark(v,e.newest);GP.ed=null;GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}
+    catch(x){aiBusy(b,0);alert("Post non pubblicato.\n\n"+x.message)}}}
+document.addEventListener("input",e=>{const t=e.target;if(!t)return;
+  if(t.id==="gp_tx"){GP.text=t.value;const g=document.getElementById("gp_gt");if(g)g.textContent=t.value;const c=document.getElementById("gp_ck");if(c)c.innerHTML=gpChecksHtml(t.value);
+    const b=document.querySelector('[data-a="gpPub"],[data-a="gpFreePub"]');if(b)b.disabled=!gpChecks(t.value).every(x=>x[0])}
+  if(t.id==="gp_btn"){GP.btn=t.checked?1:0;render()}});
+const rvBadge=()=>{let n=rvTodo();try{n+=gpEvents().length}catch(e){}return n};
+function rvPage(){const sub=RV.sub||"rev",n1=rvTodo();let n2=0;try{n2=gpEvents().length}catch(e){}
+  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button></div>`+(sub==="post"?gpPage():rvRevPage())}
+async function rvAct(a,v,b){const i=parseInt(v,10),r=RV.list[i];
+  if(a==="rvSub"){RV.sub=v;render();return}
+  if(a==="rvLoad"){RV.msg="";rvLoad();return}
+  if(a==="rvF"){RV.f=v;render();return}
+  if(a==="rvSugRetry"&&r){delete RV.sgw[r.name];const box=document.getElementById("rvs_"+i);if(box)box.innerHTML=rvSugHtml(i);rvSuggAll();return}
+  if(a==="rvUse"){const [x,k]=v.split("|").map(Number),q=RV.list[x];if(!q||!RV.sg[q.name])return;RV.pk[q.name]=k;RV.dr[q.name]=RV.sg[q.name][k];render();return}
+  if(!r)return;
+  if(a==="rvGen"){const idea=(RV.id[r.name]||"").trim();if(!idea){toast("Scrivi in due parole cosa vuoi dire.");return}
+    aiBusy(b,1,"Claude scrive…");try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text,idea});RV.dr[r.name]=(j.options||[])[0]||"";RV.pk[r.name]=null;render();toast("Risposta scritta: controllala prima di pubblicare.")}
+    catch(x){aiBusy(b,0);alert("Claude non risponde.\n\n"+x.message)}return}
+  if(a==="rvEdit"){RV.ed=r.name;RV.dr[r.name]=r.reply;render();const t=document.getElementById("rvt_"+i);t&&t.focus();return}
+  if(a==="rvCancel"){RV.ed=null;delete RV.dr[r.name];render();return}
+  if(a==="rvPub"){const text=(RV.dr[r.name]||"").trim();if(!text)return;const was=r.reply!=null;aiBusy(b,1,"Pubblico…");
+    try{const j=await rvApi({task:"reply",name:r.name,text});if(!j.ok)throw new Error(j.error||"errore");r.reply=j.reply;r.replyDate=j.replyDate;delete RV.dr[r.name];RV.ed=null;render();toast(was?"Risposta salvata su Google.":"Risposta pubblicata su Google.")}
+    catch(x){aiBusy(b,0);alert("Non pubblicata.\n\n"+x.message)}return}}
+async function rvSite(b){aiBusy(b,1,"Aggiorno il sito…");
+  try{const j=await rvApi({task:"site",total:RV.total,rating:RV.rating});if(!j.ok)throw new Error(j.error||"errore");RV.site={total:j.total,rating:j.rating};render();toast("Sito aggiornato: "+j.total+" recensioni. Tra un paio di minuti è online.")}
+  catch(x){aiBusy(b,0);alert("Sito non aggiornato.\n\n"+x.message)}}
+document.addEventListener("input",e=>{const t=e.target;if(!t||!t.dataset)return;
+  if(t.dataset.rvt!=null){const r=RV.list[+t.dataset.rvt];if(!r)return;RV.dr[r.name]=t.value;const c=document.getElementById("rvc_"+t.dataset.rvt);if(c)c.textContent=t.value.length+"/4.000";
+    const b=document.querySelector('[data-a="rvPub"][data-v="'+t.dataset.rvt+'"]');if(b)b.disabled=!t.value.trim()}
+  if(t.dataset.rvi!=null){const r=RV.list[+t.dataset.rvi];if(r)RV.id[r.name]=t.value}});
+/* Ritorno da Google dopo "Collega il profilo Google": #recensioni=<messaggio> */
+function rvFromHash(){const h=location.hash||"";if(!h.startsWith("#recensioni"))return;let m="";try{m=decodeURIComponent(h.slice(12))}catch(e){}
+  history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
+  RV.msg=m;RV.st="";RV.sub="rev";tab="recensioni";view=null;render()}
+/* ---------- Eliminare un cane (ottobre 2026, scelta di Paolo) ----------
+   Da Modifica, in fondo: "🗑 Elimina questo cane". Si può solo se non è collegato a niente: niente figli in archivio,
+   nessuna cucciolata come padre o madre, nessun proprietario, nessun contratto. Altrimenti il gestionale spiega perché
+   (pedigree e COI dei figli si romperebbero). I file in R2 non si cancellano; resta la copia di sicurezza della notte. */
+function dogLinks(id){const d=D.dogs[id]||{},L=[];
+  const kids=Object.values(D.dogs).filter(x=>x.sire===id||x.dam===id).length;if(kids)L.push((d.sex==="F"?"Madre":"Padre")+" di "+kids+(kids===1?" cane":" cani")+" in archivio");
+  const lit=Object.values(D.litters||{}).filter(l=>l.dam===id||l.sire===id);if(lit.length)L.push("In "+lit.length+(lit.length===1?" cucciolata":" cucciolate")+" ("+lit.map(l=>[dn(l.dam),dn(l.sire)].filter(Boolean).map(s=>s.split(/\s+/)[0]).join(" × ")).join(", ")+")");
+  if(d.owner&&D.owners[d.owner])L.push("Collegato al proprietario "+D.owners[d.owner].name);
+  if(d.contract)L.push("Ha un contratto");return L}
+function dogDelAsk(id){const d=D.dogs[id];if(!d)return;const L=dogLinks(id);
+  if(L.length){sheet(`<h2 style="margin-top:0">Non si può eliminare ${esc(d.name)}</h2><p>È collegato ad altri dati, che resterebbero senza padre o madre:</p><ul>${L.map(x=>`<li class="dl-no">${esc(x)}</li>`).join("")}</ul><p class="row-meta">Se i dati sono sbagliati, correggili con Modifica. Se il cane va davvero tolto, prima va tolto dalle cucciolate, dai pedigree dei figli e dal proprietario.</p><div class="actions"><button class="btn ghost" data-a="close">Ho capito</button></div>`);return}
+  sheet(`<h2 style="margin-top:0">Eliminare ${esc(d.name)}?</h2><ul><li class="dl-ok">✓ Nessun figlio in archivio</li><li class="dl-ok">✓ In nessuna cucciolata</li><li class="dl-ok">✓ Nessun proprietario collegato</li></ul><p class="row-meta">Spariscono la scheda, le foto e i documenti di questo cane. Se ti servisse di nuovo, c'è la copia di sicurezza di stanotte.</p><div class="actions"><button class="btn dl-del" data-a="dogDel" data-v="${id}">Elimina definitivamente</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
+function dogDel(id){const d=D.dogs[id];if(!d||dogLinks(id).length)return;const n=d.name;delete D.dogs[id];
+  Object.keys(D.matings||{}).forEach(k=>{if(k.split("|").includes(id))delete D.matings[k]});
+  if(typeof mateS!=="undefined"&&mateS===id)mateS=null;if(typeof mateD!=="undefined"&&mateD===id)mateD=null;
+  closeSheet();EDIT=null;EDIRTY=false;view=null;tab="cani";resetCalc();render();typeof saveNow==="function"&&saveNow();toast(esc(n)+" eliminato.")}
+/* ---------- Ricerca con suggerimenti (ottobre 2026, scelta di Paolo) ----------
+   "Cerca in tutti i cani": cerca sempre in tutto l'archivio, qualunque filtro sia scelto; sotto il campo fino a 8
+   suggerimenti (♂/♀, nome con le lettere evidenziate, soprannome, LOI o microchip, gruppo). Tocco o Invio → scheda. */
+let SXS=0,SXR=[];
+function sxGroup(d){if(d.ext)return["Esterno","ext"];const s=(STATUS[d.status]||[])[0];if(s&&d.status!=="fattrice"&&d.status!=="stallone"&&d.status!=="casa")return[s,""];return["Mio","mio"]}
+function sxHl(t,q){t=String(t||"");const i=t.toLowerCase().indexOf(q);return i<0?esc(t):esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length))}
+function sxShow(){const inp=$("#srch"),box=$("#sxsug");if(!inp||!box)return;const q=inp.value.trim().toLowerCase();
+  if(!q){box.hidden=true;inp.setAttribute("aria-expanded","false");return}
+  SXR=Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];return(d.name+" "+(d.nick||"")+" "+(d.loi||"")+" "+(d.chip||"")).toLowerCase().includes(q)})
+    .sort((a,b)=>{const A=D.dogs[a].name.toLowerCase(),B=D.dogs[b].name.toLowerCase();return(A.startsWith(q)?0:1)-(B.startsWith(q)?0:1)||A.localeCompare(B)}).slice(0,8);SXS=0;
+  box.innerHTML=SXR.length?SXR.map((k,i)=>{const d=D.dogs[k],[g,c]=sxGroup(d),m=d.loi?d.loi:(d.chip?"chip "+d.chip:"");
+    return`<button type="button" role="option" data-sx="${i}" aria-selected="${i===SXS}"><span class="${d.sex==="F"?"sx-f":"sx-m"}">${d.sex==="F"?"♀":"♂"}</span><span class="n">${sxHl(d.name,q)}${d.nick?` <span class="nk">«${sxHl(d.nick,q)}»</span>`:""}</span><span class="g ${c}">${esc(g)}</span><span class="m">${sxHl(m,q)}</span></button>`}).join("")
+    :`<p class="none">Nessun cane con «${esc(inp.value.trim())}».</p>`;
+  box.hidden=false;inp.setAttribute("aria-expanded","true")}
+function sxGo(i){const k=SXR[i];if(!k)return;const box=$("#sxsug");if(box)box.hidden=true;if(typeof leaveOk==="function"&&!leaveOk())return;openItem(k)}
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="srch")sxShow()});
+document.addEventListener("focusin",e=>{if(e.target&&e.target.id==="srch")sxShow()});
+document.addEventListener("keydown",e=>{if(!e.target||e.target.id!=="srch")return;const box=$("#sxsug");if(!box||box.hidden)return;const b=[...box.querySelectorAll("button")];if(!b.length)return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();SXS=(SXS+(e.key==="ArrowDown"?1:-1)+b.length)%b.length;b.forEach((x,i)=>x.setAttribute("aria-selected",i===SXS))}
+  if(e.key==="Enter"){e.preventDefault();sxGo(SXS)}if(e.key==="Escape")box.hidden=true});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#sxsug button");if(b){e.preventDefault();sxGo(+b.dataset.sx);return}
+  if(!(e.target.closest&&e.target.closest(".sxw"))){const box=$("#sxsug");if(box)box.hidden=true}});
+/* ---------- Statistiche del sito (ottobre 2026, scelta di Paolo: solo delpiccolodiavolo.it) ----------
+   In Statistiche, sezione "🌐 Sito web": Search Console (parole chiave vere, fino a 2-3 giorni fa) e Cloudflare Web
+   Analytics (visite quasi in tempo reale), da /api/sitestats. Nessuno script sul sito. */
+let WS={sub:"alle",days:28,it:true,data:null,load:0,sort:"c",find:"",msg:"",maps:null,mapsEd:0,mapsBusy:0,mapsAuto:0};
+const WS_PRI=["allevamento staffordshire bull terrier","cuccioli staffordshire bull terrier"];
+const wsN=(x,d=0)=>Number(x||0).toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});
+function wsPct(a,b){if(!b)return"";const p=Math.round((a-b)/b*100);return p>0?`<span class="ws-up">▲ ${p}%</span>`:p<0?`<span class="ws-dn">▼ ${-p}%</span>`:`<span class="ws-eq">=</span>`}
+function wsPos(dp){if(dp==null)return`<span class="ws-eq">nuova</span>`;if(Math.abs(dp)<.05)return`<span class="ws-eq">=</span>`;return dp<0?`<span class="ws-up">▲ ${wsN(-dp,1)}</span>`:`<span class="ws-dn">▼ ${wsN(dp,1)}</span>`}
+async function wsLoad(){WS.load=1;render();try{const r=await fetch("/api/sitestats?days="+WS.days+"&it="+(WS.it?1:0));WS.data=await r.json()}catch(x){WS.data={gscErr:x.message,cfErr:x.message}}WS.load=0;if(tab==="statistiche"&&WS.sub==="sito")render()}
+function wsChart(D2){if(!D2||D2.length<2)return"";const W=640,H=160,mc=Math.max(1,...D2.map(x=>x.c)),mi=Math.max(1,...D2.map(x=>x.i)),N=D2.length;
+  const pt=k=>D2.map((x,i)=>(i*(W-20)/(N-1)+10).toFixed(1)+","+(H-12-x[k]/(k==="c"?mc:mi)*(H-30)).toFixed(1)).join(" ");
+  return`<div class="nbox ws-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Clic e impressioni per giorno"><polyline fill="none" stroke="#C9CED6" stroke-width="2" points="${pt("i")}"/><polyline fill="none" stroke="var(--accent)" stroke-width="2.5" points="${pt("c")}"/></svg><div class="ws-leg"><span><i style="background:var(--accent)"></i>Clic</span><span><i style="background:#C9CED6"></i>Impressioni</span><span>${/T/.test(D2[0].d)?"ora per ora, ultime 24 ore":fmt(D2[0].d)+" – "+fmt(D2[N-1].d)}</span></div></div>`}
+function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div class="toolbar"><b style="margin-right:6px">delpiccolodiavolo.it</b>${[[1,"24 ore"],[7,"7 giorni"],[28,"28 giorni"],[90,"3 mesi"]].map(([v,l])=>`<button class="chip" data-a="wsDays" data-v="${v}" aria-pressed="${WS.days===v}">${l}</button>`).join("")}<button class="btn ghost small" data-a="wsLoad">${WS.load?"⏳ Aggiorno…":"Aggiorna"}</button></div>`;
+  if(WS.msg)h+=`<p class="fnote">${esc(WS.msg)}</p>`;
+  if(X)h+=wsWaHtml()+`<h2>Ricerche su Google</h2><div class="toolbar"><button class="chip" data-a="wsIt" data-v="1" aria-pressed="${WS.it}">Solo Italia</button><button class="chip" data-a="wsIt" data-v="0" aria-pressed="${!WS.it}">Tutto il mondo</button></div>`;
+  if(!X){if(!WS.load)setTimeout(wsLoad,0);return h+`<p class="empty">⏳ Leggo i dati da Google e da Cloudflare…</p>`}
+  // Search Console
+  if(X.gscErr)h+=`<p class="fnote">${esc(X.gscErr)}</p>${X.gscConnect||/collegato/.test(X.gscErr)?`<p><a class="btn" href="/api/google?ret=sito">Collega Google</a></p>`:""}`;
+  else{const G=X.gsc,t=G.tot,p=G.prev;
+    h+=`<p class="ws-src">Da Google Search Console · ${G.it?"solo ricerche fatte in Italia":"ricerche da tutti i paesi"} · ${G.fresh?"ultime 24 ore con i dati «freschi» di Google: provvisori, possono cambiare un po' nei giorni dopo · confronto con i due giorni prima":fmt(G.from)+" – "+fmt(G.to)+" (i dati arrivano con 2-3 giorni di ritardo) · confronto con il periodo precedente"}</p><div class="ws-kpis">
+      <div class="ws-kpi"><p class="k">Clic da Google</p><p class="v">${wsN(t.clicks)}</p>${wsPct(t.clicks,p.clicks)}</div>
+      <div class="ws-kpi"><p class="k">Impressioni</p><p class="v">${wsN(t.impressions)}</p>${wsPct(t.impressions,p.impressions)}</div>
+      <div class="ws-kpi"><p class="k">Percentuale di clic</p><p class="v">${wsN(t.ctr*100,1)}%</p></div>
+      <div class="ws-kpi"><p class="k">Posizione media</p><p class="v">${wsN(t.position,1)}</p>${p.position?wsPos(t.position-p.position):""}</div></div>${wsChart(G.daily)}`;
+    const L=G.queries.filter(q=>q.q.includes(WS.find.toLowerCase())).sort((a,b)=>WS.sort==="p"?a.p-b.p:b[WS.sort]-a[WS.sort]);
+    const th=(k,l)=>`<th data-a="wsSort" data-v="${k}">${l}${WS.sort===k?(k==="p"?" ▴":" ▾"):""}</th>`;
+    h+=`<h2>Parole chiave</h2><input class="ws-find" id="ws_find" placeholder="Cerca una parola…" value="${esc(WS.find)}"><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca su Google</th>${th("c","Clic")}${th("i","Impressioni")}<th>CTR</th>${th("p","Posizione")}<th>Rispetto a prima</th></tr></thead><tbody id="ws_q">${wsRows(WS.find||WS.allq?L:L.slice(0,10))}</tbody></table>${!WS.find&&L.length>10?`<button class="ws-more" data-a="wsAllQ">${WS.allq?"▴ Mostra solo le prime 10":"▾ Mostra le altre "+(L.length-10)+" parole chiave"}</button>`:""}</div><p class="ws-src">⭐ = le tue parole chiave principali. ▲ verde = sei salito in classifica.</p>`;
+    const mv=G.queries.filter(q=>q.dp!=null&&q.i>=10),up=mv.filter(q=>q.dp<=-1).sort((a,b)=>a.dp-b.dp).slice(0,5),dn=mv.filter(q=>q.dp>=1).sort((a,b)=>b.dp-a.dp).slice(0,5);
+    const ml=A=>A.length?`<ul class="ws-mini">${A.map(q=>`<li><span>${esc(q.q)}</span>${wsPos(q.dp)}</li>`).join("")}</ul>`:`<p class="row-meta">Niente di rilevante.</p>`;
+    h+=`<div class="ws-two"><div><h2>In salita</h2><div class="nbox">${ml(up)}</div></div><div><h2>In discesa</h2><div class="nbox">${ml(dn)}</div></div></div>`;
+    h+=`<h2>Pagine più cliccate</h2><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Pagina</th><th>Clic</th><th>Impressioni</th><th>Posizione</th></tr></thead><tbody>${G.pages.map(x=>`<tr><td>${esc(x.u)}</td><td>${wsN(x.c)}</td><td>${wsN(x.i)}</td><td>${wsN(x.p,1)}</td></tr>`).join("")}</tbody></table></div>`}
+  h+=wsMapsHtml()+wsGbpkHtml();
+  return h}
+
+/* Posizioni su Google Maps per città (DataForSEO, /api/maps): controllo da solo una volta a settimana all'apertura, o col tasto */
+async function wsMapsLoad(){try{const r=await fetch("/api/maps"),j=await r.json();WS.maps=j;
+    const last=(j.runs||[])[0];if(j.ready&&!WS.mapsAuto&&(j.used||0)<(j.cap||100)&&(!last||Date.now()-Date.parse(last.at)>14*864e5)){WS.mapsAuto=1;wsMapsRun(null,1)}}catch(x){WS.maps={err:x.message}}
+  if(tab==="statistiche"&&WS.sub==="sito")render()}
+async function wsMapsRun(b,auto){WS.mapsBusy=1;WS.maps.warn="";if(tab==="statistiche"&&WS.sub==="sito")render();
+  try{const r=await fetch("/api/maps",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"run"})}),j=await r.json();if(j.used!=null){WS.maps.used=j.used;WS.maps.cap=j.cap}if(!j.ok)throw new Error(j.error||"errore");WS.maps.runs=j.runs;toast("Posizioni su Maps aggiornate.")}
+  catch(x){if(auto)WS.maps.warn=x.message;else alert("Controllo non riuscito.\n\n"+x.message)}WS.mapsBusy=0;if(tab==="statistiche"&&WS.sub==="sito")render()}
+async function wsMapsSave(b){const kw=($("#ws_mk").value||"").split("\n"),ci=($("#ws_mc").value||"").split("\n");aiBusy(b,1,"Salvo…");
+  try{const r=await fetch("/api/maps",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"cfg",kw,cities:ci})}),j=await r.json();if(!j.ok)throw new Error(j.error||"errore");WS.maps.cfg=j.cfg;WS.mapsEd=0;render();toast("Parole e città salvate. Premi «Controlla adesso» per le nuove posizioni.")}
+  catch(x){aiBusy(b,0);alert("Non salvato.\n\n"+x.message)}}
+function wsMapsHtml(){const M=WS.maps;let h=`<h2>📍 Posizioni su Google Maps</h2>`;
+  if(!M){setTimeout(wsMapsLoad,0);WS.maps={loading:1};return h+`<p class="empty">⏳ Leggo le posizioni…</p>`}
+  if(M.loading)return h+`<p class="empty">⏳ Leggo le posizioni…</p>`;if(M.err)return h+`<p class="fnote">${esc(M.err)}</p>`;
+  if(!M.ready)h+=`<p class="fnote">Mancano DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD in Cloudflare: segui i passi che ti ha dato Claude.</p>`;
+  const C=M.cfg,R=M.runs||[],cur=R[0],pre=R[1];
+  h+=`<p class="ws-src">Dove esce la tua scheda cercando da tutta Italia, dalla regione e da ogni città · da DataForSEO · ${cur?"ultimo controllo "+new Date(cur.at).toLocaleString("it-IT",{weekday:"long",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"ancora nessun controllo"} · ogni controllo completo costa pochi centesimi</p>`;
+  const cell=(k,c)=>{if(!cur)return`<td class="row-meta">–</td>`;const v=cur.res[k+"|"+c],p=pre?pre.res[k+"|"+c]:undefined;
+    if(v==null)return`<td><span class="ws-eq">oltre 20</span>${p!=null?` <span class="ws-dn">▼</span>`:""}</td>`;
+    const d=p==null?null:p-v;return`<td><b class="${v<=3?"ws-up":""}" style="font-size:1rem">${v}°</b>${d>0?` <span class="ws-up">▲${d}</span>`:d<0?` <span class="ws-dn">▼${-d}</span>`:""}</td>`};
+  h+=`<div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca</th>${C.cities.map(c=>`<th>${esc(c.n)}</th>`).join("")}</tr></thead><tbody>${C.kw.map(k=>`<tr><td>${esc(k)}</td>${C.cities.map(c=>cell(k,c.n)).join("")}</tr>`).join("")}</tbody></table></div>
+  <div class="toolbar" style="margin-top:8px"><button class="btn ghost small" data-a="wsMapsRun" ${M.ready&&!WS.mapsBusy?"":"disabled"}>${WS.mapsBusy?"⏳ Controllo… (circa un minuto)":"🔄 Controlla adesso"}</button><button class="btn ghost small" data-a="wsMapsEd">✏️ Parole e città</button><span class="ws-src" style="margin:0">Si controlla da solo ogni due settimane, quando apri questa pagina. Questo mese: <b>${M.used||0}</b> ricerche su <b>${M.cap||100}</b> (tetto di spesa, circa ${((M.cap||100)*0.002).toFixed(2).replace(".",",")} $).</span></div>${M.warn?`<p class="fnote">${esc(M.warn)}</p>`:""}`;
+  if(WS.mapsEd)h+=`<div class="nbox"><label class="rv-ft" for="ws_mk">Parole da controllare (una per riga)</label><textarea id="ws_mk" class="gp-tx" style="min-height:90px">${esc(C.kw.join("\n"))}</textarea>
+    <label class="rv-ft" for="ws_mc" style="margin-top:10px">Luoghi (uno per riga: «Italia», una regione come «Emilia-Romagna», o una città)</label><textarea id="ws_mc" class="gp-tx" style="min-height:110px">${esc(C.cities.map(c=>c.n).join("\n"))}</textarea>
+    <p class="ws-src">Più parole e luoghi = più ricerche: con 3 parole e 13 luoghi sono 39 ricerche a controllo, due controlli al mese. Massimo 10 parole e 15 luoghi.</p><div class="rv-row"><span></span><span><button class="btn ghost small" data-a="wsMapsEd">Annulla</button> <button class="btn small rv-go" data-a="wsMapsSave">Salva</button></span></div></div>`;
+  return h}
+function wsGbpkHtml(){const X=WS.data;let h=`<h2>🔎 Ricerche che mostrano il tuo profilo Google</h2>`;
+  if(!X||X.gbpkErr)return h+`<p class="nbox row-meta">⏳ ${esc((X&&X.gbpkErr)||"")} Appena Google approva, qui compaiono le ricerche con cui la gente trova la tua scheda.</p>`;
+  const K=X.gbpk,mn=m=>{const [y,mm]=m.split("-");return["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"][+mm-1]};
+  if(!K.rows.length)return h+`<p class="nbox row-meta">Google non ha ancora dati sulle ricerche per questi mesi.</p>`;
+  return h+`<p class="ws-src">Dal profilo Google dell'allevamento · quante volte la scheda è comparsa per ogni ricerca, mese per mese (Google non dà la posizione; «&lt;15» = meno di 15)</p><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca</th>${K.months.map(m=>`<th>${mn(m)}</th>`).join("")}</tr></thead><tbody>${K.rows.map(r=>`<tr><td>${esc(r.k)}</td>${r.v.map((v,i)=>`<td>${i===2?`<b>${esc(v)}</b>`:esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+
+/* Contatti WhatsApp dal sito: tocchi sul tasto WhatsApp (funzione /wa/ del sito → /api/public/walog), conteggio esatto */
+function wsWaHtml(){const X=WS.data;let h=`<h2>💬 Contatti WhatsApp dal sito</h2>`;
+  if(!X||X.waErr)return h+`<p class="fnote">${esc((X&&X.waErr)||"")}</p>`;const W=X.wa;
+  h+=`<p class="ws-src">Ogni volta che qualcuno tocca il tasto WhatsApp sul sito · conteggio esatto, persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
+  if(!W.tot&&!W.prev)return h+`<p class="nbox row-meta">Ancora nessun tocco registrato: il conteggio parte da quando il sito usa il nuovo tasto WhatsApp.</p>`;
+  h+=`<div class="ws-kpis ws-k3"><div class="ws-kpi"><p class="k">Tocchi su WhatsApp</p><p class="v">${wsN(W.tot)}</p>${wsPct(W.tot,W.prev)}</div><div class="ws-kpi"><p class="k">Oggi</p><p class="v">${wsN(W.today)}</p></div><div class="ws-kpi"><p class="k">Media al giorno</p><p class="v">${wsN(W.tot/W.days,1)}</p></div></div>`;
+  if(W.daily.length>1){const mx=Math.max(1,...W.daily.map(d=>d.n)),n=W.daily.length,bw=Math.min(20,600/n-4);
+    h+=`<div class="nbox"><svg viewBox="0 0 620 160" role="img" aria-label="Tocchi su WhatsApp per giorno" style="width:100%;height:auto;display:block">${W.daily.map((d,i)=>`<rect x="${(i*(600/n)+10).toFixed(1)}" y="${(150-d.n/mx*130).toFixed(1)}" width="${bw.toFixed(1)}" height="${(d.n/mx*130).toFixed(1)}" rx="2" fill="#25A35A"><title>${fmt(d.day)}: ${d.n}</title></rect>`).join("")}</svg><p class="ws-src" style="margin:6px 0 0">giorno per giorno, ${fmt(W.daily[0].day)} – ${fmt(W.daily[n-1].day)}</p></div>`}
+  const mp=Math.max(1,...W.paths.map(p=>p.n)),pl=p=>p==="/"?"Home":p==="/en/"?"Home inglese":p==="/de/"?"Home tedesca":!p?"Pagina sconosciuta":decodeURIComponent(p);
+  h+=`<div class="ws-two" style="margin-top:12px"><div class="nbox"><p class="ws-bt">Da quale pagina</p><ul class="ws-mini">${W.paths.map(p=>`<li class="ws-bl"><span class="ws-r"><span>${esc(pl(p.path))}</span><b>${wsN(p.n)}</b></span><span class="ws-bar ws-wbar"><span style="width:${p.n/mp*100}%"></span></span></li>`).join("")}</ul></div>
+    <div class="nbox"><p class="ws-bt">In che lingua</p><ul class="ws-mini">${W.langs.map(l=>`<li><span>${{it:"Italiano",en:"Inglese",de:"Tedesco"}[l.lang]||esc(l.lang)}</span><b>${wsN(l.n)}</b></li>`).join("")}</ul></div></div>`;
+  return h}
+/* Provenienza delle visite (Cloudflare): voci unite (Google, Facebook, Bing…), "circa" perché sono stime campionate */
+function wsRefs(refs){const G={};const name=k=>{k=(k||"").replace(/^www\./,"").replace(/^m\./,"").replace(/^l\./,"").replace(/^lm\./,"");
+    if(!k)return"Senza provenienza";if(/^google\./.test(k)||/\.google\./.test(k))return"Google";if(/(^|\.)facebook\.com$|^fb\.com$/.test(k))return"Facebook";
+    if(/(^|\.)bing\.com$/.test(k))return"Bing";if(/(^|\.)instagram\.com$/.test(k))return"Instagram";if(/duckduckgo/.test(k))return"DuckDuckGo";if(/chatgpt\.com|openai\.com/.test(k))return"ChatGPT";
+    if(/perplexity/.test(k))return"Perplexity";if(k==="delpiccolodiavolo.it")return null;return k};
+  for(const r of refs){const n=name(r.k);if(!n)continue;G[n]=(G[n]||0)+r.v}return Object.entries(G).sort((a,b)=>b[1]-a[1])}
+function wsRows(L){return L.map(q=>`<tr${WS_PRI.includes(q.q)?' class="pri"':""}><td>${esc(q.q)}</td><td>${wsN(q.c)}</td><td>${wsN(q.i)}</td><td>${q.i?wsN(q.c/q.i*100,1):"0"}%</td><td>${wsN(q.p,1)}</td><td>${wsPos(q.dp)}</td></tr>`).join("")||`<tr><td colspan="6" class="row-meta">Nessuna ricerca con «${esc(WS.find)}».</td></tr>`}
+function stChips(){return`<div class="toolbar"><button class="chip" data-a="stSub" data-v="alle" aria-pressed="${WS.sub!=="sito"}">🐾 Allevamento</button><button class="chip" data-a="stSub" data-v="sito" aria-pressed="${WS.sub==="sito"}">🌐 Sito web</button></div>`}
+function wsAct(a,v){if(a==="stSub"){WS.sub=v;render();return}if(a==="wsDays"){WS.days=+v;WS.data=null;render();return}if(a==="wsLoad"){WS.data=null;WS.msg="";render();return}
+  if(a==="wsSort"){WS.sort=v;render();return}if(a==="wsIt"){WS.it=v==="1";WS.data=null;render();return}
+  if(a==="wsMapsEd"){WS.mapsEd=WS.mapsEd?0:1;render();return}if(a==="wsAllQ"){WS.allq=!WS.allq;render();return}}
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="ws_find"&&WS.data&&WS.data.gsc){WS.find=e.target.value;const tb=document.getElementById("ws_q");
+  const mb=document.querySelector(".ws-more");if(mb)mb.hidden=!!WS.find;
+  if(tb)tb.innerHTML=wsRows(WS.data.gsc.queries.filter(q=>q.q.includes(WS.find.toLowerCase())).sort((a,b)=>WS.sort==="p"?a.p-b.p:b[WS.sort]-a[WS.sort]))}});
+/* ritorno da "Collega Google": #sitostat=<messaggio> */
+function wsFromHash(){const h=location.hash||"";if(!h.startsWith("#sitostat"))return;let m="";try{m=decodeURIComponent(h.slice(10))}catch(e){}
+  history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
+  WS.msg=m;WS.sub="sito";WS.data=null;tab="statistiche";view=null;render()}
+/* ---------- Agenda: ritiri dei cuccioli e visite in allevamento (ottobre 2026, scelta di Paolo) ----------
+   D.agenda = [{id, k:"r"|"v", dog?, date, time, st:"d"|"c"|"r"|"f", who, tel, from, want, note, att?}]
+   k "r" = ritiro del cucciolo `dog`; k "v" = visita. st: d da confermare, c confermato, r ritirato, f visita fatta.
+   I cuccioli "prenotati" con famiglia e senza ritiro fissato compaiono da soli in "Da fissare".
+   Messaggio WhatsApp: comando rapido dell'iPhone → https://gestionale.delpiccolodiavolo.it/#agenda=<testo>, oppure incollato;
+   lo legge Claude (/api/ai, task "agenda"). Avvisi: oggi/domani, appuntamenti a meno di un'ora, ritiro prima dei 60 giorni. */
+const AG_ADDR="via Amerigo Chierici 12, Ostellato (FE)",AG_MAP="https://maps.google.com/?q=via+Amerigo+Chierici+12+Ostellato";
+let AG={f:"all",ed:null,txt:"",read:null,busy:0,hint:"",hq:""};
+const agL=()=>D.agenda||(D.agenda=[]);
+const agId=()=>"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const AG_DAYS=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+const agDay=d=>{const x=new Date(d+"T12:00");return AG_DAYS[x.getDay()]+" "+x.getDate()+"/"+(x.getMonth()+1)};
+const agMin=t=>{const [h,m]=String(t||"0:0").split(":").map(Number);return h*60+(m||0)};
+function agWa(tel){let n=String(tel||"").replace(/[^\d+]/g,"").replace(/^\+/,"").replace(/^00/,"");if(/^3\d{8,9}$/.test(n))n="39"+n;return n}
+function agOpenWa(tel,txt){const n=agWa(tel);window.open("https://wa.me/"+(n||"")+"?text="+encodeURIComponent(txt),"_blank","noopener")}
+/* cuccioli prenotati, con famiglia, nati da meno di 6 mesi: quelli che devono essere ritirati */
+function agPups(){return Object.entries(D.dogs||{}).filter(([k,d])=>d.status==="prenotato"&&d.owner&&D.owners[d.owner]&&d.birth&&dDiff(todayS(),d.birth)<=180)}
+function agFam(dog){const d=D.dogs[dog]||{},o=D.owners[d.owner]||{};return{pup:d.nick||d.name||"?",fam:o.name||"",tel:o.phone||"",city:o.city||o.addr||""}}
+function agItems(){const L=agL().slice(),have=new Set(L.filter(x=>x.k==="r"&&x.dog).map(x=>x.dog));
+  for(const [k] of agPups())if(!have.has(k)){const f=agFam(k);L.push({id:"virt-"+k,k:"r",dog:k,date:"",time:"",st:"d",who:"",tel:f.tel,virt:1})}return L}
+function agLabel(x){if(x.k==="r"){const f=agFam(x.dog);return"🚗 Ritiro "+f.pup+" ("+(x.who||f.fam)+")"}return"👋 Visita "+(x.who||"?")+(x.from?" da "+x.from:"")}
+function agTodayTomorrow(){const t=todayS(),m=addD(t,1),A=agItems().filter(x=>x.date&&(x.st==="d"||x.st==="c"));return{t:A.filter(x=>x.date===t).sort((a,b)=>agMin(a.time)-agMin(b.time)),m:A.filter(x=>x.date===m).sort((a,b)=>agMin(a.time)-agMin(b.time))}}
+function agCount(){const o=agTodayTomorrow();return o.t.length+o.m.length}
+function agBanner(){const o=agTodayTomorrow();if(!o.t.length&&!o.m.length)return"";
+  return`<div class="ag-al ag-today" data-a="go" data-v="agenda" style="cursor:pointer">📅 ${o.t.length?`<b>Oggi:</b> ${o.t.map(x=>esc((x.time||"")+" "+agLabel(x))).join(" · ")}`:""}${o.t.length&&o.m.length?"<br>":""}${o.m.length?`<b>Domani:</b> ${o.m.map(x=>esc((x.time||"")+" "+agLabel(x))).join(" · ")}`:""}</div>`}
+function agWarnings(){const out=[],A=agItems().filter(x=>x.date&&x.time&&(x.st==="d"||x.st==="c"));
+  for(let i=0;i<A.length;i++)for(let j=i+1;j<A.length;j++)if(A[i].date===A[j].date&&Math.abs(agMin(A[i].time)-agMin(A[j].time))<60)
+    out.push(`⚠️ <b>Troppo vicini</b> ${agDay(A[i].date)}: ${esc(agLabel(A[i]))} alle ${A[i].time} e ${esc(agLabel(A[j]))} alle ${A[j].time}.`);
+  for(const x of agItems())if(x.k==="r"&&x.date&&x.dog&&D.dogs[x.dog]&&D.dogs[x.dog].birth&&x.date<addD(D.dogs[x.dog].birth,60))
+    out.push(`⚠️ <b>${esc(agFam(x.dog).pup)}</b>: il ${agDay(x.date)} avrebbe meno di 60 giorni (si può dal ${fmt(addD(D.dogs[x.dog].birth,60))}).`);
+  return out}
+function agMsgConf(x){if(x.k==="v")return`Ciao ${x.who||""}, ti confermo la visita ${agDay(x.date)} alle ${x.time}: vi faccio conoscere i cani e rispondo a tutte le domande.\nIndirizzo: ${AG_ADDR}\nPer arrivare: ${AG_MAP}\nA presto, Paolo`;
+  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti confermo ${agDay(x.date)} alle ${x.time} per ${f.pup}.\nIndirizzo: ${AG_ADDR}\nPer arrivare: ${AG_MAP}\nA presto, Paolo`}
+function agMsgRem(x){if(x.k==="v")return`Ciao ${x.who||""}, ti ricordo la visita di domani alle ${x.time}.\nIndirizzo: ${AG_ADDR}: ${AG_MAP}\nSe cambia qualcosa scrivimi pure. Paolo`;
+  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti ricordo che domani alle ${x.time} ti aspetto per ${f.pup}.\nIndirizzo: ${AG_ADDR}: ${AG_MAP}\nSe cambia qualcosa scrivimi pure. Paolo`}
+function agMsgAsk(x){if(x.k==="v")return`Ciao ${x.who||""}, quando ti farebbe comodo passare a conoscerci? Dimmi giorno e ora, così ti tengo libero il momento. Paolo`;
+  const f=agFam(x.dog);return`Ciao ${f.fam||""}, ${f.pup} è pronto per venire a casa. Quando ti farebbe comodo passare a prenderlo? Dimmi giorno e ora, così ti tengo libero il momento. Paolo`}
+function agIcs(x){const [y,m,d]=x.date.split("-"),[hh,mm]=(x.time||"10:00").split(":"),s=y+m+d+"T"+hh.padStart(2,"0")+mm.padStart(2,"0")+"00",tit=x.k==="v"?"Visita "+(x.who||""):"Ritiro "+agFam(x.dog).pup+(x.who?" ("+x.who+")":"");
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//DelPiccoloDiavolo//Agenda//IT","BEGIN:VEVENT","UID:"+x.id+"@delpiccolodiavolo","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART:"+s,"DURATION:PT1H","SUMMARY:"+tit,"LOCATION:"+AG_ADDR,"DESCRIPTION:"+(x.tel?"Tel. "+x.tel+" ":"")+(x.note||""),"BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+tit,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const u=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})),a=document.createElement("a");a.href=u;a.download=tit.replace(/[^\w\- ]+/g,"")+".ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+function agForm(x){const L=agPups(),isR=x.k==="r";
+  return`<div class="ag-form"><div class="ag-grid">${isR?`<label>Cucciolo<select id="ag_dog">${L.map(([k])=>`<option value="${k}" ${x.dog===k?"selected":""}>${esc(agFam(k).pup)} → ${esc(agFam(k).fam)}</option>`).join("")}${x.dog&&!L.some(([k])=>k===x.dog)?`<option value="${x.dog}" selected>${esc(agFam(x.dog).pup)}</option>`:""}</select></label>`:`<label>Chi viene<input id="ag_who" value="${esc(x.who||"")}" placeholder="Nome, quante persone"></label><label>Da dove<input id="ag_from" value="${esc(x.from||"")}"></label>`}
+    <label>Giorno<input type="date" id="ag_date" value="${esc(x.date||"")}"></label><label>Ora<input type="time" id="ag_time" value="${esc(x.time||"")}"></label>
+    ${isR?`<label>Chi viene<input id="ag_who" value="${esc(x.who||"")}" placeholder="es. Laura e il marito"></label>`:""}<label>Telefono<input id="ag_tel" value="${esc(x.tel||"")}" inputmode="tel"></label>
+    ${isR?"":`<label>Cosa cerca<input id="ag_want" value="${esc(x.want||"")}" placeholder="es. femmina, prossima cucciolata"></label>`}<label>Stato<select id="ag_st"><option value="d" ${x.st==="d"?"selected":""}>Da confermare</option><option value="c" ${x.st==="c"?"selected":""}>Confermato</option></select></label></div>
+    <label class="ag-wide">Note<input id="ag_note" value="${esc(x.note||"")}"></label>
+    <div class="row2" style="margin-top:10px"><button class="btn save" data-a="agSave" data-v="${x.id}">Salva</button><button class="btn ghost" data-a="agCancel">Annulla modifiche</button>${x.virt||x.id==="new"?"":`<button class="btn ghost" data-a="agDel" data-v="${x.id}" style="margin-left:auto">🗑 Elimina</button>`}</div></div>`}
+function agCard(x){const f=x.k==="r"?agFam(x.dog):null,ed=AG.ed&&AG.ed.id===x.id;
+  const head=x.k==="r"?`<span class="ag-n">🚗 Ritiro di ${esc(f.pup)}</span> <span class="ag-s">→ ${esc(f.fam)}</span><br><span class="ag-s">Viene: ${esc(x.who||"?")}${x.tel?" · "+esc(x.tel):""}${x.note?" · "+esc(x.note):""}</span>`
+    :`<span class="ag-n">👋 Visita: ${esc(x.who||"?")}</span>${x.from?` <span class="ag-s">da ${esc(x.from)}</span>`:""}<br><span class="ag-s">${x.tel?esc(x.tel):""}${x.want?" · cerca: "+esc(x.want):""}${x.note?" · "+esc(x.note):""}</span>`;
+  return`<div class="ag-c"><span class="ag-h">${esc(x.time||"–")}</span><div>${head}</div><span class="ag-st ${x.st}">${x.st==="c"?"✓ Confermato":"Da confermare"}</span>
+    <div class="ag-acts"><button class="btn ghost small" data-a="agIcs" data-v="${x.id}">📅 Al calendario</button>${x.k==="r"?`<button class="btn ghost small" data-a="agDone" data-v="${x.id}">🐾 Ritirato</button>`:`<button class="btn ghost small" data-a="agVdone" data-v="${x.id}">👍 Visita fatta</button>`}<button class="btn ghost small" data-a="agEdit" data-v="${x.id}">✏️ Modifica</button></div>${ed?agForm(AG.ed):""}</div>`}
+function agPage(){const F=AG.f,A=agItems(),ok=x=>F==="all"||x.k===F;
+  let h=`<h1>📅 Agenda</h1><p class="lead">Ritiri dei cuccioli e visite di chi viene a conoscervi, tutto in un posto.</p>
+  <div class="toolbar">${[["all","Tutto"],["r","🚗 Ritiri"],["v","👋 Visite"]].map(([k,l])=>`<button class="chip" data-a="agF" data-v="${k}" aria-pressed="${F===k}">${l}</button>`).join("")}<button class="btn small" data-a="agNewV">➕ Nuova visita</button></div>`;
+  h+=agBanner().replace(' data-a="go" data-v="agenda" style="cursor:pointer"',"");
+  agWarnings().forEach(w=>h+=`<div class="ag-al ag-warn">${w}</div>`);
+  h+=`<div class="ag-paste"><b>📋 Messaggio da WhatsApp</b><p class="row-meta" style="margin:4px 0 8px">Arriva da solo con il comando rapido «Agenda allevamento» (in WhatsApp: tieni premuto il messaggio → Condividi), oppure incollalo qui. Claude capisce se è un ritiro o una visita.</p>
+    <textarea id="ag_txt" rows="3" placeholder="Es. Ciao Paolo, per Brando veniamo sabato alle 15, io e mio figlio">${esc(AG.txt)}</textarea>
+    <div class="ag-who"><label for="ag_hq">Chi ti ha scritto? <span class="row-meta">(facoltativo: scrivi due lettere del nome o del cucciolo)</span></label>${AG.hint&&D.dogs[AG.hint]?`<span class="ag-chip">✓ ${esc(agFam(AG.hint).fam)} · ${esc(agFam(AG.hint).pup)} <button data-a="agHintX" aria-label="Togli">✕</button></span>`:`<input id="ag_hq" value="${esc(AG.hq)}" autocomplete="off" placeholder="es. Laura, oppure Rocco"><div id="ag_hs" class="ag-hs" hidden></div>`}</div>
+    <div class="row2" style="margin-top:8px"><button class="btn rv-go" data-a="agRead" ${AG.busy?"disabled":""}>${AG.busy?"⏳ Claude legge…":"✨ Leggi il messaggio"}</button></div>${agReadHtml()}</div>`;
+  if(AG.ed&&AG.ed.id==="new")h+=`<div class="ag-c" style="display:block"><b>${AG.ed.k==="v"?"👋 Nuova visita":"🚗 Nuovo ritiro"}</b>${agForm(AG.ed)}</div>`;
+  const plan=A.filter(x=>x.date&&(x.st==="d"||x.st==="c")&&ok(x)).sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||""))),by={};plan.forEach(x=>(by[x.date]=by[x.date]||[]).push(x));
+  const t=todayS(),m=addD(t,1);
+  h+=`<h2>In programma</h2>`+(plan.length?Object.entries(by).map(([d,L])=>`<div class="ag-day"><p class="ag-dh">${agDay(d)}${d===t?" · oggi":d===m?" · domani":d<t?" · passato":""}</p>${L.map(agCard).join("")}</div>`).join(""):`<p class="empty">Niente in programma.</p>`);
+  const todo=A.filter(x=>!x.date&&(x.st==="d"||x.st==="c")&&ok(x));
+  h+=`<h2>Da fissare</h2>`+(todo.length?`<ul class="ag-todo">${todo.map(x=>{const lab=x.k==="r"?`🚗 <b>${esc(agFam(x.dog).pup)}</b> → ${esc(agFam(x.dog).fam)}`:`👋 <b>${esc(x.who||"?")}</b>${x.from?" ("+esc(x.from)+")":""}${x.note?" · "+esc(x.note):""}`;
+    return`<li><span>${lab}</span><span><button class="btn small ag-wa" data-a="agAsk" data-v="${x.id}">💬 ${x.k==="r"?"Chiedi quando viene":"Proponi un giorno"}</button> <button class="btn ghost small" data-a="agEdit" data-v="${x.id}">📅 Fissa</button></span>${AG.ed&&AG.ed.id===x.id?agForm(AG.ed):""}</li>`}).join("")}</ul>`:`<p class="empty">Niente da fissare.</p>`);
+  const vd=A.filter(x=>x.k==="v"&&x.st==="f");if(vd.length&&F!=="r")h+=`<h2>Visite fatte</h2>`+vd.slice(-15).reverse().map(x=>`<div class="ag-c" style="grid-template-columns:minmax(0,1fr) auto"><div><b>${esc(x.who||"?")}</b> <span class="ag-s">${x.from?"("+esc(x.from)+") · ":""}${x.date?agDay(x.date):""}${x.want?" · cerca: "+esc(x.want):""}</span></div>${x.att?`<span class="ag-st c">✓ In Attesa</span>`:`<button class="btn small" data-a="agAtt" data-v="${x.id}">➕ Aggiungi all'Attesa</button>`}</div>`).join("");
+  const rd=A.filter(x=>x.k==="r"&&x.st==="r");if(rd.length&&F!=="v")h+=`<h2>Già ritirati</h2><p class="row-meta">${rd.map(x=>esc(agFam(x.dog).pup)+(x.date?" ("+agDay(x.date)+")":"")).join(" · ")}</p>`;
+  return h}
+function agReadHtml(){const r=AG.read;if(!r)return"";if(r.err)return`<p class="fnote">${esc(r.err)}</p>`;
+  if(r.type==="altro")return`<div class="ag-found">Non sembra un ritiro né una visita: ${esc(r.summary||"")}</div>`;
+  const pups=agPups();
+  return`<div class="ag-found">Ho capito: <b>${r.type==="ritiro"?"🚗 ritiro":"👋 visita"}</b>${r.who?" · viene <b>"+esc(r.who)+"</b>":""}${r.from?" da "+esc(r.from):""} · ${r.date?agDay(r.date):"<i>giorno non detto</i>"}${r.time?" alle <b>"+esc(r.time)+"</b>":" · <i>ora non detta</i>"}${r.want?" · cerca: "+esc(r.want):""}${r.note?"<br><span class='ag-s'>"+esc(r.note)+"</span>":""}
+    ${r.type==="ritiro"?`<label style="display:block;margin-top:8px">Per quale cucciolo<select id="ag_rdog">${pups.length?"":`<option value="">Nessun cucciolo prenotato</option>`}${pups.map(([k])=>`<option value="${k}" ${(r.dog||AG.hint)===k?"selected":""}>${esc(agFam(k).pup)} → ${esc(agFam(k).fam)}</option>`).join("")}</select></label>`:""}
+    <div class="row2" style="margin-top:8px"><button class="btn save" data-a="agApply">Salva in agenda</button><button class="btn ghost" data-a="agNope">Non è giusto</button></div></div>`}
+async function agRead(){const txt=($("#ag_txt")||{}).value||AG.txt;AG.txt=txt;if(!txt.trim()){toast("Incolla prima il messaggio.");return}AG.busy=1;AG.read=null;render();
+  try{const fam=agPups().map(([k])=>{const f=agFam(k);return{id:k,cucciolo:f.pup,famiglia:f.fam,telefono:f.tel,citta:f.city}});
+    const hint=AG.hint&&D.dogs[AG.hint]?"Il messaggio l'ha scritto: "+agFam(AG.hint).fam+" (famiglia di "+agFam(AG.hint).pup+", id "+AG.hint+").\n\n":"";
+    const j=await aiCall("agenda",{text:hint+txt,today:todayS(),weekday:AG_DAYS[new Date().getDay()],families:fam});if(j.type==="ritiro"&&!j.dog&&AG.hint)j.dog=AG.hint;AG.read=j}catch(x){AG.read={err:"Claude non risponde: "+x.message}}AG.busy=0;render()}
+function agApply(){const r=AG.read;if(!r)return;
+  if(r.type==="ritiro"){const dog=($("#ag_rdog")||{}).value||r.dog||AG.hint;if(!dog){toast("Scegli il cucciolo.");return}
+    let x=agL().find(y=>y.k==="r"&&y.dog===dog&&y.st!=="r");if(!x){x={id:agId(),k:"r",dog,st:"d",tel:agFam(dog).tel};agL().push(x)}
+    Object.assign(x,{date:r.date||x.date||"",time:r.time||x.time||"",who:r.who||x.who||"",note:[r.note,x.note].filter(Boolean).join(" · ")})}
+  else{const x={id:agId(),k:"v",st:"d",date:r.date||"",time:r.time||"",who:r.who||"",from:r.from||"",want:r.want||"",note:r.note||"",tel:""};agL().push(x)}
+  AG.read=null;AG.txt="";AG.hint="";AG.hq="";saveNow();render();toast("Salvato in agenda.")}
+function agFind(id){if(String(id).startsWith("virt-")){const dog=id.slice(5);return{id,k:"r",dog,date:"",time:"",st:"d",who:"",tel:agFam(dog).tel,virt:1}}return agL().find(x=>x.id===id)}
+function agSave(id){const v=s=>{const e=$(s);return e?e.value.trim():undefined},E=AG.ed;if(!E)return;
+  let x=id==="new"||String(id).startsWith("virt-")?null:agL().find(y=>y.id===id);
+  if(!x){x={id:agId(),k:E.k,st:"d"};if(E.k==="r")x.dog=E.dog;agL().push(x)}
+  if(x.k==="r"&&v("#ag_dog"))x.dog=v("#ag_dog");
+  Object.assign(x,{date:v("#ag_date")||"",time:v("#ag_time")||"",who:v("#ag_who")||"",tel:v("#ag_tel")||"",note:v("#ag_note")||"",st:v("#ag_st")||x.st});
+  if(x.k==="v")Object.assign(x,{from:v("#ag_from")||"",want:v("#ag_want")||""});
+  AG.ed=null;saveNow();render();toast("Salvato.")}
+function agAct(a,v){const x=v?agFind(v):null;
+  if(a==="agF"){AG.f=v;render();return}
+  if(a==="agHint"){AG.hint=v;AG.hq="";render();return}if(a==="agHintX"){AG.hint="";render();return}
+  if(a==="agRead"){agRead();return}if(a==="agApply"){agApply();return}if(a==="agNope"){AG.read=null;render();return}
+  if(a==="agNewV"){AG.ed={id:"new",k:"v",st:"d"};render();return}
+  if(a==="agCancel"){AG.ed=null;render();return}
+  if(a==="agSave"){agSave(v);return}
+  if(!x)return;
+  if(a==="agEdit"){AG.ed=Object.assign({},x);render();return}
+  if(a==="agDel"){if(confirm("Eliminare questo appuntamento?")){D.agenda=agL().filter(y=>y.id!==x.id);AG.ed=null;saveNow();render()}return}
+  if(a==="agConf"){if(!x.date||!x.time){toast("Prima metti giorno e ora (✏️ Modifica).");return}agOpenWa(x.tel||(x.k==="r"?agFam(x.dog).tel:""),agMsgConf(x));if(!x.virt){x.st="c";saveNow();render()}return}
+  if(a==="agRem"){if(!x.date||!x.time){toast("Prima metti giorno e ora.");return}agOpenWa(x.tel||(x.k==="r"?agFam(x.dog).tel:""),agMsgRem(x));return}
+  if(a==="agAsk"){agOpenWa(x.tel||(x.k==="r"?agFam(x.dog).tel:""),agMsgAsk(x));return}
+  if(a==="agIcs"){if(!x.date){toast("Prima metti il giorno.");return}agIcs(x);return}
+  if(a==="agDone"){if(x.virt)return;x.st="r";if(!x.date)x.date=todayS();saveNow();render();toast(agFam(x.dog).pup+" segnato come ritirato.");return}
+  if(a==="agVdone"){x.st="f";if(!x.date)x.date=todayS();saveNow();render();toast("Visita segnata come fatta.");return}
+  if(a==="agAtt"){D.waitlist=D.waitlist||[];D.waitlist.push({id:agId(),created:new Date().toISOString(),name:x.who||"",phone:x.tel||"",email:"",city:x.from||"",country:"Italia",sex:"",exp:"",note:["Visita in allevamento del "+(x.date?fmt(x.date):"?"),x.want?"Cerca: "+x.want:"",x.note||""].filter(Boolean).join(" · "),source:"visita",litter:"",status:"new",lang:"it"});
+    x.att=1;saveNow();render();toast((x.who||"Visitatore")+" aggiunto all'Attesa.");return}}
+/* comando rapido dell'iPhone: #agenda=<testo del messaggio> */
+function agFromHash(){const h=location.hash||"";if(!h.startsWith("#agenda="))return;let t="";try{t=decodeURIComponent(h.slice(8))}catch(e){t=h.slice(8)}
+  history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
+  AG.txt=t;AG.read=null;AG.hint="";AG.hq="";tab="agenda";view=null;render();
+  /* scelta di Paolo: prima scrive chi gli ha scritto (facoltativo), poi preme "Leggi il messaggio" */
+  setTimeout(()=>{const i=document.getElementById("ag_hq");i&&i.focus()},250)}
+window.addEventListener("hashchange",agFromHash);
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="ag_txt")AG.txt=e.target.value;
+  if(e.target&&e.target.id==="ag_hq"){AG.hq=e.target.value;const q=AG.hq.trim().toLowerCase(),box=document.getElementById("ag_hs");if(!box)return;if(!q){box.hidden=true;return}
+    const L=agPups().map(([k])=>[k,agFam(k)]).filter(([k,f])=>(f.fam+" "+f.pup+" "+f.tel+" "+f.city).toLowerCase().includes(q)).slice(0,6);
+    box.innerHTML=L.length?L.map(([k,f])=>`<button type="button" data-a="agHint" data-v="${k}"><b>${esc(f.fam)}</b> · ${esc(f.pup)}${f.tel?` <span class="row-meta">${esc(f.tel)}</span>`:""}</button>`).join(""):`<p class="row-meta" style="margin:6px 10px">Nessuna famiglia con «${esc(AG.hq)}». Per una visita va bene lasciarlo vuoto.</p>`;box.hidden=false}});
+/* ---------- Visore dei documenti dentro l'app (ottobre 2026) ----------
+   Nell'app installata sul telefono (schermo intero) i "Visualizza" e "Scarica" dei file non funzionavano: l'iPhone apre
+   i link fuori dall'app, in Safari, che non ha l'accesso del gestionale, e non apre i PDF creati al momento (blob).
+   Solo nell'app: i PDF si aprono qui dentro (pagine disegnate con pdf.js da cdnjs, caricato solo quando serve), le foto
+   nel visore delle foto, e "Scarica" apre il pannello Condividi (Salva su File, WhatsApp, Mail…). Nel browser: come prima. */
+const STANDALONE=!!((window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true);
+let PDFJS=null;
+async function pdfLib(){if(PDFJS)return PDFJS;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";s.onload=ok;s.onerror=()=>ko(new Error("pdf.js"));document.head.appendChild(s)});
+  PDFJS=window.pdfjsLib;PDFJS.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return PDFJS}
+async function dvBlob(url){const r=await fetch(url,{credentials:"same-origin"});if(!r.ok)throw new Error("errore "+r.status);return r.blob()}
+async function dvShare(blob,name){const f=new File([blob],name||"documento.pdf",{type:blob.type||"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}return true}return false}
+function dvClose(){const o=document.getElementById("dvw");if(o)o.remove();document.body.style.overflow=""}
+async function docView(url,name){let blob;toast("Apro il documento…");
+  try{blob=await dvBlob(url)}catch(e){toast("Non riesco ad aprire il file.");return}
+  const type=blob.type||"";name=name||decodeURIComponent(String(url).split("/").pop()||"").replace(/\?.*$/,"")||"documento";
+  if(/^image\//.test(type)){lbShow(URL.createObjectURL(blob));return}
+  dvClose();const o=document.createElement("div");o.id="dvw";
+  o.innerHTML=`<div class="dv-bar"><button class="dv-x" aria-label="Chiudi">✕ Chiudi</button><span class="dv-n">${esc(name)}</span><button class="dv-sh">⤴︎ Salva / Condividi</button></div><div class="dv-pages"><p class="dv-wait">⏳ Apro il PDF…</p></div>`;
+  document.body.appendChild(o);document.body.style.overflow="hidden";
+  o.querySelector(".dv-x").onclick=dvClose;o.querySelector(".dv-sh").onclick=async()=>{if(!await dvShare(blob,/\.\w+$/.test(name)?name:name+".pdf"))toast("Il telefono non permette di condividere questo file.")};
+  if(!/pdf/i.test(type)){o.querySelector(".dv-pages").innerHTML=`<p class="dv-wait">Questo file non si può mostrare qui: usa «Salva / Condividi».</p>`;return}
+  try{const lib=await pdfLib(),pdf=await lib.getDocument({data:new Uint8Array(await blob.arrayBuffer())}).promise,box=o.querySelector(".dv-pages");box.innerHTML="";
+    const W=Math.min(box.clientWidth||innerWidth,900),dpr=Math.min(2,window.devicePixelRatio||1);
+    for(let i=1;i<=pdf.numPages;i++){if(!document.getElementById("dvw"))return;const pg=await pdf.getPage(i),v0=pg.getViewport({scale:1}),sc=W/v0.width,vp=pg.getViewport({scale:sc*dpr});
+      const c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;c.style.width=(vp.width/dpr)+"px";c.style.height=(vp.height/dpr)+"px";box.appendChild(c);
+      await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise}}
+  catch(e){o.querySelector(".dv-pages").innerHTML=`<p class="dv-wait">Non riesco a mostrare il PDF qui. Usa «Salva / Condividi» per aprirlo.</p>`}}
+if(STANDALONE){
+  const sameOrigin=h=>{try{const u=new URL(h,location.href);return u.origin===location.origin||u.protocol==="blob:"||u.protocol==="data:"}catch(e){return false}};
+  document.addEventListener("click",e=>{if(e.defaultPrevented)return;const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
+    if(!sameOrigin(h)||h.startsWith("#")||(!a.hasAttribute("download")&&a.getAttribute("target")!=="_blank"))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(a.hasAttribute("download")){dvBlob(h).then(b=>dvShare(b,a.getAttribute("download")||"documento")).then(ok=>{if(!ok)docView(h,a.getAttribute("download"))}).catch(()=>toast("Non riesco a scaricare il file."));return}
+    docView(h,(a.parentElement&&a.parentElement.querySelector("a[download]")||{}).getAttribute?.("download")||"")},true);
+  const _open=window.open.bind(window);
+  window.open=function(u,...r){u=u==null?"":String(u);
+    if(u==="")return{location:{set href(v){docView(v)}},close(){},closed:false};   // schema "apri vuota e poi riempi"
+    if(sameOrigin(u)){docView(u);return null}return _open(u,...r)};
+}
+/* ---------- Istruzioni dell'allevatore nella pagina del proprietario (ottobre 2026, scelta di Paolo) ----------
+   Sono le "istruzioni scritte del cedente" del punto 3.1 del contratto. Ogni frase viene dalle guide del sito (stessi
+   numeri: 5 minuti per mese, cambio cibo in 10 giorni a quarti, 3 pasti fino a 6 mesi, calendario vaccini…), e la regola
+   delle scale è quella del contratto: in braccio nei primi 8-9 mesi. Si vede per i cani nati da meno di 18 mesi. */
+/* Istruzioni dell'allevatore dalla Consegna (06/10/2026): "👁 Visualizza" apre la stessa pagina che vede il proprietario
+   (riquadro rosso, voci, link alle guide), "🖨 Stampa" la stampa con intestazione: allevamento, cucciolo, famiglia, telefono.
+   Lingua: quella del proprietario. */
+function instrHtml(id){const d=D.dogs[id]||{},o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";const T2=(a,b)=>LANG==="en"?b:a;
+  const h=`<div class="instr-pr"><div class="pr-head"><b class="pr-k">Allevamento Del Piccolo Diavolo</b><br>${esc(d.nick||d.name||"")}${d.birth?" · "+T2("nato il","born on")+" "+fmt(d.birth):""}${o.name?" · "+T2("famiglia","family")+" "+esc(o.name):""}<br>Paolo Boldrini · +39 392 463 5584 · delpiccolodiavolo.it</div>${ovInstr(id,true)}</div>`;LANG=old;return h}
+function instrView(id){const d=D.dogs[id]||{};sheet(`<div class="instr-bar"><b>${esc(d.nick||d.name||"")}: istruzioni</b><button class="btn small" data-a="instrPrint" data-v="${id}">🖨 Stampa</button></div>${instrHtml(id)}`)}
+function instrPrint(id){if(!document.querySelector("#sheet .instr-pr"))instrView(id);document.body.classList.add("print-instr");
+  const off=()=>{document.body.classList.remove("print-instr");window.removeEventListener("afterprint",off)};window.addEventListener("afterprint",off);setTimeout(()=>window.print(),150)}
+/* Avviso ⚠️ in cima alla pagina del proprietario (scelta di Paolo, 06/10/2026): istruzioni e avviso si vedono SOLO dopo
+   che Paolo spunta "Istruzioni dell'allevatore" nella Consegna. */
+const instrOn=id=>{const d=D.dogs[id];if(!d||d.ext)return false;const i=KIT.findIndex(x=>/^Istruzioni dell'allevatore/.test(x[0]));return i>=0&&!!(d.kit||[])[i]};
+/* Istruzioni in una finestra (scelta di Paolo, 06/10/2026): la scheda del proprietario resta leggera; il riquadro giallo
+   e la riga "Istruzioni dell'allevatore ›" di "Cosa ricevi" aprono la finestra; il link personale con #istruzioni la apre
+   già all'arrivo. */
+/* solo nella pagina vera della famiglia: nell'anteprima di Paolo il riquadro resta sempre grande */
+const oiSeen=id=>{if(typeof OWNER_MODE==="undefined")return false;try{return localStorage.getItem("oiSeen:"+id)==="1"}catch(e){return false}};
+function oiOpen(id){const d=D.dogs[id];if(!d)return;if(typeof OWNER_MODE!=="undefined"){try{localStorage.setItem("oiSeen:"+id,"1")}catch(e){}}const o=D.owners[d.owner]||{},old=LANG;if(o.lang)LANG=o.lang==="en"?"en":"it";
+  const body=ovInstr(id,true).replace(/<h2 class="oi-h"[^>]*>.*?<\/h2>/,""),tit=T("Le istruzioni dell'allevatore","The breeder's instructions"),cl=T("Chiudi","Close");LANG=old;
+  oiClose();const w=document.createElement("div");w.id="oiM";w.innerHTML=`<div class="oi-mb" role="dialog" aria-modal="true" aria-label="${esc(tit)}"><div class="oi-mh"><b>⚠️ ${esc(tit)}</b><button type="button" class="oi-x">✕ ${esc(cl)}</button></div>${body}</div>`;
+  document.body.appendChild(w);document.body.style.overflow="hidden";w.querySelector(".oi-x").onclick=oiClose;w.addEventListener("click",e=>{if(e.target===w)oiClose()})}
+function oiClose(){const w=document.getElementById("oiM");if(w){w.remove();document.body.style.overflow=""}
+  document.querySelectorAll(".oi-imp:not(.oi-small)").forEach(a=>{const id=a.dataset.dog;if(id&&oiSeen(id)){a.classList.add("oi-small");const b=a.querySelector("b");if(b)b.textContent="⚠️ "+(LANG==="en"?"The breeder's instructions":"Istruzioni dell'allevatore")+" ›"}})}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")oiClose()});
+function ovImp(id){if(!instrOn(id))return"";const sm=oiSeen(id);return`<a class="oi-imp${sm?" oi-small":""}" data-dog="${id}" href="#istruzioni" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false"><svg class="oi-tri" viewBox="0 0 54 48" aria-hidden="true"><path d="M27 3 L51 45 H3 Z" fill="#FFC400" stroke="#8A6200" stroke-width="3" stroke-linejoin="round"/><rect x="24.5" y="16" width="5" height="16" rx="2" fill="#3D2D00"/><circle cx="27" cy="38" r="3" fill="#3D2D00"/></svg><div><b>${sm?"⚠️ "+T("Istruzioni dell'allevatore","The breeder's instructions")+" ›":T("IMPORTANTE: leggi le istruzioni dell'allevatore","IMPORTANT: read the breeder's instructions")}</b><span>${T("Soprattutto nei primi 8-9 mesi: niente corse forzate, salti e scale.","Above all in the first 8-9 months: no forced running, jumping or stairs.")}</span></div><span class="oi-go">${T("Apri","Open")} ›</span></a>`}
+function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
+  const G=[["🍽️",T("Alimentazione del cucciolo","Puppy feeding"),T("quanto, quante volte, il cambio di cibo","how much, how often, changing food"),en?"puppy-initial-feeding":"cuccioli-alimentazione-iniziale"],
+    ["🏃",T("Movimento sicuro","Safe exercise"),T("cosa fare e cosa evitare mese per mese","what to do and avoid, month by month"),en?"staffy-safe-exercise":"salute-esercizio-sicuro"],
+    ["💉",T("Vaccinazioni","Vaccinations"),T("il calendario fino a 12 mesi","the schedule up to 12 months"),en?"puppy-first-vaccinations":"cuccioli-prime-vaccinazioni"],
+    ["🐜",T("Parassiti","Parasites"),T("zecche, pulci, filaria","ticks, fleas, heartworm"),en?"staffy-parasite-prevention":"salute-parassiti-prevenzione"],
+    ["🦷",T("Denti","Teeth"),T("spazzolino e masticativi","brushing and chews"),en?"staffy-dental-health":"salute-denti-igiene"]];
+  return`<h2 class="oi-h" id="istruzioni">⚠️ ${T("Le istruzioni dell'allevatore","The breeder's instructions")}</h2><div class="oi-card">
+  <div class="oi-big">${T("Nei primi 8-9 mesi di vita il cucciolo non deve essere forzato a correre, saltare, salire le scale, o a fare sforzi che possano compromettere il suo sviluppo fisico e psicofisico.","During the first 8-9 months the puppy must not be forced to run, jump, climb stairs, or make any effort that could compromise its physical and mental development.")}<small>${T("Le scale si fanno in braccio, in salita e in discesa.","Carry the puppy on stairs, both up and down.")}</small></div>
+  <ul class="oi-ul">
+  <li><b>${T("Movimento:","Exercise:")}</b> ${T("passeggiate di 5 minuti per ogni mese di età, una o due volte al giorno (a 3 mesi 15 minuti, a 4 mesi 20), su erba o terra battuta. Il gioco libero va bene, perché il cucciolo si ferma quando è stanco. Niente salti dall'alto, niente corsa vicino alla bicicletta, niente jogging fino ai 12 mesi, niente lanci di bastoni o palline che costringono il cucciolo ad accelerare in modo innaturale o forzato: le cartilagini di crescita si chiudono fra i 12 e i 18 mesi.","walks of 5 minutes for each month of age, once or twice a day (15 minutes at 3 months, 20 at 4), on grass or packed earth. Free play is fine, because the puppy stops when tired. No jumping down from heights, no running beside a bicycle, no jogging until 12 months, no throwing sticks or balls that make the puppy accelerate in an unnatural or forced way: the growth plates close between 12 and 18 months.")}</li>
+  <li><b>${T("Alimentazione:","Feeding:")}</b> ${T("all'inizio lo stesso cibo dell'allevamento, con la scorta e gli orari che ti do. Se vuoi cambiare, fallo in 10 giorni: un quarto di cibo nuovo per 3 giorni, metà per 3, tre quarti per 3, poi tutto nuovo. Se le feci si ammorbidiscono, torna indietro di un passo.","at first the same food as at the kennel, with the supply and feeding times I give you. If you want to change, do it over 10 days: a quarter of the new food for 3 days, half for 3, three quarters for 3, then all new. If the stools soften, go back one step.")}</li>
+  <li><b>${T("Pasti:","Meals:")}</b> ${T("tre al giorno fino ai 6 mesi, poi due. La ciotola resta giù 15-20 minuti, poi si toglie.","three a day until 6 months, then two. The bowl stays down for 15-20 minutes, then it is taken away.")}</li>
+  <li><b>${T("Mai:","Never:")}</b> ${T("cioccolato, xilitolo (gomme senza zucchero, alcuni burri di arachidi), uva e uvetta, cipolla, aglio, noci di macadamia, alcol, ossa cotte.","chocolate, xylitol (sugar-free gum, some peanut butters), grapes and raisins, onion, garlic, macadamia nuts, alcohol, cooked bones.")}</li>
+  <li><b>${T("Vaccini:","Vaccines:")}</b> ${T("vaccino a tre mesi, poi dopo un anno, salvo diverso parere del veterinario di fiducia.","vaccine at three months, then after one year, unless your own vet advises otherwise.")}</li>
+  <li><b>${T("Masticativi:","Chews:")}</b> ${T("finché non ha cambiato tutti i denti, solo masticativi morbidi (Kong morbidi o di media durezza). Niente tira e molla con stracci, corde o simili.","until all the adult teeth are in, only soft chews (soft or medium Kong). No tug-of-war with rags, ropes or similar.")}</li>
+  <li><b>${T("Rispetto:","Respect:")}</b> ${T("nessun maltrattamento, da parte di nessuno.","no mistreatment, from anyone.")}</li>
+  <li><b>${T("Per ogni dubbio, chiedi a me","For any doubt, ask me")}</b>${T(", per tutta la vita del cane: 392 463 5584.",", for the dog's whole life: +39 392 463 5584.")}</li></ul>
+  <div class="oi-g">${G.map(([i,a,b,s])=>`<a href="${S+s}/" target="_blank" rel="noopener">${i} ${esc(a)}<span>${esc(b)}</span></a>`).join("")}</div>
+  <p class="oi-note">${T("Sono le istruzioni scritte a cui rimanda il contratto, al punto 3.1. Ogni frase viene dalle guide del sito, che si aprono qui sopra.","These are the written instructions referred to in point 3.1 of the contract. Every line comes from the kennel's guides, which open above.")}</p></div>`}
+/* ---------- Novità per la famiglia (scelte di Paolo, 06/10/2026) ----------
+   nvItems(id): ciò che la famiglia vede nella sua pagina (voci della Consegna spuntate, documenti non privati, pesi,
+   foto, vaccini/sverminazioni/esami), ognuno con una chiave. Pagina della famiglia: riquadro "🆕 Novità dalla tua ultima
+   visita" con le chiavi mai viste su quel telefono (localStorage "nv:<cane>"); alla prima visita in assoluto non mostra
+   niente e memorizza; sparisce con "Ok, visto" e torna solo con cose nuove. Gestionale: "💬 Avvisa la famiglia" mostra cosa
+   è cambiato dall'ultimo avviso (d.nvSent={at,keys}), scrive il messaggio breve e apre WhatsApp: lo manda Paolo. */
+function nvItems(id){const d=D.dogs[id];if(!d)return[];const out=[],en=LANG==="en",TT=(a,b)=>en?b:a;
+  KIT.forEach((x,i)=>{if((d.kit||[])[i])out.push({k:"kit:"+i,ins:/^Istruzioni dell'allevatore/.test(x[0]),t:/^Istruzioni dell'allevatore/.test(x[0])?"⚠️ "+TT("Istruzioni dell'allevatore: leggile, sono importanti","The breeder's instructions: please read them"):"📦 "+TT(x[0],x[1]),m:/^Istruzioni dell'allevatore/.test(x[0])?TT("le istruzioni dell'allevatore","the breeder's instructions"):TT(x[0],x[1]).toLowerCase()})});
+  (typeof KITX==="function"?KITX():[]).forEach(x=>{if((d.kitx||{})[x.id])out.push({k:"kx:"+x.id,t:"📦 "+TT(x.it,x.en||x.it),m:TT(x.it,x.en||x.it).toLowerCase()})});
+  (d.docs||[]).filter(z=>!z.private).forEach(z=>{const ti=en&&z.title_en?z.title_en:(z.title||z.fname||TT("documento","document"));out.push({k:"doc:"+(z.fname||z.title||"")+"|"+(z.date||""),t:"📄 "+TT("Nuovo documento: ","New document: ")+ti+(z.date?" ("+fmt(z.date)+")":""),m:TT("il documento «"+ti+"»","the document “"+ti+"”")})});
+  const W=(d.weights||[]).slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""));W.forEach(w=>out.push({k:"w:"+w.date,grp:"w",t:"⚖️ "+TT("Peso aggiornato: ","Weight updated: ")+(Math.round(w.g/100)/10).toString().replace(".",en?".":",")+" kg ("+fmt(w.date)+")",m:TT("il peso","the weight")}));
+  const l=d.litter&&D.litters[d.litter];(d.wphotos||[]).concat((l&&l.gphotos)||[]).forEach(p=>{if(p&&p.file)out.push({k:"ph:"+p.file,grp:"ph"})});
+  const h=d.health||{},HN={vacc:TT("Vaccino","Vaccination"),verm:TT("Sverminazione","Worming"),feci:TT("Esame delle feci","Faecal test"),pz:TT("Antiparassitario","Parasite treatment"),lf:TT("Leishmania e filaria","Leishmania and heartworm")};
+  Object.keys(HN).forEach(k=>(h[k]||[]).forEach(v=>{if(v&&v.date&&v.date<=todayS())out.push({k:"h:"+k+":"+v.date+":"+(v.prod||""),t:"🩺 "+HN[k]+" "+TT("del","on")+" "+fmt(v.date),m:HN[k].toLowerCase()+" "+TT("del","on")+" "+fmt(v.date)})}));
+  const seen=new Set();return out.filter(x=>seen.has(x.k)?false:(seen.add(x.k),true))}
+/* chiavi "già note" quando non c'è un riferimento: tutto tranne le istruzioni e ciò che ha meno di 14 giorni */
+function nvOld(id,all){const lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
+  const S=all.filter(x=>!x.ins&&!(dt(x.k)&&dt(x.k)>=lim)&&x.grp!=="ph").map(x=>x.k),d=D.dogs[id],l=d&&d.litter&&D.litters[d.litter];
+  ((d&&d.wphotos||[]).concat((l&&l.gphotos)||[])).forEach(p=>{if(p&&p.file&&!(p.date&&p.date>=lim))S.push("ph:"+p.file)});return S}
+function nvGroup(L){const en=LANG==="en",TT=(a,b)=>en?b:a,out=L.filter(x=>!x.grp),w=L.filter(x=>x.grp==="w"),ph=L.filter(x=>x.grp==="ph");
+  if(w.length)out.push(Object.assign({},w[w.length-1],{k:"w*"}));
+  if(ph.length)out.push({k:"ph*",t:"📷 "+(ph.length===1?TT("1 foto nuova","1 new photo"):TT(ph.length+" foto nuove",ph.length+" new photos")),m:ph.length===1?TT("una foto nuova","a new photo"):TT(ph.length+" foto nuove",ph.length+" new photos")});return out}
+const nvGet=id=>{try{const s=localStorage.getItem("nv:"+id);return s?JSON.parse(s):null}catch(e){return null}};
+function nvBox(id){const all=nvItems(id),keys=all.map(x=>x.k);
+  /* anteprima di Paolo ("Come la vede il proprietario"): mostra le novità come le vedrà la famiglia, cioè ciò che è cambiato
+     dall'ultimo avviso (o, se non ne ha mai mandati, istruzioni e cose degli ultimi 14 giorni). Il tasto non registra niente. */
+  if(typeof OWNER_MODE==="undefined"){const d=D.dogs[id],lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
+    const S=d.nvSent?d.nvSent.keys:all.filter(x=>!x.ins&&!(dt(x.k)&&dt(x.k)>=lim)&&x.grp!=="ph").map(x=>x.k);const L=nvGroup(all.filter(x=>!S.includes(x.k)));if(!L.length)return"";
+    return`<div class="nv-box"><b class="nv-t">🆕 ${T("Novità dalla tua ultima visita","New since your last visit")}</b><ul>${L.map(x=>`<li>${esc(x.t)}</li>`).join("")}</ul><p class="row-meta" style="margin:6px 0 0">Anteprima: così la vede la famiglia alla prossima apertura della pagina.</p></div>`}
+  let seen=nvGet(id);
+  /* prima visita su questo telefono (anche famiglie che avevano già il link): conta come "nuovo" solo ciò che ha meno di 14
+     giorni e le istruzioni; il resto si dà per già visto */
+  if(!seen){const lim=addD(todayS(),-14),dt=k=>{const m=String(k).match(/(\d{4}-\d{2}-\d{2})/);return m?m[1]:""};
+    seen=all.filter(x=>!x.ins&&!(dt(x.k)&&dt(x.k)>=lim)&&!(x.grp==="ph")).map(x=>x.k);
+    const l=D.dogs[id].litter&&D.litters[D.dogs[id].litter];((D.dogs[id].wphotos||[]).concat((l&&l.gphotos)||[])).forEach(p=>{if(p&&p.file&&!(p.date&&p.date>=lim))seen.push("ph:"+p.file)});
+    try{localStorage.setItem("nv:"+id,JSON.stringify(seen))}catch(e){}}
+  const L=nvGroup(all.filter(x=>!seen.includes(x.k)));if(!L.length)return"";let at="";try{at=localStorage.getItem("nvAt:"+id)||""}catch(e){}
+  return`<div class="nv-box" id="nv_${id}"><b class="nv-t">🆕 ${T("Novità dalla tua ultima visita","New since your last visit")}${at?" ("+fmt(at)+")":""}</b><ul>${L.map(x=>`<li>${x.ins?`<a href="#istruzioni" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false">${esc(x.t)}</a>`:esc(x.t)}</li>`).join("")}</ul><div class="nv-r"><button type="button" class="btn small" onclick="nvSeen('${id}')">${T("Ok, visto","Got it")}</button></div></div>`}
+function nvSeen(id){try{localStorage.setItem("nv:"+id,JSON.stringify(nvItems(id).map(x=>x.k)));localStorage.setItem("nvAt:"+id,todayS())}catch(e){}const b=document.getElementById("nv_"+id);if(b)b.remove()}
+/* Gestionale: "💬 Avvisa la famiglia" */
+let NV=null;
+function nvSheet(id){const d=D.dogs[id],o=D.owners[d.owner];if(!o){toast("Questo cane non ha ancora un proprietario.");return}
+  const old=LANG;LANG=o.lang==="en"?"en":"it";const all=nvItems(id),sent=d.nvSent||null,S=sent?sent.keys:nvOld(id,all),L=nvGroup(all.filter(x=>!S.includes(x.k)));LANG=old;
+  const hasIns=L.some(x=>x.ins);NV={id,L,pick:L.map(x=>hasIns?!!x.ins:/^doc:/.test(x.k)),txt:""};NV.txt=nvMsg();
+  sheet(`<h2 style="margin-top:0">💬 Avvisa la famiglia di ${esc(d.nick||d.name)}</h2><p class="row-meta">${sent?"Ultimo avviso mandato il "+fmt(sent.at)+". Da allora è cambiato:":"Novità recenti nella pagina di "+esc(o.name)+" (istruzioni e ultimi 14 giorni):"} Spunta cosa citare nel messaggio.</p>
+  ${L.length?`<div class="nv-pick">${L.map((x,i)=>`<label><input type="checkbox" data-nvp="${i}" ${NV.pick[i]?"checked":""}> ${esc(x.t)}</label>`).join("")}</div>`:`<p class="empty">Niente di nuovo dall'ultimo avviso: puoi comunque scrivere un messaggio.</p>`}
+  <label class="rv-ft" for="nv_txt" style="margin-top:10px">Messaggio (puoi correggerlo)</label><textarea id="nv_txt" rows="6" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;box-sizing:border-box">${esc(NV.txt)}</textarea>
+  <div class="actions"><button class="btn ag-wa" data-a="nvSend" data-v="${id}">Apri WhatsApp</button><button class="btn ghost" data-a="close">Annulla</button></div>
+  <p class="row-meta">Spunti tu cosa citare: il messaggio si riscrive da solo. Se ci sono le istruzioni, il link le apre già.</p>`)}
+function nvMsg(){const d=D.dogs[NV.id],o=D.owners[d.owner],en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,P=NV.L.filter((x,i)=>NV.pick[i]),ins=P.some(x=>x.ins),u=lkUrl(o)+(ins?"#istruzioni":"");
+  const list=P.map(x=>x.m).filter(Boolean),j=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+(en?" and ":" e ")+a[a.length-1];
+  return en?(list.length?`Hi ${fn}, I've added ${j(list)} to ${nm}'s page. You'll find it here:\n${u}\nPaolo`:`Hi ${fn}, ${nm}'s page has been updated:\n${u}\nPaolo`)
+    :(list.length?`Ciao ${fn}, nella pagina di ${nm} ho aggiunto ${j(list)}. La trovi qui:\n${u}\nPaolo`:`Ciao ${fn}, ho aggiornato la pagina di ${nm}:\n${u}\nPaolo`)}
+function nvSend(id){const d=D.dogs[id],o=D.owners[d.owner],t=($("#nv_txt")||{}).value||NV.txt,ph=lkPhone(o);if(!ph){toast("Manca il telefono di "+esc(o.name)+".");return}
+  window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");const old=LANG;LANG=o.lang==="en"?"en":"it";d.nvSent={at:todayS(),keys:nvItems(id).map(x=>x.k)};LANG=old;
+  closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Avviso pronto in WhatsApp.")}
+document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||t.dataset.nvp==null||!NV)return;NV.pick[+t.dataset.nvp]=t.checked;NV.txt=nvMsg();const a=$("#nv_txt");if(a)a.value=NV.txt});
 /* ---------- Pagina privata del proprietario ---------- */
 function bannerHtml(){return ""}
 function ownLink(){return ""}
@@ -3208,6 +3966,7 @@ function ownLink(){return ""}
   if(!j.dogs.length){m.innerHTML=en?"<h1>No dogs yet</h1>":"<h1>Nessun cane collegato</h1>";return}
   let html="";sheet=h=>{html+=`<section class="ov-dog">${h}</section>`};closeSheet=()=>{};
   j.dogs.forEach(id=>ownerPreview(id));m.innerHTML=html;colorize(m);
+  if(location.hash==="#istruzioni"){const k=j.dogs.find(x=>instrOn(x));if(k)setTimeout(()=>oiOpen(k),300)}
   document.title=(j.dogs.length===1?D.dogs[j.dogs[0]].name+" · ":"")+"Del Piccolo Diavolo";
   m.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&b.dataset.a!=="ovLang"){e.stopPropagation()}},true)})();
 /* Contratto: il proprietario firma con il dito */

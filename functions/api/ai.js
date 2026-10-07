@@ -9,6 +9,9 @@ import { json, role, deny } from "../_lib.js";
    - "richiesta":{ msg, name, lang? }      → { lang, langName, sunto, bozza, out }  richiesta dal sito
    - "testmating": { data, media, sire, dam } → { pair, single, coi8, coi3, coi5, uniq, loss, top } pagina di SBTpedigree
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
+   - "agenda":   { text, today, weekday, families } → { type, date, time, who, from, dog, want, note, summary }
+   - "post":     { facts, idea? }           → { text }                          post per gli Aggiornamenti del profilo Google
+   - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
@@ -52,6 +55,38 @@ Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una paren
 Formato: {"options":[{"label":"","it":"","out":""}]}`,
         `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
       return json({ ok: true, options: (o.options || []).slice(0, 3).map(x => ({ label: x.label || "", it: x.it || "", out: x.out || "" })) });
+    }
+    if (task === "post") {
+      // Post per la sezione "Aggiornamenti" del profilo Google: una notizia, non una vendita.
+      const o = await ask(env, `${VOICE}
+Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevamento, in italiano, partendo SOLO dai fatti che ti do.
+Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` Paolo aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
+Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000), 700);
+      return json({ ok: true, text: String(o.text || "") });
+    }
+    if (task === "agenda") {
+      // Agenda (ritiri dei cuccioli e visite in allevamento): legge un messaggio WhatsApp e propone l'appuntamento.
+      const o = await ask(env, `Leggi un messaggio WhatsApp arrivato all'allevamento Del Piccolo Diavolo (Ostellato, Ferrara) e capisci se è:
+- "ritiro": una famiglia che fissa il giorno per venire a prendere il suo cucciolo;
+- "visita": qualcuno che vuole venire a vedere i cani e conoscere l'allevamento;
+- "altro": niente di tutto questo.
+Oggi è ${String(p.today || "")} (${String(p.weekday || "")}). Trasforma "sabato", "domani", "la prossima settimana" in una data AAAA-MM-GG nel futuro più vicino; l'ora in HH:MM (24 ore; "verso le 4 del pomeriggio" = 16:00). Se manca, lascia vuoto: non inventare.
+Famiglie con un cucciolo da ritirare (id, cucciolo, famiglia, telefono, città): ${JSON.stringify(p.families || []).slice(0, 3000)}
+Se è un ritiro, scegli in "dog" l'id della famiglia/cucciolo giusto solo se il messaggio lo fa capire (nome del cucciolo, nome della persona, città); altrimenti "".
+Scrivi corto: in "who" solo i nomi o "la famiglia" (niente frasi come "numero di persone non indicato"); in "note" al massimo poche parole utili, niente ripetizioni di giorno e ora; se un dato manca lascia il campo vuoto senza commentarlo.
+Rispondi solo con JSON: {"type":"ritiro|visita|altro","date":"","time":"","who":"chi viene (nomi, quante persone)","from":"città se detta","dog":"","want":"per le visite: cosa cerca (maschio/femmina, quando) se detto","note":"altro di utile in poche parole","summary":"una riga in italiano"}`,
+        String(p.text || "").slice(0, 3000), 600);
+      return json({ ok: true, ...o });
+    }
+    if (task === "recensione") {
+      // Recensione Google (scheda Recensioni): senza idea → 2 ringraziamenti brevi; con idea → 1 risposta che dice quello.
+      const o = await ask(env, `${VOICE}
+Ti arriva una recensione pubblica del profilo Google dell'allevamento. La risposta è pubblica: la leggono tutti.
+${p.idea ? `Paolo ti dice in breve cosa vuole dire: "${String(p.idea).slice(0, 800)}". Scrivi UNA risposta che dice esattamente questo, con un ringraziamento, senza aggiungere promesse o informazioni che lui non ha dato.` : "Scrivi DUE risposte brevi di ringraziamento, diverse fra loro (una più asciutta, una più calda), che riprendono qualcosa di concreto della recensione se c'è."}
+Regole: massimo 40 parole ciascuna; nella lingua della recensione; niente firma; niente hashtag; niente date precise, nomi di cani o fatti che non sono scritti nella recensione o nell'idea di Paolo; mai le parole clienti, acquisto, vendita, prenotazione, caparra (l'allevamento è amatoriale: si parla di famiglie e di affido). Se la recensione è negativa: tono calmo, nessuna polemica, invito a parlarne di persona.
+Formato: {"options":["risposta"]}`,
+        `Autore: ${String(p.who || "").slice(0, 80)}\nStelle: ${+p.stars || ""}\nRecensione:\n${String(p.text || "(nessun testo, solo stelle)").slice(0, 3000)}`, 700);
+      return json({ ok: true, options: (o.options || []).map(String).filter(Boolean).slice(0, 2) });
     }
     if (task === "interessato") {
       const o = await ask(env, `Da un messaggio WhatsApp di una persona interessata a un cucciolo di Staffordshire Bull Terrier, estrai SOLO quello che c'è scritto (stringa vuota se manca, non inventare):
