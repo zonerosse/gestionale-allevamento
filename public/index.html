@@ -4244,8 +4244,12 @@ function nvSend(id){const d=D.dogs[id],o=D.owners[d.owner],t=($("#nv_txt")||{}).
   /* si segna come mandato SOLO se Paolo conferma (bug 07/10: dal PC senza WhatsApp risultava mandato) */
   sheet(`<h2 style="margin-top:0">💬 Il messaggio è partito?</h2><p class="row-meta">Si è aperto WhatsApp con il messaggio per ${esc(o.name)}. Se l'hai inviato, segnalo qui: la prossima volta ti propongo solo le cose nuove.</p>
   <div class="actions"><button class="btn ag-wa" data-a="nvDone" data-v="${id}">✓ Sì, l'ho mandato</button><button class="btn ghost" data-a="close">✗ No, non è partito</button></div>`)}
-function nvDone(id){const d=D.dogs[id],o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";d.nvPrev=d.nvSent||null;d.nvSent={at:todayS(),keys:nvItems(id).map(x=>x.k)};LANG=old;
+function nvDone(id){const d=D.dogs[id],o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";d.nvPrev=d.nvSent||null;d.nvSent={at:todayS(),keys:nvItems(id).map(x=>x.k),conf:true};LANG=old;
   closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Avviso segnato come mandato.")}
+/* Una volta sola (richiesta di Paolo, 07/10/2026): gli avvisi segnati prima della correzione non erano mai confermati
+   (dal PC senza WhatsApp risultavano mandati). Si tolgono, così quelle famiglie tornano tra quelle da avvisare. */
+function nvFixOnce(){if(typeof OWNER_MODE!=="undefined"||(typeof RO!=="undefined"&&RO))return false;D.settings=D.settings||{};if(D.settings.nvFix1)return false;let n=0;
+  Object.values(D.dogs||{}).forEach(d=>{if(d.nvSent&&!d.nvSent.conf&&!d.nvSent.skip){delete d.nvSent;delete d.nvPrev;n++}});D.settings.nvFix1=todayS();return true}
 function nvUndo(id){const d=D.dogs[id];if(!d)return;if(d.nvPrev)d.nvSent=d.nvPrev;else delete d.nvSent;delete d.nvPrev;render();typeof saveNow==="function"&&saveNow();nvSheet(id);toast("Ultimo avviso annullato.")}
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||t.dataset.nvp==null||!NV)return;NV.pick[+t.dataset.nvp]=t.checked;NV.txt=nvMsg();const a=$("#nv_txt");if(a)a.value=NV.txt});
 /* ---------- ☀️ Oggi (07/10/2026, scelte di Paolo) ----------
@@ -4431,7 +4435,7 @@ async function loadAll(){try{const r=await api("/api/data");const j=await r.json
   NAV_READY=true;resetCalc();render();if(CONTI)return;trFromHash();rvFromHash();wsFromHash();agFromHash();intFromHash();
   /* le ricevute di caparra fatte prima della scelta "solo per Paolo" diventano private */
   if(!RO&&!EMPTY){let ch=0;Object.values(D.dogs).forEach(d=>(d.docs||[]).forEach(x=>{if(x.dep&&!x.private&&!x.depShare){x.private=true;ch++}}));if(ch){render();saveNow()}}
-  ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}}
+  ctLoad();wlSync();try{if(scSync())saveNow()}catch(e){console.error(e)}try{if(nvFixOnce()){render();saveNow()}}catch(e){console.error(e)}}
 /* Richieste dal modulo del sito → Lista d'attesa (una volta sola per richiesta) */
 async function wlSync(){if(RO||EMPTY)return;try{const r=await api("/api/requests");if(!r.ok)return;const R=await r.json();D.waitlist=D.waitlist||[];const have=new Set(D.waitlist.map(w=>w.id));let n=0;
   const gone=new Set(D.wlGone||[]);R.forEach(q=>{if(have.has(q.rid)||gone.has(q.rid))return;D.waitlist.push({id:q.rid,created:q.created,name:q.name,email:q.email,phone:q.phone,city:q.city,country:q.country,sex:q.sex,exp:q.exp,note:q.note,source:"sito",litter:"",status:"new",lang:/^(it|italia|italy)$/i.test(q.country||"")||!q.country?"it":"en"});n++});

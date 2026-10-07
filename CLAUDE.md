@@ -969,3 +969,4 @@ Accessi e copie
   Google (recensioni da rispondere). Nessun dato nuovo: legge quelli che ci sono.
 - "✓ Non serve avvisare" (`nvSkip`): segna la famiglia come aggiornata senza mandare niente (d.nvSent con skip). Riquadri di Oggi mai più larghi dello schermo (minmax(min(300px,100%),1fr)).
 - Avvisa la famiglia: "Apri WhatsApp" NON segna più l'avviso; dopo chiede "Il messaggio è partito?" e segna solo con "✓ Sì, l'ho mandato" (`nvDone`). "↺ Annulla l'ultimo avviso" (`nvUndo`, ripristina `d.nvPrev`) per gli avvisi segnati per sbaglio.
+- Una tantum (07/10/2026, `nvFixOnce`, flag `D.settings.nvFix1`): tolti gli avvisi segnati prima della conferma (senza `conf`/`skip`), così le famiglie tornano da avvisare.

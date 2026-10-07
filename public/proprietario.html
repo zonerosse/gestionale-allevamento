@@ -3971,8 +3971,12 @@ function nvSend(id){const d=D.dogs[id],o=D.owners[d.owner],t=($("#nv_txt")||{}).
   /* si segna come mandato SOLO se Paolo conferma (bug 07/10: dal PC senza WhatsApp risultava mandato) */
   sheet(`<h2 style="margin-top:0">💬 Il messaggio è partito?</h2><p class="row-meta">Si è aperto WhatsApp con il messaggio per ${esc(o.name)}. Se l'hai inviato, segnalo qui: la prossima volta ti propongo solo le cose nuove.</p>
   <div class="actions"><button class="btn ag-wa" data-a="nvDone" data-v="${id}">✓ Sì, l'ho mandato</button><button class="btn ghost" data-a="close">✗ No, non è partito</button></div>`)}
-function nvDone(id){const d=D.dogs[id],o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";d.nvPrev=d.nvSent||null;d.nvSent={at:todayS(),keys:nvItems(id).map(x=>x.k)};LANG=old;
+function nvDone(id){const d=D.dogs[id],o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";d.nvPrev=d.nvSent||null;d.nvSent={at:todayS(),keys:nvItems(id).map(x=>x.k),conf:true};LANG=old;
   closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Avviso segnato come mandato.")}
+/* Una volta sola (richiesta di Paolo, 07/10/2026): gli avvisi segnati prima della correzione non erano mai confermati
+   (dal PC senza WhatsApp risultavano mandati). Si tolgono, così quelle famiglie tornano tra quelle da avvisare. */
+function nvFixOnce(){if(typeof OWNER_MODE!=="undefined"||(typeof RO!=="undefined"&&RO))return false;D.settings=D.settings||{};if(D.settings.nvFix1)return false;let n=0;
+  Object.values(D.dogs||{}).forEach(d=>{if(d.nvSent&&!d.nvSent.conf&&!d.nvSent.skip){delete d.nvSent;delete d.nvPrev;n++}});D.settings.nvFix1=todayS();return true}
 function nvUndo(id){const d=D.dogs[id];if(!d)return;if(d.nvPrev)d.nvSent=d.nvPrev;else delete d.nvSent;delete d.nvPrev;render();typeof saveNow==="function"&&saveNow();nvSheet(id);toast("Ultimo avviso annullato.")}
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||t.dataset.nvp==null||!NV)return;NV.pick[+t.dataset.nvp]=t.checked;NV.txt=nvMsg();const a=$("#nv_txt");if(a)a.value=NV.txt});
 /* ---------- ☀️ Oggi (07/10/2026, scelte di Paolo) ----------
