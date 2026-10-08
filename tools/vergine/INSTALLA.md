@@ -86,6 +86,8 @@ Dopo il primo «Salva» decide l'elenco del gestionale. Per far entrare una pers
 - **Contratto di cessione**: non c'è. Ogni allevatore usa il suo; nel gestionale si potrà aggiungere più avanti.
 - **Passaggio di proprietà**: il modulo incluso è quello della Regione Emilia-Romagna.
 - **Modelli A e B**: moduli ENCI originali, compilati dal gestionale.
-- Il gestionale nasce per lo **Staffordshire Bull Terrier**: SBTpedigree e i test genetici della razza sono già previsti.
+- **Razza**: il gestionale vale per tutte le razze. Per lo Staffordshire Bull Terrier c'è un pacchetto pronto (⚙️ Account →
+  🐾 Razza → Installa): SBTpedigree, test mating SBT, test genetici della razza, istruzioni per il cucciolo, voci della Consegna,
+  scadenze suggerite. Si sceglie voce per voce e si può togliere quando si vuole.
 - **Copie di sicurezza**: una al giorno, automatica, per 90 giorni (⚙️ Account → Copie di sicurezza). Ogni tanto
   scaricane una anche sul computer.
