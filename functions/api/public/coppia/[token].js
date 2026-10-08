@@ -1,4 +1,4 @@
-import { json, loadData } from "../../../_lib.js";
+import { json, loadData, farmOf } from "../../../_lib.js";
 // Dati della pagina condivisa di una coppia (link segreto da Accoppiamenti, D.matings["sire|dam"].share). Solo: nomi, genitori,
 // test, titoli, ID SBT, COI SBT e test mating letto. Mai note, proprietari, prezzi. (Richiesta di Paolo, 04/10/2026)
 export async function onRequestGet({ env, params }) {
@@ -14,5 +14,6 @@ export async function onRequestGet({ env, params }) {
   const pick = (x, y) => (x != null && x !== "" ? x : y != null && y !== "" ? y : null);
   // pub: riassunto del calcolo salvato dal gestionale quando Paolo apre la coppia (calcolo del gestionale, albero, regole ENCI,
   // parto previsto, su chi cade). Solo numeri e nomi dei cani.
-  return json({ sire: dg(s), dam: dg(d), pub: m.pub || null, coi: pick(m.coiSbt, a.c8) || "", tmUrl: m.tmUrl || "", read: { coi3: pick(r.coi3, a.c3), coi5: pick(r.coi5, a.c5), uniq: pick(r.uniq, a.uniq), loss: pick(r.loss, a.loss), blood: r.blood || [], top: (r.top && r.top.length ? r.top : a.top) || [], date: r.date || a.date || "" } }, 200, { "x-robots-tag": "noindex", "cache-control": "no-store" });
+  const F = farmOf(D);
+  return json({ farm: { name: F.name, person: F.person, cityProv: F.cityProv, phoneIntl: F.phoneIntl, site: F.site }, sire: dg(s), dam: dg(d), pub: m.pub || null, coi: pick(m.coiSbt, a.c8) || "", tmUrl: m.tmUrl || "", read: { coi3: pick(r.coi3, a.c3), coi5: pick(r.coi5, a.c5), uniq: pick(r.uniq, a.uniq), loss: pick(r.loss, a.loss), blood: r.blood || [], top: (r.top && r.top.length ? r.top : a.top) || [], date: r.date || a.date || "" } }, 200, { "x-robots-tag": "noindex", "cache-control": "no-store" });
 }

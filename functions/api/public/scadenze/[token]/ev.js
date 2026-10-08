@@ -1,4 +1,4 @@
-import { loadData } from "../../../../_lib.js";
+import { loadData, farmOf } from "../../../../_lib.js";
 
 // Una sola scadenza nel calendario del telefono (campanello 🔔 della pagina Scadenze), con preavviso e ripetizione scelti da Paolo.
 // /api/public/scadenze/<settings.calToken>/ev?id=<id>&pre=<giorni prima del primo avviso>&every=<ogni quanti giorni, 0 = una volta>
@@ -17,7 +17,7 @@ export async function onRequestGet({ env, params, request }) {
   if (!e || !/^\d{4}-\d{2}-\d{2}$/.test(e.date || "")) return new Response("Scadenza non trovata: riapri il gestionale e riprova.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
   const now = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z", today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
   const days = []; for (let k = pre; k > 0; k -= (every || pre + 1)) days.push([addD(e.date, -k), k]); days.push([e.date, 0]);
-  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Del Piccolo Diavolo//Scadenza//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"];
+  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//" + farmOf(cur.data).name + "//Scadenza//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"];
   for (const [d, k] of days) {
     if (d < today && k) continue;
     const t = k ? "⏰ " + e.t.replace(/ · /, ": mancano " + k + " giorni · ") : e.t;

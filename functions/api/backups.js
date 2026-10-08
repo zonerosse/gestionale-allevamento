@@ -1,4 +1,4 @@
-import { json, isAdmin, deny, ensureDaily, dailyCopy } from "../_lib.js";
+import { json, isAdmin, deny, ensureDaily, dailyCopy, farmOf } from "../_lib.js";
 
 // Copie di sicurezza automatiche (punto 11) — solo Paolo.
 // GET  /api/backups            → elenco (giorno, ora, quanti cani e cucciolate)
@@ -11,7 +11,7 @@ export async function onRequestGet({ request, env }) {
   if (day) {
     const r = await env.DB.prepare("SELECT day, at, version, json FROM daily WHERE day = ?").bind(day).first();
     if (!r) return json({ error: "Copia non trovata" }, 404);
-    return json({ tipo: "copia di sicurezza del gestionale Del Piccolo Diavolo", at: r.at, version: r.version, data: JSON.parse(r.json) });
+    return json({ tipo: "copia di sicurezza del gestionale " + farmOf(JSON.parse(r.json)).name, at: r.at, version: r.version, data: JSON.parse(r.json) });
   }
   const { results } = await env.DB.prepare("SELECT day, at, dogs, litters, note FROM daily ORDER BY at DESC").all();
   return json({ items: results || [] });

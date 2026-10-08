@@ -708,6 +708,20 @@ body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:no
 <div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 
 <script>
+/* ---------- Dati dell'allevamento (08/10/2026) ----------
+   UNICA fonte per nome, titolare, indirizzo, telefono, email, sito e razza: FM() (fonde FARM_DEF con D.settings.farm,
+   che si cambia in ⚙️ Account → Allevamento). Mai scriverli a mano nel codice: usare FM().x. */
+const FARM_DEF={name:"Del Piccolo Diavolo",first:"Paolo",last:"Boldrini",street:"Via Amerigo Chierici",num:"12",cap:"44020",city:"Ostellato",prov:"FE",provName:"Ferrara",phone:"392 463 5584",prefix:"39",email:"zonerosse@gmail.com",site:"delpiccolodiavolo.it",breed:"Staffordshire Bull Terrier",since:"2013"};
+const FARM_KEYS=["name","first","last","street","num","cap","city","prov","provName","phone","prefix","email","site","breed","since"];
+function FM(){const f=Object.assign({},FARM_DEF),s=((typeof D!=="undefined"&&D&&D.settings)||{}).farm||{};
+  for(const k of FARM_KEYS)if(s[k]!=null&&String(s[k]).trim()!=="")f[k]=String(s[k]).trim();
+  f.site=f.site.replace(/^https?:\/\//,"").replace(/\/+$/,"");f.prefix=f.prefix.replace(/\D/g,"")||"39";
+  f.person=f.first+" "+f.last;f.personRev=f.last+" "+f.first;f.kennel="Allevamento "+f.name;f.kennelEn=f.name+" kennel";
+  f.addr=f.street+" "+f.num;f.cityProv=f.city+(f.prov?" ("+f.prov+")":"");f.capCity=f.cap+" "+f.cityProv;f.full=f.addr+", "+f.capCity;
+  f.phoneDigits=f.prefix+f.phone.replace(/\D/g,"");f.phoneIntl="+"+f.prefix+" "+f.phone;f.siteUrl="https://"+f.site;
+  f.mapUrl="https://maps.google.com/?q="+encodeURIComponent(f.addr+" "+f.city);return f}
+function fmBrand(){try{const f=FM();document.querySelectorAll("p.brand").forEach(e=>{e.textContent=f.name});
+  if(typeof OWNER_MODE==="undefined"&&!/·/.test(document.title.replace(/ · Gestionale$/,"")))document.title=f.name+" · Gestionale"}catch(e){}}
 /* ---------- Gestionale online: i dati arrivano dal database ---------- */
 const D={dogs:{},owners:{},litters:{},matings:{}};
 const FILES={},DOCF={};
@@ -855,7 +869,7 @@ function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{
   let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
   const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
 let NAV_READY=false;
-function render(){resetCalc();try{acRules()}catch(e){}nav();document.body.setAttribute("data-tab",tab);if(NAV_READY){try{sessionStorage.setItem("gx_nav",JSON.stringify({tab,view,ms:mateS,md:mateD}))}catch(e){}}
+function render(){resetCalc();try{acRules()}catch(e){}fmBrand();nav();document.body.setAttribute("data-tab",tab);if(NAV_READY){try{sessionStorage.setItem("gx_nav",JSON.stringify({tab,view,ms:mateS,md:mateD}))}catch(e){}}
   const m=$("#main");
   const banner=bannerHtml();
   if(tab==="cani")m.innerHTML=banner+(view?dogDetailSafe(view):(typeof agBanner==="function"?agBanner():"")+mbBanners()+dogList());
@@ -893,7 +907,7 @@ function pupFold(ids,label){
 const HERO="bilquis";
 function isMine(d){return !d.ext&&(d.fattr||d.status!=="ceduto"&&d.status!=="prenotato")}
 function hero(){const d=D.dogs[HERO];
-  return `<div class="hero"><div class="hero-t"><p class="hero-k">Staffordshire Bull Terrier</p><h1 class="hero-h">Del Piccolo Diavolo</h1><p class="hero-s">Gestionale allevamento</p></div>
+  return `<div class="hero"><div class="hero-t"><p class="hero-k">${esc(FM().breed)}</p><h1 class="hero-h">${esc(FM().name)}</h1><p class="hero-s">Gestionale allevamento</p></div>
   <div class="hero-p">${d&&d.photo?`<img src="${d.photo}" alt="">`:""}</div></div>`;
 }
 /* Cani raggruppati per cucciolata (usato per i Ceduti): dalla più recente, dentro ogni gruppo in ordine alfabetico */
@@ -1393,7 +1407,7 @@ function docSave(id){const t=$("#dt").value.trim();if(!t){$("#dt").focus();retur
 function docDel(v){const [id,i]=v.split("|");if(!confirm("Eliminare questo documento?"))return;D.dogs[id].docs.splice(+i,1);render()}
 
 /* ---------- Dati del cane: lettura / modifica con Salva ---------- */
-const BREEDER_ME="Paolo Boldrini · Del Piccolo Diavolo";
+const BREEDER_ME_F=()=>FM().person+" · "+FM().name;
 function dogFacts(d,id,st,own){
   if(EDIT===id){const sel=(n,opts,v)=>`<select id="${n}">${opts.map(([k,l])=>`<option value="${k}" ${v===k?"selected":""}>${l}</option>`).join("")}</select>`;
     const L=(t,inner,full)=>`<label class="f${full?" full":""}">${t}${inner}</label>`;
@@ -1403,8 +1417,8 @@ function dogFacts(d,id,st,own){
     ${L("Colore",`<input id="ef_color" value="${esc(d.color||"")}">`)}${L("LOI",`<input id="ef_loi" value="${esc(d.loi||"")}">`)}${L("Microchip",`<input id="ef_chip" inputmode="numeric" value="${esc(d.chip||"")}">`)}
     <div class="f"><span>Padre</span>${combo("ef_sire","M",d.sire)}</div><div class="f"><span>Madre</span>${combo("ef_dam","F",d.dam)}</div>
     ${L("Stato",sel("ef_status",Object.entries(STATUS).map(([k,x])=>[k,x[0]]).concat([["ext","Esterno (antenato o stallone)"]]),d.ext?"ext":(d.status||"")))}
-    ${L("Allevatore",sel("ef_bred",[["me","Io – "+BREEDER_ME],["other","Un altro allevatore"]],d.bred?"me":"other")+`<input id="ef_breeder" placeholder="Nome dell'allevatore" value="${esc(d.breeder||"")}" style="margin-top:6px;${d.bred?"display:none":""}">`)}
-    ${L("Proprietario",`<select id="ef_owner"><option value="">Paolo Boldrini (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${d.owner===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>
+    ${L("Allevatore",sel("ef_bred",[["me","Io – "+BREEDER_ME_F()],["other","Un altro allevatore"]],d.bred?"me":"other")+`<input id="ef_breeder" placeholder="Nome dell'allevatore" value="${esc(d.breeder||"")}" style="margin-top:6px;${d.bred?"display:none":""}">`)}
+    ${L("Proprietario",`<select id="ef_owner"><option value="">${esc(FM().person)} (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${d.owner===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>
     <div id="ef_newown" class="newown" style="display:none"><input id="no_name" placeholder="Nome e cognome (obbligatorio)"><input id="no_country" placeholder="Paese"><input id="no_phone" type="tel" placeholder="Telefono"><input id="no_email" type="email" placeholder="Email">
     <select id="no_lang"><option value="it">Pagina privata in italiano</option><option value="en">Pagina privata in inglese</option></select></div>`)}
     ${L("COI 8 generazioni SBT (%)",`<input id="ef_coi" inputmode="decimal" placeholder="es. 6,924" value="${esc(d.coiSbt||"")}">`)}
@@ -1414,7 +1428,7 @@ function dogFacts(d,id,st,own){
   const F=(l,v,f)=>`<div class="fact"><dt>${l}</dt><dd>${v||(f?ins(f):'<span class="empty">—</span>')}</dd></div>`;
   return `<dl class="facts">${F("Sesso",sexH(d.sex),"sex")}${F("Nascita",esc(born(d)),"birth")}${d.birth?F("Età",age(d)):""}${F("Colore",esc(d.color||""),"color")}${F("LOI",d.loi?esc(d.loi):d.bred&&!d.ext?'<i class="row-meta">In attesa N. LOI</i>':"","loi")}${F("Microchip",esc(d.chip||""),"chip")}
   ${F("Padre",d.sire?dlink(d.sire):"","sire")}${F("Madre",d.dam?dlink(d.dam):"","dam")}${F("Stato",esc(st||""),"status")}
-  ${F("Allevatore",d.bred?esc(BREEDER_ME):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:"Paolo Boldrini")}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":(litA(id)?esc(litA(id).c8)+"% · dalla cucciolata":""),"coiSbt")}</dl>`}
+  ${F("Allevatore",d.bred?esc(BREEDER_ME_F()):esc(d.breeder||""),"breeder")}${d.ext?"":F("Proprietario",own?`<button class="lnk" data-a="openOwner" data-v="${d.owner}">${esc(own.name)}</button>`:esc(FM().person))}${F("COI SBTPedigree (8 gen.)",d.coiSbt?esc(d.coiSbt)+"%":(litA(id)?esc(litA(id).c8)+"% · dalla cucciolata":""),"coiSbt")}</dl>`}
 function ownSave(id){const o=D.owners[id],v=k=>$("#"+k).value.trim();if(!v("eo_name")){$("#eo_name").focus();return}
   Object.assign(o,{name:v("eo_name"),country:v("eo_country"),phone:v("eo_phone"),email:v("eo_email"),addr:v("eo_addr"),bplace:v("eo_bplace"),bdate:v("eo_bdate"),lang:v("eo_lang"),notes:v("eo_notes")});EDIT=null;EDIRTY=false;render();toast("Dati salvati.")}
 function editOn(v){const [id,f]=v.split("|");EDIT=id;EDIRTY=false;render();
@@ -1444,7 +1458,7 @@ function edf(v){const [kind,id,f]=v.split("|"),o=kind==="dog"?D.dogs[id]:D.owner
   let inp;
   if(t==="sel")inp=`<select id="edv"><option value="M" ${val==="M"?"selected":""}>Maschio</option><option value="F" ${val==="F"?"selected":""}>Femmina</option><option value="" ${!val?"selected":""}>Da definire</option></select>`;
   else if(t==="status")inp=`<select id="edv">${Object.entries(STATUS).map(([k,x])=>`<option value="${k}" ${val===k?"selected":""}>${x[0]}</option>`).join("")}<option value="ext" ${val==="ext"?"selected":""}>Esterno (antenato o stallone)</option></select>`;
-  else if(t==="owner")inp=`<select id="edv"><option value="">Paolo Boldrini (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${val===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>`;
+  else if(t==="owner")inp=`<select id="edv"><option value="">${esc(FM().person)} (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${val===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>`;
   else if(t==="dogM"||t==="dogF")inp=combo("edv",t==="dogM"?"M":"F",val);
   else inp=`<input id="edv" type="${t}" value="${esc(val)}" ${f==="coiSbt"?'inputmode="decimal" placeholder="es. 6,924"':""}>`;
   sheet(`<h2 style="margin-top:0">${lab}</h2><p class="row-meta" style="margin:-6px 0 12px">${esc(o.name)}</p><div class="form"><div class="f full">${inp}</div></div>
@@ -1481,7 +1495,7 @@ function ownerPreview(id){
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
   const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} Del Piccolo Diavolo</p>${ctTop(id)}${nvBox(id)}${ovImp(id)}
+  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} ${esc(FM().name)}</p>${ctTop(id)}${nvBox(id)}${ovImp(id)}
   <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
   ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
   <h2>Pedigree</h2>${ovParents(id)}
@@ -1499,9 +1513,9 @@ function ownerPreview(id){
   ${(d.docs||[]).some(z=>!z.private&&!isCert(z))?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
   ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
   ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
-  <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">Paolo Boldrini</p><span class="row-meta">${T("Allevamento Del Piccolo Diavolo · Ostellato (FE)","Del Piccolo Diavolo kennel · Ostellato (FE), Italy")}</span>
-  <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+393924635584">+39 392 463 5584</a></span><span>Email: <a href="mailto:zonerosse@gmail.com">zonerosse@gmail.com</a></span></div>
-  <div class="brd-b"><a class="btn small" href="tel:+393924635584">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/393924635584" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:zonerosse@gmail.com">Email</a></div></div></div>`;
+  <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">${esc(FM().person)}</p><span class="row-meta">${esc(T(FM().kennel+" · "+FM().cityProv,FM().kennelEn+" · "+FM().cityProv+", Italy"))}</span>
+  <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+${FM().phoneDigits}">${esc(FM().phoneIntl)}</a></span><span>Email: <a href="mailto:${esc(FM().email)}">${esc(FM().email)}</a></span></div>
+  <div class="brd-b"><a class="btn small" href="tel:+${FM().phoneDigits}">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/${FM().phoneDigits}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:${esc(FM().email)}">Email</a></div></div></div>`;
   LANG="it";
   sheet(`${html}
   ${o._none?`<p class="lead" style="margin-top:14px">Questo cane non ha ancora un proprietario: è un'anteprima. Lingua: <button class="chip" aria-pressed="${o.lang!=="en"}" data-a="ovLang" data-v="${id}|it">Italiano</button> <button class="chip" aria-pressed="${o.lang==="en"}" data-a="ovLang" data-v="${id}|en">English</button></p>`:""}
@@ -1591,7 +1605,7 @@ function ctFill(s,sex,ver){const v=V32[sex]||V32.M,nb=(ver||CT_VER)>="2026-10b";
 function ctWhen(iso,en){const x=new Date(iso);return x.toLocaleDateString("it-IT")+(en?" at ":" alle ")+x.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}
 // formule fisse per caparra e consegna
 const CT_DEP=["già versata dall'acquirente secondo gli accordi intercorsi; viene detratta dal prezzo alla consegna","already paid by the buyer as agreed; deducted from the price at delivery"];
-const CT_DEL=["presso l'allevamento del cedente a Ostellato (FE), nella data concordata tra le parti, non prima dei 60 giorni di vita del cucciolo (punto 1.5)","at the seller's kennel in Ostellato (FE), on the date agreed between the parties, not before the puppy is 60 days old (point 1.5)"];
+const CT_DEL_F=()=>["presso l'allevamento del cedente a "+FM().cityProv+", nella data concordata tra le parti, non prima dei 60 giorni di vita del cucciolo (punto 1.5)","at the seller's kennel in "+FM().cityProv+", on the date agreed between the parties, not before the puppy is 60 days old (point 1.5)"];
 // il contratto come pagina (anteprima a schermo). Stranieri (bi): tutto in inglese, in fondo il testo italiano che fa fede.
 function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${esc(src)}" alt="">`:"";
   const F=(a,b,v)=>`<span>${en?b:a}</span><span>${v?esc(v):'<span class="blank">______________________</span>'}</span>`;
@@ -1601,22 +1615,22 @@ function ctHtml(S,B,G,meSig){const en=S.bi,k=en?1:0,sig=src=>src?`<img src="${es
   const body=i=>ctCT(S).map(x=>`<h5>${fix(x[i])}</h5>${x[2].map(p=>/^\{C36(EN)?\}$/.test(p[i])?opts(i):`<p>${fix(p[i])}</p>`).join("")}`).join("");
   const sum=i=>G&&G.c36!=null?`<div class="ct-sum"><b>${i?"Photos and name (point 3.6):":"Foto e nome (punto 3.6):"}</b> ☒ ${esc(C36[G.c36][i])}</div>`:"";
   const sx=S.sex==="M";
-  return `<div class="k-doc"><div class="hd">Allevamento Del Piccolo Diavolo – Ostellato (FE) – delpiccolodiavolo.it</div>
+  return `<div class="k-doc"><div class="hd">${esc(FM().kennel+" – "+FM().cityProv+" – "+FM().site)}</div>
   <h3>${en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`}</h3>
   ${en?`<p style="color:#555;font-style:italic">This agreement is written in English for the buyer's convenience. The Italian text at the end of the document is the binding version and prevails in case of doubt.</p>`:""}
-  <h4>${en?"Seller":"Cedente"}</h4><div class="fld">${F("Nome","Name","Boldrini Paolo")}${F("Via / N.","Address","Via A. Chierici 12")}${F("CAP / località","Postcode / town","44020 Ostellato (FE), Italy".replace(en?"#":", Italy",""))}${F("Telefono","Phone",en?"+39 392 4635584":"392 4635584")}${F("Mail","Email","zonerosse@gmail.com")}</div>
+  <h4>${en?"Seller":"Cedente"}</h4><div class="fld">${F("Nome","Name",FM().personRev)}${F("Via / N.","Address",FM().addr)}${F("CAP / località","Postcode / town",FM().capCity+(en?", Italy":""))}${F("Telefono","Phone",en?FM().phoneIntl:FM().phone)}${F("Mail","Email",FM().email)}</div>
   <h4>${en?"Buyer":"Acquirente"}</h4><div class="fld">${F("Nome","Name",B.name)}${F("Codice fiscale","Tax code / ID code",B.cf)}${F("Documento d'identità n.","ID document no.",B.doc)}${F("Via / N.","Address",B.via)}${F("CAP / località","Postcode / town",B.cap)}${F("Telefono","Phone",B.tel)}${F("Mail","Email",B.mail)}</div>
-  <h4>${en?"The dog":"Dati del cane"}</h4><div class="fld">${F("Nome del cane","Dog's name",S.dog.name)}${F("Codice del microchip","Microchip",S.dog.chip)}${F("Nato il","Born on",fmt(S.dog.birth))}${F("Razza","Breed","Staffordshire Bull Terrier")}${F("Colore","Colour",S.dog.color)}${F("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"))}${F("Padre (nome e microchip)","Sire (name and microchip)",S.sire)}${F("Madre (nome e microchip)","Dam (name and microchip)",S.dam)}</div>
-  <h4>${en?"Financial terms":"Condizioni economiche"}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit",CT_DEP[k])}${F("Presa in consegna","Delivery",CT_DEL[k])}</div>${sum(k)}
+  <h4>${en?"The dog":"Dati del cane"}</h4><div class="fld">${F("Nome del cane","Dog's name",S.dog.name)}${F("Codice del microchip","Microchip",S.dog.chip)}${F("Nato il","Born on",fmt(S.dog.birth))}${F("Razza","Breed",FM().breed)}${F("Colore","Colour",S.dog.color)}${F("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"))}${F("Padre (nome e microchip)","Sire (name and microchip)",S.sire)}${F("Madre (nome e microchip)","Dam (name and microchip)",S.dam)}</div>
+  <h4>${en?"Financial terms":"Condizioni economiche"}</h4><div class="fld">${F("Prezzo di cessione","Price",S.price)}${F("Caparra","Deposit",CT_DEP[k])}${F("Presa in consegna","Delivery",CT_DEL_F()[k])}</div>${sum(k)}
   <p>${en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:"}</p>
   ${body(k)}
   ${en?`<div style="border-top:2px solid #333;margin:22px 0 10px;padding-top:10px"><h4 style="margin-top:0">Testo italiano – fa fede / Italian text – binding version</h4>
-   <div class="fld">${`<span>Caparra</span><span>${CT_DEP[0]}</span><span>Presa in consegna</span><span>${CT_DEL[0]}</span>`}</div>${body(0)}</div>`:""}
-  <p>${en?"Place and date":"Luogo e data"}: ${G?"Ostellato, "+ctWhen(G.at,en):'<span class="blank">______________________</span>'}</p>
+   <div class="fld">${`<span>Caparra</span><span>${CT_DEP[0]}</span><span>Presa in consegna</span><span>${CT_DEL_F()[0]}</span>`}</div>${body(0)}</div>`:""}
+  <p>${en?"Place and date":"Luogo e data"}: ${G?FM().city+", "+ctWhen(G.at,en):'<span class="blank">______________________</span>'}</p>
   <div class="k-sig"><div>${en?"Seller's signature / Firma del cedente":"Firma del cedente"}${sig(meSig)}</div><div>${en?"Buyer's signature / Firma dell'acquirente":"Firma dell'acquirente"}${sig(G&&G.sig1)}</div></div>
   <h5 style="margin-top:22px">${en?"Specific approval of clauses / Approvazione specifica delle clausole":"Approvazione specifica delle clausole"}</h5><p>${fix(en?CL1341.en:CL1341.it)}</p>${en?`<p>${fix(CL1341.it)}</p>`:""}
   <div class="k-sig"><div>${en?"Seller's signature / Firma del cedente":"Firma del cedente"}${sig(meSig)}</div><div>${en?"Buyer's signature / Firma dell'acquirente":"Firma dell'acquirente"}${sig(G&&G.sig2)}</div></div>
-  ${G?`<p style="font-size:.75rem;color:#777;margin-top:16px">${en?"Signed with an electronic signature (finger signature) on the private page of the Del Piccolo Diavolo kennel system on":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il"} ${ctWhen(G.at,en)}. ${en?"Fingerprint":"Impronta"} (SHA-256): ${esc(G.hash||"")}</p>`:""}</div>`}
+  ${G?`<p style="font-size:.75rem;color:#777;margin-top:16px">${en?"Signed with an electronic signature (finger signature) on the private page of the "+FM().name+" kennel system on":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale "+FM().name+" il"} ${ctWhen(G.at,en)}. ${en?"Fingerprint":"Impronta"} (SHA-256): ${esc(G.hash||"")}</p>`:""}</div>`}
 // PDF: jsPDF caricato solo quando serve
 let JSPDF=null;
 async function loadJsPDF(){if(JSPDF)return JSPDF;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});
@@ -1630,7 +1644,7 @@ async function toDataURL(u){if(!u||u.startsWith("data:"))return u;const b=await(
 async function ctPdf(S,B,G,meSig){const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),en=S.bi,k=en?1:0,M=16,CW=178,sx=S.sex==="M";let y=22;
   const me=await toDataURL(meSig);
   const clean=s=>String(s).replace(/<br>/g,"\n").replace(/<[^>]+>/g,"").replace(/☐/g,"[  ]").replace(/☒/g,"[X]");
-  const head=()=>{doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(120);doc.text("Allevamento Del Piccolo Diavolo – Ostellato (FE) – delpiccolodiavolo.it",M,11);doc.setDrawColor(200);doc.line(M,13,M+CW,13);doc.setTextColor(20)};
+  const head=()=>{doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(120);doc.text(FM().kennel+" – "+FM().cityProv+" – "+FM().site,M,11);doc.setDrawColor(200);doc.line(M,13,M+CW,13);doc.setTextColor(20)};
   const need=h=>{if(y+h>280){doc.addPage();head();y=21}};
   const para=(t,o={})=>{const fs=o.size||9,lh=fs*.43,st=o.bold?"bold":o.it?"italic":"normal";doc.setFontSize(fs);doc.setFont("helvetica",st);
     const a=doc.splitTextToSize(clean(t),CW);for(const l of a){need(lh);doc.setFont("helvetica",st);doc.setTextColor(o.grey?95:20);doc.text(l,M,y);y+=lh}y+=o.after==null?1.8:o.after};
@@ -1651,18 +1665,18 @@ async function ctPdf(S,B,G,meSig){const J=await loadJsPDF(),doc=new J({unit:"mm"
     doc.setFontSize(9);doc.setFont("helvetica","bold");const L=doc.splitTextToSize(t,CW-8);const h=L.length*3.9+4;doc.setDrawColor(46,125,50);doc.setLineWidth(.6);doc.rect(M,y-3.5,CW,h);doc.setLineWidth(.2);doc.setTextColor(20);doc.text(L,M+4,y+.5);y+=h+1};
   head();doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text(en?`Sale agreement – ${sx?"MALE":"FEMALE"} puppy`:`Contratto di cessione – Cucciolo ${sx?"MASCHIO":"FEMMINA"}`,M,y);y+=7;
   if(en)para("This agreement is written in English for the buyer's convenience. The Italian text at the end of the document is the binding version and prevails in case of doubt.",{it:true,grey:true});
-  h4(en?"Seller":"Cedente");fld("Nome","Name","Boldrini Paolo");fld("Via / N.","Address","Via A. Chierici 12");fld("CAP / località","Postcode / town",en?"44020 Ostellato (FE), Italy":"44020 Ostellato (FE)");fld("Telefono","Phone",en?"+39 392 4635584":"392 4635584");fld("Mail","Email","zonerosse@gmail.com");
+  h4(en?"Seller":"Cedente");fld("Nome","Name",FM().personRev);fld("Via / N.","Address",FM().addr);fld("CAP / località","Postcode / town",en?FM().capCity+", Italy":FM().capCity);fld("Telefono","Phone",en?FM().phoneIntl:FM().phone);fld("Mail","Email",FM().email);
   h4(en?"Buyer":"Acquirente");fld("Nome","Name",B.name);fld("Codice fiscale","Tax code / ID code",B.cf);fld("Documento d'identità n.","ID document no.",B.doc);fld("Via / N.","Address",B.via);fld("CAP / località","Postcode / town",B.cap);fld("Telefono","Phone",B.tel);fld("Mail","Email",B.mail);
-  h4(en?"The dog":"Dati del cane");fld("Nome del cane","Dog's name",S.dog.name);fld("Codice del microchip","Microchip",S.dog.chip);fld("Nato il","Born on",fmt(S.dog.birth));fld("Razza","Breed","Staffordshire Bull Terrier");fld("Colore","Colour",S.dog.color);fld("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"));fld("Padre (nome e microchip)","Sire (name and microchip)",S.sire);fld("Madre (nome e microchip)","Dam (name and microchip)",S.dam);
-  h4(en?"Financial terms":"Condizioni economiche");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit",CT_DEP[k]);fld("Presa in consegna","Delivery",CT_DEL[k]);sum(k);
+  h4(en?"The dog":"Dati del cane");fld("Nome del cane","Dog's name",S.dog.name);fld("Codice del microchip","Microchip",S.dog.chip);fld("Nato il","Born on",fmt(S.dog.birth));fld("Razza","Breed",FM().breed);fld("Colore","Colour",S.dog.color);fld("Sesso","Sex",en?(sx?"Male":"Female"):(sx?"Maschio":"Femmina"));fld("Padre (nome e microchip)","Sire (name and microchip)",S.sire);fld("Madre (nome e microchip)","Dam (name and microchip)",S.dam);
+  h4(en?"Financial terms":"Condizioni economiche");fld("Prezzo di cessione","Price",S.price);fld("Caparra","Deposit",CT_DEP[k]);fld("Presa in consegna","Delivery",CT_DEL_F()[k]);sum(k);
   y+=2;para(en?"The above parties have entered into a sale agreement with the following content:":"Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:");
   body(k);
   if(en){y+=4;need(14);doc.setDrawColor(40);doc.line(M,y,M+CW,y);y+=6;h4("Testo italiano – fa fede / Italian text – binding version");
-    const sv=en;fld("Caparra","Caparra",CT_DEP[0]);fld("Presa in consegna","Presa in consegna",CT_DEL[0]);
+    const sv=en;fld("Caparra","Caparra",CT_DEP[0]);fld("Presa in consegna","Presa in consegna",CT_DEL_F()[0]);
     para("Fra le summenzionate parti contraenti è stato stipulato un contratto di cessione con il seguente contenuto:");body(0)}
-  y+=2;para((en?"Place and date: ":"Luogo e data: ")+(G?"Ostellato, "+ctWhen(G.at,en):"______________________"));sigs(G&&G.sig1);
+  y+=2;para((en?"Place and date: ":"Luogo e data: ")+(G?FM().city+", "+ctWhen(G.at,en):"______________________"));sigs(G&&G.sig1);
   y+=2;para(en?"Specific approval of clauses / Approvazione specifica delle clausole":"Approvazione specifica delle clausole",{bold:true,size:9.6,after:1});para(fix(en?CL1341.en:CL1341.it));if(en)para(fix(CL1341.it));sigs(G&&G.sig2);
-  if(G){need(10);doc.setFontSize(7.5);doc.setTextColor(110);doc.setFont("helvetica","normal");doc.text(doc.splitTextToSize((en?"Signed with an electronic signature (finger signature) on the private page of the Del Piccolo Diavolo kennel system on ":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale Del Piccolo Diavolo il ")+ctWhen(G.at,en)+". "+(en?"Fingerprint":"Impronta")+" (SHA-256): "+(G.hash||""),CW),M,y)}
+  if(G){need(10);doc.setFontSize(7.5);doc.setTextColor(110);doc.setFont("helvetica","normal");doc.text(doc.splitTextToSize((en?"Signed with an electronic signature (finger signature) on the private page of the "+FM().name+" kennel system on ":"Firmato con firma elettronica (firma con il dito) nella pagina privata del gestionale "+FM().name+" il ")+ctWhen(G.at,en)+". "+(en?"Fingerprint":"Impronta")+" (SHA-256): "+(G.hash||""),CW),M,y)}
   const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(7.5);doc.setTextColor(120);doc.text((en?"Page ":"Pag. ")+i+(en?" of ":" di ")+n,M+CW,290,{align:"right"})}
   return doc}
 function ctFile(S){return "contratto-"+String(S.dog.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
@@ -1742,8 +1756,8 @@ async function mbBuild(lid){const L=await pdflib(),l=D.litters[lid],mb=Object.as
     let s=9;while(s>5.5&&font.widthOfTextAtSize(t,s)>x1-x0-4)s-=.5;pages[pg].drawText(t,{x:x0+2,y:y0+4,size:s,font,color:ink})};
   const X=(pg,r)=>{if(!r)return;const w=bold.widthOfTextAtSize("X",10);pages[pg].drawText("X",{x:(r[0]+r[2])/2-w/2,y:r[1]+2,size:10,font:bold,color:ink})};
   const p0=MB_POS.p0,R=MB_POS.rad,dd=l.date||"",me=(D.settings||{}).ppMe||{};
-  put(0,p0.ALLEVATORE,"Paolo Boldrini");put(0,p0["Codice Fiscale"],me.cf||"");put(0,p0.Cell,"392 463 5584");put(0,p0.Email,"zonerosse@gmail.com");
-  put(0,p0.Via,"Via Amerigo Chierici");put(0,p0.N,"12");put(0,p0.CAP,"44020");put(0,p0["Città"],"Ostellato (FE)");put(0,p0.cucciolata_razza,"Staffordshire Bull Terrier");
+  put(0,p0.ALLEVATORE,FM().person);put(0,p0["Codice Fiscale"],me.cf||"");put(0,p0.Cell,FM().phone);put(0,p0.Email,FM().email);
+  put(0,p0.Via,FM().street);put(0,p0.N,FM().num);put(0,p0.CAP,FM().cap);put(0,p0["Città"],FM().cityProv);put(0,p0.cucciolata_razza,FM().breed);
   put(0,p0.giorno,dd.slice(8,10));put(0,p0.mese,dd.slice(5,7));put(0,p0.anno,dd.slice(2,4));
   const lib=x=>String(x||"").toUpperCase().startsWith("LO")?0:String(x||"").toUpperCase().startsWith("RSR")?1:-1;
   put(0,p0.FATTRICE,dm.name);if(lib(dm.loi)>=0)X(0,R.fattrice_libro[lib(dm.loi)]);put(0,p0.fattrice_codice,dm.loi||"");put(0,p0.fattrice_mchip,dm.chip||"");
@@ -1793,10 +1807,10 @@ async function maBuild(lid){const L=await pdflib(),l=D.litters[lid],ma=Object.as
   const X=(pg,r)=>{if(!r)return;const w=bold.widthOfTextAtSize("X",10);pages[pg].drawText("X",{x:(r[0]+r[2])/2-w/2,y:r[1]+2,size:10,font:bold,color:ink})};
   const p=MA_POS.p0,q=MA_POS.p1,me=(D.settings||{}).ppMe||{},lib=x=>String(x||"").toUpperCase().startsWith("LO")?0:String(x||"").toUpperCase().startsWith("RSR")?1:-1;
   const own=dm.owner&&D.owners[dm.owner]?D.owners[dm.owner]:null,mine=!own;
-  const PA={name:"Paolo Boldrini",cf:me.cf||"",cell:"392 463 5584",em:"zonerosse@gmail.com",via:"Via Amerigo Chierici",n:"12",cap:"44020",city:"Ostellato (FE)"};
+  const PA={name:FM().person,cf:me.cf||"",cell:FM().phone,em:FM().email,via:FM().street,n:FM().num,cap:FM().cap,city:FM().cityProv};
   const FO=mine?PA:(()=>{const a=mbAddr(own.addr);return{name:own.name,cf:/^[A-Z0-9]{16}$/.test(own.cf||"")?own.cf:"",cell:String(own.phone||"").replace(/^\+39\s*/,""),em:own.email||"",via:a.via,n:a.n,cap:a.cap,city:a.city}})();
   put(0,p.fp,FO.name);put(0,p.fpcf,FO.cf);put(0,p.cell,FO.cell);put(0,p.em,FO.em);put(0,p.via,FO.via);put(0,p.n,FO.n);put(0,p.cap,FO.cap);put(0,p.city,FO.city);
-  put(0,p.razza,"Staffordshire Bull Terrier");put(0,p.fn,dm.name);if(lib(dm.loi)>=0)X(0,[p.fROI,p.fRSR][lib(dm.loi)]);put(0,p.fcod,dm.loi||"");put(0,p.fchip,dm.chip||"");
+  put(0,p.razza,FM().breed);put(0,p.fn,dm.name);if(lib(dm.loi)>=0)X(0,[p.fROI,p.fRSR][lib(dm.loi)]);put(0,p.fcod,dm.loi||"");put(0,p.fchip,dm.chip||"");
   const m=maMonta(lid);if(m){put(0,p.mg,m.date.slice(8,10));put(0,p.mm,m.date.slice(5,7));put(0,p.ma,m.date.slice(2,4));if(/congel/i.test((m.kind||"")+" "+(m.note||"")))X(0,p.sIA)}
   put(0,p.sn,sr.name);if(lib(sr.loi)>=0)X(0,[p.sROI,p.sRSR][lib(sr.loi)]);put(0,p.scod,sr.loi||"");put(0,p.schip,sr.chip||"");
   put(0,p.sp,mb.stallOwner!=null&&mb.stallOwner!==""?mb.stallOwner:mbStallOwner(l.sire));
@@ -1815,7 +1829,7 @@ const MA_DEF={email:"gcferrarese@gmail.com",wa:"3382141637",who:"Cristina",deleg
 const MA_TO={get email(){return((D&&D.settings||{}).enti||{}).email||MA_DEF.email},get wa(){return((D&&D.settings||{}).enti||{}).wa||MA_DEF.wa},get who(){return((D&&D.settings||{}).enti||{}).who||MA_DEF.who},get deleg(){return((D&&D.settings||{}).enti||{}).deleg||MA_DEF.deleg}};
 function maName(lid){const l=D.litters[lid];return "modello-a-"+(dn(l.dam)+"-"+dn(l.sire)).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
 function maText(lid){const l=D.litters[lid],dm=D.dogs[l.dam]||{},sr=D.dogs[l.sire]||{};
-  return `Buongiorno, in allegato il Modello A (denuncia di monta e di nascita di cucciolata)${l.date?" della cucciolata nata il "+fmt(l.date):""}${dm.name?" da "+dm.name+(dm.loi?" ("+dm.loi+")":""):""}${sr.name?" × "+sr.name+(sr.loi?" ("+sr.loi+")":""):""}.\nAllevatore: Paolo Boldrini, Ostellato (FE), cell. 392 463 5584\nGrazie, cordiali saluti`}
+  return `Buongiorno, in allegato il Modello A (denuncia di monta e di nascita di cucciolata)${l.date?" della cucciolata nata il "+fmt(l.date):""}${dm.name?" da "+dm.name+(dm.loi?" ("+dm.loi+")":""):""}${sr.name?" × "+sr.name+(sr.loi?" ("+sr.loi+")":""):""}.\nAllevatore: ${FM().person}, ${FM().cityProv}, cell. ${FM().phone}\nGrazie, cordiali saluti`}
 function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="undefined"&&CONTI))return"";const l=D.litters[lid];if(!l)return"";const dm=D.dogs[l.dam];if(dm&&dm.ext)return"";
   const w=maCheck(lid),ma=l.modA||{};
   return `<h2>📄 Modello A ENCI</h2><div class="cs" style="gap:8px">
@@ -1829,7 +1843,7 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
 /* Email ENCI da computer (ottobre 2026, scelta di Paolo): apre Gmail di zonerosse@gmail.com con destinatario, oggetto e
    testo già scritti, e scarica il PDF da trascinare nell'email (Gmail non permette di allegare da un link). Sul telefono
    resta il pannello Condividi, che allega il file da solo. */
-function encGmail(to,subj,txt){const u="https://mail.google.com/mail/?authuser="+encodeURIComponent("zonerosse@gmail.com")+"&view=cm&fs=1&to="+encodeURIComponent(to||"")+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt);
+function encGmail(to,subj,txt){const u="https://mail.google.com/mail/?authuser="+encodeURIComponent(FM().email)+"&view=cm&fs=1&to="+encodeURIComponent(to||"")+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt);
   window.open(u,"_blank","noopener");toast("Il PDF è nella cartella Download: trascinalo nell'email di Gmail.")}
 const encDesktop=()=>!(window.matchMedia&&matchMedia("(pointer:coarse)").matches);
 async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
@@ -1880,7 +1894,7 @@ function mbBarcode(page,box,chip,font,L){const pat=c128(chip),mods=[...pat].redu
    (doc.isc), documenti d'identità del proprietario (owners[].ids), Modello B (creato al momento con mbBuild).
    settings.drive = {folders:{percorso:id}, files:{chiave:{id, sc, src}}}: un file già salvato e non cambiato non si ricarica;
    il Modello B si aggiorna ogni volta. Solo con il bottone (scelta A). */
-const DRIVE_CLIENT="1051634257234-j2bpevh0giietep68ntut2ece36usaf5.apps.googleusercontent.com",DR_ROOT="Del Piccolo Diavolo – Documenti";
+const DRIVE_CLIENT="1051634257234-j2bpevh0giietep68ntut2ece36usaf5.apps.googleusercontent.com",DR_ROOT_F=()=>FM().name+" – Documenti";
 let DR_TOK=null,DR_EXP=0,DR_TC=null,DR_BUSY=false;
 function drLoad(){return window.google&&google.accounts&&google.accounts.oauth2?Promise.resolve():new Promise((ok,ko)=>{const s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.onload=ok;s.onerror=()=>ko(new Error("Non riesco a caricare l'accesso Google"));document.head.appendChild(s)})}
 async function drToken(){if(DR_TOK&&Date.now()<DR_EXP-60e3)return DR_TOK;await drLoad();
@@ -1914,15 +1928,15 @@ function drItems(lid){const l=D.litters[lid],nk=k=>(D.dogs[k]&&(D.dogs[k].nick||
   return R}
 function drBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="undefined"&&CONTI))return"";setTimeout(()=>drLoad().catch(()=>{}),0);const S=((D.settings||{}).drive||{files:{}}),I=drItems(lid),T={};
   I.forEach(x=>{T[x.type]=T[x.type]||{n:0,ok:0};T[x.type].n++;if(S.files&&S.files[x.key]&&(x.always||S.files[x.key].src===x.src))T[x.type].ok++});
-  const root=S.folders&&S.folders[DR_ROOT];
-  return `<h2>Google Drive</h2><div class="cs" style="gap:6px"><div class="dr-h"><span class="row-meta" style="flex:1">${root?`Cartella <a href="https://drive.google.com/drive/folders/${root}" target="_blank" rel="noopener">${esc(DR_ROOT)}</a>`:"Cartella “"+esc(DR_ROOT)+"” (si crea da sola)"}</span><button class="btn dr-go" data-a="drSave" data-v="${lid}" ${DR_BUSY?"disabled":""}>☁️ Salva in Drive</button></div>
+  const root=S.folders&&S.folders[DR_ROOT_F()];
+  return `<h2>Google Drive</h2><div class="cs" style="gap:6px"><div class="dr-h"><span class="row-meta" style="flex:1">${root?`Cartella <a href="https://drive.google.com/drive/folders/${root}" target="_blank" rel="noopener">${esc(DR_ROOT_F())}</a>`:"Cartella “"+esc(DR_ROOT_F())+"” (si crea da sola)"}</span><button class="btn dr-go" data-a="drSave" data-v="${lid}" ${DR_BUSY?"disabled":""}>☁️ Salva in Drive</button></div>
   ${Object.entries(T).map(([t,v])=>`<div class="dr-r"><span>${esc(t)}</span><span class="${v.ok===v.n?"dr-ok":"row-meta"}">${t==="Modelli B"?(v.ok?"✔ salvato (si aggiorna ogni volta)":"da salvare"):(v.ok===v.n?"✔ "+v.n+" salvati":v.ok+" su "+v.n+" salvati")}</span></div>`).join("")||'<p class="row-meta">Nessun documento ancora.</p>'}
   <p class="small" style="margin:0">La prima volta Google chiede di accedere e di dare il permesso. Il gestionale vede solo i file che crea lui.</p></div>`}
 async function drSave(lid){if(DR_BUSY)return;DR_BUSY=true;let n=0,skip=0;for(const k in DR_SEEN)delete DR_SEEN[k];
   if(typeof saveNow==="function"){try{while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}catch(e){}}
   try{await drToken();D.settings=D.settings||{};D.settings.drive=D.settings.drive||{};const S=D.settings.drive;S.folders=S.folders||{};S.files=S.files||{};
     const I=drItems(lid);let i=0;
-    for(const x of I){i++;const old=S.files[x.key],tf=await drFolder(DR_ROOT+"/"+x.type),dir=await drFolder(DR_ROOT+"/"+x.dir),scName=x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname;
+    for(const x of I){i++;const old=S.files[x.key],tf=await drFolder(DR_ROOT_F()+"/"+x.type),dir=await drFolder(DR_ROOT_F()+"/"+x.dir),scName=x.lit+" – "+(x.dir.split("/")[1]||"")+(x.dir.split("/")[1]?" – ":"")+x.fname;
       /* già salvato: controllo comunque che il file stia nella cartella del cucciolo e il collegamento in quella per tipo */
       if(old&&!x.always&&old.src===x.src&&await drPlace(old.id,dir)){if(!(old.sc&&await drPlace(old.sc,tf))){old.sc=await drShortcut(old.id,scName,tf);n++}else skip++;continue}
       toast(`Drive: ${i} di ${I.length}…`);
@@ -1958,26 +1972,26 @@ async function depPdf(id){const d=D.dogs[id],o=D.owners[d.owner]||{},P=depParts(
   const last=P.map(x=>x.date).filter(Boolean).sort().pop()||todayS(),dt=x=>fmt(x||last);
   const sx=E=>d.sex==="F"?(E?"female":"femmina"):(E?"male":"maschio"),par=(D.dogs[l.dam]||{}).name&&(D.dogs[l.sire]||{}).name?(D.dogs[l.dam].name+" × "+D.dogs[l.sire].name):"";
   const pay=E=>P.map(x=>E?`${eu(x.amt)} ${x.k==="bon"?"by bank transfer":"in cash"}${x.date?" on "+fmt(x.date):""}`:`${eu(x.amt)} ${x.k==="bon"?"tramite bonifico":"in contanti"}${x.date?" il "+fmt(x.date):""}`);
-  const txt=E=>E?[`I, the undersigned Paolo Boldrini, born in Comacchio (FE, Italy) on 12/09/1970, residing at Via Amerigo Chierici 12, 44020 Ostellato (FE), Italy, tax code ${me.cf||(((D.settings||{}).holders||{}).paolo||{}).cf||""},`,
+  const txt=E=>E?[`I, the undersigned ${FM().person}, born in ${me.bplace||(((D.settings||{}).holders||{}).paolo||{}).bplace||"…"} on ${(me.bdate||(((D.settings||{}).holders||{}).paolo||{}).bdate)?fmt(me.bdate||(((D.settings||{}).holders||{}).paolo||{}).bdate):"…"}, residing at ${FM().full}, Italy, tax code ${me.cf||(((D.settings||{}).holders||{}).paolo||{}).cf||""},`,
       `declare that I have received from ${o.name}${o.cf?", tax ID "+o.cf:""}${o.addr?", residing at "+o.addr:""},`,
       `the total sum of ${eu(tot)}${P.length>1?" ("+pay(1).join(" and ")+")":" "+pay(1)[0].replace(eu(P[0].amt)+" ","")},`,
-      `as a confirmatory deposit under Article 1385 of the Italian Civil Code for the Staffordshire Bull Terrier puppy ${d.name}, ${sx(1)}, born on ${fmt(d.birth||l.date)}${par?" out of "+par:""}${d.chip?", microchip "+d.chip:""}.`,
+      `as a confirmatory deposit under Article 1385 of the Italian Civil Code for the ${FM().breed} puppy ${d.name}, ${sx(1)}, born on ${fmt(d.birth||l.date)}${par?" out of "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `The deposit is deducted from the price at the time of handover. If the buyer withdraws, the sum paid will not be refunded. If the puppy dies or becomes seriously ill before handover, the deposit is refunded in full or, if the buyer prefers, remains valid for another puppy.`]
-     :[`Io sottoscritto Paolo Boldrini, nato a Comacchio (FE) il 12/09/1970, residente in Via Amerigo Chierici 12, 44020 Ostellato (FE), C.F. ${me.cf||(((D.settings||{}).holders||{}).paolo||{}).cf||""},`,
+     :[`Io sottoscritto ${FM().person}, nato a ${me.bplace||(((D.settings||{}).holders||{}).paolo||{}).bplace||"…"} il ${(me.bdate||(((D.settings||{}).holders||{}).paolo||{}).bdate)?fmt(me.bdate||(((D.settings||{}).holders||{}).paolo||{}).bdate):"…"}, residente in ${FM().full}, C.F. ${me.cf||(((D.settings||{}).holders||{}).paolo||{}).cf||""},`,
       `dichiaro di aver ricevuto da ${o.name}${o.cf?(/^[A-Z0-9]{16}$/.test(o.cf)?", C.F. ":", codice fiscale estero ")+o.cf:""}${o.addr?", residente in "+o.addr:""},`,
       `la somma complessiva di ${eu(tot)} (${numIt(tot)}/${String(Math.round(tot*100)%100).padStart(2,"0")})${P.length>1?", di cui "+pay(0).join(" e "):" "+pay(0)[0].replace(eu(P[0].amt)+" ","")},`,
-      `a titolo di caparra confirmatoria ai sensi dell'art. 1385 del Codice Civile per il cucciolo di Staffordshire Bull Terrier ${d.name}, ${sx(0)}, nato il ${fmt(d.birth||l.date)}${par?" da "+par:""}${d.chip?", microchip "+d.chip:""}.`,
+      `a titolo di caparra confirmatoria ai sensi dell'art. 1385 del Codice Civile per il cucciolo di ${FM().breed} ${d.name}, ${sx(0)}, nato il ${fmt(d.birth||l.date)}${par?" da "+par:""}${d.chip?", microchip "+d.chip:""}.`,
       `La caparra viene detratta dal prezzo di cessione al momento della consegna. In caso di rinuncia da parte dell'acquirente, la somma versata non viene restituita. Se il cucciolo muore o si ammala gravemente prima della consegna, la caparra viene restituita per intero oppure, se l'acquirente preferisce, resta valida per un altro cucciolo.`];
-  let y=22;doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text("Allevamento Del Piccolo Diavolo · Staffordshire Bull Terrier · Ostellato (FE)"+(en?", Italy":""),105,y,{align:"center"});
+  let y=22;doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text(FM().kennel+" · "+FM().breed+" · "+FM().cityProv+(en?", Italy":""),105,y,{align:"center"});
   y+=14;doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(14);doc.text("RICEVUTA DI CAPARRA CONFIRMATORIA",105,y,{align:"center"});
   if(en){y+=6;doc.setFont("helvetica","bold");doc.setFontSize(10.5);doc.setTextColor(110);doc.text("RECEIPT OF CONFIRMATORY DEPOSIT",105,y,{align:"center"})}
   const block=(T,fs,lh,col)=>{doc.setFont("helvetica","normal");doc.setFontSize(fs);doc.setTextColor(col);T.forEach(p=>{const ls=doc.splitTextToSize(p,W);doc.text(ls,M,y);y+=ls.length*lh+(en?2.5:3.5)})};
   y+=12;block(txt(false),en?10.5:11,en?5.1:5.6,20);
   if(en){y+=2;doc.setDrawColor(190);doc.setLineWidth(0.3);doc.line(M,y,M+W,y);y+=6;doc.setFont("helvetica","italic");doc.setFontSize(8.5);doc.setTextColor(110);
     doc.text("English translation for information – the Italian text above is the original",105,y,{align:"center"});y+=7;block(txt(true),9.5,4.6,60)}
-  y+=(en?6:8);doc.setFont("helvetica","normal");doc.setFontSize(11);doc.setTextColor(20);doc.text("Ostellato, "+dt(last),M,y);
+  y+=(en?6:8);doc.setFont("helvetica","normal");doc.setFontSize(11);doc.setTextColor(20);doc.text(FM().city+", "+dt(last),M,y);
   if(sig){try{doc.addImage(sig,sig.startsWith("data:image/png")?"PNG":"JPEG",125,y-14,52,18)}catch(e){}}
-  doc.setFontSize(10);doc.text("Paolo Boldrini",151,y+8,{align:"center"});doc.setFontSize(8.5);doc.setTextColor(120);
+  doc.setFontSize(10);doc.text(FM().person,151,y+8,{align:"center"});doc.setFontSize(8.5);doc.setTextColor(120);
   doc.text("Ricevuta tra privati: non è un documento fiscale."+(en?" · Private receipt between individuals: not a tax document.":""),M,y+22);
   return doc}
 async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.owner]||{};
@@ -1990,7 +2004,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   const was=(d.docs||[]).find(x=>x.dep),sh=!!(was&&was.depShare);d.docs=(d.docs||[]).filter(x=>!x.dep);d.docs.push({title:"Ricevuta di caparra",title_en:"Deposit receipt",date:depParts(d).map(x=>x.date).filter(Boolean).sort().pop()||todayS(),file:"data:application/pdf;base64,"+btoa(doc.output()),fname:name,private:!sh,depShare:sh,dep:true});/* di base solo per Paolo; con "Condividi con il proprietario" va nella sua pagina */
   render();if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow();render()}
   const blob=doc.output("blob"),url=URL.createObjectURL(blob),en=o.lang==="en",fn=(o.name||"").split(" ")[0];
-  const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! Paolo – Del Piccolo Diavolo`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! Paolo – Del Piccolo Diavolo`;
+  const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! ${FM().first} – ${FM().name}`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! ${FM().first} – ${FM().name}`;
   const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
   if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
@@ -2000,7 +2014,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
 function mbName(lid){const l=D.litters[lid];return "modello-b-"+(dn(l.dam)+"-"+dn(l.sire)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
 function mbText(lid){const l=D.litters[lid],P=mbPups(lid),dm=D.dogs[l.dam],sr=D.dogs[l.sire];
-  return `Buongiorno, in allegato il Modello B (denuncia di iscrizione di cucciolata) della cucciolata nata il ${fmt(l.date)} da ${dm.name}${dm.loi?" ("+dm.loi+")":""} × ${sr.name}${sr.loi?" ("+sr.loi+")":""}: ${P.length} cuccioli, ${P.filter(k=>D.dogs[k].sex==="M").length} maschi e ${P.filter(k=>D.dogs[k].sex==="F").length} femmine.\nAllevatore: Paolo Boldrini, Ostellato (FE), cell. 392 463 5584.\nCordiali saluti, Paolo Boldrini`}
+  return `Buongiorno, in allegato il Modello B (denuncia di iscrizione di cucciolata) della cucciolata nata il ${fmt(l.date)} da ${dm.name}${dm.loi?" ("+dm.loi+")":""} × ${sr.name}${sr.loi?" ("+sr.loi+")":""}: ${P.length} cuccioli, ${P.filter(k=>D.dogs[k].sex==="M").length} maschi e ${P.filter(k=>D.dogs[k].sex==="F").length} femmine.\nAllevatore: ${FM().person}, ${FM().cityProv}, cell. ${FM().phone}.\nCordiali saluti, ${FM().person}`}
 function mbForm(lid){const l=D.litters[lid],mb=l.modB||{},c=mbCheck(lid),S=(D.settings||{}).modB||{};
   sheet(`<h2 style="margin-top:0">📄 Modello B · ${esc(dn(l.dam))} × ${esc(dn(l.sire))}</h2>
   ${c.w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti restano vuoti sul modulo):<br>${c.w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi per tutti i ${c.P.length} cuccioli. Fattrice, stallone, microchip e LOI a posto. La tua firma va su tutte le righe di firma.</div>`}
@@ -2146,7 +2160,7 @@ function wlAiSend(v){const [id,m]=v.split("|"),x=(D.waitlist||[]).find(w=>w.id==
   if(WL_AI.lang!=="it"&&bz!==WL_AI.bozza&&!confirm("Hai cambiato la bozza ma non l'hai ritradotta: mando la traduzione di prima?"))return;
   const t=WL_AI.lang==="it"?bz:WL_AI.out,wa=String(x.phone||"").replace(/[^\d+]/g,"").replace(/^\+/,"").replace(/^00/,"");
   if(m==="copy")aiCopy(t);else if(m==="wa")window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(t),"_blank","noopener");
-  else location.href="mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(WL_AI.lang==="de"?"Ihre Anfrage – Del Piccolo Diavolo":WL_AI.lang==="it"?"La tua richiesta – Del Piccolo Diavolo":"Your enquiry – Del Piccolo Diavolo")+"&body="+encodeURIComponent(t)}
+  else location.href="mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(WL_AI.lang==="de"?"Ihre Anfrage – "+FM().name:WL_AI.lang==="it"?"La tua richiesta – "+FM().name:"Your enquiry – "+FM().name)+"&body="+encodeURIComponent(t)}
 /* Referti: "✨ Leggi con Claude" nella finestra Nuovo documento. Compila titolo e data, controlla il microchip, propone i test
    genetici da aggiungere alla scheda (in tre lingue: tests, tests_en, tests_de). */
 let DOC_AI=null;
@@ -2180,7 +2194,7 @@ function wlAll(g){WB={g,it:"",tr:{},sent:{}};wlAllSheet()}
 function wlAllSheet(){const R=wlRecips(WB.g),langs=[...new Set(R.map(x=>x.lang||"it"))],fl=L=>(TR_L.find(l=>l[0]===L)||["","🇮🇹"])[1].split(" ")[0],txt=x=>(x.lang||"it")==="it"?WB.it:(WB.tr[x.lang]||"");
   const ph=x=>lkPhone({phone:x.phone,country:x.country||"Italia"}),title=WB.g==="*"?"tutta la lista":wlLitLab(WB.g);
   const byL={};R.filter(x=>x.email).forEach(x=>{(byL[x.lang||"it"]=byL[x.lang||"it"]||[]).push(x.email)});
-  const subj={it:"Del Piccolo Diavolo – aggiornamento",en:"Del Piccolo Diavolo – update",de:"Del Piccolo Diavolo – Neuigkeiten",fr:"Del Piccolo Diavolo – nouvelles",es:"Del Piccolo Diavolo – novedades",sl:"Del Piccolo Diavolo – novice"};
+  const _fn=FM().name,subj={it:_fn+" – aggiornamento",en:_fn+" – update",de:_fn+" – Neuigkeiten",fr:_fn+" – nouvelles",es:_fn+" – novedades",sl:_fn+" – novice"};
   sheet(`<h2 style="margin-top:0">📣 Messaggio a tutti · ${esc(title)}</h2><p class="row-meta" style="margin:0 0 4px">${R.length} ${R.length===1?"persona":"persone"} (senza chi ha rinunciato)</p>
   <label class="f full">Scrivi in italiano<textarea id="wb_it" rows="4" class="tr-ta">${esc(WB.it)}</textarea></label>
   ${langs.some(l=>l!=="it")?`<div class="row2"><button class="btn" data-a="wbTr">✨ Traduci per chi è straniero</button></div>${Object.entries(WB.tr).map(([L,t])=>`<div class="tr-out"><b>${fl(L)} ${esc(L.toUpperCase())}</b>${esc(t)}</div>`).join("")}`:""}
@@ -2223,10 +2237,10 @@ function tmSave(){if(!TM||TM.coi8==null)return;const v=String(Math.round(TM.coi8
 /* Lista d'attesa: 🔗 Collega a una cucciolata e 📎 Manda il link della sua pagina sul sito (scelta di Paolo, 04/10/2026).
    Il link va al Diario se la cucciolata è nata e ha la pagina del gestionale, al Programma se ci ha la scheda, altrimenti alla
    pagina Cuccioli; sempre nella lingua della persona. Messaggio breve fisso in it/en/de (le altre lingue: inglese). */
-const SITE="https://delpiccolodiavolo.it",CUC_URL={it:"/cuccioli-staffordshire-bull-terrier/",en:"/en/puppies-staffordshire-bull-terrier/",de:"/de/welpen-staffordshire-bull-terrier/"};
-function litUrl(lid,L){L=["it","en","de"].includes(L)?L:"en";const l=D.litters[lid];if(!l)return SITE+CUC_URL[L];const s=l.site||{};
-  if(siOk(lid)&&l.state==="nata"&&s.diarDone&&s.diarDone[L])return SITE+(L==="it"?"":"/"+L)+"/diario-allevamento/"+s.diarDone[L]+"/";
-  if(siOk(lid)&&s.prog)return SITE+SI_PURL[L]+"#cucciolata-"+lid;return SITE+CUC_URL[L]}
+const SITE_F=()=>FM().siteUrl,CUC_URL={it:"/cuccioli-staffordshire-bull-terrier/",en:"/en/puppies-staffordshire-bull-terrier/",de:"/de/welpen-staffordshire-bull-terrier/"};
+function litUrl(lid,L){L=["it","en","de"].includes(L)?L:"en";const l=D.litters[lid];if(!l)return SITE_F()+CUC_URL[L];const s=l.site||{};
+  if(siOk(lid)&&l.state==="nata"&&s.diarDone&&s.diarDone[L])return SITE_F()+(L==="it"?"":"/"+L)+"/diario-allevamento/"+s.diarDone[L]+"/";
+  if(siOk(lid)&&s.prog)return SITE_F()+SI_PURL[L]+"#cucciolata-"+lid;return SITE_F()+CUC_URL[L]}
 function litPair(lid){const l=D.litters[lid]||{};return [(dn(l.dam)||"").split(/\s+/)[0],(dn(l.sire)||"").split(/\s+/).slice(0,2).join(" ")].join(" × ")}
 function litMsg(lid,L,first){const u=litUrl(lid,L),p=litPair(lid);L=["it","de"].includes(L)?L:(L==="en"?"en":(L==="it"?"it":"en"));
   return L==="it"?`${first?"Ciao "+first:"Buongiorno"}, ecco la pagina della cucciolata ${p}, con genitori e test genetici:\n${u}\nPaolo`
@@ -2240,7 +2254,7 @@ function wlLinkDo(v){const [id,k]=v.split("|"),x=(D.waitlist||[]).find(w=>w.id==
 function wlSend(id){const x=(D.waitlist||[]).find(w=>w.id===id);if(!x)return;if(!x.litter){toast("Prima collegala a una cucciolata con 🔗.");return}
   const L=x.lang||"it",t=litMsg(x.litter,L,(x.name||"").split(/\s+/)[0]),wa=lkPhone({phone:x.phone,country:x.country||"Italia"});
   sheet(`<h2 style="margin-top:0">📎 ${esc(x.name)}</h2><p class="row-meta" style="margin:0 0 6px">Link della cucciolata ${esc(litPair(x.litter))}${L!=="it"?" · nella sua lingua":""}</p><div class="tr-out">${esc(t)}</div>
-  <div class="row2" style="margin-top:8px">${wa?`<a class="btn mb-wa" href="https://wa.me/${wa}?text=${encodeURIComponent(t)}" target="_blank" rel="noopener">WhatsApp</a>`:""}${x.email?`<a class="btn ghost" href="mailto:${esc(x.email)}?subject=${encodeURIComponent("Del Piccolo Diavolo – "+litPair(x.litter))}&body=${encodeURIComponent(t)}">Email</a>`:""}<button class="btn ghost" data-a="wlSendEdit" data-v="${id}">✏️ Cambia in Traduci</button></div>
+  <div class="row2" style="margin-top:8px">${wa?`<a class="btn mb-wa" href="https://wa.me/${wa}?text=${encodeURIComponent(t)}" target="_blank" rel="noopener">WhatsApp</a>`:""}${x.email?`<a class="btn ghost" href="mailto:${esc(x.email)}?subject=${encodeURIComponent(FM().name+" – "+litPair(x.litter))}&body=${encodeURIComponent(t)}">Email</a>`:""}<button class="btn ghost" data-a="wlSendEdit" data-v="${id}">✏️ Cambia in Traduci</button></div>
   <div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`)}
 function wlSendEdit(id){const x=(D.waitlist||[]).find(w=>w.id===id);if(!x)return;closeSheet();wlMsg(id);TR.outIt=litMsg(x.litter,"it",(x.name||"").split(/\s+/)[0]).replace(litUrl(x.litter,"it"),litUrl(x.litter,x.lang||"it"));render()}
 function wlSendAll(g){wlAll(g);WB.it=litMsg(g,"it","");const langs=[...new Set(wlRecips(g).map(x=>x.lang||"it"))].filter(l=>l!=="it");langs.forEach(l=>{WB.tr[l]=litMsg(g,l,"")});wlAllSheet()}
@@ -2474,14 +2488,14 @@ function tmPdfShow(){const X=pairData(mateS,mateD),N=x=>x==null||x===""?"—":pf
    ✅ segna iscritto (d.anag.done). ＋ Cane acquisito aggiunge un cane di casa. */
 /* Dati degli intestatari: nel codice solo nome e indirizzo (il repository è pubblico); codici fiscali, nascite e contatti
    stanno solo nei dati del gestionale (settings.holders), si scrivono in ⚙️ Account → Intestatari (08/10/2026). */
-const ANAG_DEF={paolo:{name:"Paolo Boldrini",sex:"M",cf:"",bplace:"",bdate:"",addr:"via Amerigo Chierici 12, Ostellato (FE)",tel:"+39 392 463 5584",email:"zonerosse@gmail.com"},
-  daniela:{name:"Daniela Veronesi",sex:"F",cf:"",bplace:"",bdate:"",addr:"via Amerigo Chierici 12, Ostellato (FE)",tel:"",email:""}};
+const ANAG_DEF={get paolo(){const f=FM();return{name:f.person,sex:"M",cf:"",bplace:"",bdate:"",addr:f.addr+", "+f.cityProv,tel:f.phoneIntl,email:f.email}},
+  daniela:{name:"Daniela Veronesi",sex:"F",cf:"",bplace:"",bdate:"",get addr(){return FM().addr+", "+FM().cityProv},tel:"",email:""}};
 function anagHolders(){D.settings=D.settings||{};const S=D.settings.holders||{};D.settings.holders=Object.fromEntries(Object.keys(Object.assign({},ANAG_DEF,S)).map(k=>[k,Object.assign({},ANAG_DEF[k]||{},S[k]||{})]));return D.settings.holders}
 function anagDogs(){return Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];if(d.anag&&d.anag.hidden)return false;return d.anag||(!d.ext&&!d.owner&&d.status!=="deceduto"&&!(d.litter&&D.litters[d.litter]&&d.bred&&["prenotato","ceduto"].includes(d.status||"")))}).sort((a,b)=>(D.dogs[a].nick||D.dogs[a].name).localeCompare(D.dogs[b].nick||D.dogs[b].name))}
 const ANAG_REQ=[["Passaporto",/passaport|passport/i],["Certificato vaccinale / libretto",/vaccin|libretto|booklet/i],["Documento d'identità dell'intestatario",/identit|carta d.identit|documento/i]];
 function anagDocs(d){const A=d.anag||{};return(d.docs||[]).map((x,i)=>({x,i,on:A.att?A.att.includes(i):ANAG_REQ.some(r=>r[1].test((x.title||"")+" "+(x.fname||"")))}))}
 function anagPage(){const L=anagDogs(),H=anagHolders();
-  return `<h1>🪪 Anagrafe canina</h1><p class="nick">Comune di Ostellato · ${esc(ppAddr())}</p><div class="list">${L.map(k=>{const d=D.dogs[k],A=d.anag||{};
+  return `<h1>🪪 Anagrafe canina</h1><p class="nick">Comune di ${esc(FM().city)} · ${esc(ppAddr())}</p><div class="list">${L.map(k=>{const d=D.dogs[k],A=d.anag||{};
     const ok=A.done||A.already;
     return `<div class="an-row"><button class="row" data-a="anagOpen" data-v="${k}"><span><span class="row-name" style="display:block">${esc(d.nick||d.name)} <span class="row-meta">· ${esc(d.name)}</span></span><span class="row-meta">${A.holder?"intestato a "+esc((H[A.holder]||{}).name||""):"intestatario da scegliere"}</span></span><span>${ok?`<span class="ok-v">✓</span> <small class="row-meta">${A.done?"iscritto "+fmt(A.done):"già iscritto"}</small>`:A.holder?'<small style="color:#8a5a00;font-weight:600">⏳ da iscrivere</small>':'<small class="row-meta">stato non segnato</small>'}</span></button>
     <span class="an-b">${ok?`<button class="btn small ghost" data-a="anagUndo" data-v="${k}">Non iscritto</button>`:`<button class="btn small ghost" data-a="anagAlready" data-v="${k}">✓ Già iscritto</button>`}<button class="btn small ghost" data-a="anagDel" data-v="${k}" aria-label="Togli ${esc(d.nick||d.name)}">🗑</button></span></div>`}).join("")||'<p class="empty">Nessun cane di casa.</p>'}</div>
@@ -2508,7 +2522,7 @@ async function anagPdfBlob(k){const d=D.dogs[k],A=anagRead(k),H=anagHolders()[A.
   const fem=H.sex==="F",tx=(t,o={})=>{doc.setFont("helvetica",o.b?"bold":o.i?"italic":"normal");doc.setFontSize(o.s||10.5);const L=doc.splitTextToSize(t,o.w||W);doc.text(L,o.c?105:X,y,o.c?{align:"center"}:{});y+=L.length*(o.lh||5)+(o.gap||2)};
   tx("DICHIARAZIONE DI ISCRIZIONE ALL'ANAGRAFE DEGLI ANIMALI D'AFFEZIONE",{b:1,s:12.5,c:1,lh:6});
   tx(`(Dichiarazione sostitutiva ai sensi degli artt. 46 e 47 del D.P.R. 28/12/2000 n. 445${A.prov&&!/italia/i.test(A.prov)?" – cane acquisito all'estero":""})`,{i:1,s:9.5,c:1,gap:6});
-  tx("Al Comune di Ostellato (FE)",{b:1});tx("Ufficio Anagrafe canina / Anagrafe Regionale Animali d'Affezione",{gap:5});
+  tx("Al Comune di "+FM().cityProv,{b:1});tx("Ufficio Anagrafe canina / Anagrafe Regionale Animali d'Affezione",{gap:5});
   tx(`${fem?"La sottoscritta":"Il sottoscritto"} ${H.name}, codice fiscale ${H.cf}, ${fem?"nata":"nato"} a ${H.bplace} il ${fmt(H.bdate)}, residente in ${H.addr} – tel. ${H.tel}, email ${H.email},`,{gap:3});
   tx("consapevole delle sanzioni penali previste dall'art. 76 del D.P.R. 445/2000 per le dichiarazioni mendaci e della decadenza dai benefici di cui all'art. 75 del medesimo decreto,",{gap:4});
   tx("DICHIARA",{b:1,c:1,gap:3});
@@ -2516,7 +2530,7 @@ async function anagPdfBlob(k){const d=D.dogs[k],A=anagRead(k),H=anagHolders()[A.
   const R=[["Nome",A.nm],["Nome di pedigree",A.pedName],["Specie","Cane"],["Sesso",d.sex==="F"?"Femmina":"Maschio"],["Data di nascita",fmt(d.birth)],["Mantello",A.color],["Segni particolari",A.marks],["Microchip",(A.chip||"").replace(/(\d{3})(?=\d)/g,"$1 ").trim()+(A.chipNote?" ("+A.chipNote+")":"")],["N. passaporto",A.passport],["N. pedigree",A.pedNo],["N. cucciolata",A.litNo],["Provenienza",A.prov],["Titolo di acquisizione",A.acq]].filter(r=>r[1]);
   R.forEach(([a,b])=>{doc.setFont("helvetica","bold");doc.setFontSize(10);doc.text(a,X,y);doc.setFont("helvetica","normal");const L=doc.splitTextToSize(String(b),112);doc.text(L,X+58,y);y+=L.length*5+1.6});y+=3;
   const att=(A.att||[]).map(i=>(d.docs[i]||{}).title).filter(Boolean);tx("Allega alla presente dichiarazione copia dei seguenti documenti:",{gap:2});(att.length?att:["Passaporto del cane","Documento d'identità","Certificato vaccinale"]).forEach(t=>tx("- "+t,{gap:1}));y+=8;
-  doc.setFontSize(10.5);doc.text(`Ostellato, ${A.date?fmt(A.date):"______________________"}`,X,y);doc.text(fem?"La dichiarante":"Il dichiarante",150,y,{align:"center"});y+=14;doc.line(115,y,185,y);doc.text(H.name,150,y+5,{align:"center"});y+=16;
+  doc.setFontSize(10.5);doc.text(`${FM().city}, ${A.date?fmt(A.date):"______________________"}`,X,y);doc.text(fem?"La dichiarante":"Il dichiarante",150,y,{align:"center"});y+=14;doc.line(115,y,185,y);doc.text(H.name,150,y+5,{align:"center"});y+=16;
   tx(`Allegare copia del documento d'identità ${fem?"della dichiarante":"del dichiarante"}.${A.chipNote&&/estero|francia|apposto/i.test(A.chipNote)?" Il microchip estero già presente non va sostituito.":""}`,{i:1,s:9});
   return new Blob([doc.output("arraybuffer")],{type:"application/pdf"})}
 /* PDF unico (Paolo, 07/10/2026): prima la dichiarazione — quella firmata caricata (A.signed), se no quella preparata dal
@@ -2533,7 +2547,7 @@ async function anagAct(a,k,b){try{
   if(a==="anagAll"){aiBusy(b,1,"Unisco…");const bl=await anagAllBlob(k);aiBusy(b,0);window.open(URL.createObjectURL(bl),"_blank");return}
   if(a==="anagMail"){aiBusy(b,1,"Preparo…");const d=D.dogs[k],A=anagRead(k),H=anagHolders()[A.holder]||{},f1=new File([await anagAllBlob(k)],anagName(k,"iscrizione-anagrafe"),{type:"application/pdf"}),f2=null;aiBusy(b,0);
     if(!A.signed&&!confirm("La dichiarazione firmata non è ancora caricata: nel PDF va quella da firmare. Mando lo stesso?"))return;
-    const subj=`Iscrizione anagrafe canina – ${A.nm||d.nick||d.name}${A.chip?" (microchip "+A.chip.replace(/\D/g,"")+")":""}`,txt=`Buongiorno,\nin allegato la dichiarazione di iscrizione all'anagrafe canina di ${A.nm||d.nick||d.name}${A.prov&&!/italia/i.test(A.prov)?", cane acquisito all'estero":""} e ${(H.sex==="F")?"intestato a":"intestato a"} ${H.name||""}${A.chip?" (microchip "+A.chip.replace(/(\d{3})(?=\d)/g,"$1 ").trim()+")":""}, con copia ${(A.att||[]).length?"dei documenti richiesti":"dei documenti"}.\nGrazie, cordiali saluti\nPaolo Boldrini`,F=[f1,f2].filter(Boolean);
+    const subj=`Iscrizione anagrafe canina – ${A.nm||d.nick||d.name}${A.chip?" (microchip "+A.chip.replace(/\D/g,"")+")":""}`,txt=`Buongiorno,\nin allegato la dichiarazione di iscrizione all'anagrafe canina di ${A.nm||d.nick||d.name}${A.prov&&!/italia/i.test(A.prov)?", cane acquisito all'estero":""} e ${(H.sex==="F")?"intestato a":"intestato a"} ${H.name||""}${A.chip?" (microchip "+A.chip.replace(/(\d{3})(?=\d)/g,"$1 ").trim()+")":""}, con copia ${(A.att||[]).length?"dei documenti richiesti":"dei documenti"}.\nGrazie, cordiali saluti\n${FM().person}`,F=[f1,f2].filter(Boolean);
     if(isPhone()&&navigator.canShare&&navigator.canShare({files:F})){try{await navigator.clipboard.writeText(ppAddr());toast("Indirizzo di Piera copiato: incollalo in “A:”.")}catch(x){}try{await navigator.share({files:F,title:subj,text:txt})}catch(x){}return}
     /* dal computer: Gmail nel browser con destinatario, oggetto e testo già scritti; i PDF vengono scaricati da allegare */
     F.forEach(f=>{const u=URL.createObjectURL(f),e=document.createElement("a");e.href=u;e.download=f.name;document.body.appendChild(e);e.click();e.remove()});
@@ -2587,7 +2601,7 @@ function siInfo(lid){const l=D.litters[lid],s=siOf(lid),P=Object.values(D.dogs).
 const siPicName=x=>`cuccioli-staffordshire-bull-terrier-${siSlugW(x.short.dam)}-${siSlugW(x.short.sire)}`;
 function siPhoto(p){if(!p||!p.photoKey)return"";const ext=(p.photoKey.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase();return"/images/cucciolate/"+(siSlugW(p.name)||p.id)+"-staffordshire-bull-terrier"+ext}
 function siDog(p,L){if(!p)return'<div class="dog"></div>';const ph=siPhoto(p),li=(p[L]&&p[L].length?p[L]:p.it)||[],sbtA={it:"Vedi il pedigree di ",en:"See the pedigree of ",de:"Stammbaum ansehen: "}[L];
-  return `<div class="dog">\n<span class="dog-name">${siEsc(p.name)}</span>\n${ph?`<img src="${ph}" alt="${siEsc(p.name)} - Staffordshire Bull Terrier" width="300" height="400" loading="lazy" decoding="async">\n`:""}${li.length?`<ul>\n${li.map(x=>`<li>${siEsc(x)}</li>`).join("\n")}\n</ul>\n`:""}${p.parents.length?`<p>${p.parents.map(siEsc).join(" × ")}</p>\n`:""}${p.sbt?`<p><a class="sbt-link" href="https://sbtpedigree.com/dog_details?dogs_id=${siEsc(p.sbt)}" target="_blank" rel="noopener" aria-label="${sbtA}${siEsc(p.name)}">SBTPedigree</a></p>\n`:""}</div>`}
+  return `<div class="dog">\n<span class="dog-name">${siEsc(p.name)}</span>\n${ph?`<img src="${ph}" alt="${siEsc(p.name)} - ${siEsc(FM().breed)}" width="300" height="400" loading="lazy" decoding="async">\n`:""}${li.length?`<ul>\n${li.map(x=>`<li>${siEsc(x)}</li>`).join("\n")}\n</ul>\n`:""}${p.parents.length?`<p>${p.parents.map(siEsc).join(" × ")}</p>\n`:""}${p.sbt?`<p><a class="sbt-link" href="https://sbtpedigree.com/dog_details?dogs_id=${siEsc(p.sbt)}" target="_blank" rel="noopener" aria-label="${sbtA}${siEsc(p.name)}">SBTPedigree</a></p>\n`:""}</div>`}
 const SI_T={it:{plan:"Cucciolata in programma",arr:"Cucciolata in arrivo",nat:"Cucciolata nata il ",bP:"In programma",bA:"In arrivo",bN:"Sono nati",monta:"Monta il ",due:"parto previsto intorno al ",pups:(n,m,f)=>`${n} cuccioli: ${m} maschi e ${f} femmine.`,ped:"Pedigree della cucciolata:",see:"vedi su SBTPedigree",diar:"La crescita, settimana per settimana:",diarL:"diario dell'allevamento"},
   en:{plan:"Planned litter",arr:"Litter on the way",nat:"Litter born on ",bP:"Planned",bA:"On the way",bN:"Born",monta:"Mated on ",due:"whelping expected around ",pups:(n,m,f)=>`${n} puppies: ${m} males and ${f} females.`,ped:"Litter pedigree:",see:"see on SBTPedigree",diar:"Growth, week by week:",diarL:"breeding diary"},
   de:{plan:"Geplanter Wurf",arr:"Wurf erwartet",nat:"Wurf geboren am ",bP:"Geplant",bA:"Erwartet",bN:"Geboren",monta:"Deckakt am ",due:"Wurf erwartet um den ",pups:(n,m,f)=>`${n} Welpen: ${m} Rüden und ${f} Hündinnen.`,ped:"Stammbaum des Wurfs:",see:"auf SBTPedigree ansehen",diar:"Die Entwicklung, Woche für Woche:",diarL:"Zuchttagebuch"}};
@@ -2609,14 +2623,14 @@ function siCard(I,L){const t=SI_T[L],st=I.s.stage,txt=siFrase(I,L);
 function siDiary(I,L,imgs){const t=SI_T[L],txt="",dd=siD(I.l.date,L),tk=I.slug.it,y=I.l.date.slice(0,4),mo=SI_M[L][+I.l.date.slice(5,7)-1];
   const title={it:`Cucciolata ${I.short.dam} × ${I.short.sire} (${mo} ${y})`,en:`${I.short.dam} × ${I.short.sire} Litter (${mo} ${y})`,de:`Wurf ${I.short.dam} × ${I.short.sire} (${mo} ${y})`}[L];
   /* description fra 140 e 165 caratteri (controllo del sito): si sceglie la variante che ci sta */
-  const dv=(a,b,e)=>({it:`Nati il ${dd}: ${I.n} cuccioli di Staffordshire Bull Terrier da ${a} e ${b}. ${e?"Test genetici dei genitori e foto della crescita.":"Test genetici dei genitori e foto."}`,
-    en:`Born on ${dd}: ${I.n} Staffordshire Bull Terrier puppies out of ${a} by ${b}. ${e?"Parents' genetic tests and growth photos.":"Parents' genetic tests, photos."}`,
-    de:`Geboren am ${dd}: ${I.n} Staffordshire Bull Terrier Welpen von ${a} und ${b}. ${e?"Gentests der Eltern und Fotos der Entwicklung.":"Gentests der Eltern und Fotos."}`}[L]);
+  const dv=(a,b,e)=>({it:`Nati il ${dd}: ${I.n} cuccioli di ${FM().breed} da ${a} e ${b}. ${e?"Test genetici dei genitori e foto della crescita.":"Test genetici dei genitori e foto."}`,
+    en:`Born on ${dd}: ${I.n} ${FM().breed} puppies out of ${a} by ${b}. ${e?"Parents' genetic tests and growth photos.":"Parents' genetic tests, photos."}`,
+    de:`Geboren am ${dd}: ${I.n} ${FM().breed} Welpen von ${a} und ${b}. ${e?"Gentests der Eltern und Fotos der Entwicklung.":"Gentests der Eltern und Fotos."}`}[L]);
   const DV=[dv(I.dn,I.sn,1),dv(I.dn,I.sn,0),dv(I.short.dam,I.sn,1),dv(I.dn,I.short.sire,1),dv(I.short.dam,I.short.sire,1),dv(I.short.dam,I.short.sire,0)],
     gap=x=>x.length<140?140-x.length:x.length>165?x.length-165:0,desc=DV.slice().sort((a,b)=>gap(a)-gap(b))[0];
-  const intro={it:`L'allevamento Del Piccolo Diavolo, a Ostellato in provincia di Ferrara, registra in questa pagina la cucciolata di Staffordshire Bull Terrier nata il ${dd} da ${I.dn} e ${I.sn}: ${I.n} cuccioli, ${I.m} maschi e ${I.f} femmine. Come per ogni cucciolata dell'allevamento, la data di nascita, i nomi dei due riproduttori e i loro test genetici restano pubblicati anche dopo l'affido. È voluto: così chiunque può contare quante cucciolate nascono davvero in un anno e confrontare il dato con il libro genealogico ENCI, partendo dal numero di microchip della madre. Qui sotto ci sono i test dei genitori, i loro genitori e il collegamento al pedigree su SBTPedigree, da cui si risale alle generazioni precedenti. I cuccioli si affidano dopo i 60 giorni previsti dalla legge, con microchip, prime vaccinazioni e pedigree ENCI.`,
-    en:`The Del Piccolo Diavolo kennel in Ostellato, in the province of Ferrara, Italy, records on this page the Staffordshire Bull Terrier litter born on ${dd} out of ${I.dn} by ${I.sn}: ${I.n} puppies, ${I.m} males and ${I.f} females. As for every litter bred here, the date of birth, the names of both parents and their genetic tests stay published after the puppies have gone home. This is deliberate: anyone can count how many litters are actually born in a year and check the figure against the ENCI stud book, starting from the dam's microchip number. Below are the parents' tests, their own parents and the link to the pedigree on SBTPedigree, where the earlier generations can be traced. Puppies leave after the 60 days required by Italian law, with microchip, first vaccinations and ENCI pedigree.`,
-    de:`Die Zucht Del Piccolo Diavolo in Ostellato, Provinz Ferrara (Italien), dokumentiert auf dieser Seite den Staffordshire Bull Terrier Wurf, geboren am ${dd} von ${I.dn} und ${I.sn}: ${I.n} Welpen, ${I.m} Rüden und ${I.f} Hündinnen. Wie bei jedem Wurf der Zucht bleiben Geburtsdatum, die Namen beider Elterntiere und ihre Gentests auch nach der Abgabe veröffentlicht. Das ist gewollt: So kann jeder zählen, wie viele Würfe in einem Jahr tatsächlich fallen, und die Zahl mit dem Zuchtbuch der ENCI vergleichen, ausgehend von der Mikrochipnummer der Mutter. Unten stehen die Tests der Eltern, deren Eltern und der Link zum Stammbaum auf SBTPedigree, über den sich die früheren Generationen nachverfolgen lassen. Die Welpen werden nach den gesetzlich vorgeschriebenen 60 Tagen abgegeben, mit Mikrochip, ersten Impfungen und ENCI-Ahnentafel.`}[L];
+  const intro={it:`L'allevamento ${FM().name}, a ${FM().city} in provincia di ${FM().provName}, registra in questa pagina la cucciolata di ${FM().breed} nata il ${dd} da ${I.dn} e ${I.sn}: ${I.n} cuccioli, ${I.m} maschi e ${I.f} femmine. Come per ogni cucciolata dell'allevamento, la data di nascita, i nomi dei due riproduttori e i loro test genetici restano pubblicati anche dopo l'affido. È voluto: così chiunque può contare quante cucciolate nascono davvero in un anno e confrontare il dato con il libro genealogico ENCI, partendo dal numero di microchip della madre. Qui sotto ci sono i test dei genitori, i loro genitori e il collegamento al pedigree su SBTPedigree, da cui si risale alle generazioni precedenti. I cuccioli si affidano dopo i 60 giorni previsti dalla legge, con microchip, prime vaccinazioni e pedigree ENCI.`,
+    en:`The ${FM().name} kennel in ${FM().city}, in the province of ${FM().provName}, Italy, records on this page the ${FM().breed} litter born on ${dd} out of ${I.dn} by ${I.sn}: ${I.n} puppies, ${I.m} males and ${I.f} females. As for every litter bred here, the date of birth, the names of both parents and their genetic tests stay published after the puppies have gone home. This is deliberate: anyone can count how many litters are actually born in a year and check the figure against the ENCI stud book, starting from the dam's microchip number. Below are the parents' tests, their own parents and the link to the pedigree on SBTPedigree, where the earlier generations can be traced. Puppies leave after the 60 days required by Italian law, with microchip, first vaccinations and ENCI pedigree.`,
+    de:`Die Zucht ${FM().name} in ${FM().city}, Provinz ${FM().provName} (Italien), dokumentiert auf dieser Seite den ${FM().breed} Wurf, geboren am ${dd} von ${I.dn} und ${I.sn}: ${I.n} Welpen, ${I.m} Rüden und ${I.f} Hündinnen. Wie bei jedem Wurf der Zucht bleiben Geburtsdatum, die Namen beider Elterntiere und ihre Gentests auch nach der Abgabe veröffentlicht. Das ist gewollt: So kann jeder zählen, wie viele Würfe in einem Jahr tatsächlich fallen, und die Zahl mit dem Zuchtbuch der ENCI vergleichen, ausgehend von der Mikrochipnummer der Mutter. Unten stehen die Tests der Eltern, deren Eltern und der Link zum Stammbaum auf SBTPedigree, über den sich die früheren Generationen nachverfolgen lassen. Die Welpen werden nach den gesetzlich vorgeschriebenen 60 Tagen abgegeben, mit Mikrochip, ersten Impfungen und ENCI-Ahnentafel.`}[L];
   const ban={it:`🐾 NATI IL ${dd.toUpperCase()}`,en:`🐾 BORN ON ${dd.toUpperCase()}`,de:`🐾 GEBOREN AM ${dd.toUpperCase()}`}[L],
     stato=I.avail?{it:"Disponibili",en:"Available",de:"Verfügbar"}[L]:{it:"Non disponibili",en:"Not available",de:"Nicht verfügbar"}[L],
     npup={it:`${I.n} cuccioli`,en:`${I.n} puppies`,de:`${I.n} Welpen`}[L],H={it:["I genitori","Come crescono"],en:["The parents","How they grow"],de:["Die Eltern","Wie sie wachsen"]}[L];
@@ -2842,7 +2856,7 @@ function scSync(){if(RO||typeof OWNER_MODE!=="undefined")return false;D.settings
 function scUrl(){D.settings=D.settings||{};if(!D.settings.calToken){const a=new Uint8Array(18);crypto.getRandomValues(a);D.settings.calToken=btoa(String.fromCharCode(...a)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");scSync();typeof saveNow==="function"&&saveNow()}
   return location.host+"/api/public/scadenze/"+D.settings.calToken+".ics"}
 function scPhone(){const u=scUrl();sheet(`<h2 style="margin-top:0">📱 Scadenze nel calendario del telefono</h2>
-  <ol class="sc-ol"><li><b>iPhone</b>: tocca <b>"Iscriviti dall'iPhone"</b> e conferma con "Iscriviti". Compare il calendario "Del Piccolo Diavolo – Scadenze".</li>
+  <ol class="sc-ol"><li><b>iPhone</b>: tocca <b>"Iscriviti dall'iPhone"</b> e conferma con "Iscriviti". Compare il calendario "${esc(FM().name)} – Scadenze".</li>
   <li><b>Android / Google Calendar</b>: tocca <b>"Copia il link"</b>, poi dal computer su calendar.google.com: <b>Altri calendari → ＋ → Da URL</b>, incolla e conferma.</li></ol>
   <p><code class="sc-code">https://${esc(u)}</code></p><p class="small">Il link è segreto: chi ce l'ha vede solo le scadenze. Il telefono lo ricontrolla da solo ogni tanto (l'iPhone di solito ogni ora, Google anche meno spesso). Le scadenze si aggiornano quando usi il gestionale.</p>
   <div class="actions"><a class="btn" href="webcal://${esc(u)}">Iscriviti dall'iPhone</a><button class="btn ghost" data-a="scCopy">Copia il link</button><button class="btn ghost" data-a="close">Chiudi</button></div>`)}
@@ -2937,8 +2951,8 @@ function shPrep(){const items=shItems(),j=JSON.stringify({updated:todayS(),items
    owners[id].linkSent = data dell'ultimo invio ("✔ mandato il …"). Scelte A B A di Paolo. */
 function lkUrl(o){if(!o.token){const a=new Uint8Array(18);crypto.getRandomValues(a);o.token=btoa(String.fromCharCode(...a)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}return location.origin+"/p/"+o.token}
 function lkMsg(k){const d=D.dogs[k],o=D.owners[d.owner],en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,u=lkUrl(o);
-  return en?{s:`${nm}'s private page – Del Piccolo Diavolo`,t:`Hi ${fn}, here is ${nm}'s private page: photos, growth, health, certificates and documents, always up to date. Save it, you'll use it often:\n${u}\n\nPaolo – Del Piccolo Diavolo`}
-    :{s:`La pagina privata di ${nm} – Del Piccolo Diavolo`,t:`Ciao ${fn}, ecco la pagina privata di ${nm}: foto, crescita, salute, certificati e documenti, sempre aggiornati. Salvala, ti servirà spesso:\n${u}\n\nPaolo – Del Piccolo Diavolo`}}
+  return en?{s:`${nm}'s private page – ${FM().name}`,t:`Hi ${fn}, here is ${nm}'s private page: photos, growth, health, certificates and documents, always up to date. Save it, you'll use it often:\n${u}\n\n${FM().first} – ${FM().name}`}
+    :{s:`La pagina privata di ${nm} – ${FM().name}`,t:`Ciao ${fn}, ecco la pagina privata di ${nm}: foto, crescita, salute, certificati e documenti, sempre aggiornati. Salvala, ti servirà spesso:\n${u}\n\n${FM().first} – ${FM().name}`}}
 function lkPhone(o){let ph=String(o.phone||"").replace(/[^\d+]/g,"");if(ph.startsWith("+"))ph=ph.slice(1);else if(ph.startsWith("00"))ph=ph.slice(2);else if(ph&&(o.country||"Italia")==="Italia")ph="39"+ph;return ph}
 function linkBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]);if(!P.length)return"";
   return `<h2>Link ai proprietari</h2><div class="cs" style="gap:10px"><div class="hlist">${P.map(k=>{const d=D.dogs[k],o=D.owners[d.owner],ph=lkPhone(o);
@@ -2946,10 +2960,10 @@ function linkBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=li
     <span class="lk-b"><button class="btn small lk-wa" data-a="lkWa" data-v="${k}" ${ph?"":'disabled title="Manca il telefono"'}>WhatsApp</button><button class="btn ghost small" data-a="lkMail" data-v="${k}" ${o.email?"":'disabled title="Manca l’email"'}>Email</button><button class="btn ghost small" data-a="copyLink" data-v="${d.owner}">Copia link</button><button class="btn ghost small lk-rev" data-a="lkRev" data-v="${k}" ${ph||o.email?"":"disabled"}>⭐ Chiedi recensione</button></span></div>`}).join("")}</div>
   <p class="small">Tocca WhatsApp o Email: si apre il messaggio già scritto con il link alla sua pagina privata, tu premi Invia. Ad Andrej e agli altri proprietari esteri arriva in inglese.</p></div>`}
 // richiesta di recensione: WhatsApp (o email se manca il telefono) con il link alla pagina del sito; owners[id].revAsked = data
-function lkRev(k){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,F=d.sex==="F",u="https://delpiccolodiavolo.it/chiedi-recensione/";
-  const t=en?`Hi ${fn}, how is ${nm} doing? 😊 If you're happy with ${F?"her":"him"}, it would mean a lot if you left a short review on Google: it helps the next family know who they're dealing with. It takes a minute:\n${u}\n\nThank you! Paolo – Del Piccolo Diavolo`
-    :`Ciao ${fn}, come sta ${nm}? 😊 Se ti trovi bene con ${F?"lei":"lui"}, mi fai un grande favore lasciando due righe su Google: aiuta la prossima famiglia a capire con chi ha a che fare. Ci vuole un minuto:\n${u}\n\nGrazie! Paolo – Del Piccolo Diavolo`;
-  const ph=lkPhone(o);if(ph)window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");else if(o.email)location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(en?"A short review for Del Piccolo Diavolo":"Una recensione per Del Piccolo Diavolo")+"&body="+encodeURIComponent(t);else return;
+function lkRev(k){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,F=d.sex==="F",u=FM().siteUrl+"/chiedi-recensione/";
+  const t=en?`Hi ${fn}, how is ${nm} doing? 😊 If you're happy with ${F?"her":"him"}, it would mean a lot if you left a short review on Google: it helps the next family know who they're dealing with. It takes a minute:\n${u}\n\nThank you! ${FM().first} – ${FM().name}`
+    :`Ciao ${fn}, come sta ${nm}? 😊 Se ti trovi bene con ${F?"lei":"lui"}, mi fai un grande favore lasciando due righe su Google: aiuta la prossima famiglia a capire con chi ha a che fare. Ci vuole un minuto:\n${u}\n\nGrazie! ${FM().first} – ${FM().name}`;
+  const ph=lkPhone(o);if(ph)window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");else if(o.email)location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(en?"A short review for "+FM().name:"Una recensione per "+FM().name)+"&body="+encodeURIComponent(t);else return;
   o.revAsked=todayS();typeof saveNow==="function"&&saveNow();if(sheetOpen()&&PP_LIT)litterSheet(PP_LIT)}
 function lkSend(k,how){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const m=lkMsg(k);
   if(how==="wa"){const ph=lkPhone(o);if(!ph){toast("Manca il telefono di "+esc(o.name)+".");return}window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(m.t),"_blank","noopener")}
@@ -3023,7 +3037,7 @@ function ppMailAsk(lid){if(ppNone(lid))return;const R=ppLitRows(lid),ok=R.filter
   ${no.length?`<div class="mb-warn">⚠️ <b>Mancano ${no.length} passaggi</b>: non sono ancora firmati, quindi nell'email <b>non ci sono</b>.<br>${li(no)}</div>`:""}
   <div class="mb-ok">✔ Nell'email ${ok.length===1?"c'è 1 passaggio":"ci sono "+ok.length+" passaggi"}:<br>${li(ok)}</div>
   <div class="form"><label class="f">Manda a<input id="pp_to" type="email" value="${esc(ppAddr())}"></label></div>
-  <p class="small" style="margin-top:0">Di base c'è l'anagrafe di Ostellato. Se scrivi un altro indirizzo vale solo per questa volta.</p>
+  <p class="small" style="margin-top:0">Di base c'è l'anagrafe di ${esc(FM().city)}. Se scrivi un altro indirizzo vale solo per questa volta.</p>
   <div class="actions"><button class="btn" data-a="ppMailGo" data-v="${lid}">✉️ Sì, prepara l'email</button><button class="btn ghost" data-a="ppMailNo" data-v="${lid}">Annulla</button></div>`)}
 async function ppMailGo(lid){const a=($("#pp_to")||{}).value;PP_TO=a&&a.trim()?a.trim():null;litterSheet(lid);try{await ppPack(lid,"mail")}finally{PP_TO=null}}
 function ppLitRows(lid){return litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]).map(k=>{const d=D.dogs[k],o=D.owners[d.owner];return{k,d,o,doc:ppDoc(d),ids:(o.ids||[]).length}})}
@@ -3046,15 +3060,15 @@ async function ppPack(lid,mode){const l=D.litters[lid],R=ppLitRows(lid).filter(r
   try{const P=await pdflib(),A=await P.PDFDocument.create();
     for(const r of R){const src=await P.PDFDocument.load(await ppBytes(r.doc.file));(await A.copyPages(src,src.getPageIndices())).forEach(p=>A.addPage(p))}
     const B=await P.PDFDocument.create(),font=await B.embedFont(P.StandardFonts.Helvetica),bold=await B.embedFont(P.StandardFonts.HelveticaBold);
-    const people=[["Paolo Boldrini – cedente",(D.settings||{}).myIds||[]],...R.map(r=>[r.o.name+" – acquirente di "+r.d.name,r.o.ids||[]])];
+    const people=[[FM().person+" – cedente",(D.settings||{}).myIds||[]],...R.map(r=>[r.o.name+" – acquirente di "+r.d.name,r.o.ids||[]])];
     for(const [who,L] of people){if(!L.length){const pg=B.addPage([595.28,841.89]);pg.drawText(ppWin("Documento d'identità – "+who),{x:40,y:790,size:13,font:bold});pg.drawText("(documento non ancora caricato)",{x:40,y:770,size:11,font});continue}
       for(const x of L){const isPdf=/^data:application\/pdf/.test(x.file)||/\.pdf$/i.test(x.fname||"")||/\.pdf$/i.test(x.file);
         if(isPdf){const src=await P.PDFDocument.load(await ppBytes(x.file));(await B.copyPages(src,src.getPageIndices())).forEach(p=>B.addPage(p));continue}
         const j=await ppJpeg(x.file),img=await B.embedJpg(j.u),pg=B.addPage([595.28,841.89]);pg.drawText(ppWin("Documento d'identità – "+who),{x:40,y:800,size:12,font:bold});
         const mw=515,mh=730,k=Math.min(mw/j.w,mh/j.h);pg.drawImage(img,{x:40+(mw-j.w*k)/2,y:50+(mh-j.h*k),width:j.w*k,height:j.h*k})}}
     const f1=new File([await A.save()],"passaggi-proprieta-"+slug+".pdf",{type:"application/pdf"}),f2=new File([await B.save()],"documenti-identita-"+slug+".pdf",{type:"application/pdf"});
-    const subj=`Passaggi di proprietà cucciolata ${dn(l.dam)} × ${dn(l.sire)} – Allevamento Del Piccolo Diavolo`;
-    const body=`Buongiorno,\n\nin allegato le dichiarazioni di passaggio di proprietà dei cuccioli della cucciolata di ${dn(l.dam)} × ${dn(l.sire)}${l.date?", nata il "+fmt(l.date):""} (${R.length} moduli firmati da me e dagli acquirenti), con le copie dei documenti d'identità del cedente e degli acquirenti.\n\n${R.map(r=>"• "+r.d.name+" → "+r.o.name).join("\n")}\n\nCordiali saluti\nPaolo Boldrini\nAllevamento Del Piccolo Diavolo · Ostellato (FE)\n392 4635584`;
+    const subj=`Passaggi di proprietà cucciolata ${dn(l.dam)} × ${dn(l.sire)} – ${FM().kennel}`;
+    const body=`Buongiorno,\n\nin allegato le dichiarazioni di passaggio di proprietà dei cuccioli della cucciolata di ${dn(l.dam)} × ${dn(l.sire)}${l.date?", nata il "+fmt(l.date):""} (${R.length} moduli firmati da me e dagli acquirenti), con le copie dei documenti d'identità del cedente e degli acquirenti.\n\n${R.map(r=>"• "+r.d.name+" → "+r.o.name).join("\n")}\n\nCordiali saluti\n${FM().person}\n${FM().kennel} · ${FM().cityProv}\n${FM().phone}`;
     const dl=f=>{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)};
     if(mode==="mail"&&navigator.canShare&&navigator.canShare({files:[f1,f2]})){try{await navigator.clipboard.writeText(ppAddr())}catch(x){}
       toast("Indirizzo copiato: in Mail incollalo in “A:”.");try{await navigator.share({files:[f1,f2],title:subj,text:body})}catch(x){}return}
@@ -3062,14 +3076,14 @@ async function ppPack(lid,mode){const l=D.litters[lid],R=ppLitRows(lid).filter(r
     if(mode==="mail"){setTimeout(()=>{location.href="mailto:"+encodeURIComponent(ppAddr())+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body)},900);toast("Ho scaricato i 2 PDF: allegali all'email che si apre.")}else toast("Scaricati i 2 PDF.")}
   catch(x){console.error(x);toast("Non riesco a preparare i PDF: controlla la connessione e riprova.")}}
 /* Proprietari stranieri: spiegazione e traduzione inglese del modulo (si firma solo quello italiano) */
-const PP_WHY=["Why are there two versions?","The Italian form is the official one: the breeder files it with the dog registry (Anagrafe canina) of the Municipality of Ostellato, and it must be in Italian. That is the one you sign.","This English version is only a translation, so you can understand what you are signing. It has no legal value and you do not sign it."];
+const PP_WHY_F=()=>["Why are there two versions?","The Italian form is the official one: the breeder files it with the dog registry (Anagrafe canina) of the Municipality of "+FM().city+", and it must be in Italian. That is the one you sign.","This English version is only a translation, so you can understand what you are signing. It has no legal value and you do not sign it."];
 function ppEnBox(id){const d=D.dogs[id],o=D.owners[d.owner]||{};if(o.lang!=="en")return"";const fn=esc((o.name||"").split(" ")[0]);
-  return `<details class="pp-en" open><summary>🇬🇧 For ${fn} – read it in English</summary><div class="pp-en-in"><p><b>${PP_WHY[0]}</b><br>${PP_WHY[1]}<br>${PP_WHY[2]}</p>
-  <p>With this form Paolo Boldrini, the breeder, declares that he transfers the dog <b>${esc(d.name)}</b> (Staffordshire Bull Terrier, born on ${fmt(d.birth)}, microchip ${esc(d.chip||"—")}) to <b>${esc(o.name)}</b>, on the date written above. You will find the full English translation on your page, next to the signed Italian form.</p></div></details>`}
+  return `<details class="pp-en" open><summary>🇬🇧 For ${fn} – read it in English</summary><div class="pp-en-in"><p><b>${PP_WHY_F()[0]}</b><br>${PP_WHY_F()[1]}<br>${PP_WHY_F()[2]}</p>
+  <p>With this form ${esc(FM().person)}, the breeder, declares that he transfers the dog <b>${esc(d.name)}</b> (${esc(FM().breed)}, born on ${fmt(d.birth)}, microchip ${esc(d.chip||"—")}) to <b>${esc(o.name)}</b>, on the date written above. You will find the full English translation on your page, next to the signed Italian form.</p></div></details>`}
 async function ppEnPdf(V){const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),M=16,W=178;let y=18;
   const P=(t,o)=>{o=o||{};doc.setFont("helvetica",o.b?"bold":"normal");doc.setFontSize(o.s||10.5);doc.setTextColor(...(o.c||[20,20,20]));const L=doc.splitTextToSize(t,W-(o.i||0));doc.text(L,M+(o.i||0),y,{align:o.al||"left"});y+=L.length*(o.s||10.5)*.45+(o.g||2)};
   doc.setDrawColor(31,95,168);doc.setLineWidth(.6);doc.roundedRect(M,y-6,W,16,2,2);P("ENGLISH TRANSLATION – FOR INFORMATION ONLY – NOT TO BE SIGNED",{b:1,c:[31,95,168],s:11});P("The official document is the Italian form signed by both parties.",{c:[31,95,168],s:9.5,g:6});
-  P(PP_WHY[0],{b:1});P(PP_WHY[1]);P(PP_WHY[2],{g:8});
+  P(PP_WHY_F()[0],{b:1});P(PP_WHY_F()[1]);P(PP_WHY_F()[2],{g:8});
   P("EMILIA-ROMAGNA REGION",{s:10,g:1});P("DECLARATION OF TRANSFER OF OWNERSHIP",{b:1,s:13,g:5});
   const v=k=>V[k]||"________";
   P(`The undersigned ${v("cn")}, tax code ${v("ccf")}, born in ${v("cna")} on ${v("cil")}, resident in ${v("cres")}, mobile ${v("ccell")}, email ${v("cmail")},`);
@@ -3157,7 +3171,7 @@ function ppBox(id){if(typeof OWNER_MODE!=="undefined"||RO||!ppOn(id))return"";co
   const top=(ico,t,sub)=>`<div class="cs-top"><div class="cs-ico">${ico}</div><div><b>${t}</b><span>${sub}</span></div></div>`;
   if(x&&d.pp)return `<h2>Passaggio di proprietà</h2><div class="cs cs-st-done">${top("✅","Firmato il "+fmt(d.pp.date),"Il PDF è nei documenti del cucciolo (lo vede anche "+nm+"). Va all'anagrafe canina entro 15 giorni, con le fotocopie dei documenti d'identità.")}
     <div class="row2"><a class="btn" href="${docHref(x.file)}" target="_blank" rel="noopener">Visualizza</a><a class="btn ghost fb-dl" href="${docHref(x.file)}" download="${esc(x.fname||"passaggio-proprieta.pdf")}">Scarica</a><button class="btn ghost" data-a="ppForm" data-v="${id}">Rifai</button></div></div>`;
-  return `<h2>Passaggio di proprietà</h2><div class="cs cs-st-todo">${top("🏛️","Da compilare","Modulo del Comune di Ostellato: i dati del cucciolo, tuoi e di "+nm+" sono già scritti. Mancano la data, la nascita dell'acquirente e le firme.")}
+  return `<h2>Passaggio di proprietà</h2><div class="cs cs-st-todo">${top("🏛️","Da compilare","Modulo del Comune di "+FM().city+": i dati del cucciolo, tuoi e di "+nm+" sono già scritti. Mancano la data, la nascita dell'acquirente e le firme.")}
     <div class="row2"><button class="btn" data-a="ppForm" data-v="${id}">Compila e firma</button></div></div>`}
 function ppForm(id){const d=D.dogs[id],b=ppBuyer(id),me=(D.settings||{}).ppMe||{},today=new Date().toISOString().slice(0,10);
   const I=(k,l,v,typ,full)=>`<label class="f${full?" full":""}">${l}<input id="pp_${k}" type="${typ||"text"}" value="${esc(v||"")}"></label>`;
@@ -3173,8 +3187,8 @@ function ppForm(id){const d=D.dogs[id],b=ppBuyer(id),me=(D.settings||{}).ppMe||{
 async function ppGo(id){const d=D.dogs[id],g=k=>{const e=document.getElementById("pp_"+k);return e?e.value.trim():""},err=document.getElementById("ppErr"),say=t=>{if(err)err.textContent=t};
   const me={cf:g("mcf").toUpperCase(),bplace:g("mna"),bdate:g("mil")},sNew=padData("ppMe"),sMe=sNew||ctSellerSig(),sB=padData("ppB"),day=g("date");
   if(!day)return say("Scrivi la data della cessione.");if(!me.cf)return say("Scrivi il tuo codice fiscale.");if(!sMe)return say("Manca la tua firma.");if(!sB)return say("Manca la firma dell'acquirente.");
-  const b=ppBuyer(id),V={cn:"Boldrini Paolo",ccf:me.cf,cna:me.bplace,cil:fmt(me.bdate),cres:"44020 Ostellato (FE), Via Amerigo Chierici 12",ccell:"392 4635584",cmail:"zonerosse@gmail.com",
-    an:d.name,sp:"cane",rz:"Staffordshire Bull Terrier",anil:fmt(d.birth),sx:d.sex||"",tg:"media",mt:d.color||"",mc:d.chip||"",inda:fmt(day),d1:fmt(day),
+  const b=ppBuyer(id),V={cn:FM().personRev,ccf:me.cf,cna:me.bplace,cil:fmt(me.bdate),cres:FM().capCity+", "+FM().addr,ccell:FM().phone,cmail:FM().email,
+    an:d.name,sp:"cane",rz:FM().breed,anil:fmt(d.birth),sx:d.sex||"",tg:"media",mt:d.color||"",mc:d.chip||"",inda:fmt(day),d1:fmt(day),
     bn:b.name,bcf:g("bcf").toUpperCase(),bna:g("bna"),bil:fmt(g("bil")),bres:g("bres"),bcell:g("bcell"),bmail:g("bmail"),d2:fmt(day),note:g("note")};
   say("Creo il PDF…");
   try{const J=await loadJsPDF(),doc=new J({unit:"mm",format:"a4"}),k=210/827;doc.addImage(await toDataURL(PP_IMG),"JPEG",0,0,210,297);
@@ -3241,7 +3255,7 @@ function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return
   return h+`<div class="cs" id="ctbox_${id}"><div class="cs-top"><div class="cs-ico" style="background:var(--accent-soft)">✍️</div><div><b>${T("Il contratto da firmare","The agreement to sign")}</b><span>${T("Ci vogliono un paio di minuti","It takes a couple of minutes")}</span></div></div>
   ${LANG==="en"?`<p class="small">The agreement is in English; the Italian text at the end of the document is the binding version.</p>`:""}
   <details class="ct-read"><summary>${T("Leggi il contratto completo","Read the full agreement")}</summary><div class="k-read">${ctHtml(ctSnap(id),B,null,c.meSig)}</div></details>
-  <div>${P(T("I tuoi dati","Your details"))}<p class="small">${T("Paolo li ha già inseriti: controlla e completa.","Paolo has already filled them in: please check and complete.")}</p>
+  <div>${P(T("I tuoi dati","Your details"))}<p class="small">${T(FM().first+" li ha già inseriti: controlla e completa.",FM().first+" has already filled them in: please check and complete.")}</p>
   <div class="k-grid">${I("name","Nome e cognome","Full name",B.name)}${I("cf","Codice fiscale","Tax code",B.cf,LANG==="en"?" <small>(or equivalent)</small>":"")}${I("doc","Documento d'identità","ID document",B.doc)}${I("via","Indirizzo","Address",B.via)}${I("cap","CAP / località","Postcode / town",B.cap)}${I("tel","Telefono","Phone",B.tel)}${I("mail","Mail","Email",B.mail)}</div></div>
   <div>${P(T("Foto e nome sui siti dell'allevamento","Photos and name on the kennel's websites"))}<div class="k-opt">${C36S.map((x,i)=>`<label><input type="radio" name="c36_${id}" value="${i}">${LANG==="en"?x[1]:x[0]}</label>`).join("")}</div></div>
   <div>${P(T("La tua firma","Your signature"))}${ctPad("ctB1_"+id,T("Dal telefono firma col dito, dal computer col mouse","On your phone sign with your finger, on a computer with the mouse"))}</div>
@@ -3767,7 +3781,7 @@ function gpEvents(){const out=[],today=todayS(),lim=new Date(Date.now()-60*864e5
   for(const [k,d] of Object.entries(D.dogs||{}))for(const s of d.shows||[]){if(!s.web||s.gpost||!s.date||s.date<lim)continue;
     const res=[s.qual,s.rank,(s.titles||[]).join(" ")].filter(Boolean).join(" · ");
     out.push({k:"s|"+k+"|"+s.id,ic:"🏆",t:`${d.name}: ${res||"esposizione"}${s.name?" a "+s.name:""}`,s:"Esposizione del "+fmt(s.date),
-      url:SITE+"/palmares-del-piccolo-diavolo/",photos:[gpFile({file:s.photo}),gpFile({file:d.photo})].filter(Boolean),
+      url:SITE_F()+"/palmares-del-piccolo-diavolo/",photos:[gpFile({file:s.photo}),gpFile({file:d.photo})].filter(Boolean),
       facts:{tipo:"esposizione",cane:d.name,data:s.date,esposizione:s.name||"",tipo_esposizione:s.type||"",giudice:s.judge||"",classe:s.cls||"",qualifica:s.qual||"",classifica:s.rank||"",titoli:s.titles||[]}})}
   return out}
 const gpChecks=t=>[[!/\+?\d[\d\s.\-]{7,}\d/.test(t),"Niente numero di telefono nel testo (Google non lo accetta)"],
@@ -3781,10 +3795,10 @@ function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'alle
     const ph=GP.up,sel=ph[GP.photo]||"",ok=gpChecks(GP.text).every(x=>x[0]);
     h+=`<div class="gp-ed"><div><span class="rv-ft">Foto</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${ph.map((f,i)=>`<button type="button" class="gp-ph" data-a="gpPh" data-v="${i}" aria-pressed="${GP.photo===i}"><img src="${esc(f)}" alt="" loading="lazy">${GP.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}</div>`}${ph.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}
       <label class="rv-ft" for="gp_tx">Testo (scritto da Claude, puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":""}">${esc(GP.text)}</textarea>
-      <div class="gp-sel"><label><input type="checkbox" id="gp_btn" ${GP.btn?"checked":""}> Tasto «Scopri di più» verso</label> <a href="${esc(e.url)}" target="_blank" rel="noopener" class="small">${esc(e.url.replace(SITE,""))}</a></div>
+      <div class="gp-sel"><label><input type="checkbox" id="gp_btn" ${GP.btn?"checked":""}> Tasto «Scopri di più» verso</label> <a href="${esc(e.url)}" target="_blank" rel="noopener" class="small">${esc(e.url.replace(SITE_F(),""))}</a></div>
       <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
       <div class="rv-row"><button class="btn ghost small" data-a="gpRedo" data-v="${esc(e.k)}">✨ Riscrivi il testo</button><span><button class="btn ghost small" data-a="gpClose">Annulla</button> <button class="btn small rv-go" data-a="gpPub" data-v="${esc(e.k)}" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
-      <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">Allevamento Staffordshire Bull Terrier Del Piccolo Diavolo</p><p class="gd">Adesso</p></div></div>${sel?`<img src="${esc(sel)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${GP.btn?`<span class="gb">Scopri di più</span>`:""}</div>
+      <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">${esc("Allevamento "+FM().breed+" "+FM().name)}</p><p class="gd">Adesso</p></div></div>${sel?`<img src="${esc(sel)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${GP.btn?`<span class="gb">Scopri di più</span>`:""}</div>
       <p class="small" style="margin:10px 0 0">Google controlla ogni post prima di mostrarlo: di solito pochi minuti, a volte di più.</p></div></div>`}
   h+=`<h2>Pubblicati</h2>`;if(GP.list===null){setTimeout(gpLoad,0);GP.list=undefined}
   if(!GP.list)h+=`<p class="empty">⏳ Leggo i post da Google…</p>`;else if(GP.lerr)h+=`<p class="fnote">${esc(GP.lerr)}</p>`;else if(!GP.list.length)h+=`<p class="empty">Ancora nessun post.</p>`;
@@ -3796,9 +3810,9 @@ function gpRecent(){const out=[];for(const [k,d] of Object.entries(D.dogs||{})){
     if(gpFile({file:d.photo})&&!d.ext)out.push({f:d.photo,date:"",lab:d.name})}
   for(const [lid,l] of Object.entries(D.litters||{}))(l.gphotos||[]).forEach(p=>gpFile(p)&&out.push({f:p.file,date:p.date||"",lab:litPair(lid)}));
   const seen=new Set();return out.sort((a,b)=>(b.date||"").localeCompare(a.date||"")).filter(x=>!seen.has(x.f)&&seen.add(x.f)).slice(0,16)}
-function gpLinks(){const L=[["Home",SITE+"/"],["Cuccioli",SITE+CUC_URL.it]];
+function gpLinks(){const L=[["Home",SITE_F()+"/"],["Cuccioli",SITE_F()+CUC_URL.it]];
   Object.entries(D.litters||{}).filter(([lid,l])=>l.state==="nata"&&l.site&&l.site.diarDone&&siOk(lid)).sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||"")).forEach(([lid])=>L.push(["Diario: "+litPair(lid),litUrl(lid,"it")]));
-  L.push(["Palmarès",SITE+"/palmares-del-piccolo-diavolo/"],["Nessun tasto",""]);return L}
+  L.push(["Palmarès",SITE_F()+"/palmares-del-piccolo-diavolo/"],["Nessun tasto",""]);return L}
 function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata ora"})),sel=P[F.photo],ok=gpChecks(GP.text).every(x=>x[0]),L=gpLinks(),lk=L[F.link]||L[0];
   return `<div class="gp-ed"><div><label class="rv-ft" for="gp_idea">Di cosa vuoi parlare? (due righe, anche scritte male)</label><textarea id="gp_idea" class="gp-tx" style="min-height:70px" placeholder="Es. Rocco va a casa sabato con la sua famiglia, foto tutti insieme">${esc(F.idea)}</textarea>
     <div class="rv-row" style="margin:6px 0 14px"><span></span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il testo</button></div>
@@ -3807,7 +3821,7 @@ function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata o
     <label class="rv-ft" for="gp_lnk" style="margin-top:10px">Il tasto «Scopri di più» porta a</label><select id="gp_lnk" class="gp-lnk">${L.map(([n],i)=>`<option value="${i}" ${F.link===i?"selected":""}>${esc(n)}</option>`).join("")}</select>
     <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
     <div class="rv-row"><span></span><span><button class="btn ghost small" data-a="gpFreeClose">Annulla</button> <button class="btn small rv-go" data-a="gpFreePub" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
-    <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">Allevamento Staffordshire Bull Terrier Del Piccolo Diavolo</p><p class="gd">Adesso</p></div></div>${sel&&F.photo>=0?`<img src="${esc(sel.f)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${lk[1]?`<span class="gb">Scopri di più</span>`:""}</div></div></div>`}
+    <div><span class="rv-ft">Come lo vedranno su Google</span><div class="gp-prev"><div class="gh"><div class="ga">DPD</div><div><p class="gn">${esc("Allevamento "+FM().breed+" "+FM().name)}</p><p class="gd">Adesso</p></div></div>${sel&&F.photo>=0?`<img src="${esc(sel.f)}" alt="">`:""}<p class="gt" id="gp_gt">${esc(GP.text)}</p>${lk[1]?`<span class="gb">Scopri di più</span>`:""}</div></div></div>`}
 async function gpFreeAct(a,v,b){const F=GP.free;
   if(a==="gpFree"){GP.ed=null;GP.free={idea:"",photo:0,link:0};GP.text="";render();const e=document.getElementById("gp_idea");e&&e.focus();return}
   if(!F)return;
@@ -3922,7 +3936,7 @@ async function wsLoad(){WS.load=1;render();try{const r=await fetch("/api/sitesta
 function wsChart(D2){if(!D2||D2.length<2)return"";const W=640,H=160,mc=Math.max(1,...D2.map(x=>x.c)),mi=Math.max(1,...D2.map(x=>x.i)),N=D2.length;
   const pt=k=>D2.map((x,i)=>(i*(W-20)/(N-1)+10).toFixed(1)+","+(H-12-x[k]/(k==="c"?mc:mi)*(H-30)).toFixed(1)).join(" ");
   return`<div class="nbox ws-chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Clic e impressioni per giorno"><polyline fill="none" stroke="#C9CED6" stroke-width="2" points="${pt("i")}"/><polyline fill="none" stroke="var(--accent)" stroke-width="2.5" points="${pt("c")}"/></svg><div class="ws-leg"><span><i style="background:var(--accent)"></i>Clic</span><span><i style="background:#C9CED6"></i>Impressioni</span><span>${/T/.test(D2[0].d)?"ora per ora, ultime 24 ore":fmt(D2[0].d)+" – "+fmt(D2[N-1].d)}</span></div></div>`}
-function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div class="toolbar"><b style="margin-right:6px">delpiccolodiavolo.it</b>${[[1,"24 ore"],[7,"7 giorni"],[28,"28 giorni"],[90,"3 mesi"]].map(([v,l])=>`<button class="chip" data-a="wsDays" data-v="${v}" aria-pressed="${WS.days===v}">${l}</button>`).join("")}<button class="btn ghost small" data-a="wsLoad">${WS.load?"⏳ Aggiorno…":"Aggiorna"}</button></div>`;
+function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div class="toolbar"><b style="margin-right:6px">${esc(FM().site)}</b>${[[1,"24 ore"],[7,"7 giorni"],[28,"28 giorni"],[90,"3 mesi"]].map(([v,l])=>`<button class="chip" data-a="wsDays" data-v="${v}" aria-pressed="${WS.days===v}">${l}</button>`).join("")}<button class="btn ghost small" data-a="wsLoad">${WS.load?"⏳ Aggiorno…":"Aggiorna"}</button></div>`;
   if(WS.msg)h+=`<p class="fnote">${esc(WS.msg)}</p>`;
   if(X)h+=wsWaHtml()+`<h2>Ricerche su Google</h2><div class="toolbar"><button class="chip" data-a="wsIt" data-v="1" aria-pressed="${WS.it}">Solo Italia</button><button class="chip" data-a="wsIt" data-v="0" aria-pressed="${!WS.it}">Tutto il mondo</button></div>`;
   if(!X){if(!WS.load)setTimeout(wsLoad,0);return h+`<p class="empty">⏳ Leggo i dati da Google e da Cloudflare…</p>`}
@@ -3991,7 +4005,7 @@ function wsWaHtml(){const X=WS.data;let h=`<h2>💬 Contatti WhatsApp dal sito</
 function wsRefs(refs){const G={};const name=k=>{k=(k||"").replace(/^www\./,"").replace(/^m\./,"").replace(/^l\./,"").replace(/^lm\./,"");
     if(!k)return"Senza provenienza";if(/^google\./.test(k)||/\.google\./.test(k))return"Google";if(/(^|\.)facebook\.com$|^fb\.com$/.test(k))return"Facebook";
     if(/(^|\.)bing\.com$/.test(k))return"Bing";if(/(^|\.)instagram\.com$/.test(k))return"Instagram";if(/duckduckgo/.test(k))return"DuckDuckGo";if(/chatgpt\.com|openai\.com/.test(k))return"ChatGPT";
-    if(/perplexity/.test(k))return"Perplexity";if(k==="delpiccolodiavolo.it")return null;return k};
+    if(/perplexity/.test(k))return"Perplexity";if(k===FM().site)return null;return k};
   for(const r of refs){const n=name(r.k);if(!n)continue;G[n]=(G[n]||0)+r.v}return Object.entries(G).sort((a,b)=>b[1]-a[1])}
 function wsRows(L){return L.map(q=>`<tr${WS_PRI.includes(q.q)?' class="pri"':""}><td>${esc(q.q)}</td><td>${wsN(q.c)}</td><td>${wsN(q.i)}</td><td>${q.i?wsN(q.c/q.i*100,1):"0"}%</td><td>${wsN(q.p,1)}</td><td>${wsPos(q.dp)}</td></tr>`).join("")||`<tr><td colspan="6" class="row-meta">Nessuna ricerca con «${esc(WS.find)}».</td></tr>`}
 function stChips(){return`<div class="toolbar"><button class="chip" data-a="stSub" data-v="alle" aria-pressed="${WS.sub!=="sito"}">🐾 Allevamento</button><button class="chip" data-a="stSub" data-v="sito" aria-pressed="${WS.sub==="sito"}">🌐 Sito web</button></div>`}
@@ -4011,7 +4025,7 @@ function wsFromHash(){const h=location.hash||"";if(!h.startsWith("#sitostat"))re
    I cuccioli "prenotati" con famiglia e senza ritiro fissato compaiono da soli in "Da fissare".
    Messaggio WhatsApp: comando rapido dell'iPhone → https://gestionale.delpiccolodiavolo.it/#agenda=<testo>, oppure incollato;
    lo legge Claude (/api/ai, task "agenda"). Avvisi: oggi/domani, appuntamenti a meno di un'ora, ritiro prima dei 60 giorni. */
-const AG_ADDR="via Amerigo Chierici 12, Ostellato (FE)",AG_MAP="https://maps.google.com/?q=via+Amerigo+Chierici+12+Ostellato";
+const AG_ADDR_F=()=>FM().addr+", "+FM().cityProv,AG_MAP_F=()=>FM().mapUrl;
 let AG={f:"all",ed:null,txt:"",read:null,busy:0,hint:"",hq:""};
 const agL=()=>D.agenda||(D.agenda=[]);
 const agId=()=>"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
@@ -4036,14 +4050,14 @@ function agWarnings(){const out=[],A=agItems().filter(x=>x.date&&x.time&&(x.st==
   for(const x of agItems())if(x.k==="r"&&x.date&&x.dog&&D.dogs[x.dog]&&D.dogs[x.dog].birth&&x.date<addD(D.dogs[x.dog].birth,60))
     out.push(`⚠️ <b>${esc(agFam(x.dog).pup)}</b>: il ${agDay(x.date)} avrebbe meno di 60 giorni (si può dal ${fmt(addD(D.dogs[x.dog].birth,60))}).`);
   return out}
-function agMsgConf(x){if(x.k==="v")return`Ciao ${x.who||""}, ti confermo la visita ${agDay(x.date)} alle ${x.time}: vi faccio conoscere i cani e rispondo a tutte le domande.\nIndirizzo: ${AG_ADDR}\nPer arrivare: ${AG_MAP}\nA presto, Paolo`;
-  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti confermo ${agDay(x.date)} alle ${x.time} per ${f.pup}.\nIndirizzo: ${AG_ADDR}\nPer arrivare: ${AG_MAP}\nA presto, Paolo`}
-function agMsgRem(x){if(x.k==="v")return`Ciao ${x.who||""}, ti ricordo la visita di domani alle ${x.time}.\nIndirizzo: ${AG_ADDR}: ${AG_MAP}\nSe cambia qualcosa scrivimi pure. Paolo`;
-  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti ricordo che domani alle ${x.time} ti aspetto per ${f.pup}.\nIndirizzo: ${AG_ADDR}: ${AG_MAP}\nSe cambia qualcosa scrivimi pure. Paolo`}
-function agMsgAsk(x){if(x.k==="v")return`Ciao ${x.who||""}, quando ti farebbe comodo passare a conoscerci? Dimmi giorno e ora, così ti tengo libero il momento. Paolo`;
-  const f=agFam(x.dog);return`Ciao ${f.fam||""}, ${f.pup} è pronto per venire a casa. Quando ti farebbe comodo passare a prenderlo? Dimmi giorno e ora, così ti tengo libero il momento. Paolo`}
+function agMsgConf(x){if(x.k==="v")return`Ciao ${x.who||""}, ti confermo la visita ${agDay(x.date)} alle ${x.time}: vi faccio conoscere i cani e rispondo a tutte le domande.\nIndirizzo: ${AG_ADDR_F()}\nPer arrivare: ${AG_MAP_F()}\nA presto, ${FM().first}`;
+  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti confermo ${agDay(x.date)} alle ${x.time} per ${f.pup}.\nIndirizzo: ${AG_ADDR_F()}\nPer arrivare: ${AG_MAP_F()}\nA presto, ${FM().first}`}
+function agMsgRem(x){if(x.k==="v")return`Ciao ${x.who||""}, ti ricordo la visita di domani alle ${x.time}.\nIndirizzo: ${AG_ADDR_F()}: ${AG_MAP_F()}\nSe cambia qualcosa scrivimi pure. ${FM().first}`;
+  const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti ricordo che domani alle ${x.time} ti aspetto per ${f.pup}.\nIndirizzo: ${AG_ADDR_F()}: ${AG_MAP_F()}\nSe cambia qualcosa scrivimi pure. ${FM().first}`}
+function agMsgAsk(x){if(x.k==="v")return`Ciao ${x.who||""}, quando ti farebbe comodo passare a conoscerci? Dimmi giorno e ora, così ti tengo libero il momento. ${FM().first}`;
+  const f=agFam(x.dog);return`Ciao ${f.fam||""}, ${f.pup} è pronto per venire a casa. Quando ti farebbe comodo passare a prenderlo? Dimmi giorno e ora, così ti tengo libero il momento. ${FM().first}`}
 function agIcs(x){const [y,m,d]=x.date.split("-"),[hh,mm]=(x.time||"10:00").split(":"),s=y+m+d+"T"+hh.padStart(2,"0")+mm.padStart(2,"0")+"00",tit=x.k==="v"?"Visita "+(x.who||""):"Ritiro "+agFam(x.dog).pup+(x.who?" ("+x.who+")":"");
-  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//DelPiccoloDiavolo//Agenda//IT","BEGIN:VEVENT","UID:"+x.id+"@delpiccolodiavolo","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART:"+s,"DURATION:PT1H","SUMMARY:"+tit,"LOCATION:"+AG_ADDR,"DESCRIPTION:"+(x.tel?"Tel. "+x.tel+" ":"")+(x.note||""),"BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+tit,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//DelPiccoloDiavolo//Agenda//IT","BEGIN:VEVENT","UID:"+x.id+"@delpiccolodiavolo","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART:"+s,"DURATION:PT1H","SUMMARY:"+tit,"LOCATION:"+AG_ADDR_F(),"DESCRIPTION:"+(x.tel?"Tel. "+x.tel+" ":"")+(x.note||""),"BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+tit,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
   const u=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})),a=document.createElement("a");a.href=u;a.download=tit.replace(/[^\w\- ]+/g,"")+".ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function agForm(x){const L=agPups(),isR=x.k==="r";
   return`<div class="ag-form"><div class="ag-grid">${isR?`<label>Cucciolo<select id="ag_dog">${L.map(([k])=>`<option value="${k}" ${x.dog===k?"selected":""}>${esc(agFam(k).pup)} → ${esc(agFam(k).fam)}</option>`).join("")}${x.dog&&!L.some(([k])=>k===x.dog)?`<option value="${x.dog}" selected>${esc(agFam(x.dog).pup)}</option>`:""}</select></label>`:`<label>Chi viene<input id="ag_who" value="${esc(x.who||"")}" placeholder="Nome, quante persone"></label><label>Da dove<input id="ag_from" value="${esc(x.from||"")}"></label>`}
@@ -4063,7 +4077,7 @@ function agPage(){const F=AG.f,A=agItems(),ok=x=>F==="all"||x.k===F;
   h+=agBanner().replace(' data-a="go" data-v="agenda" style="cursor:pointer"',"");
   agWarnings().forEach(w=>h+=`<div class="ag-al ag-warn">${w}</div>`);
   h+=`<div class="ag-paste"><b>📋 Messaggio da WhatsApp</b><p class="row-meta" style="margin:4px 0 8px">Arriva da solo con il comando rapido «Agenda allevamento» (in WhatsApp: tieni premuto il messaggio → Condividi), oppure incollalo qui. Claude capisce se è un ritiro o una visita.</p>
-    <textarea id="ag_txt" rows="3" placeholder="Es. Ciao Paolo, per Brando veniamo sabato alle 15, io e mio figlio">${esc(AG.txt)}</textarea>
+    <textarea id="ag_txt" rows="3" placeholder="Es. Ciao ${esc(FM().first)}, per Brando veniamo sabato alle 15, io e mio figlio">${esc(AG.txt)}</textarea>
     <div class="ag-who"><label for="ag_hq">Chi ti ha scritto? <span class="row-meta">(facoltativo: scrivi due lettere del nome o del cucciolo)</span></label>${AG.hint&&D.dogs[AG.hint]?`<span class="ag-chip">✓ ${esc(agFam(AG.hint).fam)} · ${esc(agFam(AG.hint).pup)} <button data-a="agHintX" aria-label="Togli">✕</button></span>`:`<input id="ag_hq" value="${esc(AG.hq)}" autocomplete="off" placeholder="es. Laura, oppure Rocco"><div id="ag_hs" class="ag-hs" hidden></div>`}</div>
     <div class="row2" style="margin-top:8px"><button class="btn rv-go" data-a="agRead" ${AG.busy?"disabled":""}>${AG.busy?"⏳ Claude legge…":"✨ Leggi il messaggio"}</button></div>${agReadHtml()}</div>`;
   if(AG.ed&&AG.ed.id==="new")h+=`<div class="ag-c" style="display:block"><b>${AG.ed.k==="v"?"👋 Nuova visita":"🚗 Nuovo ritiro"}</b>${agForm(AG.ed)}</div>`;
@@ -4182,7 +4196,7 @@ if(STANDALONE){
    (riquadro rosso, voci, link alle guide), "🖨 Stampa" la stampa con intestazione: allevamento, cucciolo, famiglia, telefono.
    Lingua: quella del proprietario. */
 function instrHtml(id){const d=D.dogs[id]||{},o=D.owners[d.owner]||{},old=LANG;LANG=o.lang==="en"?"en":"it";const T2=(a,b)=>LANG==="en"?b:a;
-  const h=`<div class="instr-pr"><div class="pr-head"><b class="pr-k">Allevamento Del Piccolo Diavolo</b><br>${esc(d.nick||d.name||"")}${d.birth?" · "+T2("nato il","born on")+" "+fmt(d.birth):""}${o.name?" · "+T2("famiglia","family")+" "+esc(o.name):""}<br>Paolo Boldrini · +39 392 463 5584 · delpiccolodiavolo.it</div>${ovInstr(id,true)}</div>`;LANG=old;return h}
+  const h=`<div class="instr-pr"><div class="pr-head"><b class="pr-k">${esc(FM().kennel)}</b><br>${esc(d.nick||d.name||"")}${d.birth?" · "+T2("nato il","born on")+" "+fmt(d.birth):""}${o.name?" · "+T2("famiglia","family")+" "+esc(o.name):""}<br>${esc(FM().person+" · "+FM().phoneIntl+" · "+FM().site)}</div>${ovInstr(id,true)}</div>`;LANG=old;return h}
 function instrView(id){const d=D.dogs[id]||{};sheet(`<div class="instr-bar"><b>${esc(d.nick||d.name||"")}: istruzioni</b><button class="btn small" data-a="instrPrint" data-v="${id}">🖨 Stampa</button></div>${instrHtml(id)}`)}
 function instrPrint(id){if(!document.querySelector("#sheet .instr-pr"))instrView(id);document.body.classList.add("print-instr");
   const off=()=>{document.body.classList.remove("print-instr");window.removeEventListener("afterprint",off)};window.addEventListener("afterprint",off);setTimeout(()=>window.print(),150)}
@@ -4202,7 +4216,7 @@ function oiClose(){const w=document.getElementById("oiM");if(w){w.remove();docum
   document.querySelectorAll(".oi-imp:not(.oi-small)").forEach(a=>{const id=a.dataset.dog;if(id&&oiSeen(id)){a.classList.add("oi-small");const b=a.querySelector("b");if(b)b.textContent="⚠️ "+(LANG==="en"?"The breeder's instructions":"Istruzioni dell'allevatore")+" ›"}})}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")oiClose()});
 function ovImp(id){if(!instrOn(id))return"";const sm=oiSeen(id);return`<a class="oi-imp${sm?" oi-small":""}" data-dog="${id}" href="#istruzioni" onclick="event.preventDefault();event.stopPropagation();oiOpen('${id}');return false"><svg class="oi-tri" viewBox="0 0 54 48" aria-hidden="true"><path d="M27 3 L51 45 H3 Z" fill="#FFC400" stroke="#8A6200" stroke-width="3" stroke-linejoin="round"/><rect x="24.5" y="16" width="5" height="16" rx="2" fill="#3D2D00"/><circle cx="27" cy="38" r="3" fill="#3D2D00"/></svg><div><b>${sm?"⚠️ "+T("Istruzioni dell'allevatore","The breeder's instructions")+" ›":T("IMPORTANTE: leggi le istruzioni dell'allevatore","IMPORTANT: read the breeder's instructions")}</b><span>${T("Soprattutto nei primi 8-9 mesi: niente corse forzate, salti e scale.","Above all in the first 8-9 months: no forced running, jumping or stairs.")}</span></div><span class="oi-go">${T("Apri","Open")} ›</span></a>`}
-function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))return"";const en=LANG==="en",S="https://delpiccolodiavolo.it"+(en?"/en/":"/");
+function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))return"";const en=LANG==="en",S=FM().siteUrl+(en?"/en/":"/");
   const G=[["🍽️",T("Alimentazione del cucciolo","Puppy feeding"),T("quanto, quante volte, il cambio di cibo","how much, how often, changing food"),en?"puppy-initial-feeding":"cuccioli-alimentazione-iniziale"],
     ["🏃",T("Movimento sicuro","Safe exercise"),T("cosa fare e cosa evitare mese per mese","what to do and avoid, month by month"),en?"staffy-safe-exercise":"salute-esercizio-sicuro"],
     ["💉",T("Vaccinazioni","Vaccinations"),T("il calendario fino a 12 mesi","the schedule up to 12 months"),en?"puppy-first-vaccinations":"cuccioli-prime-vaccinazioni"],
@@ -4218,7 +4232,7 @@ function ovInstr(id,force){const d=D.dogs[id];if(!d||(!force&&!instrOn(id)))retu
   <li><b>${T("Vaccini:","Vaccines:")}</b> ${T("vaccino a tre mesi, poi dopo un anno, salvo diverso parere del veterinario di fiducia.","vaccine at three months, then after one year, unless your own vet advises otherwise.")}</li>
   <li><b>${T("Masticativi:","Chews:")}</b> ${T("finché non ha cambiato tutti i denti, solo masticativi morbidi (Kong morbidi o di media durezza). Niente tira e molla con stracci, corde o simili.","until all the adult teeth are in, only soft chews (soft or medium Kong). No tug-of-war with rags, ropes or similar.")}</li>
   <li><b>${T("Rispetto:","Respect:")}</b> ${T("nessun maltrattamento, da parte di nessuno.","no mistreatment, from anyone.")}</li>
-  <li><b>${T("Per ogni dubbio, chiedi a me","For any doubt, ask me")}</b>${T(", per tutta la vita del cane: 392 463 5584.",", for the dog's whole life: +39 392 463 5584.")}</li></ul>
+  <li><b>${T("Per ogni dubbio, chiedi a me","For any doubt, ask me")}</b>${T(", per tutta la vita del cane: "+FM().phone+".",", for the dog's whole life: "+FM().phoneIntl+".")}</li></ul>
   <div class="oi-g">${G.map(([i,a,b,s])=>`<a href="${S+s}/" target="_blank" rel="noopener">${i} ${esc(a)}<span>${esc(b)}</span></a>`).join("")}</div>
   <p class="oi-note">${T("Sono le istruzioni scritte a cui rimanda il contratto, al punto 3.1. Ogni frase viene dalle guide del sito, che si aprono qui sopra.","These are the written instructions referred to in point 3.1 of the contract. Every line comes from the kennel's guides, which open above.")}</p></div>`}
 /* ---------- Novità per la famiglia (scelte di Paolo, 06/10/2026) ----------
@@ -4335,17 +4349,17 @@ function ogPage(){const td=todayS(),w=addD(td,7),wd=d=>["domenica","lunedì","ma
   FT.sort((a,b)=>a[0].localeCompare(b[0]));const ftB=FT.length?`<ul class="og-l">${FT.map(x=>`<li>${x[1]}<span class="og-s">${x[2]}</span></li>`).join("")}</ul>`:`<p class="og-ok">✓ Niente parti o calori nelle prossime 3 settimane</p>`;
   // Google
   const nG=typeof rvTodo==="function"?rvTodo():0,gB=nG?`<ul class="og-l"><li>${nG} recensioni senza risposta</li></ul>`:`<p class="og-ok">✓ Nessuna recensione da rispondere</p>`;
-  let h=`<p class="og-hello">☀️ ${sal}, Paolo</p><p class="og-sub">${wd(td).replace(/^./,c=>c.toUpperCase())} ${new Date(td+"T12:00").toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"})} · ecco cosa c'è</p>
+  let h=`<p class="og-hello">☀️ ${sal}, ${esc(FM().first)}</p><p class="og-sub">${wd(td).replace(/^./,c=>c.toUpperCase())} ${new Date(td+"T12:00").toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"})} · ecco cosa c'è</p>
   <div class="og-pills"><span class="og-p">📅 <b>${A.length}</b> appuntamenti oggi e domani</span><span class="og-p">💉 <b>${late.length}</b> scadenze in ritardo</span><span class="og-p">📝 <b>${nR}</b> richieste nuove</span><span class="og-p">💬 <b>${FM.length}</b> famiglie da avvisare</span></div>
   <div class="og-grid">${ogWeb()}${ogCard("📅","Agenda",A.length,agB,"agenda",true)}${ogCard("💉","Scadenze",E.length,scB,"scadenze",late.length>0)}${ogCard("📝","Richieste e interessati",nR,rqB,"attesa",true)}${ogCard("💬","Famiglie da avvisare",FM.length,fmB,"",false)}${ogCard("🪪","Anagrafe",AN.length,anB,"anagrafe")}${ogCard("🐾","Fattrici",FT.length,ftB,"cucciolate")}${ogCard("⭐","Google",nG,gB,"recensioni",true)}</div>`;
   return h}
 /* ---------- ⚙️ Account (08/10/2026, scelte di Paolo) ----------
-   Tutte le impostazioni in una pagina. Allevamento: per ora fisso nel programma (si vede, non si cambia qui).
+   Tutte le impostazioni in una pagina. Allevamento: settings.farm, letto ovunque con FM().
    Si cambiano qui: intestatari (settings.holders), firma (settings.sellerSig), enti (settings.enti + settings.modB,
    settings.anagrafeEmail), regole di allevamento (settings.rules: età minima al parto, giorni tra due parti).
    Collegamenti, tetti di spesa e chi entra da GET /api/account (le chiavi non arrivano mai: solo sì/no). */
 let AC={x:null,load:0,ed:""};
-const AC_FARM=[["Nome","Allevamento Del Piccolo Diavolo"],["Indirizzo","Via Amerigo Chierici 12, 44020 Ostellato (FE)"],["Telefono e WhatsApp","+39 392 463 5584"],["Email","zonerosse@gmail.com"],["Sito","delpiccolodiavolo.it"],["Razza","Staffordshire Bull Terrier"]];
+const AC_FARM=()=>{const f=FM();return[["Nome",f.kennel],["Titolare",f.person],["Indirizzo",f.full],["Provincia",f.provName],["Telefono e WhatsApp",f.phoneIntl],["Email",f.email],["Sito",f.site],["Razza",f.breed],["Alleva dal",f.since]]};
 function acRules(){const r=(D.settings||{}).rules||{};EN_AGE=Math.max(16,+r.age||18);EN_GAP=Math.max(170,+r.gap||180)}
 async function acLoad(){AC.load=1;try{const r=await fetch("/api/account");AC.x=r.ok?await r.json():{err:"errore "+r.status}}catch(e){AC.x={err:e.message}}AC.load=0;if(tab==="account")render()}
 const acSt=(k,t)=>`<span class="ac-st ${k}">${t}</span>`;
@@ -4356,7 +4370,7 @@ function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoa
   const E=Object.assign({},{email:MA_TO.email,wa:MA_TO.wa,who:MA_TO.who,deleg:MA_TO.deleg},S.enti||{});
   let h=`<h1>⚙️ Account</h1><p class="lead">Tutte le impostazioni dell'allevamento e dei collegamenti, in un posto solo.</p><div class="ac-grid">`;
   // Allevamento
-  h+=`<section class="ac-c"><h2>🏠 Allevamento</h2>${AC_FARM.map(([a,b])=>acRow(a,esc(b))).join("")}<p class="ac-n">Per ora scritti dentro il programma (contratti, Modelli ENCI, messaggi): per cambiarli chiedi a Claude.</p></section>`;
+  h+=`<section class="ac-c"><h2>🏠 Allevamento</h2>${AC_FARM().map(([a,b])=>acRow(a,esc(b))).join("")}<div class="ac-a"><button class="btn small" data-a="acEd" data-v="farm">✏️ Modifica</button></div><p class="ac-n">Valgono ovunque: contratti, Modelli ENCI, ricevute, messaggi, pagina dei proprietari, pagina pubblica della coppia.</p></section>`;
   // Intestatari e firma
   h+=`<section class="ac-c"><h2>👤 Intestatari e firma</h2>${acHold()}${acRow("La tua firma",S.sellerSig?acSt("ok","✓ salvata"):acSt("wa","non ancora salvata"))}${S.sellerSig?`<div class="ac-sig"><img src="${esc(S.sellerSig)}" alt="La tua firma"></div>`:""}
     <div class="ac-a"><button class="btn small" data-a="acEd" data-v="hold">✏️ Modifica</button>${S.sellerSig?`<button class="btn small ghost" data-a="acSig">✍️ Cambia firma</button>`:""}</div>
@@ -4367,7 +4381,7 @@ function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoa
   // Regole
   h+=`<section class="ac-c"><h2>🧬 Regole di allevamento</h2>${acRow("Età minima della madre al parto",EN_AGE+` mesi <span class="ac-fx">ENCI 16</span>`)}${acRow("Giorni minimi tra due parti",EN_GAP+` <span class="ac-fx">ENCI 170</span>`)}${acRow("Fascia di COI ideale","6–9%")}
     <div class="ac-a"><button class="btn small" data-a="acEd" data-v="rules">✏️ Modifica</button></div><p class="ac-n">La fascia di COI per ora è fissa nel programma.</p></section>`;
-  if(AC.ed)h=h.replace(/(<section class="ac-c"><h2>(👤|📮|🧬)[\s\S]*?)<\/section>/g,(m,a,ic)=>((ic==="👤"&&AC.ed==="hold")||(ic==="📮"&&AC.ed==="enti")||(ic==="🧬"&&AC.ed==="rules"))?a+acForm()+"</section>":m);
+  if(AC.ed)h=h.replace(/(<section class="ac-c"><h2>(🏠|👤|📮|🧬)[\s\S]*?)<\/section>/g,(m,a,ic)=>((ic==="🏠"&&AC.ed==="farm")||(ic==="👤"&&AC.ed==="hold")||(ic==="📮"&&AC.ed==="enti")||(ic==="🧬"&&AC.ed==="rules"))?a+acForm()+"</section>":m);
   // Collegamenti
   let c="";if(!X)c=`<p class="ac-n">⏳ Controllo i collegamenti…</p>`;else if(X.err)c=`<p class="fnote">Non riesco a leggere lo stato: ${esc(X.err)}</p>`;else{const g=X.google||{},k=X.keys||{};
     c=acRow("Google: Search Console (statistiche del sito)",g.linked&&g.gsc?acSt("ok","✓ collegato"):g.linked?acSt("wa","collegato, proprietà non ancora trovata"):acSt("ko","✗ da collegare"))
@@ -4391,6 +4405,8 @@ function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoa
     <div class="ac-a"><button class="btn small" data-a="bkNow">💾 Scarica una copia adesso</button><button class="btn small ghost" data-a="exportData">Vedi le copie</button></div></section>`;
   return h+`</div>`}
 function acForm(){const S=D.settings||{},f=(id,l,v,t)=>`<label class="ac-f">${l}<input id="${id}" type="${t||"text"}" value="${esc(v||"")}"></label>`;
+  if(AC.ed==="farm"){const F=FM(),L=[["name","Nome dell'allevamento (senza «Allevamento»)"],["first","Nome del titolare"],["last","Cognome del titolare"],["street","Via"],["num","Numero civico"],["cap","CAP"],["city","Comune"],["prov","Sigla provincia"],["provName","Provincia per esteso"],["phone","Telefono (senza +39)"],["prefix","Prefisso internazionale"],["email","Email"],["site","Sito (senza https://)"],["breed","Razza"],["since","Alleva dal (anno)"]];
+    return`<div class="ac-form"><div class="ac-g">${L.map(([k,l])=>f("acf_"+k,l,F[k],k==="email"?"email":k==="phone"?"tel":"text")).join("")}</div><p class="ac-n">Un campo lasciato vuoto torna al valore di partenza.</p><div class="ac-a"><button class="btn small" data-a="acSave" data-v="farm">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
   if(AC.ed==="hold"){const H=anagHolders();return`<div class="ac-form">${Object.entries(H).map(([k,x])=>`<p class="ac-ft">${esc(x.name||k)}</p><div class="ac-g">${f("ach_"+k+"_name","Nome e cognome",x.name)}${f("ach_"+k+"_cf","Codice fiscale",x.cf)}${f("ach_"+k+"_bplace","Luogo di nascita",x.bplace)}${f("ach_"+k+"_bdate","Data di nascita",x.bdate,"date")}${f("ach_"+k+"_addr","Residenza",x.addr)}${f("ach_"+k+"_tel","Telefono",x.tel)}${f("ach_"+k+"_email","Email",x.email)}</div>`).join("")}<div class="ac-a"><button class="btn small" data-a="acSave" data-v="hold">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
   if(AC.ed==="enti"){const E=Object.assign({},{email:MA_TO.email,wa:MA_TO.wa,who:MA_TO.who,deleg:MA_TO.deleg},S.enti||{});
     return`<div class="ac-form"><div class="ac-g">${f("ace_deleg","Delegazione ENCI (città)",E.deleg)}${f("ace_email","Email della delegazione",E.email,"email")}${f("ace_who","Persona per WhatsApp",E.who)}${f("ace_wa","WhatsApp della delegazione",E.wa,"tel")}${f("ace_ana","Email dell'anagrafe canina",S.anagrafeEmail||ppAddr(),"email")}</div><div class="ac-a"><button class="btn small" data-a="acSave" data-v="enti">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
@@ -4400,7 +4416,8 @@ function acAct(a,v){const S=D.settings=D.settings||{},g=id=>{const e=document.ge
   if(a==="acReload"){AC.x=null;render();return}
   if(a==="acEd"){AC.ed=v||"";render();return}
   if(a==="acSig"){if(confirm("Cancellare la firma salvata? La prossima firma che fai (contratto o passaggio di proprietà) diventa quella nuova. I documenti già firmati non cambiano.")){delete S.sellerSig;render();typeof saveNow==="function"&&saveNow()}return}
-  if(a==="acSave"){if(v==="hold"){const H=anagHolders();Object.keys(H).forEach(k=>{["name","cf","bplace","bdate","addr","tel","email"].forEach(x=>{H[k][x]=g("ach_"+k+"_"+x)});H[k].cf=H[k].cf.toUpperCase()})}
+  if(a==="acSave"){if(v==="farm"){const o={};FARM_KEYS.forEach(k=>{const x=g("acf_"+k);if(x&&x!==FARM_DEF[k])o[k]=x});S.farm=o;fmBrand()}
+    if(v==="hold"){const H=anagHolders();Object.keys(H).forEach(k=>{["name","cf","bplace","bdate","addr","tel","email"].forEach(x=>{H[k][x]=g("ach_"+k+"_"+x)});H[k].cf=H[k].cf.toUpperCase()})}
     if(v==="enti"){S.enti={deleg:g("ace_deleg"),email:g("ace_email"),who:g("ace_who"),wa:g("ace_wa")};S.modB=Object.assign({},S.modB||{},{email:S.enti.email,wa:S.enti.wa});const an=g("ace_ana");if(an)S.anagrafeEmail=an}
     if(v==="rules"){S.rules={age:Math.max(16,parseInt(g("acr_age"),10)||18),gap:Math.max(170,parseInt(g("acr_gap"),10)||180)};acRules()}
     AC.ed="";render();typeof saveNow==="function"&&saveNow();toast("Salvato.")}}
@@ -4499,7 +4516,7 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
       resetCalc();render();saveNow();alert("Fatto: "+n+" modifiche unite. Il salvataggio online parte da solo.")}catch(err){alert("Questo file non contiene dati del gestionale.")}};r.readAsText(f)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
   if(a==="exportData")bkSheet();
-  if(a==="bkNow"){download("gestionale-copia-di-sicurezza_"+stamp()+".json",JSON.stringify({tipo:"copia di sicurezza del gestionale Del Piccolo Diavolo",at:nowS(),version:VERSION,data:D}));D.settings=D.settings||{};D.settings.lastDl=todayS();saveNow();if(sheetOpen())closeSheet();render();toast("Copia scaricata.")}
+  if(a==="bkNow"){download("gestionale-copia-di-sicurezza_"+stamp()+".json",JSON.stringify({tipo:"copia di sicurezza del gestionale "+FM().name,at:nowS(),version:VERSION,data:D}));D.settings=D.settings||{};D.settings.lastDl=todayS();saveNow();if(sheetOpen())closeSheet();render();toast("Copia scaricata.")}
   if(a==="bkGet"){try{const r=await api("/api/backups?day="+encodeURIComponent(v));const t=await r.text();download("gestionale-copia-automatica_"+v.replace(/[^0-9A-Za-z-]+/g,"_")+".json",t)}catch(x){toast("Non riesco a scaricarla.")}}
   if(a==="bkRest"){if(!confirm("Ripristinare la copia del "+bkLab(v)+"?\n\nIl gestionale torna com'era in quel momento. Prima metto da parte la situazione di adesso, così puoi tornare indietro con un altro \"Ripristina\"."))return;
     try{const r=await api("/api/backups",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({day:v})});if(!r.ok)throw 0;alert("Fatto: il gestionale è tornato com'era il "+bkLab(v)+". Ora si ricarica.");location.reload()}catch(x){alert("Ripristino non riuscito: non è cambiato niente.")}}

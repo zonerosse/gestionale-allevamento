@@ -1,4 +1,4 @@
-import { loadData } from "../../../_lib.js";
+import { loadData, farmOf } from "../../../_lib.js";
 
 // Calendario del telefono con le Scadenze di Paolo (iPhone: webcal://…, Google: "Da URL").
 // Avviso: il giorno prima alle 9 (TRIGGER -PT15H); con e.al = ora del giorno stesso (conto alla rovescia del Modello B).
@@ -10,8 +10,8 @@ export async function onRequestGet({ env, params }) {
   const cur = await loadData(env), st = (cur && cur.data && cur.data.settings) || {};
   if (!/^[A-Za-z0-9_-]{16,}$/.test(tok) || tok !== st.calToken) return new Response("Link non valido", { status: 404 });
   const now = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
-  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Del Piccolo Diavolo//Scadenze//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-    "X-WR-CALNAME:Del Piccolo Diavolo – Scadenze", "X-WR-TIMEZONE:Europe/Rome", "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"];
+  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//" + farmOf(cur.data).name + "//Scadenze//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "X-WR-CALNAME:" + esc(farmOf(cur.data).name + " – Scadenze"), "X-WR-TIMEZONE:Europe/Rome", "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"];
   for (const e of st.scad || []) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date || "")) continue;
     const d = e.date.replace(/-/g, ""), n = new Date(e.date + "T12:00:00Z"); n.setUTCDate(n.getUTCDate() + 1);

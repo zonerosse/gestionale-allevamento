@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, loadData, farmOf } from "../_lib.js";
 /* Funzioni con Claude (ottobre 2026, scelte di Paolo). Chiave: segreto Cloudflare ANTHROPIC_API_KEY.
    POST { task, ... } → { ok, ... }. Solo l'admin (Paolo). Niente viene salvato o mandato da qui: il gestionale mostra il
    risultato e Paolo decide. Compiti:
@@ -15,8 +15,8 @@ import { json, role, deny } from "../_lib.js";
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
-const VOICE = `Scrivi come Paolo Boldrini, allevatore di Staffordshire Bull Terrier a Ostellato (Ferrara), allevamento Del Piccolo Diavolo, dal 2013.
-Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "Paolo".`;
+const voice = F => `Scrivi come ${F.person}, allevatore di ${F.breed} a ${F.city} (${F.provName}), allevamento ${F.name}, dal ${F.since}.
+Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "${F.first}".`;
 const ask = async (env, system, content, max = 1200) => {
   const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
@@ -35,6 +35,7 @@ export async function onRequestPost({ request, env }) {
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
   try {
     const p = await request.json(), task = p.task;
+    const F = farmOf(((await loadData(env).catch(() => null)) || {}).data);
     if (task === "in") {
       const o = await ask(env, `Traduci in italiano un messaggio ricevuto da un allevatore di cani (WhatsApp o email). Traduzione fedele e naturale, senza aggiungere né togliere niente. Riconosci la lingua originale.
 Formato: {"lang":"codice ISO 639-1","it":"traduzione italiana"}`, String(p.text || "").slice(0, 4000));
@@ -42,15 +43,15 @@ Formato: {"lang":"codice ISO 639-1","it":"traduzione italiana"}`, String(p.text 
     }
     if (task === "out") {
       const L = LANGS[p.lang] ? p.lang : "en";
-      const o = await ask(env, `Traduci in ${LANGS[L]} il messaggio scritto in italiano da Paolo, allevatore di cani, per un cliente o un allevatore straniero. Traduzione fedele e naturale, registro cordiale (in tedesco "Sie" se il testo dà del lei, altrimenti "du"; in inglese naturale e semplice). Non aggiungere saluti, frasi o informazioni che non ci sono. Mantieni a capo ed emoji.
+      const o = await ask(env, `Traduci in ${LANGS[L]} il messaggio scritto in italiano da ${F.first}, allevatore di cani, per un cliente o un allevatore straniero. Traduzione fedele e naturale, registro cordiale (in tedesco "Sie" se il testo dà del lei, altrimenti "du"; in inglese naturale e semplice). Non aggiungere saluti, frasi o informazioni che non ci sono. Mantieni a capo ed emoji.
 Formato: {"text":"traduzione"}`, String(p.text || "").slice(0, 4000));
       return json({ ok: true, text: o.text || "" });
     }
     if (task === "risposte") {
       const L = LANGS[p.lang] ? p.lang : "en";
-      const o = await ask(env, `${VOICE}
-Ti arriva un messaggio (WhatsApp o email) da un cliente o un allevatore. ${p.idea ? `Paolo ti dice in breve cosa vuole rispondere: "${String(p.idea).slice(0, 800)}". Scrivi 2 versioni della risposta che dicono ESATTAMENTE questo (una più breve, una un po' più calda), senza aggiungere promesse o informazioni che lui non ha dato.` : "Proponi 3 risposte DIVERSE nell'approccio, non solo nel tono (es. breve e cordiale / con le informazioni utili / che fissa il prossimo passo; scegli tu i tre approcci più adatti al messaggio)."}
-Per ognuna: "label" (2-4 parole in italiano che dicono cosa fa), "it" (la risposta in italiano, massimo 60 parole, firmata "Paolo" solo se il messaggio ricevuto è lungo o formale), "out" (la stessa risposta tradotta fedelmente in ${LANGS[L]}).
+      const o = await ask(env, `${voice(F)}
+Ti arriva un messaggio (WhatsApp o email) da un cliente o un allevatore. ${p.idea ? `${F.first} ti dice in breve cosa vuole rispondere: "${String(p.idea).slice(0, 800)}". Scrivi 2 versioni della risposta che dicono ESATTAMENTE questo (una più breve, una un po' più calda), senza aggiungere promesse o informazioni che lui non ha dato.` : "Proponi 3 risposte DIVERSE nell'approccio, non solo nel tono (es. breve e cordiale / con le informazioni utili / che fissa il prossimo passo; scegli tu i tre approcci più adatti al messaggio)."}
+Per ognuna: "label" (2-4 parole in italiano che dicono cosa fa), "it" (la risposta in italiano, massimo 60 parole, firmata "${F.first}" solo se il messaggio ricevuto è lungo o formale), "out" (la stessa risposta tradotta fedelmente in ${LANGS[L]}).
 Non inventare fatti su cani, date, prezzi o salute: se servono, scrivi una parentesi quadra da completare, es. [data].
 Formato: {"options":[{"label":"","it":"","out":""}]}`,
         `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
@@ -58,15 +59,15 @@ Formato: {"options":[{"label":"","it":"","out":""}]}`,
     }
     if (task === "post") {
       // Post per la sezione "Aggiornamenti" del profilo Google: una notizia, non una vendita.
-      const o = await ask(env, `${VOICE}
+      const o = await ask(env, `${voice(F)}
 Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevamento, in italiano, partendo SOLO dai fatti che ti do.
-Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` Paolo aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
+Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` ${F.first} aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
 Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000), 700);
       return json({ ok: true, text: String(o.text || "") });
     }
     if (task === "agenda") {
       // Agenda (ritiri dei cuccioli e visite in allevamento): legge un messaggio WhatsApp e propone l'appuntamento.
-      const o = await ask(env, `Leggi un messaggio WhatsApp arrivato all'allevamento Del Piccolo Diavolo (Ostellato, Ferrara) e capisci se è:
+      const o = await ask(env, `Leggi un messaggio WhatsApp arrivato all'allevamento ${F.name} (${F.city}, ${F.provName}) e capisci se è:
 - "ritiro": una famiglia che fissa il giorno per venire a prendere il suo cucciolo;
 - "visita": qualcuno che vuole venire a vedere i cani e conoscere l'allevamento;
 - "altro": niente di tutto questo.
@@ -80,25 +81,25 @@ Rispondi solo con JSON: {"type":"ritiro|visita|altro","date":"","time":"","who":
     }
     if (task === "recensione") {
       // Recensione Google (scheda Recensioni): senza idea → 2 ringraziamenti brevi; con idea → 1 risposta che dice quello.
-      const o = await ask(env, `${VOICE}
+      const o = await ask(env, `${voice(F)}
 Ti arriva una recensione pubblica del profilo Google dell'allevamento. La risposta è pubblica: la leggono tutti.
-${p.idea ? `Paolo ti dice in breve cosa vuole dire: "${String(p.idea).slice(0, 800)}". Scrivi UNA risposta che dice esattamente questo, con un ringraziamento, senza aggiungere promesse o informazioni che lui non ha dato.` : "Scrivi DUE risposte brevi di ringraziamento, diverse fra loro (una più asciutta, una più calda), che riprendono qualcosa di concreto della recensione se c'è."}
-Regole: massimo 40 parole ciascuna; nella lingua della recensione; niente firma; niente hashtag; niente date precise, nomi di cani o fatti che non sono scritti nella recensione o nell'idea di Paolo; mai le parole clienti, acquisto, vendita, prenotazione, caparra (l'allevamento è amatoriale: si parla di famiglie e di affido). Se la recensione è negativa: tono calmo, nessuna polemica, invito a parlarne di persona.
+${p.idea ? `${F.first} ti dice in breve cosa vuole dire: "${String(p.idea).slice(0, 800)}". Scrivi UNA risposta che dice esattamente questo, con un ringraziamento, senza aggiungere promesse o informazioni che lui non ha dato.` : "Scrivi DUE risposte brevi di ringraziamento, diverse fra loro (una più asciutta, una più calda), che riprendono qualcosa di concreto della recensione se c'è."}
+Regole: massimo 40 parole ciascuna; nella lingua della recensione; niente firma; niente hashtag; niente date precise, nomi di cani o fatti che non sono scritti nella recensione o nell'idea di ${F.first}; mai le parole clienti, acquisto, vendita, prenotazione, caparra (l'allevamento è amatoriale: si parla di famiglie e di affido). Se la recensione è negativa: tono calmo, nessuna polemica, invito a parlarne di persona.
 Formato: {"options":["risposta"]}`,
         `Autore: ${String(p.who || "").slice(0, 80)}\nStelle: ${+p.stars || ""}\nRecensione:\n${String(p.text || "(nessun testo, solo stelle)").slice(0, 3000)}`, 700);
       return json({ ok: true, options: (o.options || []).map(String).filter(Boolean).slice(0, 2) });
     }
     if (task === "interessato") {
-      const o = await ask(env, `Da un messaggio WhatsApp di una persona interessata a un cucciolo di Staffordshire Bull Terrier, estrai SOLO quello che c'è scritto (stringa vuota se manca, non inventare):
+      const o = await ask(env, `Da un messaggio WhatsApp di una persona interessata a un cucciolo di ${F.breed}, estrai SOLO quello che c'è scritto (stringa vuota se manca, non inventare):
 "name" (nome con cui si firma o si presenta), "city", "country" (in italiano, es. "Slovenia"), "sex" ("maschio", "femmina" o ""), "when" (quando lo vorrebbe, es. "primavera 2027"), "lang" (codice ISO 639-1 della lingua del messaggio), "note" (in italiano, una frase con le domande o le richieste fatte).
 Formato: {"name":"","city":"","country":"","sex":"","when":"","lang":"","note":""}`, `Messaggio:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 600);
       return json({ ok: true, name: o.name || "", city: o.city || "", country: o.country || "", sex: o.sex || "", when: o.when || "", lang: o.lang || "it", note: o.note || "" });
     }
     if (task === "richiesta") {
-      const o = await ask(env, `${VOICE}
+      const o = await ask(env, `${voice(F)}
 Ti arriva una richiesta di informazioni dal modulo contatti del sito. Fai tre cose:
 1) "sunto": riassunto in italiano, 1-2 frasi, con i dati utili (chi è, dove vive, cosa cerca, quando, domande fatte).
-2) "bozza": risposta in italiano scritta da Paolo, breve (massimo 90 parole), che risponde solo alle domande fatte, senza inventare informazioni sull'allevamento, sui cuccioli o sulle date. Se servono dati che non conosci, lascia una parentesi quadra da completare, es. [data della prossima cucciolata].
+2) "bozza": risposta in italiano scritta da ${F.first}, breve (massimo 90 parole), che risponde solo alle domande fatte, senza inventare informazioni sull'allevamento, sui cuccioli o sulle date. Se servono dati che non conosci, lascia una parentesi quadra da completare, es. [data della prossima cucciolata].
 3) "out": la stessa bozza tradotta nella lingua di chi ha scritto (se è italiano, uguale alla bozza).
 Formato: {"lang":"codice ISO 639-1 di chi scrive","sunto":"...","bozza":"...","out":"..."}`,
         `Nome: ${p.name || ""}\nMessaggio:\n${String(p.msg || "").slice(0, 4000)}`, 1500);

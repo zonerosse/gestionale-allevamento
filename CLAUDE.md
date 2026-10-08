@@ -990,8 +990,8 @@ Accessi e copie
   e pagine dai giorni che coprono quelle ore. Posizione senza dati: "–", senza freccia.
 
 ## ⚙️ Account (08/10/2026)
-- Ultima voce del menu (`acPage`, `AC`, `acAct`; non per chi consulta né per "conti"). Riquadri: Allevamento (`AC_FARM`, fisso nel
-  programma: si vede, non si cambia; scelta di Paolo "per ora"), Intestatari e firma (`settings.holders` via `anagHolders`, spunte
+- Ultima voce del menu (`acPage`, `AC`, `acAct`; non per chi consulta né per "conti"). Riquadri: Allevamento (modificabile, vedi sotto
+  "Dati dell'allevamento"), Intestatari e firma (`settings.holders` via `anagHolders`, spunte
   C.F./nascita/documento, "Cambia firma" cancella `settings.sellerSig`), Enti e destinatari (`settings.enti` = delegazione ENCI;
   `MA_TO` ora legge da lì con `MA_DEF` di base; salva anche `settings.modB` e `settings.anagrafeEmail`), Regole di allevamento
   (`settings.rules` → `EN_AGE`/`EN_GAP`, ora `let`, applicate a ogni render da `acRules`, minimo 16 mesi e 170 giorni), Collegamenti,
@@ -1002,3 +1002,22 @@ Accessi e copie
 - PRIVACY (08/10/2026): il repository è pubblico. Tolti dal codice codici fiscali e date di nascita di Paolo e Daniela (prima in
   `ANAG_DEF` e come valore di riserva nella ricevuta della caparra): ora stanno solo in `settings.holders`. MAI rimettere dati
   personali nel codice. (Restano nella cronologia di GitHub: Paolo può rendere privato il repository.)
+
+## 🏠 Dati dell'allevamento: una sola fonte (08/10/2026, scelta 2 di Paolo)
+- REGOLA: nome dell'allevamento, titolare, indirizzo, telefono, email, sito e razza NON si scrivono mai a mano nel codice.
+  Nelle pagine: `FM()` (in cima allo script di index.html e proprietario.html, blocco identico) = `FARM_DEF` + `D.settings.farm`.
+  Campi: name, first, last, street, num, cap, city, prov, provName, phone, prefix, email, site, breed, since; derivati: person,
+  personRev, kennel ("Allevamento …"), kennelEn, addr, cityProv, capCity, full, phoneDigits, phoneIntl, siteUrl, mapUrl.
+  Lato server: `farmOf(data)` / `farmRaw(data)` in functions/_lib.js (stessi valori di partenza di `FARM_DEF`: se cambi uno,
+  cambia anche l'altro).
+- Si cambiano in ⚙️ Account → 🏠 Allevamento → Modifica (`AC.ed="farm"`, campi `acf_*`): si salvano in `settings.farm` solo i
+  campi diversi dai valori di partenza; un campo vuoto torna al valore di partenza. `fmBrand()` (a ogni render) aggiorna la
+  scritta in alto e il titolo della finestra.
+- Usati in: contratto (HTML e PDF, `CT_DEL_F()`), Modelli A e B, email ENCI, ricevuta della caparra (luogo e data di nascita da
+  `settings.ppMe` o `settings.holders.paolo`), anagrafe e passaggi di proprietà (`PP_WHY_F()`), messaggi WhatsApp e email,
+  Agenda (`AG_ADDR_F()`, `AG_MAP_F()`), Drive (`DR_ROOT_F()`), sito (`SITE_F()`), Diario, istruzioni dell'allevatore, Oggi,
+  intestatari di base (`ANAG_DEF` con getter), pagina del proprietario (`ownerSubset` ora manda `settings.farm`; anche
+  `viewerData` e `contiData`), pagina pubblica della coppia (`farm` nella risposta di /api/public/coppia), calendari (.ics),
+  copie di sicurezza, prompt di Claude (ai.js: `voice(F)`, legge i dati da D1).
+- Restano scritti nel codice di proposito: "foro competente di Ferrara" nel contratto (testo legale: Paolo non vuole toccare il
+  contratto), nomi degli zip del sito (delpiccolodiavolo-*.zip), UID dei calendari, commenti.

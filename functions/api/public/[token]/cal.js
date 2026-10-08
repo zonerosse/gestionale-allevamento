@@ -1,4 +1,4 @@
-import { loadData, ownerSubset } from "../../../_lib.js";
+import { loadData, ownerSubset, farmOf } from "../../../_lib.js";
 
 // File del calendario (.ics) con le scadenze del primo anno di un cucciolo, per il telefono del proprietario.
 // Stessa logica di calEvents() nella pagina: richiamo a 3 mesi, 1° aprile (stagione a rischio), richiamo a 1 anno,
@@ -29,13 +29,13 @@ export async function onRequestGet({ env, params, request }) {
   const id = new URL(request.url).searchParams.get("dog");
   if (!sub || !sub.dogs.includes(id)) return new Response("Link non valido", { status: 404 });
   const d = cur.data.dogs[id], L = (cur.data.owners[sub.oid] || {}).lang === "en" ? 1 : 0, nm = d.nick || d.name;
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Del Piccolo Diavolo//Gestionale//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+  const F = farmOf(cur.data), stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//" + farmOf(cur.data).name + "//Gestionale//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
     "X-WR-CALNAME:" + esc((L ? "Reminders · " : "Scadenze · ") + nm)];
   for (const e of events(d)) {
     const s = e.date.replace(/-/g, ""), x = new Date(e.date + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + 1);
     lines.push("BEGIN:VEVENT", `UID:${id}-${e.id}@delpiccolodiavolo.it`, "DTSTAMP:" + stamp, "DTSTART;VALUE=DATE:" + s, "DTEND;VALUE=DATE:" + x.toISOString().slice(0, 10).replace(/-/g, ""),
-      "SUMMARY:" + esc(e.t[L] + " · " + nm), "DESCRIPTION:" + esc(e.s[L] + (L ? "\nDel Piccolo Diavolo kennel · +39 392 463 5584" : "\nAllevamento Del Piccolo Diavolo · 392 463 5584")),
+      "SUMMARY:" + esc(e.t[L] + " · " + nm), "DESCRIPTION:" + esc(e.s[L] + (L ? "\n" + F.kennelEn + " · " + F.phoneIntl : "\n" + F.kennel + " · " + F.phone)),
       "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(e.t[L]), "TRIGGER:-PT15H", "END:VALARM",
       "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(e.t[L]), "TRIGGER:PT9H", "END:VALARM", "END:VEVENT");
   }

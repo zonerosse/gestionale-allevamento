@@ -43,13 +43,20 @@ export async function role(request, env) {
   return C.includes(e) ? "conti" : V.includes(e) ? "viewer" : "admin";
 }
 export async function isAdmin(request, env) { return (await role(request, env)) === "admin"; }
+// Dati dell'allevamento (08/10/2026): stessi valori di partenza di FARM_DEF nelle pagine; si cambiano in ⚙️ Account
+// (settings.farm). Usare sempre farmOf(data) lato server, mai scriverli a mano.
+export const FARM_DEF = { name: "Del Piccolo Diavolo", first: "Paolo", last: "Boldrini", street: "Via Amerigo Chierici", num: "12", cap: "44020", city: "Ostellato", prov: "FE", provName: "Ferrara", phone: "392 463 5584", prefix: "39", email: "zonerosse@gmail.com", site: "delpiccolodiavolo.it", breed: "Staffordshire Bull Terrier", since: "2013" };
+export function farmRaw(data) { const s = (data && data.settings && data.settings.farm) || {}, o = {}; for (const k of Object.keys(FARM_DEF)) if (s[k] != null && String(s[k]).trim() !== "") o[k] = String(s[k]).trim(); return o; }
+export function farmOf(data) { const f = Object.assign({}, FARM_DEF, farmRaw(data)); f.site = f.site.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+  f.person = f.first + " " + f.last; f.kennel = "Allevamento " + f.name; f.kennelEn = f.name + " kennel"; f.cityProv = f.city + (f.prov ? " (" + f.prov + ")" : "");
+  f.phoneIntl = "+" + f.prefix + " " + f.phone; return f; }
 // Dati per chi consulta: niente dati personali dei proprietari, contratti, documenti privati, firma di Paolo
 export function viewerData(data) {
   const d = JSON.parse(JSON.stringify(data));
   for (const k of Object.keys(d.owners || {})) d.owners[k] = { name: d.owners[k].name || "" };
   for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct && !z.pp && !z.pp_en && !z.isc); }
   for (const l of Object.values(d.litters || {})) delete l.acc;
-  delete d.accGen; delete d.settings; return d;
+  delete d.accGen; d.settings = { farm: farmRaw(data) }; return d;
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
 
@@ -95,7 +102,7 @@ export function ownerSubset(data, token) {
   const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it", cf: ow.cf || "", doc: ow.doc || "" } };
   const litters = {};
   mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) { litters[l] = Object.assign({}, data.litters[l]); delete litters[l].acc; } }); // i conti restano solo a Paolo
-  let txt = JSON.stringify({ dogs, owners, litters, matings: {} });
+  let txt = JSON.stringify({ dogs, owners, litters, matings: {}, settings: { farm: farmRaw(data) } });
   const allowed = new Set([...txt.matchAll(/\/files\/([A-Za-z0-9._-]+)/g)].map(m => m[1]));
   txt = txt.split("/files/").join("/api/public/" + token + "/f/");
   return { oid, dogs: mine, data: JSON.parse(txt), allowed };
@@ -145,7 +152,7 @@ export function contiData(data) {
     for (const p of [l.dam, l.sire]) if (p && D.dogs[p]) dogs[p] = { name: D.dogs[p].name, nick: D.dogs[p].nick || "", sex: D.dogs[p].sex, ext: !!D.dogs[p].ext };
   }
   for (const [k, d] of Object.entries(D.dogs || {})) if (d.litter && litters[d.litter]) dogs[k] = { name: d.name, nick: d.nick || "", sex: d.sex, litter: d.litter, birthOrder: d.birthOrder };
-  return { dogs, litters, owners: {}, matings: {}, accGen: D.accGen || [], settings: {} };
+  return { dogs, litters, owners: {}, matings: {}, accGen: D.accGen || [], settings: { farm: farmRaw(D) } };
 }
 // Unisce ai dati veri solo i Conti mandati dal ruolo "conti": tutto il resto resta com'è
 export function mergeConti(cur, body) {
