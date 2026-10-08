@@ -48,6 +48,7 @@ def pagina(s, f):
     s = rx(s, r'const MA_DEF=\{[^}]*\};', 'const MA_DEF={email:"",wa:"",who:"",deleg:""};', f)
     s = rx(s, r'const DRIVE_DEF="[^"]*"', 'const DRIVE_DEF=""', f)
     s = rx(s, r'const ANAG_EMAIL_DEF="[^"]*";', 'const ANAG_EMAIL_DEF="";', f)
+    s = rx(s, r'const PACK_DEF=\{[^}]*\};', 'const PACK_DEF=null;', f)
     s = rx(s, r'const AC_SOTT_ON=true,AC_SOTT_NAME="[^"]*";', 'const AC_SOTT_ON=false,AC_SOTT_NAME="";', f)
     # contratto vuoto: l'allevatore metterà il suo testo
     i = s.find("const CT=[")

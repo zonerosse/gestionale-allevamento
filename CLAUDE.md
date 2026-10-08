@@ -1065,3 +1065,11 @@ Accessi e copie
   sito scritto in Account, firme dei messaggi con `FM().first`, esempi neutri nei campi.
 - Prossimo passo per "un programma solo": salvare i dati di Paolo in `settings.farm` (Account → Allevamento → Salva) e poi
   svuotare i valori di partenza anche nel suo gestionale.
+
+## 🐾 Pacchetto di razza Staffordshire (08/10/2026, scelta di Paolo)
+- La versione vergine non presume lo Staffy: le funzioni della razza si accendono da ⚙️ Account → 🐾 Razza → Installa, voce per
+  voce (`PACK_ITEMS`): sbt (link SBT, aggiungi maschio da SBT), tm (COI SBT, test mating, analisi COI), gen (L2HGA/HC nei
+  suggerimenti), instr (istruzioni dell'allevatore), kit (voci della Consegna, `kitOn`), scad (scadenze suggerite di Paolo).
+- `settings.pack` = {voce:1}; se manca vale `PACK_DEF` (gestionale di Paolo: tutto acceso; vergine: `null`). `PK(k)`, `pkAny()`,
+  `pkBody()` (classi `pk-no<voce>` sul body: CSS nasconde `.pk-sbt`, `.pk-tm`, `.addsbt`, `.sbtrow`). Spegnere non cancella dati.
+  `ownerSubset`, `limitedData`, `contiData` mandano anche `settings.pack`.

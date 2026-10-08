@@ -144,7 +144,7 @@ export function ownerSubset(data, token) {
   const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it", cf: ow.cf || "", doc: ow.doc || "" } };
   const litters = {};
   mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) { litters[l] = Object.assign({}, data.litters[l]); delete litters[l].acc; } }); // i conti restano solo a Paolo
-  let txt = JSON.stringify({ dogs, owners, litters, matings: {}, settings: { farm: farmRaw(data) } });
+  let txt = JSON.stringify({ dogs, owners, litters, matings: {}, settings: { farm: farmRaw(data), pack: (data.settings || {}).pack } });
   const allowed = new Set([...txt.matchAll(/\/files\/([A-Za-z0-9._-]+)/g)].map(m => m[1]));
   txt = txt.split("/files/").join("/api/public/" + token + "/f/");
   return { oid, dogs: mine, data: JSON.parse(txt), allowed };
@@ -194,7 +194,7 @@ export function contiData(data) {
     for (const p of [l.dam, l.sire]) if (p && D.dogs[p]) dogs[p] = { name: D.dogs[p].name, nick: D.dogs[p].nick || "", sex: D.dogs[p].sex, ext: !!D.dogs[p].ext };
   }
   for (const [k, d] of Object.entries(D.dogs || {})) if (d.litter && litters[d.litter]) dogs[k] = { name: d.name, nick: d.nick || "", sex: d.sex, litter: d.litter, birthOrder: d.birthOrder };
-  return { dogs, litters, owners: {}, matings: {}, accGen: D.accGen || [], settings: { farm: farmRaw(D) } };
+  return { dogs, litters, owners: {}, matings: {}, accGen: D.accGen || [], settings: { farm: farmRaw(D), pack: (D.settings || {}).pack } };
 }
 // Unisce ai dati veri solo i Conti mandati dal ruolo "conti": tutto il resto resta com'è
 export function mergeConti(cur, body) {
@@ -217,7 +217,7 @@ export function limitedData(data, P) {
   if (!v("conti")) { for (const l of Object.values(d.litters)) delete l.acc; d.accGen = []; }
   if (!v("attesa")) { delete d.waitlist; delete d.interested; delete d.wlGone; }
   if (!v("agenda")) delete d.agenda;
-  const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
+  const s = { farm: farmRaw(data), pack: S.pack }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
   cp(["rules", "enti"]);
   if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken"]);
   if (v("cani") || v("proprietari")) cp(["kitExtra"]);
