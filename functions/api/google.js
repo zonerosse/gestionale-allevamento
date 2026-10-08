@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, farmNow } from "../_lib.js";
 import { gbpGet, gbpSet, gget } from "../_gbp.js";
 /* Collegamento del gestionale al profilo Google dell'attività (ottobre 2026). Solo Paolo.
    GET /api/google            → manda alla pagina di Google per dare il permesso (una volta sola)
@@ -38,12 +38,13 @@ export async function onRequestGet({ request, env }) {
     }
     // la scheda dell'allevamento: quella che si chiama "…Piccolo Diavolo…", altrimenti la prima
     const acc = await gget("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", j.access_token);
+    const F0 = await farmNow(env), nm = (F0.name || "").trim(), MY = nm ? new RegExp(nm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*"), "i") : /$^/;
     let pick = null;
     for (const a of acc.accounts || []) {
       const l = await gget("https://mybusinessbusinessinformation.googleapis.com/v1/" + a.name + "/locations?readMask=name,title&pageSize=100", j.access_token);
       for (const x of l.locations || []) {
         const loc = a.name + "/" + x.name; // accounts/…/locations/…
-        if (!pick || /piccolo\s*diavolo/i.test(x.title || "")) pick = { loc, title: x.title || "" };
+        if (!pick || MY.test(x.title || "")) pick = { loc, title: x.title || "" };
       }
     }
     if (!pick) return back(request.url, "Collegato, ma Google non mostra nessuna scheda attività per questo account.");
@@ -54,10 +55,11 @@ export async function onRequestGet({ request, env }) {
 
 async function findLoc(env, token) {
   const acc = await gget("https://mybusinessaccountmanagement.googleapis.com/v1/accounts", token);
+  const F0 = await farmNow(env), nm = (F0.name || "").trim(), MY = nm ? new RegExp(nm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*"), "i") : /$^/;
   let pick = null;
   for (const a of acc.accounts || []) {
     const l = await gget("https://mybusinessbusinessinformation.googleapis.com/v1/" + a.name + "/locations?readMask=name,title&pageSize=100", token);
-    for (const x of l.locations || []) { const loc = a.name + "/" + x.name; if (!pick || /piccolo\s*diavolo/i.test(x.title || "")) pick = { loc, title: x.title || "" }; }
+    for (const x of l.locations || []) { const loc = a.name + "/" + x.name; if (!pick || MY.test(x.title || "")) pick = { loc, title: x.title || "" }; }
   }
   if (pick) { await gbpSet(env, "loc", pick.loc); await gbpSet(env, "title", pick.title); }
 }

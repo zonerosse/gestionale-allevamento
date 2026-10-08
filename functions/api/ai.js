@@ -144,7 +144,7 @@ Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","loi":"","tests"
       if (!parts.length) return json({ ok: false, error: "Manca il file." });
       const doc = media === "application/pdf" ? [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: parts[0] } }] : parts.map(d => ({ type: "image", source: { type: "base64", media_type: media, data: d } }));
       const o = await ask(env, `Leggi una pagina di SBTpedigree.com (Testmating COI o analisi di un cane). Estrai SOLO i numeri scritti, senza calcolare niente.
-- "pair": i nomi della coppia come scritti (es. "Black Stone D.P. x Lackyle Bean Croi Olc"), o il nome del cane se è l'analisi di un cane solo.
+- "pair": i nomi della coppia come scritti (es. "Rex x Bella"), o il nome del cane se è l'analisi di un cane solo.
 - "single": true se è l'analisi di un cane solo e non di una coppia (test mating).
 - "coi8","coi3","coi5": percentuali come numeri (es. 14.736), null se non ci sono.
 - "uniq": antenati in 8 generazioni (es. 360), "loss": ancestor loss in % (es. 29.4), null se mancano.

@@ -17,10 +17,10 @@ OUT = os.path.join(ROOT, "build", "vergine")
 TERSER_DIR = os.environ.get("TERSER_DIR", os.path.join(ROOT, "node_modules"))
 ZIP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "build", "gestionale-vergine.zip")
 
-SALTA = {"CLAUDE.md", "LEGGIMI.md", "tools/vergine.py", ".gitignore", "functions/api/public/budget.js"}
-PROIBITE = r"Boldrini|Ostellato|4635584|463 5584|zonerosse|Chierici|Piccolo\s*Diavolo|piccolodiavolo|PiccoloDiavolo|Daniela|Veronesi|" \
+SALTA = {"CLAUDE.md", "LEGGIMI.md", "tools/vergine.py", ".gitignore", "functions/api/public/budget.js", "tools/controlla.py"}
+PROIBITE = r"(?i:piccolo\s*diavolo)|\bDPD\b|\bPiera\b|\bAndrej\b|Black Stone|Lackyle|\"forever\"|\"queen\"|\bRocco\b|(?i:sottosopra)|Boldrini|Ostellato|4635584|463 5584|zonerosse|Chierici|Piccolo\s*Diavolo|piccolodiavolo|PiccoloDiavolo|Daniela|Veronesi|" \
            r"Cristina|gcferrarese|3382141637|toselli|Comacchio|1051634257234|\bPaolo\b|\bpaolo\b|Tikus|Maris|Brando|Tevini|" \
-           r"delpiccolo|BLDPLA|VRNDNL|44020|Amerigo|Sottosopra|puntowebferrara"
+           r"delpiccolo|BLDPLA|VRNDNL|44020|Amerigo|Sottosopra|puntowebferrara|338 ?214 ?1637|staffy-|cuccioli-alimentazio|salute-esercizio"
 
 def tracked():
     r = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True)
@@ -58,6 +58,13 @@ def pagina(s, f):
     s = rx(s, r'\n\s*daniela:\{[^\n]*\}\};', '};', f) if "daniela:{" in s else s
     s = re.sub(r'\bpaolo\b', 'titolare', s)
     s = s.replace("@delpiccolodiavolo", "@gestionale-allevamento")
+    s = rx(s, r'let mateS="[^"]*",mateD="[^"]*"', 'let mateS="",mateD=""', f)
+    # istruzioni dell'allevatore: niente link alle guide del sito di questo allevamento
+    if 'const G=[["🍽️"' in s:
+        i = s.find('const G=[["🍽️"'); j = s.find('"salute-denti-igiene"]];', i) + len('"salute-denti-igiene"]];')
+        if j < len('"salute-denti-igiene"]];'): raise SystemExit("vergine.py: guide delle istruzioni non trovate in " + f)
+        s = s[:i] + "const G=[];" + s[j:]
+        s = rx(s, r'<p class="oi-note">.*?</p>', '', f)
     return s
 
 def pulisci_html(s, f):
@@ -89,7 +96,8 @@ def server(s, f):
         i = s.find("const DEF = {"); j = s.find("};", i)
         s = s[:i] + 'const DEF = { kw: [], cities: [{ n: "Italia", loc: "Italy" }] };' + s[j + 2:]
         s = rx(s, r'\n[^\n]*"Ostellato\|Ferrara\|[^\n]*', '', f)
-    s = s.replace("@delpiccolodiavolo.it", "@gestionale-allevamento").replace("@gestionale.delpiccolodiavolo.it", "@gestionale-allevamento")
+    s = s.replace("@delpiccolodiavolo.it", "@gestionale-allevamento")
+    s = s.replace("SOTTOSOPRA_CAP", "EXTRA_CAP").replace("budget:sottosopra:", "budget:extra:").replace("@gestionale.delpiccolodiavolo.it", "@gestionale-allevamento")
     return terser(s, True, f).lstrip("\n")
 
 def coppia(s, f):
