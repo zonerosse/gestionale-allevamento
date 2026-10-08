@@ -610,6 +610,10 @@ Accessi e copie
   `content/<lingua>/diario-allevamento/*.md` con `gestionale: true` (file protetti: il server non scrive mai sopra una pagina
   senza quella riga; spegnendo Diario le cancella con `deletes`), `data/novita.json` per la Home e le foto (genitori in
   `static/images/cucciolate/`, "Tutta la cucciolata" in `static/images/diario/<slug>/` con l'età in giorni).
+- Pagine del Diario: nel front matter anche il blocco `scheda:` (madre, padre: solo i nomi; maschi, femmine; le prime due foto
+  con alt), letto dalla sezione "L'ultima cucciolata" della pagina Cuccioli del sito (scelta A di Paolo, 08/10/2026; i colori
+  non sono nel gestionale). Se la stessa cucciolata ha acceso anche "Pagina Cuccioli", sul sito quella sezione si nasconde da sola
+  e resta la scheda (scelta D).
 - Testi come il sito (COME-SI-SCRIVE del repository del sito): niente linguaggio da vendita o lista d'attesa, tre lingue,
   paragrafo citabile 110–160 parole, description 140–165 caratteri, aria-label sui link esterni. Provato con Hugo 0.152.2 e
   `tools/controlli/verifica.py`: nessun avviso nuovo.
