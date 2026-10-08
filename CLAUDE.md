@@ -10,7 +10,7 @@
 >    sito, istruzioni, novità e altro: recuperati nel commit "recupero" unendo le due versioni.
 >
 > **Menu del gestionale (07/10/2026), tutte voci che devono esserci:** ☀️ Oggi (pagina d'apertura) · Cani · Cucciolate · Proprietari · Accoppiamenti ·
-> Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web).
+> Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web) · ⚙️ Account.
 
 
 Istruzioni per chi (Claude, in chat o in Claude Code) lavora su questo repository.
@@ -988,3 +988,17 @@ Accessi e copie
   "ieri+oggi" dava 0. Ora `fresh24` somma le ULTIME 24 ORE DISPONIBILI dai dati ora per ora (`hourly_all`, ultimi 4 giorni),
   confronto con le 24 ore prima, `upto` = fino a che ora arrivano i dati (come la scheda "24 ore" di Search Console). Parole chiave
   e pagine dai giorni che coprono quelle ore. Posizione senza dati: "–", senza freccia.
+
+## ⚙️ Account (08/10/2026)
+- Ultima voce del menu (`acPage`, `AC`, `acAct`; non per chi consulta né per "conti"). Riquadri: Allevamento (`AC_FARM`, fisso nel
+  programma: si vede, non si cambia; scelta di Paolo "per ora"), Intestatari e firma (`settings.holders` via `anagHolders`, spunte
+  C.F./nascita/documento, "Cambia firma" cancella `settings.sellerSig`), Enti e destinatari (`settings.enti` = delegazione ENCI;
+  `MA_TO` ora legge da lì con `MA_DEF` di base; salva anche `settings.modB` e `settings.anagrafeEmail`), Regole di allevamento
+  (`settings.rules` → `EN_AGE`/`EN_GAP`, ora `let`, applicate a ogni render da `acRules`, minimo 16 mesi e 170 giorni), Collegamenti,
+  Tetti di spesa, Chi entra, Copie di sicurezza.
+- `GET /api/account` (functions/api/account.js, solo admin): quali chiavi ci sono (solo sì/no, mai i valori), Google collegato,
+  proprietà Search Console, profilo, contatori del mese (maps:used2, budget:sottosopra), ultimo tocco WhatsApp, credito DataForSEO
+  (appendix/user_data, gratuito, 6 secondi al massimo), CONTI e VIEWERS.
+- PRIVACY (08/10/2026): il repository è pubblico. Tolti dal codice codici fiscali e date di nascita di Paolo e Daniela (prima in
+  `ANAG_DEF` e come valore di riserva nella ricevuta della caparra): ora stanno solo in `settings.holders`. MAI rimettere dati
+  personali nel codice. (Restano nella cronologia di GitHub: Paolo può rendere privato il repository.)
