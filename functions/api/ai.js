@@ -12,6 +12,8 @@ import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
    - "agenda":   { text, today, weekday, families } → { type, date, time, who, from, dog, want, note, summary }
    - "post":     { facts, idea? }           → { text }                          post per gli Aggiornamenti del profilo Google
    - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
+   - "sito":     { fields:{title,desc,h1,ap}, links:[testo], kw:{it,en,de}, orig } → { en:{…,links}, de:{…,links} }
+                 Google → Pagine del sito: traduce in inglese e tedesco i campi cambiati da Paolo in italiano
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
@@ -34,7 +36,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], sito: ["recensioni", 2] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -69,6 +71,26 @@ Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevament
 Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` ${F.first} aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
 Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000), 700);
       return json({ ok: true, text: String(o.text || "") });
+    }
+    if (task === "sito") {
+      // Google → Pagine del sito (08/10/2026): Paolo scrive solo in italiano, qui si traduce in inglese e tedesco.
+      const fields = {}; for (const k of ["title", "desc", "h1", "ap"]) if (p.fields && p.fields[k]) fields[k] = String(p.fields[k]).slice(0, 1500);
+      const links = (Array.isArray(p.links) ? p.links : []).map(x => String(x || "").slice(0, 200)).slice(0, 6);
+      const kw = p.kw || {}, orig = p.orig || {};
+      const o = await ask(env, `Traduci in inglese e in tedesco alcuni testi del sito dell'allevamento ${F.name} (${F.breed}, ${F.city}, Italia), scritti in italiano da ${F.first}.
+Traduzione fedele e naturale per un sito web: stesso significato, niente aggiunte, niente tagli. Tedesco con "Sie".
+Campi: "title" = titolo per Google, DEVE stare fra 30 e 60 caratteri; "desc" = descrizione per Google, DEVE stare fra 140 e 165 caratteri
+(conta i caratteri, spazi compresi; se la traduzione esce fuori misura riformula, senza cambiare il senso); "h1" = titolo grande della pagina;
+"ap" = frase di apertura della pagina; "links" = testi di link verso altre pagine, nello stesso ordine.
+Parola chiave della pagina: italiano "${kw.it || ""}", inglese "${kw.en || ""}", tedesco "${kw.de || ""}". Se il testo italiano contiene la parola
+chiave italiana, la traduzione deve contenere ESATTAMENTE la parola chiave inglese o tedesca indicata (stesse parole, stesso ordine).
+Mai punti esclamativi. Nomi di cani, linee di sangue, ENCI, SBTPedigree e nomi propri restano come sono. Niente parole da vendita
+(sale, buy, for sale, kaufen, Verkauf) se non ci sono in italiano.
+Come riferimento di stile, i testi inglesi e tedeschi di oggi della stessa pagina: ${JSON.stringify(orig).slice(0, 1500)}
+Formato: {"en":{"title":"","desc":"","h1":"","ap":"","links":[]},"de":{"title":"","desc":"","h1":"","ap":"","links":[]}} — solo i campi che ti do.`,
+        JSON.stringify({ fields, links }), 2500);
+      const pick = x => { const r = {}; for (const k of Object.keys(fields)) if (x && x[k]) r[k] = String(x[k]); r.links = links.map((_, i) => String(((x && x.links) || [])[i] || "")); return r; };
+      return json({ ok: true, en: pick(o.en), de: pick(o.de) });
     }
     if (task === "agenda") {
       // Agenda (ritiri dei cuccioli e visite in allevamento): legge un messaggio WhatsApp e propone l'appuntamento.

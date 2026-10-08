@@ -804,6 +804,21 @@ Accessi e copie
   (task `post` con `idea`); foto fra le ultime 16 caricate (`gpRecent`: foto settimanali, di cucciolata, dei cani) o senza
   foto; tasto "Scopri di più" verso Home, Cuccioli, Diario di una cucciolata, Palmarès o nessuno (`gpLinks`).
 
+## Google → 🌐 Pagine del sito (08/10/2026, scelte di Paolo: A dentro Google, B traduzioni automatiche, C2 tutto insieme)
+- Terza sezione della voce Google (`RV.sub="pag"`, `pgSite`, `PG`, `pgAct`; blocco "Google → Pagine del sito" uguale nei due file,
+  CSS `.pg-*`). Per ogni pagina del sito: titolo per Google (30-60), descrizione (140-165), titolo grande (h1), frase di
+  apertura, blocchi accesi/spenti, link "Leggi anche" (max 6). Paolo scrive SOLO in italiano: quando esce da un campo parte
+  `pgTranslate` → `/api/ai` compito `sito` (traduce in inglese e tedesco con la parola chiave della lingua e le misure giuste);
+  inglese e tedesco nel gestionale si leggono soltanto.
+- Testo di oggi e blocchi: `https://delpiccolodiavolo.it/pagine-indice.json` (lo genera il sito, CORS per il gestionale;
+  blocchi = commenti `<!--BLOCCO:n-->` nelle pagine, vedi CLAUDE.md del sito). Dati: `D.sitePages[translationKey] =
+  {it:{title,desc,h1,ap}, en, de, spente:[n], link:[{key,it,en,de}], mod, dirty, pub}`; campo vuoto = testo di oggi.
+- Controlli prima di pubblicare (`pgChecks`): misure, parola chiave della lingua nei campi cambiati, niente "!", traduzioni fatte,
+  link completi. Avvisi (`pgWarn`) quando si spegne un blocco con FAQ, parola chiave o link verso altre pagine.
+- "🌐 Pubblica tutte le modifiche" (`pgPublish`): un commit con `data/pagine.json` (tutte le pagine con modifiche), `mod` = oggi
+  per quelle cambiate (sitemap/IndexNow le vedono aggiornate). Pagine da pubblicare segnate ✏️ (anche sul tasto della sezione);
+  "Annulla modifiche di questa pagina" torna a `pub` (l'ultima pubblicazione).
+
 ## App sul telefono (ottobre 2026)
 - Il gestionale si installa come app web: `public/manifest.webmanifest` (nome "Gestionale", schermo intero), icone dal logo
   dell'allevamento (scelta A di Paolo: `apple-touch-icon.png` 180, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`,

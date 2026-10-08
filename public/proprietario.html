@@ -682,6 +682,32 @@ body.print-instr .pr-k{font-size:1.3rem}body.print-instr .oi-g a span{display:no
 .ac-fx{font-size:.72rem;font-weight:700;color:var(--muted);background:var(--bg);border-radius:999px;padding:1px 8px;margin-left:6px}
 .ac-form{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}.ac-ft{font-weight:700;margin:6px 0}.ac-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
 .ac-f{display:flex;flex-direction:column;gap:3px;font-size:.82rem;font-weight:600}.ac-f input{font:inherit;font-weight:400;padding:8px;border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box}
+/* Google → Pagine del sito (08/10/2026) */
+.pg-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.pg-card h2{display:flex;align-items:center;gap:8px;font-size:1.05rem;margin:0 0 10px}
+.pg-muted{color:var(--muted);font-size:.88rem}
+.pg-row{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:8px 10px;cursor:pointer;color:inherit;font:inherit}
+.pg-row:hover{background:var(--bg)}.pg-row b{font-weight:600;display:block}.pg-row small{color:var(--muted);font-size:.78rem;word-break:break-all}
+.pg-l{display:block;font-weight:600;font-size:.9rem;margin:10px 0 4px}.pg-mod{background:var(--warn-soft);color:var(--warn);border-radius:999px;padding:1px 8px;font-size:.75rem;font-weight:600}
+.pg-f{width:100%;min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--paper);color:inherit}
+textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
+.pg-n{font-size:.8rem;margin-top:3px}.pg-ok{color:var(--ok)}.pg-bad{color:var(--accent);font-weight:600}
+.pg-serp{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:10px}
+.pg-serp .u{color:#1a6b2b;font-size:.82rem}.pg-serp .t{color:#1a0dab;font-size:1.06rem;line-height:1.3;margin:2px 0}.pg-serp .d{color:var(--muted);font-size:.86rem}
+.pg-warn{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:9px 12px;font-size:.9rem;margin:10px 0 0}
+.pg-info{background:var(--accent-soft);border-radius:8px;padding:8px 12px;font-size:.88rem;margin-top:8px}
+.pg-e{display:inline-flex;width:18px;height:18px;border-radius:50%;border:2px solid var(--line)}
+.pg-sec{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.pg-sec:last-of-type{border-bottom:0}
+.pg-sec>span{flex:1;font-size:.92rem}.pg-sec.off>span{color:var(--muted);text-decoration:line-through}
+.pg-tag{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:0 7px;font-size:.72rem;color:var(--muted);text-decoration:none}
+.pg-sw{position:relative;width:46px;height:26px;flex:none;border:0;border-radius:999px;background:#c9ced6;cursor:pointer;padding:0}
+.pg-sw i{position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:left .2s}
+.pg-sw.on{background:var(--ok)}.pg-sw.on i{left:23px}
+.pg-lk{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+@media(max-width:640px){.pg-lk{grid-template-columns:1fr}}
+.pg-chk{padding:0;margin:6px 0;list-style:none}.pg-chk li{margin:3px 0}
+.pg-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.pg-top .btn{width:auto}
+.pg-top .btn:disabled{opacity:.45;cursor:not-allowed}
 </style>
 </head>
 <body class="owner-mode">
@@ -3366,7 +3392,7 @@ document.addEventListener("click",e=>{
     case "ctDl":{const G=CONTR[v];if(G)ctPdf(G.snap,G.buyer,G,G.meSig).then(p=>p.save(ctFile(G.snap))).catch(()=>toast("Non riesco a creare il PDF: controlla la connessione."));break}
     case "litterSheet":litterSheet(v);break;
     case "ppForm":ppForm(v);break;case "ppGo":ppGo(v);break;
-    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "instrView":instrView(v);break;case "instrPrint":instrPrint(v);break;case "nvSheet":nvSheet(v);break;case "nvSkip":nvSkip(v);break;case "nvDone":nvDone(v);break;case "nvAllDone":nvAllDone();break;case "nvUndo":nvUndo(v);break;case "nvSend":nvSend(v);break;case "ogStats":WS.sub="sito";WS.days=1;WS.data=null;tab="statistiche";view=null;render();scrollTo(0,0);break;case "qPh":qPhOpen(v);break;case "mateImg":{const x=D.dogs[v];if(x&&x.photo)lbShow(x.photo);break}case "acEd":case "acSave":case "acSig":case "acReload":case "acPpDel":case "acPpSet":case "acPpAdd":acAct(a,v);break;case "kitxAdd":case "kitxSave":case "kitxCancel":case "kitxDel":kitxAct(a,v);break;case "agHint":case "agHintX":case "agF":case "agRead":case "agApply":case "agNope":case "agNewV":case "agCancel":case "agSave":case "agEdit":case "agDel":case "agConf":case "agRem":case "agAsk":case "agIcs":case "agDone":case "agVdone":case "agAtt":agAct(a,v);break;case "stSub":case "wsDays":case "wsLoad":case "wsSort":case "wsIt":case "wsMapsEd":case "wsAllQ":wsAct(a,v);break;case "wsMapsRun":wsMapsRun(el);break;case "wsMapsSave":wsMapsSave(el);break;case "dogDelAsk":dogDelAsk(v);break;case "dogDel":dogDel(v);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "gpFree":case "gpFreeClose":case "gpFreePh":case "gpFreeWrite":case "gpFreePub":gpFreeAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "instrView":instrView(v);break;case "instrPrint":instrPrint(v);break;case "nvSheet":nvSheet(v);break;case "nvSkip":nvSkip(v);break;case "nvDone":nvDone(v);break;case "nvAllDone":nvAllDone();break;case "nvUndo":nvUndo(v);break;case "nvSend":nvSend(v);break;case "ogStats":WS.sub="sito";WS.days=1;WS.data=null;tab="statistiche";view=null;render();scrollTo(0,0);break;case "qPh":qPhOpen(v);break;case "mateImg":{const x=D.dogs[v];if(x&&x.photo)lbShow(x.photo);break}case "acEd":case "acSave":case "acSig":case "acReload":case "acPpDel":case "acPpSet":case "acPpAdd":acAct(a,v);break;case "kitxAdd":case "kitxSave":case "kitxCancel":case "kitxDel":kitxAct(a,v);break;case "agHint":case "agHintX":case "agF":case "agRead":case "agApply":case "agNope":case "agNewV":case "agCancel":case "agSave":case "agEdit":case "agDel":case "agConf":case "agRem":case "agAsk":case "agIcs":case "agDone":case "agVdone":case "agAtt":agAct(a,v);break;case "stSub":case "wsDays":case "wsLoad":case "wsSort":case "wsIt":case "wsMapsEd":case "wsAllQ":wsAct(a,v);break;case "wsMapsRun":wsMapsRun(el);break;case "wsMapsSave":wsMapsSave(el);break;case "dogDelAsk":dogDelAsk(v);break;case "dogDel":dogDel(v);break;case "pgLoad":case "pgOpen":case "pgBack":case "pgLang":case "pgPub":case "pgTog":case "pgLinkAdd":case "pgLinkDel":case "pgTr":case "pgUndo":pgAct(a,v,el);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "gpFree":case "gpFreeClose":case "gpFreePh":case "gpFreeWrite":case "gpFreePub":gpFreeAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":if(!ppNone(v))ppPack(v,"dl");break;case "ppMail":ppMailAsk(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
@@ -3587,9 +3613,141 @@ document.addEventListener("input",e=>{const t=e.target;if(!t)return;
   if(t.id==="gp_tx"){GP.text=t.value;const g=document.getElementById("gp_gt");if(g)g.textContent=t.value;const c=document.getElementById("gp_ck");if(c)c.innerHTML=gpChecksHtml(t.value);
     const b=document.querySelector('[data-a="gpPub"],[data-a="gpFreePub"]');if(b)b.disabled=!gpChecks(t.value).every(x=>x[0])}
   if(t.id==="gp_btn"){GP.btn=t.checked?1:0;render()}});
+/* ---------- Google → 🌐 Pagine del sito (08/10/2026, scelte di Paolo: A dentro Google, B traduzioni automatiche, C2 si
+   pubblica tutto insieme) ----------
+   Paolo cambia, solo in italiano, per ogni pagina del sito: titolo per Google, descrizione, titolo grande (h1), frase di
+   apertura, blocchi accesi/spenti, link "Leggi anche". Claude traduce in inglese e tedesco (/api/ai, compito "sito").
+   Il testo di oggi lo legge da https://delpiccolodiavolo.it/pagine-indice.json (lo genera il sito). Le modifiche stanno in
+   D.sitePages[chiave] = {it:{title,desc,h1,ap}, en:{…}, de:{…}, spente:[n], link:[{key,it,en,de}], mod, dirty, tr, pub}
+   (campo vuoto = testo di oggi; dirty = cambiata e non ancora pubblicata; tr = traduzioni fatte; pub = com'era all'ultima
+   pubblicazione, per "Annulla modifiche"). "🌐 Pubblica tutte le modifiche" scrive data/pagine.json nel sito (un commit). */
+let PG={idx:null,err:"",load:false,cur:null,L:"it",q:"",tr:{}};
+const PG_F=["title","desc","h1","ap"],PG_LN={it:"Italiano",en:"English",de:"Deutsch"};
+function pgAll(){return D.sitePages=D.sitePages||{}}
+function pgPage(k){return PG.idx&&(PG.idx.pagine||[]).find(p=>p.key===k)}
+function pgEntry(k,make){const A=pgAll();if(!A[k]&&make)A[k]={it:{},en:{},de:{},spente:[],link:[]};return A[k]}
+function pgVal(k,l,f){const e=pgEntry(k),o=(pgPage(k)||{lingue:{}}).lingue[l]||{};const v=e&&e[l]&&e[l][f];
+  return v?v:(f==="title"?o.titolo:f==="desc"?o.desc:f==="h1"?o.h1:o.ap)||""}
+function pgDirty(){return Object.entries(pgAll()).filter(([k,e])=>e&&e.dirty).map(([k])=>k)}
+async function pgLoad(force){if(PG.load)return;if(PG.idx&&!force)return;PG.load=true;PG.err="";
+  try{const r=await fetch(FM().siteUrl+"/pagine-indice.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("il sito risponde "+r.status);PG.idx=await r.json()}
+  catch(x){PG.err="Non riesco a leggere l'elenco delle pagine dal sito ("+x.message+")."}
+  PG.load=false;if(tab==="recensioni"&&RV.sub==="pag")render()}
+function pgChecks(k){const e=pgEntry(k)||{},p=pgPage(k)||{lingue:{}},out=[];
+  for(const l of ["it","en","de"]){const o=p.lingue[l]||{},v=e[l]||{},kw=(o.kw||"").toLowerCase();
+    if(v.title){const n=v.title.length;out.push([n>=30&&n<=60,`${PG_LN[l]}: titolo ${n} caratteri (30-60)`])}
+    if(v.desc){const n=v.desc.length;out.push([n>=140&&n<=165,`${PG_LN[l]}: descrizione ${n} caratteri (140-165)`])}
+    if(v.h1&&kw)out.push([v.h1.toLowerCase().includes(kw),`${PG_LN[l]}: «${o.kw}» nel titolo grande`]);
+    if(v.title&&kw)out.push([v.title.toLowerCase().includes(kw),`${PG_LN[l]}: «${o.kw}» nel titolo per Google`]);
+    if(v.desc&&kw)out.push([v.desc.toLowerCase().includes(kw),`${PG_LN[l]}: «${o.kw}» nella descrizione`]);
+    if(v.title&&/!/.test(v.title+v.desc+v.h1+v.ap))out.push([false,`${PG_LN[l]}: niente punti esclamativi`]);}
+  const it=e.it||{};for(const f of PG_F)if(it[f])out.push([!!(e.en||{})[f]&&!!(e.de||{})[f],`Tradotto in inglese e tedesco: ${({title:"titolo",desc:"descrizione",h1:"titolo grande",ap:"apertura"})[f]}`]);
+  for(const x of e.link||[])out.push([!!(x.key&&x.it&&x.en&&x.de),`Link «Leggi anche» ${x.it?"«"+x.it+"»":""}: pagina e testo nelle tre lingue`]);
+  return out}
+function pgWarn(k){const e=pgEntry(k)||{},p=pgPage(k)||{blocchi:[]},w=[];
+  for(const b of p.blocchi||[])if((e.spente||[]).includes(b.n)){const t=(b.t||{}).it||("Blocco "+b.n);
+    if(b.faq)w.push(`«${t}» contiene le domande frequenti: spegnendolo spariscono anche per Google e le IA.`);
+    if(b.kw)w.push(`«${t}» ha la parola chiave della pagina nel titolo.`);
+    if(b.link)w.push(`«${t}» contiene ${b.link} link verso altre pagine del sito: quelle pagine ricevono meno link.`)}
+  return w}
+function pgList(){const D2=pgDirty(),q=(PG.q||"").toLowerCase();
+  const rows=(PG.idx.pagine||[]).filter(p=>{const o=p.lingue.it||{};return !q||(o.titolo+" "+o.url).toLowerCase().includes(q)})
+    .sort((a,b)=>((a.lingue.it||{}).url||"").localeCompare((b.lingue.it||{}).url||""));
+  return `<div class="pg-card"><input class="pg-q" data-pgq="1" placeholder="Cerca una pagina…" value="${esc(PG.q)}" style="width:100%;margin-bottom:8px">`+
+    rows.map(p=>{const o=p.lingue.it||{},e=pgEntry(p.key),ch=e&&(PG_F.some(f=>(e.it||{})[f])||(e.spente||[]).length||(e.link||[]).length);
+      return `<button class="pg-row" data-a="pgOpen" data-v="${esc(p.key)}"><span><b>${esc(o.titolo)}</b><small>${esc(o.url)}</small></span>${D2.includes(p.key)?'<span title="da pubblicare">✏️</span>':ch?'<span class="ok-v" title="modificata e pubblicata">✓</span>':""}</button>`}).join("")+`</div>`}
+function pgEditor(k){const p=pgPage(k),e=pgEntry(k)||{it:{},en:{},de:{},spente:[],link:[]},L=PG.L,o=p.lingue[L]||{},ro=L!=="it",kw=o.kw||"";
+  const fld=(f,lab,area,hint)=>{const v=pgVal(k,L,f),mine=(e[L]||{})[f];const n=f==="ap"?v.trim().split(/\s+/).filter(Boolean).length:v.length;
+    const okN=f==="title"?n>=30&&n<=60:f==="desc"?n>=140&&n<=165:true;
+    return `<label class="pg-l">${lab}${mine?' <span class="pg-mod">modificato</span>':""}</label>`+(area?`<textarea class="pg-f" data-pgf="${f}" ${ro?"readonly":""} rows="${f==="ap"?4:3}">${esc(v)}</textarea>`:`<input class="pg-f" data-pgf="${f}" ${ro?"readonly":""} value="${esc(v)}">`)+
+      `<div class="pg-n ${okN?"pg-ok":"pg-bad"}" id="pgn_${f}">${f==="ap"?n+" parole":n+" caratteri"}${hint?" · "+hint:""}</div>`};
+  const has=x=>x?'<span class="ok-v">✓</span>':'<span class="pg-e"></span>';
+  const ch=pgChecks(k),warn=pgWarn(k),busy=PG.tr[k];
+  return `<div class="pg-card"><p style="margin:0 0 6px"><button class="chip" data-a="pgBack">‹ Tutte le pagine</button></p><h2 style="margin:4px 0">${esc((p.lingue.it||{}).titolo)}</h2>
+<div class="pg-muted">${esc(FM().site)}${esc(o.url||"")}${kw?` · parola chiave: <b>${esc(kw)}</b>`:""}</div>
+<div class="toolbar" style="margin-top:8px">${["it","en","de"].map(l=>`<button class="chip" data-a="pgLang" data-v="${l}" aria-pressed="${l===L}">${PG_LN[l]}</button>`).join("")}</div>
+${ro?`<div class="pg-info">Inglese e tedesco li traduce Claude da solo quando cambi l'italiano. Qui li puoi solo leggere.${busy?" ⏳ Traduco…":""}</div>`:`<div class="pg-info">Scrivi solo in italiano: quando esci da un campo, Claude lo traduce in inglese e tedesco.${busy?" ⏳ Traduco…":""}</div>`}</div>
+<div class="pg-card"><h2>${has(e.it&&(e.it.title||e.it.desc))} 1 · Come appare su Google</h2>
+${fld("title","Titolo per Google",false,"va bene da 30 a 60")}${fld("desc","Descrizione",true,"va bene da 140 a 165")}
+<div class="pg-serp"><div class="u">${esc(FM().site)} › ${esc((o.url||"").replace(/\//g," ").trim())}</div><div class="t" id="pgs_t">${esc(pgVal(k,L,"title"))}</div><div class="d" id="pgs_d">${esc(pgVal(k,L,"desc"))}</div></div>
+<div class="pg-warn">⚠️ Titolo e descrizione: cambiali di rado. Google impiega settimane a rivalutare una pagina.${e.mod?" Ultima pubblicazione di questa pagina: "+esc(fmt(e.mod))+".":""}</div></div>
+<div class="pg-card"><h2>${has(e.it&&(e.it.h1||e.it.ap))} 2 · Titolo grande e apertura</h2>
+${fld("h1","Titolo grande della pagina (H1)",false,kw?(pgVal(k,L,"h1").toLowerCase().includes(kw.toLowerCase())?"✓ contiene la parola chiave":"manca «"+esc(kw)+"»"):"")}
+${(p.lingue.it||{}).ap?fld("ap","Frase di apertura (sotto il titolo)",true,""):'<div class="pg-muted">Questa pagina non ha una frase di apertura modificabile.</div>'}</div>
+<div class="pg-card"><h2>${has((e.spente||[]).length)} 3 · Blocchi della pagina</h2><div class="pg-muted">Spento = il blocco sparisce dalla pagina, nelle tre lingue, anche per Google e le IA. Il testo non si cancella: riaccendendo torna com'era.</div>
+${(p.blocchi||[]).length?(p.blocchi||[]).map(b=>{const on=!(e.spente||[]).includes(b.n),lock=b.h1;return `<div class="pg-sec ${on?"":"off"}"><span>${esc((b.t||{}).it||"Blocco "+b.n)}${lock?' <span class="pg-muted">(sempre visibile)</span>':""}${b.faq?' <span class="pg-tag">FAQ</span>':""}${b.link?` <span class="pg-tag">${b.link} link</span>`:""}</span>${lock?'<span class="pg-muted">—</span>':`<button class="pg-sw ${on?"on":""}" data-a="pgTog" data-v="${b.n}" aria-pressed="${on}" aria-label="${on?"Spegni":"Accendi"}"><i></i></button>`}</div>`}).join(""):'<div class="pg-muted" style="margin-top:6px">Questa pagina non ha blocchi da spegnere.</div>'}
+${warn.length?`<div class="pg-warn">${warn.map(esc).join("<br>")}</div>`:""}</div>
+<div class="pg-card"><h2>${has((e.link||[]).length)} 4 · Link «Leggi anche»</h2><div class="pg-muted">Compaiono in fondo alla pagina, prima del riquadro dei contatti. Massimo 6. Il testo lo scrivi in italiano, Claude lo traduce.</div>
+${(e.link||[]).map((x,i)=>`<div class="pg-lk"><select class="pg-f" data-pgk="${i}" ${ro?"disabled":""}><option value="">— scegli la pagina —</option>${(PG.idx.pagine||[]).filter(q=>q.key!==k).map(q=>`<option value="${esc(q.key)}" ${q.key===x.key?"selected":""}>${esc((q.lingue.it||{}).titolo)}</option>`).join("")}</select>
+<input class="pg-f" data-pgt="${i}" ${ro?"readonly":""} placeholder="Testo del link" value="${esc(x[L]||"")}">${ro?"":`<button class="chip" data-a="pgLinkDel" data-v="${i}">🗑</button>`}</div>`).join("")}
+${!ro&&(e.link||[]).length<6?`<p style="margin:8px 0 0"><button class="chip" data-a="pgLinkAdd">＋ Aggiungi link</button></p>`:""}</div>
+<div class="pg-card"><h2>Prima di pubblicare</h2>${ch.length?`<ul class="pg-chk">${ch.map(c=>`<li>${c[0]?'<span class="pg-ok">✓</span>':'<span class="pg-bad">✕</span>'} ${esc(c[1])}</li>`).join("")}</ul>`:'<div class="pg-muted">Nessuna modifica in questa pagina.</div>'}
+<div class="toolbar" style="margin-top:8px">${e.dirty?`<button class="chip" data-a="pgUndo">Annulla modifiche di questa pagina</button>`:""}${e.dirty&&!busy&&PG_F.some(f=>(e.it||{})[f]&&!((e.en||{})[f]&&(e.de||{})[f]))?`<button class="chip" data-a="pgTr">✨ Traduci adesso</button>`:""}</div>
+<div class="pg-muted" style="margin-top:6px">Le modifiche restano nel gestionale (✏️) finché non premi «🌐 Pubblica tutte le modifiche» in cima.</div></div>`}
+function pgSite(){if(!PG.idx){pgLoad();return `<p class="lead">Le pagine del sito: titolo per Google, descrizione, titolo grande, apertura, blocchi e link «Leggi anche». Scrivi in italiano, Claude traduce, pubblichi tutto insieme.</p>`+(PG.err?`<div class="pg-warn">${esc(PG.err)} <button class="chip" data-a="pgLoad">Riprova</button></div>`:`<p class="pg-muted">⏳ Leggo le pagine del sito…</p>`)}
+  const dk=pgDirty(),bad=dk.filter(k=>pgChecks(k).some(c=>!c[0])||PG.tr[k]);
+  const top=`<div class="pg-card pg-top"><div><b>${dk.length?`✏️ ${dk.length} ${dk.length===1?"pagina modificata":"pagine modificate"}, da pubblicare`:"Nessuna modifica da pubblicare"}</b>${bad.length?`<div class="pg-bad">Da sistemare prima: ${bad.map(k=>esc(((pgPage(k)||{lingue:{it:{}}}).lingue.it||{}).titolo||k)).join(", ")}</div>`:""}</div>
+<button class="btn" data-a="pgPub" ${dk.length&&!bad.length?"":"disabled"}>🌐 Pubblica tutte le modifiche</button></div>`;
+  return `<p class="lead">Scrivi in italiano: Claude traduce in inglese e tedesco. Le pagine che cambi restano segnate con ✏️ finché non le pubblichi tutte insieme.</p>`+top+(PG.cur&&pgPage(PG.cur)?pgEditor(PG.cur):pgList())}
+function pgTouch(k){const e=pgEntry(k,true);e.dirty=true;typeof saveNow==="function"&&saveNow()}
+function pgSet(k,l,f,v){const e=pgEntry(k,true),o=((pgPage(k)||{lingue:{}}).lingue[l]||{}),orig=f==="title"?o.titolo:f==="desc"?o.desc:f==="h1"?o.h1:o.ap;
+  e[l]=e[l]||{};v=String(v||"").replace(/\s+/g," ").trim();if(!v||v===(orig||"").trim())delete e[l][f];else e[l][f]=v}
+async function pgTranslate(k){const e=pgEntry(k);if(!e)return;const it=e.it||{},p=pgPage(k)||{lingue:{}};
+  const fields={};for(const f of PG_F)if(it[f]&&!((e.en||{})[f]&&(e.de||{})[f]))fields[f]=it[f];
+  const links=(e.link||[]).map((x,i)=>[i,x]).filter(([i,x])=>x.it&&!(x.en&&x.de));
+  for(const f of PG_F)if(!it[f]){if(e.en)delete e.en[f];if(e.de)delete e.de[f]}
+  if(!Object.keys(fields).length&&!links.length){render();return}
+  PG.tr[k]=true;render();
+  try{const j=await aiCall("sito",{fields,links:links.map(([i,x])=>x.it),kw:{it:(p.lingue.it||{}).kw||"",en:(p.lingue.en||{}).kw||"",de:(p.lingue.de||{}).kw||""},
+      orig:{en:{title:(p.lingue.en||{}).titolo,desc:(p.lingue.en||{}).desc,h1:(p.lingue.en||{}).h1},de:{title:(p.lingue.de||{}).titolo,desc:(p.lingue.de||{}).desc,h1:(p.lingue.de||{}).h1}}});
+    for(const l of ["en","de"]){e[l]=e[l]||{};for(const f of Object.keys(fields))if(j[l]&&j[l][f])e[l][f]=String(j[l][f]).trim();
+      links.forEach(([i,x],n)=>{const t=j[l]&&j[l].links&&j[l].links[n];if(t)e.link[i][l]=String(t).trim()})}
+    toast("Tradotto in inglese e tedesco ✓")}
+  catch(x){alert("Claude non riesce a tradurre adesso.\n\n"+x.message+"\n\nRiprova con «✨ Traduci adesso».")}
+  delete PG.tr[k];typeof saveNow==="function"&&saveNow();render()}
+async function pgPublish(b){const dk=pgDirty();if(!dk.length)return;
+  if(!confirm(`Pubblicare sul sito le modifiche di ${dk.length} ${dk.length===1?"pagina":"pagine"}?\n\nIl sito si aggiorna in 2-3 minuti.`))return;
+  const A=pgAll(),out={},oggi=todayS();
+  for(const [k,e] of Object.entries(A)){if(!e)continue;if(e.dirty)e.mod=oggi;
+    const x={};for(const l of ["it","en","de"]){const v={};for(const f of PG_F)if((e[l]||{})[f])v[f]=e[l][f];if(Object.keys(v).length)x[l]=v}
+    if((e.spente||[]).length)x.spente=e.spente.slice().sort((a,b)=>a-b);
+    const lk=(e.link||[]).filter(y=>y.key&&y.it&&y.en&&y.de).map(y=>({key:y.key,it:y.it,en:y.en,de:y.de}));if(lk.length)x.link=lk;
+    if(Object.keys(x).length){x.mod=e.mod||oggi;out[k]=x}}
+  const txt=JSON.stringify({pagine:out},null,1)+"\n",b64=btoa(unescape(encodeURIComponent(txt)));
+  aiBusy(b,1,"Pubblico…");
+  try{const r=await fetch("/api/publish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:`Pagine del sito dal gestionale: ${dk.length} ${dk.length===1?"pagina":"pagine"}`,files:[{path:"data/pagine.json",b64}]})});
+    const j=await r.json();if(!j.ok)throw new Error(j.error||"errore");
+    for(const k of dk){const e=A[k];e.dirty=false;e.pub=JSON.parse(JSON.stringify({it:e.it,en:e.en,de:e.de,spente:e.spente,link:e.link,mod:e.mod}))}
+    typeof saveNow==="function"&&saveNow();aiBusy(b,0);render();toast(j.unchanged?"Il sito era già così.":"Pubblicato ✓ Il sito si aggiorna in 2-3 minuti.")}
+  catch(x){aiBusy(b,0);alert("Non riesco a pubblicare.\n\n"+x.message)}}
+async function pgAct(a,v,b){const k=PG.cur,e=k&&pgEntry(k,true);
+  if(a==="pgLoad"){PG.idx=null;pgLoad(true);render();return}
+  if(a==="pgOpen"){PG.cur=v;PG.L="it";render();scrollTo(0,0);return}
+  if(a==="pgBack"){PG.cur=null;render();return}
+  if(a==="pgLang"){PG.L=v;render();return}
+  if(a==="pgPub"){pgPublish(b);return}
+  if(!k)return;
+  if(a==="pgTog"){const n=+v;e.spente=e.spente||[];const i=e.spente.indexOf(n);if(i<0)e.spente.push(n);else e.spente.splice(i,1);pgTouch(k);render();return}
+  if(a==="pgLinkAdd"){(e.link=e.link||[]).push({key:"",it:"",en:"",de:""});pgTouch(k);render();return}
+  if(a==="pgLinkDel"){e.link.splice(+v,1);pgTouch(k);render();return}
+  if(a==="pgTr"){pgTranslate(k);return}
+  if(a==="pgUndo"){if(!confirm("Rimettere questa pagina come all'ultima pubblicazione?"))return;const A=pgAll();
+    if(e.pub)A[k]=Object.assign(JSON.parse(JSON.stringify(e.pub)),{pub:e.pub,dirty:false});else delete A[k];typeof saveNow==="function"&&saveNow();render();return}}
+/* campi: contatori dal vivo mentre scrivi; quando esci dal campo si salva e parte la traduzione */
+document.addEventListener("input",ev=>{const t=ev.target;if(!t||!t.dataset)return;
+  if(t.dataset.pgq){PG.q=t.value;return void(clearTimeout(PG.qt),PG.qt=setTimeout(()=>{const p=t.selectionStart;render();const n=document.querySelector("[data-pgq]");if(n){n.focus();try{n.setSelectionRange(p,p)}catch(x){}}},250))}
+  const f=t.dataset.pgf;if(!f||PG.L!=="it")return;const n=f==="ap"?t.value.trim().split(/\s+/).filter(Boolean).length:t.value.length,el=document.getElementById("pgn_"+f);
+  if(el){const ok=f==="title"?n>=30&&n<=60:f==="desc"?n>=140&&n<=165:true;el.className="pg-n "+(ok?"pg-ok":"pg-bad");el.firstChild&&(el.firstChild.nodeValue=(f==="ap"?n+" parole":n+" caratteri")+(el.firstChild.nodeValue.includes("·")?" ·"+el.firstChild.nodeValue.split("·").slice(1).join("·"):""))}
+  if(f==="title"){const s=document.getElementById("pgs_t");s&&(s.textContent=t.value)}if(f==="desc"){const s=document.getElementById("pgs_d");s&&(s.textContent=t.value)}});
+document.addEventListener("change",ev=>{const t=ev.target;if(!t||!t.dataset||!PG.cur||PG.L!=="it")return;const k=PG.cur;
+  if(t.dataset.pgf){const f=t.dataset.pgf,e=pgEntry(k,true),before=(e.it||{})[f]||"";pgSet(k,"it",f,t.value);const after=(e.it||{})[f]||"";
+    if(after!==before){for(const l of ["en","de"])if(e[l])delete e[l][f];pgTouch(k);pgTranslate(k)}return}
+  if(t.dataset.pgk!==undefined){const e=pgEntry(k,true);e.link[+t.dataset.pgk].key=t.value;pgTouch(k);render();return}
+  if(t.dataset.pgt!==undefined){const e=pgEntry(k,true),x=e.link[+t.dataset.pgt],v=t.value.replace(/\s+/g," ").trim();if(v!==x.it){x.it=v;x.en="";x.de="";pgTouch(k);pgTranslate(k)}return}});
+
 const rvBadge=()=>{let n=rvTodo();try{n+=gpEvents().length}catch(e){}return n};
 function rvPage(){const sub=RV.sub||"rev",n1=rvTodo();let n2=0;try{n2=gpEvents().length}catch(e){}
-  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button></div>`+(sub==="post"?gpPage():rvRevPage())}
+  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button><button class="chip" data-a="rvSub" data-v="pag" aria-pressed="${sub==="pag"}">🌐 Pagine del sito${pgDirty().length?" (✏️ "+pgDirty().length+")":""}</button></div>`+(sub==="post"?gpPage():sub==="pag"?pgSite():rvRevPage())}
 async function rvAct(a,v,b){const i=parseInt(v,10),r=RV.list[i];
   if(a==="rvSub"){RV.sub=v;render();return}
   if(a==="rvLoad"){RV.msg="";rvLoad();return}
