@@ -35,12 +35,29 @@ export async function accessEmail(request, env) {
     return ok ? String(pay.email || "").toLowerCase() : null;
   } catch (e) { return null; }
 }
-// Ruolo: "viewer" se l'email è nella variabile VIEWERS (solo consultazione), altrimenti "admin" (Paolo)
+// Chi entra (08/10/2026): se in ⚙️ Account è stato salvato l'elenco (tabella gbp, chiave "cfg:access" = { people: { email: "admin"|"conti"|"viewer" } }),
+// decide solo quello e chi non c'è NON entra. Se l'elenco non c'è ancora: come prima (CONTI, VIEWERS, tutti gli altri admin).
+let ACC = null, ACC_AT = 0;
+export async function accessCfg(env, fresh) {
+  if (!fresh && ACC && Date.now() - ACC_AT < 30e3) return ACC;
+  try { const r = await env.DB.prepare("SELECT v FROM gbp WHERE k = 'cfg:access'").first(); ACC = r ? JSON.parse(r.v) : {}; } catch (e) { ACC = {}; }
+  ACC_AT = Date.now(); return ACC;
+}
+export function accessReset() { ACC = null; }
 export async function role(request, env) {
   const e = await accessEmail(request, env); if (e === null) return null;
+  const A = await accessCfg(env);
+  if (A && A.people && Object.keys(A.people).length) { const r = A.people[e]; return r === "admin" || r === "conti" || r === "viewer" ? r : null; }
   const V = String(env.VIEWERS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
   const C = String(env.CONTI || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
   return C.includes(e) ? "conti" : V.includes(e) ? "viewer" : "admin";
+}
+// Tetti di spesa del mese (08/10/2026): quelli scritti in ⚙️ Account (gbp "cfg:caps" = { maps, sott }), se no MAPS_CAP e
+// SOTTOSOPRA_CAP di Cloudflare, se no 100 e 30. 0 = fermo.
+export async function capsCfg(env) {
+  let c = {}; try { const r = await env.DB.prepare("SELECT v FROM gbp WHERE k = 'cfg:caps'").first(); c = r ? JSON.parse(r.v) : {}; } catch (e) {}
+  const n = (v, d) => { const x = parseInt(v, 10); return isNaN(x) ? d : Math.max(0, Math.min(100000, x)); };
+  return { maps: n(c.maps, n(env.MAPS_CAP, 100)), sott: n(c.sott, n(env.SOTTOSOPRA_CAP, 30)) };
 }
 export async function isAdmin(request, env) { return (await role(request, env)) === "admin"; }
 // Dati dell'allevamento (08/10/2026): stessi valori di partenza di FARM_DEF nelle pagine; si cambiano in ⚙️ Account

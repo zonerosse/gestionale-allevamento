@@ -1003,6 +1003,17 @@ Accessi e copie
   `ANAG_DEF` e come valore di riserva nella ricevuta della caparra): ora stanno solo in `settings.holders`. MAI rimettere dati
   personali nel codice. (Restano nella cronologia di GitHub: Paolo può rendere privato il repository.)
 
+## ⚙️ Account: tetti, chi entra, tasti rapidi (08/10/2026)
+- Collegamenti: accanto a ogni riga un link (`acLk`) alla pagina giusta (Search Console, Google Cloud, Drive, credito Claude,
+  GitHub, ricarica DataForSEO) + tasto «Chiavi in Cloudflare». Le chiavi restano SOLO in Cloudflare.
+- Tetti di spesa: ✏️ Modifica (`AC.ed="caps"`) → POST /api/account {caps:{maps,sott}} → tabella gbp "cfg:caps". Letti da
+  `capsCfg(env)` (_lib.js) in maps.js, public/budget.js e account.js; se mancano valgono MAPS_CAP/SOTTOSOPRA_CAP, poi 100/30. 0 = fermo.
+- Chi entra: ✏️ Modifica (`AC.ed="people"`, bozza in `AC.pp`) → POST /api/account {people:{email:"admin"|"conti"|"viewer"}} →
+  gbp "cfg:access". `role()` (_lib.js, cache 30 s, `accessReset` dopo il salvataggio): se l'elenco c'è decide SOLO lui e chi non
+  c'è riceve 403; se non c'è ancora valgono CONTI/VIEWERS e tutti gli altri admin (come prima). Chi salva resta sempre admin.
+  Perché funzioni anche per persone nuove, Cloudflare Access deve far passare chiunque abbia un'email (codice via email):
+  il filtro vero è l'elenco del gestionale.
+
 ## 🏠 Dati dell'allevamento: una sola fonte (08/10/2026, scelta 2 di Paolo)
 - REGOLA: nome dell'allevamento, titolare, indirizzo, telefono, email, sito e razza NON si scrivono mai a mano nel codice.
   Nelle pagine: `FM()` (in cima allo script di index.html e proprietario.html, blocco identico) = `FARM_DEF` + `D.settings.farm`.

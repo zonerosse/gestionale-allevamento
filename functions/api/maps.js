@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, capsCfg } from "../_lib.js";
 import { gbpGet, gbpSet } from "../_gbp.js";
 /* Posizioni della scheda dell'allevamento su Google Maps, città per città (ottobre 2026). Solo Paolo.
    DataForSEO "serp/google/maps/live/advanced" (segreti DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD, lo stesso abbonamento
@@ -27,7 +27,7 @@ async function cfg(env) {
   return c;
 }
 const month = () => new Date().toISOString().slice(0, 7);
-const cap = env => Math.max(1, parseInt(env.MAPS_CAP || "100", 10) || 100);
+const cap = async env => (await capsCfg(env)).maps;   // si cambia in ⚙️ Account (0 = fermo)
 const UKEY = () => "maps:used2:" + month();   // "used2": il primo contatore contava anche i tentativi falliti
 async function used(env) { return parseInt(await gbpGet(env, UKEY()) || "0", 10) || 0; }
 async function runs(env) { const s = await gbpGet(env, "maps:runs"); return s ? JSON.parse(s) : []; }
@@ -51,7 +51,7 @@ async function check(env, kw, c) {
 }
 export async function onRequestGet({ request, env }) {
   if ((await role(request, env)) !== "admin") return deny();
-  return json({ ok: true, ready: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD), cfg: await cfg(env), runs: await runs(env), used: await used(env), cap: cap(env) });
+  return json({ ok: true, ready: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD), cfg: await cfg(env), runs: await runs(env), used: await used(env), cap: await cap(env) });
 }
 export async function onRequestPost({ request, env }) {
   if ((await role(request, env)) !== "admin") return deny();
@@ -70,7 +70,7 @@ export async function onRequestPost({ request, env }) {
       if (!env.DATAFORSEO_LOGIN || !env.DATAFORSEO_PASSWORD) return json({ ok: false, error: "Mancano DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD in Cloudflare." });
       const C = await cfg(env), res = {}, jobs = [];
       for (const k of C.kw) for (const c of C.cities) jobs.push([k, c]);
-      const u = await used(env), lim = cap(env);
+      const u = await used(env), lim = await cap(env);
       if (u + jobs.length > lim) return json({ ok: false, capped: true, used: u, cap: lim,
         error: `Tetto del mese raggiunto: ${u} ricerche fatte su ${lim}. Il controllo riparte il mese prossimo (o con meno parole e città).` });
       // si contano solo le ricerche andate a buon fine (quelle fallite DataForSEO non le fa pagare)
