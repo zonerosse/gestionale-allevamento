@@ -12,24 +12,24 @@ Tempo: circa un'ora la prima volta. Ti servono un account **GitHub** e un accoun
 ---
 
 ## 1. Il programma su GitHub
-1. Su GitHub crea un repository **privato**, per esempio `gestionale-allevamento`.
+1. Su GitHub crea un repository **privato**, per esempio `kennel-manager`.
 2. Carica dentro tutti i file di questa cartella (anche le sottocartelle `public`, `functions`, `tools`).
    Il modo più semplice: GitHub Desktop → *Add existing repository* → questa cartella → *Publish repository* (spunta "Keep this code private").
 
 ## 2. Il database (D1)
-1. Cloudflare → **Storage & databases → D1** → *Create* → nome `gestionale-allevamento`.
+1. Cloudflare → **Storage & databases → D1** → *Create* → nome `kennel-manager`.
 2. Apri il database → **Console** → incolla il contenuto del file `schema.sql` → *Execute*.
 
 ## 3. L'archivio di foto e PDF (R2)
-1. Cloudflare → **R2** → *Create bucket* → nome `gestionale-allevamento-file`.
+1. Cloudflare → **R2** → *Create bucket* → nome `kennel-manager-file`.
    (Gratuito fino a 10 GB; Cloudflare può chiedere un metodo di pagamento per attivarlo.)
 
 ## 4. Il sito del gestionale (Pages)
 1. **Workers & Pages → Create → Pages → Connect to Git** → scegli il repository del punto 1.
 2. Impostazioni: Framework *None*, comando di build **vuoto**, cartella di output **`public`**.
 3. Dopo la prima pubblicazione: **Settings → Bindings → Add**
-   - *D1 database*: nome **`DB`** → `gestionale-allevamento`
-   - *R2 bucket*: nome **`FILES`** → `gestionale-allevamento-file`
+   - *D1 database*: nome **`DB`** → `kennel-manager`
+   - *R2 bucket*: nome **`FILES`** → `kennel-manager-file`
 4. Indirizzo: va bene quello che dà Cloudflare (`….pages.dev`). Se hai un dominio tuo, **Custom domains** → per esempio `gestionale.tuosito.it`.
 
 ## 5. L'accesso riservato (Cloudflare Access)

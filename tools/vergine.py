@@ -163,7 +163,7 @@ def main():
     with zipfile.ZipFile(ZIP, "w", zipfile.ZIP_DEFLATED) as z:
         for dp, _, fs in os.walk(OUT):
             for n in fs:
-                p = os.path.join(dp, n); z.write(p, os.path.join("gestionale-allevamento", os.path.relpath(p, OUT)))
+                p = os.path.join(dp, n); z.write(p, os.path.join("kennel-manager", os.path.relpath(p, OUT)))
     print("FATTO:", ZIP)
 
 if __name__ == "__main__":
