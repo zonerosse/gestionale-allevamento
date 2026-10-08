@@ -984,3 +984,7 @@ Accessi e copie
   cui cade la parte più grande della parentela.
 - "📷 Aggiungi foto" (`qPh`/`qPhOpen`, 07/10/2026): riquadro tratteggiato dove manca la foto: scheda del cane (grande), Accoppiamenti sotto il titolo della coppia (medio; lì si vedono SEMPRE i due cani, con la foto che si ingrandisce al tocco o con il riquadro), miniatura nell'elenco dei Cani (piccolo). Foto ridotta a 900 px, salvata subito in d.photo (poi diventa /files/ al salvataggio). Non per chi consulta.
 - Pagina della coppia: barra "Leggi in: Italiano · English · Deutsch" sotto l'intestazione (variante B scelta da Paolo), con bandiere disegnate in SVG (le emoji delle bandiere su Windows non si vedono).
+- Correzione 24 ore (08/10/2026): Search Console conta i giorni nell'ora del Pacifico e i dati arrivano con ore di ritardo, quindi
+  "ieri+oggi" dava 0. Ora `fresh24` somma le ULTIME 24 ORE DISPONIBILI dai dati ora per ora (`hourly_all`, ultimi 4 giorni),
+  confronto con le 24 ore prima, `upto` = fino a che ora arrivano i dati (come la scheda "24 ore" di Search Console). Parole chiave
+  e pagine dai giorni che coprono quelle ore. Posizione senza dati: "–", senza freccia.

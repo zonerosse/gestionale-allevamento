@@ -3643,11 +3643,11 @@ function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div cl
   // Search Console
   if(X.gscErr)h+=`<p class="fnote">${esc(X.gscErr)}</p>${X.gscConnect||/collegato/.test(X.gscErr)?`<p><a class="btn" href="/api/google?ret=sito">Collega Google</a></p>`:""}`;
   else{const G=X.gsc,t=G.tot,p=G.prev;
-    h+=`<p class="ws-src">Da Google Search Console · ${G.it?"solo ricerche fatte in Italia":"ricerche da tutti i paesi"} · ${G.fresh?"ultime 24 ore con i dati «freschi» di Google: provvisori, possono cambiare un po' nei giorni dopo · confronto con i due giorni prima":fmt(G.from)+" – "+fmt(G.to)+" (i dati arrivano con 2-3 giorni di ritardo) · confronto con il periodo precedente"}</p><div class="ws-kpis">
+    h+=`<p class="ws-src">Da Google Search Console · ${G.it?"solo ricerche fatte in Italia":"ricerche da tutti i paesi"} · ${G.fresh?"ultime 24 ore disponibili, come nella scheda «24 ore» di Search Console"+(G.upto?" (dati fino alle "+new Date(G.upto).toLocaleString("it-IT",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"})+")":"")+" · dati «freschi», provvisori · confronto con le 24 ore prima":fmt(G.from)+" – "+fmt(G.to)+" (i dati arrivano con 2-3 giorni di ritardo) · confronto con il periodo precedente"}</p><div class="ws-kpis">
       <div class="ws-kpi"><p class="k">Clic da Google</p><p class="v">${wsN(t.clicks)}</p>${wsPct(t.clicks,p.clicks)}</div>
       <div class="ws-kpi"><p class="k">Impressioni</p><p class="v">${wsN(t.impressions)}</p>${wsPct(t.impressions,p.impressions)}</div>
       <div class="ws-kpi"><p class="k">Percentuale di clic</p><p class="v">${wsN(t.ctr*100,1)}%</p></div>
-      <div class="ws-kpi"><p class="k">Posizione media</p><p class="v">${wsN(t.position,1)}</p>${p.position?wsPos(t.position-p.position):""}</div></div>${wsChart(G.daily)}`;
+      <div class="ws-kpi"><p class="k">Posizione media</p><p class="v">${t.position?wsN(t.position,1):"–"}</p>${t.position&&p.position?wsPos(t.position-p.position):""}</div></div>${wsChart(G.daily)}`;
     const L=G.queries.filter(q=>q.q.includes(WS.find.toLowerCase())).sort((a,b)=>WS.sort==="p"?a.p-b.p:b[WS.sort]-a[WS.sort]);
     const th=(k,l)=>`<th data-a="wsSort" data-v="${k}">${l}${WS.sort===k?(k==="p"?" ▴":" ▾"):""}</th>`;
     h+=`<h2>Parole chiave</h2><input class="ws-find" id="ws_find" placeholder="Cerca una parola…" value="${esc(WS.find)}"><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca su Google</th>${th("c","Clic")}${th("i","Impressioni")}<th>CTR</th>${th("p","Posizione")}<th>Rispetto a prima</th></tr></thead><tbody id="ws_q">${wsRows(WS.find||WS.allq?L:L.slice(0,10))}</tbody></table>${!WS.find&&L.length>10?`<button class="ws-more" data-a="wsAllQ">${WS.allq?"▴ Mostra solo le prime 10":"▾ Mostra le altre "+(L.length-10)+" parole chiave"}</button>`:""}</div><p class="ws-src">⭐ = le tue parole chiave principali. ▲ verde = sei salito in classifica.</p>`;
@@ -4015,7 +4015,7 @@ function ogWeb(){const X=OG.web;if(!X){if(!OG.load)setTimeout(ogLoad,0);return o
   const G=X.gsc,W=X.wa,box=(k,v,x,c)=>`<div class="og-k${c?" "+c:""}"><span>${k}</span><b>${v}</b>${x||""}</div>`;let b=`<div class="og-ks">`;
   if(G){const t=G.tot,p=G.prev;b+=box("Clic da Google",wsN(t.clicks),wsPct(t.clicks,p.clicks))+box("Impressioni",wsN(t.impressions),wsPct(t.impressions,p.impressions))+box("Posizione media",t.position?wsN(t.position,1):"–")}
   if(W)b+=box("💬 Tocchi su WhatsApp",wsN(W.tot),"","og-wa");b+=`</div>`;
-  if(G){const q=(G.queries||[]).slice().sort((a,b)=>b.c-a.c||b.i-a.i)[0];b+=`<p class="row-meta" style="margin:0">${q?`Ricerca con più ${q.c?"clic":"impressioni"}: <b>${esc(q.q)}</b> · `:""}solo Italia · dati di Google «freschi» (provvisori)</p>`}
+  if(G){const q=(G.queries||[]).slice().sort((a,b)=>b.c-a.c||b.i-a.i)[0];b+=`<p class="row-meta" style="margin:0">${q?`Ricerca con più ${q.c?"clic":"impressioni"}: <b>${esc(q.q)}</b> · `:""}solo Italia · ultime 24 ore disponibili${G.upto?" (fino alle "+new Date(G.upto).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})+")":""} · dati provvisori</p>`}
   else if(X.gscErr)b+=`<p class="row-meta" style="margin:0">Google: ${esc(X.gscErr)}</p>`;
   return ogCard("🌐","Sito web · ultime 24 ore",1,b,"",false,true).replace('data-a="go" data-v=""','').replace("</section>",`<button class="btn small ghost og-go" data-a="ogStats">Apri le statistiche ›</button></section>`)}
 function ogFamilies(){const out=[];for(const [id,d] of Object.entries(D.dogs||{})){if(d.ext||!d.owner||!D.owners[d.owner]||!d.birth||dDiff(todayS(),d.birth)>365)continue;

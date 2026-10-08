@@ -43,26 +43,43 @@ async function siteProp(env, token) {
 }
 async function searchConsole(env, days, it) {
   const token = await gbpToken(env), site = await siteProp(env, token);
-  const fresh = days === 1, ds = fresh ? { dataState: "all" } : {};
-  // 24 ore: ieri+oggi con i dati freschi, confronto con i due giorni prima; altrimenti periodo chiuso a 2 giorni fa
-  const end = fresh ? new Date() : back(2), start = back(fresh ? 1 : days - 1, end), pend = back(1, start), pstart = back(fresh ? 1 : days - 1, pend);
-  const P = { startDate: day(start), endDate: day(end), ...ds }, Q = { startDate: day(pstart), endDate: day(pend), ...ds };
   const G = (b) => gsc(env, token, site, b, it);
-  const [tot, ptot, q, pq, pages] = await Promise.all([G({ ...P }), G({ ...Q }),
-    G({ ...P, dimensions: ["query"], rowLimit: 250 }), G({ ...Q, dimensions: ["query"], rowLimit: 500 }), G({ ...P, dimensions: ["page"], rowLimit: 10 })]);
-  let daily = [];
-  if (fresh) {
-    const lim = Date.now() - 24 * 3600e3;
-    try { daily = (await G({ ...P, dimensions: ["hour"], dataState: "hourly_all", rowLimit: 100 }))
-      .filter(r => Date.parse(r.keys[0]) >= lim).map(r => ({ d: r.keys[0], c: r.clicks, i: r.impressions })); } catch (e) {}
-  } else daily = (await G({ ...P, dimensions: ["date"], rowLimit: 100 })).map(r => ({ d: r.keys[0], c: r.clicks, i: r.impressions }));
-  const prev = Object.fromEntries(pq.map(r => [r.keys[0], r.position]));
+  if (days === 1) return fresh24(G, site, it);
+  // periodo chiuso a 2 giorni fa (dati definitivi), confronto con il periodo uguale prima
+  const end = back(2), start = back(days - 1, end), pend = back(1, start), pstart = back(days - 1, pend);
+  const P = { startDate: day(start), endDate: day(end) }, Q = { startDate: day(pstart), endDate: day(pend) };
+  const [tot, ptot, q, pq, pages, dd] = await Promise.all([G({ ...P }), G({ ...Q }),
+    G({ ...P, dimensions: ["query"], rowLimit: 250 }), G({ ...Q, dimensions: ["query"], rowLimit: 500 }), G({ ...P, dimensions: ["page"], rowLimit: 10 }),
+    G({ ...P, dimensions: ["date"], rowLimit: 100 })]);
   const t = tot[0] || { clicks: 0, impressions: 0, ctr: 0, position: 0 }, pt = ptot[0] || { clicks: 0, impressions: 0, ctr: 0, position: 0 };
+  return out(site, false, it, P, t, pt, dd.map(r => ({ d: r.keys[0], c: r.clicks, i: r.impressions })), q, pq, pages);
+}
+/* 24 ore come in Search Console (correzione 08/10/2026): Google conta i giorni nell'ora del Pacifico e i dati arrivano con
+   qualche ora di ritardo, quindi "ieri e oggi" restava quasi vuoto. Ora si prendono i dati ora per ora (hourly_all) degli
+   ultimi 4 giorni e si sommano le ULTIME 24 ORE DISPONIBILI (come la scheda "24 ore" di Search Console), confronto con le 24
+   ore prima. Parole chiave e pagine: i giorni che coprono quelle 24 ore (Google non le dà ora per ora). */
+async function fresh24(G, site, it) {
+  const now = new Date(), rows = (await G({ startDate: day(back(4, now)), endDate: day(now), dimensions: ["hour"], dataState: "hourly_all", rowLimit: 200 }))
+    .map(r => ({ k: r.keys[0], ts: Date.parse(r.keys[0]), c: r.clicks, i: r.impressions, p: r.position })).filter(r => !isNaN(r.ts)).sort((a, b) => a.ts - b.ts);
+  const last = rows.length ? rows[rows.length - 1].ts : now.getTime(), H = 3600e3;
+  const win = rows.filter(r => r.ts > last - 24 * H), prv = rows.filter(r => r.ts > last - 48 * H && r.ts <= last - 24 * H);
+  const sum = L => { const c = L.reduce((s, r) => s + r.c, 0), i = L.reduce((s, r) => s + r.i, 0), w = L.reduce((s, r) => s + r.p * r.i, 0);
+    return { clicks: c, impressions: i, ctr: i ? c / i : 0, position: i ? w / i : 0 }; };
+  const d0 = win.length ? win[0].k.slice(0, 10) : day(back(1, now)), d1 = win.length ? win[win.length - 1].k.slice(0, 10) : day(now);
+  const P = { startDate: d0, endDate: d1, dataState: "all" }, span = Math.round((Date.parse(d1) - Date.parse(d0)) / 864e5) + 1;
+  const Q = { startDate: day(back(span, new Date(d0 + "T12:00:00Z"))), endDate: day(back(1, new Date(d0 + "T12:00:00Z"))), dataState: "all" };
+  const [q, pq, pages] = await Promise.all([G({ ...P, dimensions: ["query"], rowLimit: 250 }), G({ ...Q, dimensions: ["query"], rowLimit: 500 }),
+    G({ ...P, dimensions: ["page"], rowLimit: 10 })]);
+  const o = out(site, true, it, P, sum(win), sum(prv), win.map(r => ({ d: r.k, c: r.c, i: r.i })), q, pq, pages);
+  o.upto = rows.length ? new Date(last + H).toISOString() : null;   // dati fino a (fine dell'ultima ora disponibile)
+  return o;
+}
+function out(site, fresh, it, P, t, pt, daily, q, pq, pages) {
+  const prev = Object.fromEntries(pq.map(r => [r.keys[0], r.position]));
   return { site, fresh, it, from: P.startDate, to: P.endDate, tot: t, prev: pt, daily,
     queries: q.map(r => ({ q: r.keys[0], c: r.clicks, i: r.impressions, p: r.position, dp: prev[r.keys[0]] != null ? r.position - prev[r.keys[0]] : null })),
     pages: pages.map(r => ({ u: r.keys[0].replace(/^https?:\/\/[^/]+/, ""), c: r.clicks, i: r.impressions, p: r.position })) };
 }
-// Tocchi sul tasto WhatsApp del sito (tabella D1 "wa", riempita da /api/public/walog)
 async function waStats(env, days) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS wa (id INTEGER PRIMARY KEY, ts INTEGER, day TEXT, path TEXT, lang TEXT)").run();
   const now = Date.now(), from = now - days * 864e5, pfrom = now - 2 * days * 864e5;
