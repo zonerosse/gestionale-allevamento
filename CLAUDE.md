@@ -1014,6 +1014,23 @@ Accessi e copie
   Perché funzioni anche per persone nuove, Cloudflare Access deve far passare chiunque abbia un'email (codice via email):
   il filtro vero è l'elenco del gestionale.
 
+## 👥 Permessi per sezione (08/10/2026, scelta di Paolo)
+- In ⚙️ Account → Chi entra, per ogni persona e per ogni voce del menu: No (0) / Vede (1) / Modifica (2); Oggi, Traduci e
+  Statistiche al massimo 1 ("Usa" per Traduci). Scelte rapide Niente / Vede tutto / Modifica tutto. Account resta solo di Paolo.
+  `AC_SECT`, `AC_ONE`, `acPermTxt`, `acPpRead`, azioni `acPpSet`/`acPpAdd`/`acPpDel`. Salvato in gbp "cfg:access" come
+  `people[email] = "admin" | {sezione:1|2}` (`permNorm`; i vecchi "conti"/"viewer" = {conti:2} / {cani,cucciolate,coi,attesa:1}).
+- Server (_lib.js): `who()` → {email, role:"admin"|"limited"|null, perm}; `role()` ora dà "admin"/"limited"; `can(req,env,sezione,livello)`.
+  `GET /api/data` per "limited": `limitedData` (senza Proprietari: famiglie solo col nome, niente contratti/caparre/passaggi/documenti
+  privati; senza Conti: niente acc/accGen; senza Attesa: niente waitlist/interessati; senza Agenda: niente agenda; settings solo
+  le voci delle sezioni viste, MAI sellerSig) + `perm`. `PUT`: `mergeLimited` prende dai dati mandati SOLO le parti delle sezioni
+  con 2 (campo per campo nei cani: health/todo → Scadenze, anag → Anagrafe, contract/dep/pp/owner → Proprietari, nascita/pesi/foto
+  → Cucciolate; tutto il resto → Cani); il resto resta quello vero. Altri endpoint con `can`: contracts (proprietari 1), sbt
+  (cani/coi 2), requests (attesa 1/2), publish (cucciolate/cani 2), reviews e posts (recensioni 1/2), sitestats (statistiche/oggi 1),
+  maps GET (statistiche 1; il controllo che spende solo Paolo), ai (compito per compito, `NEED`), upload (chi modifica qualcosa).
+- Pagina: `window.PERM`; menu solo con le voci viste; a ogni `render()` `RO = PERM[tab]!==2` (tasti di modifica tolti da
+  `roClean`, fascia "Solo da guardare"); `saveNow` salva se c'è almeno una sezione con 2. Se l'unico permesso è Conti=2 si
+  comporta come il vecchio ruolo "conti" (`CONTI`). Un 403 delle altre API non mostra più "Accesso scaduto" a chi ha permessi limitati.
+
 ## 🏠 Dati dell'allevamento: una sola fonte (08/10/2026, scelta 2 di Paolo)
 - REGOLA: nome dell'allevamento, titolare, indirizzo, telefono, email, sito e razza NON si scrivono mai a mano nel codice.
   Nelle pagine: `FM()` (in cima allo script di index.html e proprietario.html, blocco identico) = `FARM_DEF` + `D.settings.farm`.

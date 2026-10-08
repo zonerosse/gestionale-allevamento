@@ -44,14 +44,35 @@ export async function accessCfg(env, fresh) {
   ACC_AT = Date.now(); return ACC;
 }
 export function accessReset() { ACC = null; }
-export async function role(request, env) {
-  const e = await accessEmail(request, env); if (e === null) return null;
-  const A = await accessCfg(env);
-  if (A && A.people && Object.keys(A.people).length) { const r = A.people[e]; return r === "admin" || r === "conti" || r === "viewer" ? r : null; }
-  const V = String(env.VIEWERS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
-  const C = String(env.CONTI || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
-  return C.includes(e) ? "conti" : V.includes(e) ? "viewer" : "admin";
+// Permessi per sezione (08/10/2026, scelta di Paolo): ogni persona ha, per ogni voce del menu, 0 = no, 1 = vede, 2 = modifica.
+// Nell'elenco "cfg:access" una persona è "admin" (tutto) oppure { cani:1, conti:2, … }; "conti" e "viewer" (vecchi ruoli)
+// valgono come { conti:2 } e { cani:1, cucciolate:1, coi:1, attesa:1 }. Oggi, Traduci e Statistiche: al massimo 1.
+export const SECT = ["oggi", "cani", "cucciolate", "proprietari", "coi", "agenda", "attesa", "recensioni", "anagrafe", "traduci", "conti", "scadenze", "statistiche"];
+export const SECT_ONE = ["oggi", "traduci", "statistiche"];
+export function permNorm(r) {
+  if (r === "admin") return null;
+  const src = r === "conti" ? { conti: 2 } : r === "viewer" ? { cani: 1, cucciolate: 1, coi: 1, attesa: 1 } : (r && typeof r === "object" ? r : {});
+  const P = {}; for (const s of SECT) { let v = parseInt(src[s], 10) || 0; v = Math.max(0, Math.min(SECT_ONE.includes(s) ? 1 : 2, v)); if (v) P[s] = v; }
+  return P;
 }
+// { email, role: "admin" | "limited" | null, perm } — perm null per l'admin
+export async function who(request, env) {
+  const e = await accessEmail(request, env); if (e === null) return { email: null, role: null, perm: {} };
+  const A = await accessCfg(env);
+  let r;
+  if (A && A.people && Object.keys(A.people).length) { r = A.people[e]; if (r === undefined) return { email: e, role: null, perm: {} }; }
+  else {
+    const V = String(env.VIEWERS || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+    const C = String(env.CONTI || "").toLowerCase().split(/[\s,;]+/).filter(Boolean);
+    r = C.includes(e) ? "conti" : V.includes(e) ? "viewer" : "admin";
+  }
+  if (r === "admin") return { email: e, role: "admin", perm: null };
+  const P = permNorm(r);
+  return { email: e, role: Object.keys(P).length ? "limited" : null, perm: P };
+}
+export async function role(request, env) { return (await who(request, env)).role; }
+// true se l'admin, o se per quella sezione la persona ha almeno il livello chiesto (1 vede, 2 modifica)
+export async function can(request, env, sect, lvl) { const w = await who(request, env); if (w.role === "admin") return true; if (!w.role) return false; return [].concat(sect).some(s => (w.perm[s] || 0) >= (lvl || 1)); }
 // Tetti di spesa del mese (08/10/2026): quelli scritti in ⚙️ Account (gbp "cfg:caps" = { maps, sott }), se no MAPS_CAP e
 // SOTTOSOPRA_CAP di Cloudflare, se no 100 e 30. 0 = fermo.
 export async function capsCfg(env) {
@@ -176,5 +197,72 @@ export function mergeConti(cur, body) {
   const out = JSON.parse(JSON.stringify(cur));
   for (const [k, l] of Object.entries((body && body.litters) || {})) if (out.litters && out.litters[k]) { if (l.acc) out.litters[k].acc = l.acc; else delete out.litters[k].acc; }
   out.accGen = Array.isArray(body && body.accGen) ? body.accGen : (out.accGen || []);
+  return out;
+}
+
+// ---------- Permessi per sezione: dati da mandare e da accettare (08/10/2026) ----------
+// Documenti che vede solo chi ha "Proprietari": contratti, passaggi, caparre, iscrizioni, privati.
+const hiddenDoc = z => z && (z.private || z.ct || z.pp || z.pp_en || z.isc || z.dep);
+export function limitedData(data, P) {
+  const d = JSON.parse(JSON.stringify(data || {})), v = s => (P[s] || 0) >= 1, S = (data && data.settings) || {};
+  d.dogs = d.dogs || {}; d.litters = d.litters || {}; d.owners = d.owners || {}; d.matings = d.matings || {};
+  if (!v("proprietari")) {
+    for (const k of Object.keys(d.owners)) d.owners[k] = { name: d.owners[k].name || "" };
+    for (const x of Object.values(d.dogs)) { delete x.contract; delete x.dep; delete x.pp; if (x.docs) x.docs = x.docs.filter(z => !hiddenDoc(z)); }
+  }
+  if (!v("conti")) { for (const l of Object.values(d.litters)) delete l.acc; d.accGen = []; }
+  if (!v("attesa")) { delete d.waitlist; delete d.interested; delete d.wlGone; }
+  if (!v("agenda")) delete d.agenda;
+  const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
+  cp(["rules", "enti"]);
+  if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken"]);
+  if (v("cani") || v("proprietari")) cp(["kitExtra"]);
+  if (v("cucciolate")) cp(["modB", "drive", "sitePub"]);
+  if (v("cucciolate") || v("anagrafe")) cp(["holders", "ppMe", "anagrafeEmail"]);
+  if (v("anagrafe")) cp(["myIds"]);
+  d.settings = s;
+  return d;
+}
+// Unisce ai dati veri SOLO le parti che la persona può modificare (2); il resto resta com'è sul server.
+export function mergeLimited(cur, body, P) {
+  const out = JSON.parse(JSON.stringify(cur || {})), B = body || {}, m = s => (P[s] || 0) === 2, mm = a => a.some(m), v = s => (P[s] || 0) >= 1;
+  const take = k => { if (B[k] === undefined) delete out[k]; else out[k] = JSON.parse(JSON.stringify(B[k])); };
+  if (m("proprietari")) take("owners");
+  if (m("coi")) take("matings");
+  if (m("attesa")) { take("waitlist"); take("interested"); take("wlGone"); }
+  if (m("agenda")) take("agenda");
+  if (m("conti")) out.accGen = Array.isArray(B.accGen) ? B.accGen : (out.accGen || []);
+  // cucciolate
+  const L = out.litters = out.litters || {}, BL = B.litters || {};
+  if (m("cucciolate")) {
+    for (const k of Object.keys(L)) if (!BL[k]) delete L[k];
+    for (const [k, l] of Object.entries(BL)) { const acc = L[k] && L[k].acc; L[k] = JSON.parse(JSON.stringify(l)); if (!m("conti")) { if (acc) L[k].acc = acc; else delete L[k].acc; } }
+  } else if (m("conti")) for (const [k, l] of Object.entries(BL)) if (L[k]) { if (l.acc) L[k].acc = l.acc; else delete L[k].acc; }
+  // cani: campo per campo, secondo la sezione a cui appartiene
+  const G = f => ["health", "todo", "scMove", "scSkip"].includes(f) ? ["cani", "scadenze"] : f === "anag" ? ["cani", "anagrafe"]
+    : ["contract", "dep", "pp", "owner", "nvSent", "nvPrev"].includes(f) ? ["proprietari"] : ["kit", "kitx"].includes(f) ? ["cani", "proprietari"]
+    : ["litter", "birthOrder", "birthTime", "collar", "birthWeight", "weights", "wphotos"].includes(f) ? ["cani", "cucciolate"] : ["cani"];
+  const DG = out.dogs = out.dogs || {}, BD = B.dogs || {}, docsOk = mm(["cani", "proprietari", "cucciolate", "anagrafe"]);
+  for (const k of Object.keys(DG)) if (!BD[k] && m("cani")) delete DG[k];
+  for (const [k, bd] of Object.entries(BD)) {
+    const cd = DG[k];
+    if (!cd) { if (mm(["cani", "cucciolate", "anagrafe"])) DG[k] = JSON.parse(JSON.stringify(bd)); continue; }
+    for (const f of new Set([...Object.keys(cd), ...Object.keys(bd)])) {
+      if (f === "docs") {
+        if (!docsOk) continue;
+        const keep = v("proprietari") ? [] : (cd.docs || []).filter(hiddenDoc);
+        const had = new Set((cd.docs || []).map(z => z && z.file));
+        cd.docs = (bd.docs || []).filter(z => v("proprietari") || !hiddenDoc(z) || !had.has(z.file)).concat(keep);
+        continue;
+      }
+      if (JSON.stringify(cd[f]) === JSON.stringify(bd[f]) || !mm(G(f))) continue;
+      if (bd[f] === undefined) delete cd[f]; else cd[f] = JSON.parse(JSON.stringify(bd[f]));
+    }
+  }
+  // impostazioni: solo le voci delle sezioni modificabili
+  const S = out.settings = out.settings || {}, BS = B.settings || {}, put = ks => ks.forEach(k => { if (BS[k] === undefined) delete S[k]; else S[k] = BS[k]; });
+  if (m("scadenze")) put(["scad", "alarms", "todo", "calToken"]);
+  if (mm(["cani", "proprietari"])) put(["kitExtra"]);
+  if (m("cucciolate")) put(["drive", "sitePub"]);
   return out;
 }

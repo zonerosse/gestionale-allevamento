@@ -1,10 +1,10 @@
-import { json, isAdmin, deny } from "../_lib.js";
+import { json, isAdmin, deny, can } from "../_lib.js";
 
 // Prova a leggere da SBTpedigree i dati base di un cane (nome, nascita, sesso, genitori) dal suo numero.
 // SBT può bloccare le letture automatiche: in quel caso risponde ok:false e il gestionale chiede solo il nome.
 const dec = s => String(s || "").replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).trim();
 export async function onRequestGet({ request, env }) {
-  if (!(await isAdmin(request, env))) return deny();
+  if (!(await can(request, env, ["cani", "coi"], 2))) return deny();
   const id = new URL(request.url).searchParams.get("id") || "";
   if (!/^\d{1,9}$/.test(id)) return json({ ok: false, error: "Numero SBT non valido" }, 400);
   let html = "";

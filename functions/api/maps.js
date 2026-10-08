@@ -1,4 +1,4 @@
-import { json, role, deny, capsCfg } from "../_lib.js";
+import { json, role, deny, capsCfg, can } from "../_lib.js";
 import { gbpGet, gbpSet } from "../_gbp.js";
 /* Posizioni della scheda dell'allevamento su Google Maps, città per città (ottobre 2026). Solo Paolo.
    DataForSEO "serp/google/maps/live/advanced" (segreti DATAFORSEO_LOGIN e DATAFORSEO_PASSWORD, lo stesso abbonamento
@@ -50,7 +50,7 @@ async function check(env, kw, c) {
   return me ? (me.rank_group || me.rank_absolute || null) : null;
 }
 export async function onRequestGet({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, "statistiche", 1))) return deny();
   return json({ ok: true, ready: !!(env.DATAFORSEO_LOGIN && env.DATAFORSEO_PASSWORD), cfg: await cfg(env), runs: await runs(env), used: await used(env), cap: await cap(env) });
 }
 export async function onRequestPost({ request, env }) {

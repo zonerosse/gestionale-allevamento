@@ -1,8 +1,8 @@
-import { json, isAdmin, deny, ensureContracts } from "../_lib.js";
+import { json, isAdmin, deny, ensureContracts, can } from "../_lib.js";
 
 // Per Paolo: tutti i contratti firmati dai proprietari
 export async function onRequestGet({ request, env }) {
-  if (!(await isAdmin(request, env))) return deny();
+  if (!(await can(request, env, "proprietari", 1))) return deny();
   await ensureContracts(env);
   const { results } = await env.DB.prepare("SELECT dog, json FROM contracts").all();
   const out = {};

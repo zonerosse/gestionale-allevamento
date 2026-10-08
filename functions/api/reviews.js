@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, can } from "../_lib.js";
 import { gbpGet, gbpToken, gget } from "../_gbp.js";
 /* Recensioni del profilo Google (ottobre 2026). Solo Paolo.
    GET  → { ok, title, total, rating, reviews:[{name,who,photo,stars,text,date,reply,replyDate}], site:{total,rating} }
@@ -20,7 +20,7 @@ async function siteNums(env) {
   return { total: n ? +n[1] : null, rating: v ? v[1] : null, sha: j.sha, text: t };
 }
 export async function onRequestGet({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, "recensioni", 1))) return deny();
   try {
     if (!env.GOOGLE_CLIENT_ID) return json({ ok: false, connect: true, setup: true, error: "Manca la chiave GOOGLE_CLIENT_ID in Cloudflare." });
     const loc = await gbpGet(env, "loc");
@@ -41,7 +41,7 @@ export async function onRequestGet({ request, env }) {
   } catch (e) { return json({ ok: false, connect: !!e.connect, error: String(e.message || e) }); }
 }
 export async function onRequestPost({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, "recensioni", 2))) return deny();
   try {
     const p = await request.json();
     if (p.task === "reply") {

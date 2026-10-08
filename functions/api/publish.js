@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, can } from "../_lib.js";
 /* "🌐 Pubblica sul sito" (ottobre 2026): il gestionale scrive nel repository del sito con un solo commit su main.
    Chiave: segreto Cloudflare GITHUB_TOKEN (fine-grained, solo zonerosse/delpiccolodiavolo-hugo, Contents: Read and write).
    Corpo: { message,
@@ -15,7 +15,7 @@ const okPath = p => /^(data|static|content|assets|i18n)\/[\w\-./]+$/.test(p || "
 const u8b64 = u => { let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 const b64txt = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
 export async function onRequestPost({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, ["cucciolate", "cani"], 2))) return deny();
   if (!env.GITHUB_TOKEN) return json({ ok: false, error: "Manca la chiave GITHUB_TOKEN in Cloudflare (Settings → Variables and Secrets)." }, 200);
   const gh = async (path, method = "GET", body, soft404) => {
     const r = await fetch(API + path, { method, headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json",

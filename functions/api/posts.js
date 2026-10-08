@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, can } from "../_lib.js";
 import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
 /* Post sul profilo Google (sezione "Aggiornamenti"), ottobre 2026. Solo Paolo; si pubblica solo con il suo tasto.
    GET  → { ok, posts:[{name,text,state,date,img,url}] }
@@ -7,7 +7,7 @@ import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
    Regole di Google e di Paolo controllate anche qui: niente numeri di telefono, massimo 1.500 caratteri. */
 const PHONE = /\+?\d[\d\s.\-]{7,}\d/;
 export async function onRequestGet({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, "recensioni", 1))) return deny();
   try {
     const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
     const tk = await gbpToken(env);
@@ -17,7 +17,7 @@ export async function onRequestGet({ request, env }) {
   } catch (e) { return json({ ok: false, connect: !!e.connect, error: String(e.message || e) }); }
 }
 export async function onRequestPost({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, "recensioni", 2))) return deny();
   try {
     const p = await request.json(), text = String(p.text || "").trim();
     if (!text || text.length > 1500) return json({ ok: false, error: "Il testo deve avere fra 1 e 1.500 caratteri." });

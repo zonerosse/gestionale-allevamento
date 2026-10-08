@@ -1,4 +1,4 @@
-import { json, isAdmin, deny, accessEmail, accessCfg, accessReset, capsCfg } from "../_lib.js";
+import { json, isAdmin, deny, accessEmail, accessCfg, accessReset, capsCfg, permNorm, SECT, SECT_ONE } from "../_lib.js";
 import { gbpGet, gbpSet } from "../_gbp.js";
 /* ⚙️ Account (08/10/2026, solo Paolo): stato dei collegamenti, tetti di spesa del mese e chi entra.
    Le chiavi non escono MAI: si dice solo se ci sono (true/false) e, dove si può, se funzionano. */
@@ -13,8 +13,11 @@ export async function onRequestGet({ request, env }) {
     conti: list(env.CONTI), viewers: list(env.VIEWERS) };
   // chi entra: l'elenco salvato qui (se c'è) comanda; se no si mostra quello delle variabili di Cloudflare
   const A = await accessCfg(env, true);
-  if (A.people && Object.keys(A.people).length) { out.people = A.people; out.listed = true; }
-  else { const P = {}; if (out.me) P[out.me] = "admin"; out.conti.forEach(e => P[e] = "conti"); out.viewers.forEach(e => P[e] = "viewer"); out.people = P; out.listed = false; }
+  // ogni persona: "admin" oppure { sezione: 1|2 } (i vecchi "conti"/"viewer" diventano permessi per sezione)
+  const norm = P => Object.fromEntries(Object.entries(P).map(([e, r]) => [e, r === "admin" ? "admin" : permNorm(r)]));
+  if (A.people && Object.keys(A.people).length) { out.people = norm(A.people); out.listed = true; }
+  else { const P = {}; if (out.me) P[out.me] = "admin"; out.conti.forEach(e => P[e] = "conti"); out.viewers.forEach(e => P[e] = "viewer"); out.people = norm(P); out.listed = false; }
+  out.sect = SECT; out.sectOne = SECT_ONE;
   const g = async k => { try { return await gbpGet(env, k); } catch (e) { return null; } };
   out.google = { linked: !!(await g("refresh")), gsc: await g("gsc"), profile: !!(await g("loc")) };
   const C = await capsCfg(env);
@@ -32,7 +35,7 @@ export async function onRequestGet({ request, env }) {
   return json(out);
 }
 
-// POST { caps:{maps,sott} } oppure { people:{ email: "admin"|"conti"|"viewer" } } — solo admin.
+// POST { caps:{maps,sott} } oppure { people:{ email: "admin" | { sezione: 0|1|2 } } } — solo admin.
 // Chi salva resta sempre "admin" (così non si chiude fuori da solo).
 export async function onRequestPost({ request, env }) {
   if (!(await isAdmin(request, env))) return deny();
@@ -48,8 +51,8 @@ export async function onRequestPost({ request, env }) {
     for (const [e, r] of Object.entries(b.people)) {
       const em = String(e).trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return json({ ok: false, error: "Email non valida: " + e });
-      if (!["admin", "conti", "viewer"].includes(r)) return json({ ok: false, error: "Permesso non valido per " + e });
-      P[em] = r;
+      if (r !== "admin" && (!r || typeof r !== "object")) return json({ ok: false, error: "Permesso non valido per " + e });
+      P[em] = r === "admin" ? "admin" : permNorm(r);
     }
     if (me) P[me] = "admin";
     await gbpSet(env, "cfg:access", JSON.stringify({ people: P, at: new Date().toISOString(), by: me || "" }));

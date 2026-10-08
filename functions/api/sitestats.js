@@ -1,4 +1,4 @@
-import { json, role, deny } from "../_lib.js";
+import { json, role, deny, can } from "../_lib.js";
 import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
 /* Statistiche di delpiccolodiavolo.it (ottobre 2026, scelta di Paolo: solo questo sito). Solo Paolo.
    GET ?days=1|7|28|90&it=1|0 → { ok, gsc | gscErr, cf | cfErr, gbpk | gbpkErr }
@@ -131,7 +131,7 @@ async function cloudflare(env, days) {
     refs: list(A.refs, "refererHost"), countries: list(A.countries, "countryName"), devices: list(A.devices, "deviceType"), paths: list(A.paths, "requestPath") };
 }
 export async function onRequestGet({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  if (!(await can(request, env, ["statistiche", "oggi"], 1))) return deny();
   const sp = new URL(request.url).searchParams, days = [1, 7, 28, 90].includes(+sp.get("days")) ? +sp.get("days") : 28, it = sp.get("it") !== "0";
   const out = { ok: true, days, it };
   await Promise.all([

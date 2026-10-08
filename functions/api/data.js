@@ -1,24 +1,24 @@
-import { json, isAdmin, deny, loadData, role, viewerData, dailyCopy, contiData, mergeConti } from "../_lib.js";
+import { json, isAdmin, deny, loadData, who, dailyCopy, limitedData, mergeLimited } from "../_lib.js";
 
 export async function onRequestGet({ request, env }) {
-  const r = await role(request, env);
+  const w = await who(request, env), r = w.role;
   if (!r) return deny();
   const cur = await loadData(env);
-  if (r === "conti") return json(cur ? { version: cur.version, updated: cur.updated, data: contiData(cur.data), role: r } : { version: 0, data: null, role: r });
-  if (r === "viewer") return json(cur ? { version: cur.version, updated: cur.updated, data: viewerData(cur.data), role: r } : { version: 0, data: null, role: r });
+  // permessi per sezione (08/10/2026): la persona riceve solo quello che può vedere, e il suo elenco di permessi
+  if (r === "limited") return json(cur ? { version: cur.version, updated: cur.updated, data: limitedData(cur.data, w.perm), role: r, perm: w.perm } : { version: 0, data: null, role: r, perm: w.perm });
   return json(Object.assign(cur || { version: 0, data: null }, { role: r }));
 }
 
 // Salva tutto il gestionale. Ogni salvataggio resta anche nello storico (ultimi 200).
 export async function onRequestPut({ request, env }) {
-  const rr = await role(request, env);
-  if (rr !== "admin" && rr !== "conti") return deny();
+  const w = await who(request, env), rr = w.role;
+  if (rr !== "admin" && !(rr === "limited" && Object.values(w.perm).some(x => x === 2))) return deny();
   const body = await request.json();
   if (!body || !body.data || !body.data.dogs) return json({ error: "Dati non validi" }, 400);
-  if (rr === "conti") { // Daniela: si salvano solo i Conti, uniti ai dati veri
+  if (rr === "limited") { // si salvano solo le sezioni che la persona può modificare, unite ai dati veri
     const cur0 = await loadData(env); if (!cur0) return deny();
     if (body.version !== cur0.version) return json({ error: "conflict", version: cur0.version }, 409);
-    body.data = mergeConti(cur0.data, body.data);
+    body.data = mergeLimited(cur0.data, body.data, w.perm);
   }
   const txt = JSON.stringify(body.data);
   if (txt.includes('"data:')) return json({ error: "Ci sono file non ancora caricati" }, 400);

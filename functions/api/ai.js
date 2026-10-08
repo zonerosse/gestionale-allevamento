@@ -1,4 +1,4 @@
-import { json, role, deny, loadData, farmOf } from "../_lib.js";
+import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
 /* Funzioni con Claude (ottobre 2026, scelte di Paolo). Chiave: segreto Cloudflare ANTHROPIC_API_KEY.
    POST { task, ... } → { ok, ... }. Solo l'admin (Paolo). Niente viene salvato o mandato da qui: il gestionale mostra il
    risultato e Paolo decide. Compiti:
@@ -31,7 +31,12 @@ const ask = async (env, system, content, max = 1200) => {
 };
 const b64 = buf => { const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 export async function onRequestPost({ request, env }) {
-  if ((await role(request, env)) !== "admin") return deny();
+  // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
+  const p0 = await request.clone().json().catch(() => ({}));
+  const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2] };
+  const nd = NEED[p0.task];
+  if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
   try {
     const p = await request.json(), task = p.task;

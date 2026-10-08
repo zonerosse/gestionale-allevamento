@@ -1,9 +1,9 @@
-import { json, role, deny } from "../_lib.js";
+import { json, who, deny } from "../_lib.js";
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif", "image/gif": "gif", "application/pdf": "pdf" };
 
 // Carica una foto o un PDF nell'archivio file (R2)
 export async function onRequestPost({ request, env }) {
-  const rr = await role(request, env); if (rr !== "admin" && rr !== "conti") return deny(); // "conti": ricevute delle spese
+  const w = await who(request, env); if (w.role !== "admin" && !(w.role === "limited" && Object.values(w.perm).some(x => x === 2))) return deny(); // chi può modificare almeno una sezione (es. ricevute dei Conti)
   const ct = (request.headers.get("content-type") || "").split(";")[0].trim();
   if (!EXT[ct]) return json({ error: "Tipo di file non accettato: " + ct }, 415);
   const size = +(request.headers.get("content-length") || 0);
