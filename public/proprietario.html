@@ -712,8 +712,8 @@ function FM(){const f=Object.assign({},FARM_DEF),s=((typeof D!=="undefined"&&D&&
   f.mapUrl="https://maps.google.com/?q="+encodeURIComponent(f.addr+" "+f.city);return f}
 const siteSlug=()=>(FM().site||"").split(".")[0].replace(/[^a-z0-9-]/gi,"").toLowerCase()||"sito";
 const ANAG_EMAIL_DEF="p.toselli@comune.ostellato.fe.it"; /* email di base dell'anagrafe canina (si cambia in Account → Enti) */
-function fmBrand(){try{const f=FM();document.querySelectorAll("p.brand").forEach(e=>{e.textContent=f.name});
-  if(typeof OWNER_MODE==="undefined"&&!/·/.test(document.title.replace(/ · Gestionale$/,"")))document.title=f.name+" · Gestionale"}catch(e){}}
+function fmBrand(){try{const f=FM();document.querySelectorAll("p.brand").forEach(e=>{e.textContent=f.name||"Gestionale"});
+  if(typeof OWNER_MODE==="undefined"&&!/·/.test(document.title.replace(/ · Gestionale$/,"")))document.title=(f.name?f.name+" · ":"")+"Gestionale"}catch(e){}}
 /* ---------- Gestionale online: i dati arrivano dal database ---------- */
 const D={dogs:{},owners:{},litters:{},matings:{}};
 const FILES={},DOCF={};
@@ -3388,7 +3388,7 @@ document.addEventListener("click",e=>{
     case "openDog":tab="cani";openItem(v);break;
     case "openOwner":tab="proprietari";openItem(v);break;
     case "openLitterDog":tab="cani";openItem(v);break;
-    case "go":go(v);break;
+    case "go":go(v);break;case "seedEmpty":if(typeof EMPTY!=="undefined"&&EMPTY&&confirm("Iniziare con il gestionale vuoto?")){Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,{dogs:{},owners:{},litters:{},matings:{},settings:{}});EMPTY=false;VERSION=0;lastJ="";tab="oggi";render();saveNow()}break;
     case "filter":filter=v;render();break;
     case "dogForm":dogForm(v||undefined);break;
     case "saveDog":saveDog(v);break;
@@ -4055,7 +4055,7 @@ function ogFamilies(){const out=[];for(const [id,d] of Object.entries(D.dogs||{}
   if(L.length)out.push({id,o,d,L})}return out}
 /* ---------- Benvenuto (primo avvio di un gestionale nuovo, 08/10/2026) ----------
    Compare in cima a Oggi finché mancano i dati dell'allevamento o non c'è ancora nessun cane. Passi con ✓/○ e tasto per andarci. */
-function ogWelcome(){if(RO)return"";const F=FM(),S=D.settings||{},H=(typeof anagHolders==="function"?anagHolders():{}),h0=Object.values(H)[0]||{},E=Object.assign({},S.enti||{});
+function ogWelcome(){if(RO||(typeof EMPTY!=="undefined"&&EMPTY))return"";const F=FM(),S=D.settings||{},H=(typeof anagHolders==="function"?anagHolders():{}),h0=Object.values(H)[0]||{},E=Object.assign({},S.enti||{});
   const st=[[!!(F.name&&F.last&&F.phone&&F.city),"🏠","Dati dell'allevamento","nome, titolare, indirizzo, telefono, email, razza: finiscono in contratti, moduli e messaggi","account"],
     [!!(h0.cf&&h0.bdate&&h0.bplace),"👤","Intestatari e firma","codice fiscale e nascita del titolare (servono per moduli e ricevute); la firma si salva alla prima che fai","account"],
     [!!(E.email||MA_TO.email),"📮","Enti e destinatari","email e WhatsApp della tua delegazione ENCI, email dell'anagrafe canina del tuo Comune","account"],
@@ -4097,7 +4097,9 @@ function ogPage(){const td=todayS(),w=addD(td,7),wd=d=>["domenica","lunedì","ma
    settings.anagrafeEmail), regole di allevamento (settings.rules: età minima al parto, giorni tra due parti).
    Collegamenti, tetti di spesa e chi entra da GET /api/account (le chiavi non arrivano mai: solo sì/no). */
 let AC={x:null,load:0,ed:""};
-const AC_FARM=()=>{const f=FM();return[["Nome",f.kennel],["Titolare",f.person],["Indirizzo",f.full],["Provincia",f.provName],["Telefono e WhatsApp",f.phoneIntl],["Email",f.email],["Sito",f.site],["Razza",f.breed],["Alleva dal",f.since]]};
+const AC_FARM=()=>{const f=FM(),o=(c,v)=>c?v:"—";return[["Nome",o(f.name,f.kennel)],["Titolare",o(f.first||f.last,f.person)],["Indirizzo",o(f.street,f.full)],["Provincia",o(f.provName,f.provName)],["Telefono e WhatsApp",o(f.phone,f.phoneIntl)],["Email",o(f.email,f.email)],["Sito",o(f.site,f.site)],["Razza",o(f.breed,f.breed)],["Alleva dal",o(f.since,f.since)]]};
+/* Sottosopra = app di analisi con tetto di spesa nel gestionale (solo dove serve; nella versione vergine è spenta) */
+const AC_SOTT_ON=true,AC_SOTT_NAME="Sottosopra (puntowebferrara.com)";
 function acRules(){const r=(D.settings||{}).rules||{};EN_AGE=Math.max(16,+r.age||18);EN_GAP=Math.max(170,+r.gap||180)}
 async function acLoad(){AC.load=1;try{const r=await fetch("/api/account");AC.x=r.ok?await r.json():{err:"errore "+r.status}}catch(e){AC.x={err:e.message}}AC.load=0;if(tab==="account")render()}
 const acSt=(k,t)=>`<span class="ac-st ${k}">${t}</span>`;
@@ -4110,7 +4112,7 @@ function acPermTxt(p){if(p==="admin")return"tutto";p=p||{};const nm=k=>(AC_SECT.
 function acPpRead(){if(!AC.pp)return;const me=(AC.x&&AC.x.me)||"";Object.keys(AC.pp).filter(e=>e!==me).forEach((e,i)=>{if(AC.pp[e]==="admin")return;const p={};
   AC_SECT.forEach(([k])=>{const r=document.querySelector(`input[name="acp_${i}_${k}"]:checked`);const n=r?+r.value:(+(AC.pp[e]||{})[k]||0);if(n)p[k]=n});AC.pp[e]=p})}
 function acHold(){const H=anagHolders(),me=(D.settings||{}).myIds||[];
-  return Object.entries(H).map(([k,h])=>acRow(esc(h.name||k),[h.cf?"C.F. ✓":"C.F. ✗",h.bdate&&h.bplace?"nascita ✓":"nascita ✗",k==="paolo"?(me.length?"documento ✓":"documento ✗"):""].filter(Boolean).join(" · "))).join("")}
+  return Object.entries(H).map(([k,h])=>acRow(esc((h.name||"").trim()||"Titolare"),[h.cf?"C.F. ✓":"C.F. ✗",h.bdate&&h.bplace?"nascita ✓":"nascita ✗",k==="paolo"?(me.length?"documento ✓":"documento ✗"):""].filter(Boolean).join(" · "))).join("")}
 function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoad,0);
   const E=Object.assign({},{email:MA_TO.email,wa:MA_TO.wa,who:MA_TO.who,deleg:MA_TO.deleg},S.enti||{});
   let h=`<h1>⚙️ Account</h1><p class="lead">Tutte le impostazioni dell'allevamento e dei collegamenti, in un posto solo.</p><div class="ac-grid">`;
@@ -4121,7 +4123,7 @@ function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoa
     <div class="ac-a"><button class="btn small" data-a="acEd" data-v="hold">✏️ Modifica</button>${S.sellerSig?`<button class="btn small ghost" data-a="acSig">✍️ Cambia firma</button>`:""}</div>
     <p class="ac-n">Codici fiscali e documenti restano solo per te: mai nella pagina dei proprietari.${S.sellerSig?"":" La prima firma che fai (contratto, passaggio di proprietà) diventa quella salvata."}</p></section>`;
   // Enti
-  h+=`<section class="ac-c"><h2>📮 Enti e destinatari</h2>${acRow("Delegazione ENCI",esc(E.deleg)+" · "+esc(E.email))}${acRow("WhatsApp delegazione",esc(E.who)+" · "+esc(E.wa))}${acRow("Anagrafe canina (Comune)",esc(ppAddr()))}
+  h+=`<section class="ac-c"><h2>📮 Enti e destinatari</h2>${acRow("Delegazione ENCI",esc([E.deleg,E.email].filter(Boolean).join(" · ")||"—"))}${acRow("WhatsApp delegazione",esc([E.who,E.wa].filter(Boolean).join(" · ")||"—"))}${acRow("Anagrafe canina (Comune)",esc(ppAddr()||"—"))}
     <div class="ac-a"><button class="btn small" data-a="acEd" data-v="enti">✏️ Modifica</button></div></section>`;
   // Regole
   h+=`<section class="ac-c"><h2>🧬 Regole di allevamento</h2>${acRow("Età minima della madre al parto",EN_AGE+` mesi <span class="ac-fx">ENCI 16</span>`)}${acRow("Giorni minimi tra due parti",EN_GAP+` <span class="ac-fx">ENCI 170</span>`)}${acRow("Fascia di COI ideale","6–9%")}
@@ -4134,14 +4136,14 @@ function acPage(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(acLoa
      +acRow("Google Drive (Salva in Drive)",(DRIVE_ID()?acSt("ok","✓ pronto"):acSt("wa","non impostato"))+(DRIVE_ID()?acLk("https://drive.google.com/","Apri Drive"):"")+`<button class="ac-lk" style="border:0;background:none;cursor:pointer" data-a="acDrive">✏️ ID client</button>`)
      +acRow("Claude (traduzioni, letture, testi)",(k.anthropic?acSt("ok","✓ chiave presente"):acSt("ko","✗ manca ANTHROPIC_API_KEY"))+acLk("https://console.anthropic.com/settings/billing","Credito di Claude"))
      +acRow("GitHub (Pubblica sul sito, numero recensioni)",(k.github?acSt("ok","✓ chiave presente"):acSt("ko","✗ manca GITHUB_TOKEN"))+acLk("https://github.com/settings/tokens","Apri GitHub"))
-     +acRow("DataForSEO (posizioni su Maps, Sottosopra)",(!k.dfs?acSt("ko","✗ mancano le chiavi"):X.dfs&&X.dfs.balance!=null?(X.dfs.balance>0?acSt("ok","✓ credito "+X.dfs.balance.toFixed(2).replace(".",",")+" $"):acSt("ko","✗ senza credito ("+X.dfs.balance.toFixed(2).replace(".",",")+" $)")):acSt("wa","credito: "+esc((X.dfs||{}).err||"non so")))+acLk("https://app.dataforseo.com/","Ricarica"))
+     +acRow("DataForSEO (posizioni su Maps"+(AC_SOTT_ON?", "+AC_SOTT_NAME:"")+")",(!k.dfs?acSt("ko","✗ mancano le chiavi"):X.dfs&&X.dfs.balance!=null?(X.dfs.balance>0?acSt("ok","✓ credito "+X.dfs.balance.toFixed(2).replace(".",",")+" $"):acSt("ko","✗ senza credito ("+X.dfs.balance.toFixed(2).replace(".",",")+" $)")):acSt("wa","credito: "+esc((X.dfs||{}).err||"non so")))+acLk("https://app.dataforseo.com/","Ricarica"))
      +acRow("Contatore WhatsApp del sito",!k.wa?acSt("ko","✗ manca WA_KEY"):X.wa&&X.wa.last?acSt("ok","✓ attivo · ultimo tocco "+fmt(new Date(X.wa.last).toISOString().slice(0,10))):acSt("wa","nessun tocco ancora"))
      +acRow("Calendario sul telefono (Scadenze)",S.calToken?acSt("ok","✓ link creato"):acSt("wa","non ancora creato: Scadenze → Aggiungi al telefono"))}
   h+=`<section class="ac-c ac-w"><h2>🔌 Collegamenti</h2>${c}<div class="ac-a"><button class="btn small" data-a="acReload">🔄 Controlla di nuovo</button><a class="btn small ghost" href="/api/google?ret=sito">Ricollega Google</a><a class="btn small ghost" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener">Chiavi in Cloudflare ↗</a></div>
     <p class="ac-n">Le chiavi non si vedono mai qui (sicurezza): il tasto «Chiavi in Cloudflare» apre la pagina dove si cambiano.</p></section>`;
   // Tetti
   if(X&&X.caps){const b=(t,o,u)=>`<div class="ac-r" style="display:block"><span>${t}</span><b style="float:right">${o.used} su ${o.cap} ${u}</b><div class="ac-bar"><div style="width:${Math.min(100,o.cap?o.used/o.cap*100:0)}%"></div></div></div>`;
-    h+=`<section class="ac-c"><h2>💶 Tetti di spesa del mese</h2>${AC.ed==="caps"?acForm():`${b("Posizioni su Maps (gestionale)",X.caps.maps,"ricerche")}${b("Sottosopra (puntowebferrara.com)",X.caps.sott,"analisi")}<div class="ac-a"><button class="btn small" data-a="acEd" data-v="caps">✏️ Modifica</button></div>`}</section>`}
+    h+=`<section class="ac-c"><h2>💶 Tetti di spesa del mese</h2>${AC.ed==="caps"?acForm():`${b("Posizioni su Maps (gestionale)",X.caps.maps,"ricerche")}${AC_SOTT_ON?b(AC_SOTT_NAME,X.caps.sott,"analisi"):""}<div class="ac-a"><button class="btn small" data-a="acEd" data-v="caps">✏️ Modifica</button></div>`}</section>`}
   // Chi entra
   if(X&&!X.err){const P=X.people||{},oth=Object.keys(P).filter(e=>e!==X.me);
     h+=`<section class="ac-c"><h2>👥 Chi entra</h2>${AC.ed==="people"?acForm():`${acRow("Tu",esc(X.me||"")+" · tutto")}${oth.map(e=>acRow(esc(e),esc(acPermTxt(P[e])))).join("")||acRow("Altre persone","nessuna")}
@@ -4155,7 +4157,7 @@ function acForm(){const S=D.settings||{},f=(id,l,v,t)=>`<label class="ac-f">${l}
   if(AC.ed==="farm"){const F=FM(),L=[["name","Nome dell'allevamento (senza «Allevamento»)"],["first","Nome del titolare"],["last","Cognome del titolare"],["street","Via"],["num","Numero civico"],["cap","CAP"],["city","Comune"],["prov","Sigla provincia"],["provName","Provincia per esteso"],["phone","Telefono (senza +39)"],["prefix","Prefisso internazionale"],["email","Email"],["site","Sito (senza https://)"],["breed","Razza"],["since","Alleva dal (anno)"]];
     return`<div class="ac-form"><div class="ac-g">${L.map(([k,l])=>f("acf_"+k,l,F[k],k==="email"?"email":k==="phone"?"tel":"text")).join("")}</div><p class="ac-n">Un campo lasciato vuoto torna al valore di partenza.</p><div class="ac-a"><button class="btn small" data-a="acSave" data-v="farm">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
   if(AC.ed==="caps"){const C=(AC.x&&AC.x.caps)||{maps:{cap:100},sott:{cap:30}};
-    return`<div class="ac-form"><div class="ac-g">${f("acc_maps","Ricerche Maps al mese",C.maps.cap,"number")}${f("acc_sott","Analisi Sottosopra al mese",C.sott.cap,"number")}</div><p class="ac-n">Una ricerca Maps costa circa 0,2 centesimi. 0 = fermo.</p><div class="ac-a"><button class="btn small" data-a="acSave" data-v="caps">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
+    return`<div class="ac-form"><div class="ac-g">${f("acc_maps","Ricerche Maps al mese",C.maps.cap,"number")}${AC_SOTT_ON?f("acc_sott","Analisi al mese: "+AC_SOTT_NAME,C.sott.cap,"number"):""}</div><p class="ac-n">Una ricerca Maps costa circa 0,2 centesimi. 0 = fermo.</p><div class="ac-a"><button class="btn small" data-a="acSave" data-v="caps">Salva</button><button class="btn small ghost" data-a="acEd" data-v="">Annulla modifiche</button></div></div>`}
   if(AC.ed==="people"){if(!AC.pp)AC.pp=JSON.parse(JSON.stringify((AC.x&&AC.x.people)||{}));const me=(AC.x&&AC.x.me)||"";
     const seg=(i,k,v)=>`<span class="ac-seg">${(AC_ONE.includes(k)?[[0,"No"],[1,k==="traduci"?"Usa":"Vede"]]:[[0,"No"],[1,"Vede"],[2,"Modifica"]]).map(([n,l])=>`<label><input type="radio" name="acp_${i}_${k}" value="${n}"${n===(+v||0)?" checked":""}><i>${l}</i></label>`).join("")}</span>`;
     return`<div class="ac-form">${me?`<div class="ac-who"><b>${esc(me)}</b>${acSt("ok","tutto (tu)")}</div>`:""}${Object.keys(AC.pp).filter(e=>e!==me).map((e,i)=>{const p=AC.pp[e];
@@ -4178,11 +4180,11 @@ function acAct(a,v){const S=D.settings=D.settings||{},g=id=>{const e=document.ge
   if(a==="acPpAdd"){acPpRead();const ne=g("acp_new").toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ne)){alert("Scrivi un'email giusta (es. nome@gmail.com).");return}if(!AC.pp[ne])AC.pp[ne]={};render();return}
   if(a==="acPpDel"){acPpRead();if(confirm("Togliere "+v+"? Non potrà più entrare nel gestionale (dopo «Salva»).")){delete AC.pp[v];render()}return}
   if(a==="acSave"&&(v==="caps"||v==="people")){let body;
-    if(v==="caps")body={caps:{maps:g("acc_maps"),sott:g("acc_sott")}};
+    if(v==="caps")body={caps:{maps:g("acc_maps"),sott:AC_SOTT_ON?g("acc_sott"):((AC.x&&AC.x.caps&&AC.x.caps.sott.cap)||0)}};
     else{acPpRead();const ne=g("acp_new").toLowerCase();if(ne){if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ne)){alert("L'email «"+ne+"» non sembra giusta.");return}if(!AC.pp[ne])AC.pp[ne]={}}body={people:AC.pp}}
     fetch("/api/account",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).then(j=>{if(!j.ok){alert(j.error||"Non salvato.");return}AC.ed="";AC.pp=null;AC.x=null;render();toast("Salvato.")}).catch(e=>alert("Non salvato: "+e.message));return}
   if(a==="acSig"){if(confirm("Cancellare la firma salvata? La prossima firma che fai (contratto o passaggio di proprietà) diventa quella nuova. I documenti già firmati non cambiano.")){delete S.sellerSig;render();typeof saveNow==="function"&&saveNow()}return}
-  if(a==="acSave"){if(v==="farm"){const o={};FARM_KEYS.forEach(k=>{const x=g("acf_"+k);if(x&&x!==FARM_DEF[k])o[k]=x});S.farm=o;fmBrand()}
+  if(a==="acSave"){if(v==="farm"){const o={};FARM_KEYS.forEach(k=>{const x=g("acf_"+k);if(x)o[k]=x});S.farm=o;fmBrand()}
     if(v==="hold"){const H=anagHolders();Object.keys(H).forEach(k=>{["name","cf","bplace","bdate","addr","tel","email"].forEach(x=>{H[k][x]=g("ach_"+k+"_"+x)});H[k].cf=H[k].cf.toUpperCase()})}
     if(v==="enti"){S.enti={deleg:g("ace_deleg"),email:g("ace_email"),who:g("ace_who"),wa:g("ace_wa")};S.modB=Object.assign({},S.modB||{},{email:S.enti.email,wa:S.enti.wa});const an=g("ace_ana");if(an)S.anagrafeEmail=an}
     if(v==="rules"){S.rules={age:Math.max(16,parseInt(g("acr_age"),10)||18),gap:Math.max(170,parseInt(g("acr_gap"),10)||180)};acRules()}

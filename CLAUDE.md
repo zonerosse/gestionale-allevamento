@@ -1038,8 +1038,8 @@ Accessi e copie
   personRev, kennel ("Allevamento …"), kennelEn, addr, cityProv, capCity, full, phoneDigits, phoneIntl, siteUrl, mapUrl.
   Lato server: `farmOf(data)` / `farmRaw(data)` in functions/_lib.js (stessi valori di partenza di `FARM_DEF`: se cambi uno,
   cambia anche l'altro).
-- Si cambiano in ⚙️ Account → 🏠 Allevamento → Modifica (`AC.ed="farm"`, campi `acf_*`): si salvano in `settings.farm` solo i
-  campi diversi dai valori di partenza; un campo vuoto torna al valore di partenza. `fmBrand()` (a ogni render) aggiorna la
+- Si cambiano in ⚙️ Account → 🏠 Allevamento → Modifica (`AC.ed="farm"`, campi `acf_*`): dal 08/10/2026 si salvano in
+  `settings.farm` TUTTI i campi compilati (serve per poter svuotare `FARM_DEF`); un campo vuoto torna al valore di partenza. `fmBrand()` (a ogni render) aggiorna la
   scritta in alto e il titolo della finestra.
 - Usati in: contratto (HTML e PDF, `CT_DEL_F()`), Modelli A e B, email ENCI, ricevuta della caparra (luogo e data di nascita da
   `settings.ppMe` o `settings.holders.paolo`), anagrafe e passaggi di proprietà (`PP_WHY_F()`), messaggi WhatsApp e email,
@@ -1049,3 +1049,19 @@ Accessi e copie
   copie di sicurezza, prompt di Claude (ai.js: `voice(F)`, legge i dati da D1).
 - Restano scritti nel codice di proposito: "foro competente di Ferrara" nel contratto (testo legale: Paolo non vuole toccare il
   contratto), nomi degli zip del sito (delpiccolodiavolo-*.zip), UID dei calendari, commenti.
+
+## 🧹 Versione «vergine» per altri allevatori (08/10/2026, scelte di Paolo: un programma solo, contratto vuoto)
+- `python tools/vergine.py [zip]` (serve terser: `npm i terser`, cartella in `TERSER_DIR`) crea `build/vergine/` e lo zip:
+  valori di partenza vuoti (`FARM_DEF` nelle pagine e in _lib.js, `MA_DEF`, `DRIVE_DEF`, `ANAG_EMAIL_DEF`, `SITE_REPO_DEF`,
+  `AC_SOTT_ON=false`), contratto `CT=[]` (con `CT` vuoto `ctState` dà null: niente riquadri del contratto), intestatario unico
+  `titolare` (niente Daniela), Maps solo "Italia", niente budget.js (Sottosopra), commenti tolti (terser senza compressione),
+  icone generiche (zampa), INSTALLA.md / LEGGIMI.md / CLAUDE.md neutri presi da `tools/vergine/`. Alla fine cerca le parole di
+  `PROIBITE` (nomi, telefono, email, indirizzo, nomi dei cani…): se ne trova una si ferma. Ogni volta che si aggiunge un valore
+  di partenza personale nel codice, va aggiunto anche lì.
+- Pronti nel codice comune (valgono anche per Paolo, senza cambiare niente per lui): «✨ Inizia da zero» col database vuoto
+  (`seedEmpty`), riquadro 👋 Benvenuto in cima a Oggi (`ogWelcome`, solo se mancano nome dell'allevamento o cani), ID client di
+  Drive da Account (`settings.driveClient`, `DRIVE_ID()`; Drive nascosto se vuoto), nomi degli zip dal sito (`siteSlug()`),
+  repository del sito da `SITE_REPO` (publish.js, reviews.js), scheda Maps riconosciuta da nome e sito, CORS e Search Console dal
+  sito scritto in Account, firme dei messaggi con `FM().first`, esempi neutri nei campi.
+- Prossimo passo per "un programma solo": salvare i dati di Paolo in `settings.farm` (Account → Allevamento → Salva) e poi
+  svuotare i valori di partenza anche nel suo gestionale.
