@@ -1,14 +1,14 @@
-import { json, role, deny, can } from "../_lib.js";
+import { json, role, deny, can, siteRepo } from "../_lib.js";
 import { gbpGet, gbpToken, gget } from "../_gbp.js";
 /* Recensioni del profilo Google (ottobre 2026). Solo Paolo.
    GET  → { ok, title, total, rating, reviews:[{name,who,photo,stars,text,date,reply,replyDate}], site:{total,rating} }
    POST { task:"reply", name, text } → pubblica o cambia la risposta su Google
    POST { task:"site", total, rating } → scrive i due numeri in hugo.toml del sito (un commit): si aggiorna SOLO con il tasto
    di Paolo, mai da solo (scelta di Paolo). Chiave GitHub: GITHUB_TOKEN (la stessa di "Pubblica sul sito"). */
-const REPO = "https://api.github.com/repos/zonerosse/delpiccolodiavolo-hugo/contents/hugo.toml";
+const REPO_OF = env => "https://api.github.com/repos/" + siteRepo(env) + "/contents/hugo.toml";
 const STARS = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
-const gh = (env, method = "GET", body) => fetch(REPO + (method === "GET" ? "?ref=main" : ""), { method,
-  headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json", "User-Agent": "gestionale-delpiccolodiavolo",
+const gh = (env, method = "GET", body) => !siteRepo(env) ? Promise.resolve(new Response(JSON.stringify({ message: "Manca SITE_REPO" }), { status: 404 })) : fetch(REPO_OF(env) + (method === "GET" ? "?ref=main" : ""), { method,
+  headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json", "User-Agent": "gestionale-allevamento",
     "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "content-type": "application/json" } : {}) }, body: body ? JSON.stringify(body) : undefined });
 const dec = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
 const enc = s => { const u = new TextEncoder().encode(s); let r = ""; for (let i = 0; i < u.length; i += 32768) r += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(r); };

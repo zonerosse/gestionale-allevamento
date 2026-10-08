@@ -1,4 +1,4 @@
-import { json, role, deny, can } from "../_lib.js";
+import { json, role, deny, can, farmNow } from "../_lib.js";
 import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
 /* Statistiche di delpiccolodiavolo.it (ottobre 2026, scelta di Paolo: solo questo sito). Solo Paolo.
    GET ?days=1|7|28|90&it=1|0 → { ok, gsc | gscErr, cf | cfErr, gbpk | gbpkErr }
@@ -10,7 +10,7 @@ import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
    - Cloudflare Web Analytics (visite quasi in tempo reale): segreti CF_API_TOKEN (permesso "Account Analytics: Read") e
      CF_ACCOUNT_ID; CF_SITE_TAG facoltativo (se manca si filtra per host).
    Nessuno script sul sito: zero impatto sulle prestazioni. */
-const HOST = "delpiccolodiavolo.it";
+let HOST = "";   // sito dell'allevamento, da ⚙️ Account (letto a ogni richiesta)
 const day = (d) => d.toISOString().slice(0, 10);
 const back = (n, from = new Date()) => { const d = new Date(from); d.setUTCDate(d.getUTCDate() - n); return d; };
 async function gsc(env, token, site, body, it) {
@@ -132,6 +132,8 @@ async function cloudflare(env, days) {
 }
 export async function onRequestGet({ request, env }) {
   if (!(await can(request, env, ["statistiche", "oggi"], 1))) return deny();
+  HOST = (await farmNow(env)).site || "";
+  if (!HOST) return json({ ok: false, error: "Scrivi prima il sito dell'allevamento in ⚙️ Account → Allevamento." });
   const sp = new URL(request.url).searchParams, days = [1, 7, 28, 90].includes(+sp.get("days")) ? +sp.get("days") : 28, it = sp.get("it") !== "0";
   const out = { ok: true, days, it };
   await Promise.all([

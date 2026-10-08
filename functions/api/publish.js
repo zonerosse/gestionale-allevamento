@@ -1,4 +1,4 @@
-import { json, role, deny, can } from "../_lib.js";
+import { json, role, deny, can, siteRepo } from "../_lib.js";
 /* "🌐 Pubblica sul sito" (ottobre 2026): il gestionale scrive nel repository del sito con un solo commit su main.
    Chiave: segreto Cloudflare GITHUB_TOKEN (fine-grained, solo zonerosse/delpiccolodiavolo-hugo, Contents: Read and write).
    Corpo: { message,
@@ -9,7 +9,7 @@ import { json, role, deny, can } from "../_lib.js";
                                       rientro della riga (custom_content è un blocco YAML);
      deletes:[{ path }] }             cancella solo file con "gestionale: true".
    Solo l'admin (Paolo). Risposta: { ok, commit | unchanged, skipped:[percorsi non toccati] }. */
-const REPO = "zonerosse/delpiccolodiavolo-hugo", BRANCH = "main", API = "https://api.github.com/repos/" + REPO;
+const BRANCH = "main", API_OF = env => "https://api.github.com/repos/" + siteRepo(env);
 const A = "<!-- GESTIONALE:INIZIO -->", Z = "<!-- GESTIONALE:FINE -->", OWN = /^gestionale:\s*true\s*$/m;
 const okPath = p => /^(data|static|content|assets|i18n)\/[\w\-./]+$/.test(p || "") && !p.includes("..");
 const u8b64 = u => { let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
@@ -17,9 +17,10 @@ const b64txt = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/
 export async function onRequestPost({ request, env }) {
   if (!(await can(request, env, ["cucciolate", "cani"], 2))) return deny();
   if (!env.GITHUB_TOKEN) return json({ ok: false, error: "Manca la chiave GITHUB_TOKEN in Cloudflare (Settings → Variables and Secrets)." }, 200);
+  if (!siteRepo(env)) return json({ ok: false, error: "Manca il repository del sito: variabile SITE_REPO in Cloudflare (es. utente/sito-hugo)." }, 200);
   const gh = async (path, method = "GET", body, soft404) => {
-    const r = await fetch(API + path, { method, headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json",
-      "User-Agent": "gestionale-delpiccolodiavolo", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
+    const r = await fetch(API_OF(env) + path, { method, headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json",
+      "User-Agent": "gestionale-allevamento", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
       body: body ? JSON.stringify(body) : undefined });
     if (soft404 && r.status === 404) return null;
     const t = await r.text(); let j = {}; try { j = t ? JSON.parse(t) : {}; } catch (e) {}

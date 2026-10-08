@@ -1,4 +1,4 @@
-import { json, role, deny, can } from "../_lib.js";
+import { json, role, deny, can, farmNow } from "../_lib.js";
 import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
 /* Post sul profilo Google (sezione "Aggiornamenti"), ottobre 2026. Solo Paolo; si pubblica solo con il suo tasto.
    GET  → { ok, posts:[{name,text,state,date,img,url}] }
@@ -24,7 +24,8 @@ export async function onRequestPost({ request, env }) {
     if (PHONE.test(text)) return json({ ok: false, error: "Nel testo c'è un numero di telefono: Google non lo accetta." });
     const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
     const body = { languageCode: "it", summary: text, topicType: "STANDARD" };
-    if (p.url && /^https:\/\/delpiccolodiavolo\.it\//.test(p.url)) body.callToAction = { actionType: "LEARN_MORE", url: p.url };
+    const SU = (await farmNow(env)).siteUrl;
+    if (p.url && SU && String(p.url).startsWith(SU + "/")) body.callToAction = { actionType: "LEARN_MORE", url: p.url };
     if (p.file && /^[\w\-./]+$/.test(p.file) && !p.file.includes("..")) {
       await gbpSet(env, "media:" + p.file, String(Date.now() + 2 * 86400e3));
       body.media = [{ mediaFormat: "PHOTO", sourceUrl: new URL(request.url).origin + "/api/public/gpost/" + p.file.split("/").map(encodeURIComponent).join("/") }];

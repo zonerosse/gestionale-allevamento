@@ -84,6 +84,10 @@ export async function isAdmin(request, env) { return (await role(request, env)) 
 // Dati dell'allevamento (08/10/2026): stessi valori di partenza di FARM_DEF nelle pagine; si cambiano in ⚙️ Account
 // (settings.farm). Usare sempre farmOf(data) lato server, mai scriverli a mano.
 export const FARM_DEF = { name: "Del Piccolo Diavolo", first: "Paolo", last: "Boldrini", street: "Via Amerigo Chierici", num: "12", cap: "44020", city: "Ostellato", prov: "FE", provName: "Ferrara", phone: "392 463 5584", prefix: "39", email: "zonerosse@gmail.com", site: "delpiccolodiavolo.it", breed: "Staffordshire Bull Terrier", since: "2013" };
+// Repository del sito Hugo dove "Pubblica sul sito" scrive (variabile Cloudflare SITE_REPO, se no questo); vuoto = funzione spenta.
+export const SITE_REPO_DEF = "zonerosse/delpiccolodiavolo-hugo";
+export const siteRepo = env => String(env.SITE_REPO || SITE_REPO_DEF || "").trim();
+export async function farmNow(env) { try { return farmOf(((await loadData(env)) || {}).data); } catch (e) { return farmOf({}); } }
 export function farmRaw(data) { const s = (data && data.settings && data.settings.farm) || {}, o = {}; for (const k of Object.keys(FARM_DEF)) if (s[k] != null && String(s[k]).trim() !== "") o[k] = String(s[k]).trim(); return o; }
 export function farmOf(data) { const f = Object.assign({}, FARM_DEF, farmRaw(data)); f.site = f.site.replace(/^https?:\/\//, "").replace(/\/+$/, "");
   f.person = f.first + " " + f.last; f.kennel = "Allevamento " + f.name; f.kennelEn = f.name + " kennel"; f.cityProv = f.city + (f.prov ? " (" + f.prov + ")" : "");
