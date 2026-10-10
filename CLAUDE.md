@@ -1083,3 +1083,5 @@ Accessi e copie
 - (10/10/2026, ancora dopo, scelta di Paolo: «senza la finestra in più») caselle, «👁 Vedi», Seleziona Tutti/Solo i nuovi/Nessuno
   e i tasti «✉️ Manda all'anagrafe N passaggi» / «⬇️ Scarica N PDF» stanno direttamente nella lista di `ppLitBox`; il tasto
   `ppMail` chiama subito `ppMailGo` (niente più finestra `ppMailAsk`, rimasta nel codice ma non usata). `ppCount` aggiorna i tasti.
+- «✍️ Firma ora» (10/10/2026) sui cuccioli da firmare della lista: `ppSignNow` → `PP_BACK` = cucciolata, apre `ppForm`; dopo
+  `ppGo` riapre la Scheda della cucciolata (`litterSheet(PP_BACK)`). Da «Compila e firma» nella scheda del cucciolo `PP_BACK` = null.
