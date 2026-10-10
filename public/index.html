@@ -3080,7 +3080,7 @@ function ppMailAsk(lid){if(ppNone(lid))return;const R=ppLitRows(lid);
   <div class="actions"><button class="btn" id="pp_go" data-a="ppMailGo" data-v="${lid}">✉️</button><button class="btn ghost" data-a="ppMailNo" data-v="${lid}">Annulla</button></div>
   <p class="small">Un'unica email con un PDF per ogni famiglia spuntata (passaggio firmato + documento del proprietario). Dopo ti chiedo «Il messaggio è partito?».</p>`);ppCount()}
 function ppChecked(){return[...document.querySelectorAll('input[data-pp]:checked')].map(e=>e.dataset.pp)}
-function ppCount(){const b=$("#pp_go"),d=$("#pp_dl");if(!b)return;const n=ppChecked().length;b.textContent=n?`✉️ Manda all'anagrafe ${n} ${n===1?"passaggio":"passaggi"}`:"Spunta almeno un cucciolo";b.disabled=!n;if(d){d.textContent=n?`⬇️ Scarica ${n===1?"il PDF":"i "+n+" PDF"}`:"⬇️ Scarica i PDF";d.disabled=!n}}
+function ppCount(){const b=$("#pp_go"),d=$("#pp_dl");if(!b)return;const n=ppChecked().length;b.textContent=n?`✉️ Manda all'anagrafe ${n} ${n===1?"passaggio":"passaggi"}`:"Spunta almeno un cucciolo";b.disabled=!n;if(d){d.textContent=n?`⬇️ Scarica il PDF (${n})`:"⬇️ Scarica il PDF";d.disabled=!n}}
 function ppSel(m){document.querySelectorAll('input[data-pp]:not([disabled])').forEach(e=>{const d=D.dogs[e.dataset.pp];e.checked=m==="all"?true:m==="new"?!d.ppSent:false});ppCount()}
 async function ppMailGo(lid){const K=ppChecked();if(!K.length){toast("Spunta almeno un cucciolo.");return}
   PP_SEL=K;try{await ppPack(lid,"mail")}finally{PP_SEL=null}}
@@ -3100,7 +3100,7 @@ function ppLitBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";PP_LIT=li
   ${miss.length?`<p class="small" style="color:#8a5a00">⚠️ Prima di mandare: manca ${miss.join(", ")}.</p>`:""}
   <p class="small">Indirizzo dell'anagrafe: <b>${esc(ppAddr())}</b> <button class="plink" data-a="ppMailAddr" data-v="${lid}">cambia</button></p>
   <div class="row2"><button class="btn" id="pp_go" data-a="ppMail" data-v="${lid}">✉️ Manda all'anagrafe</button><button class="btn ghost" id="pp_dl" data-a="ppPack" data-v="${lid}">⬇️ Scarica i PDF</button></div>
-  <p class="small">Un'unica email con un PDF per ogni cucciolo spuntato (passaggio firmato + documento del proprietario). Dopo ti chiedo «Il messaggio è partito?». L'anagrafe vuole la cessione entro 15 giorni.</p></div>`}
+  <p class="small">Un'unica email con un solo PDF: per ogni cucciolo spuntato, nell'ordine della lista, il passaggio firmato e subito dopo il documento del proprietario. Dopo ti chiedo «Il messaggio è partito?». L'anagrafe vuole la cessione entro 15 giorni.</p></div>`}
 let PDFLIB=null;
 async function pdflib(){if(PDFLIB)return PDFLIB;await new Promise((ok,ko)=>{const s=document.createElement("script");s.src="/pdf-lib.min.js";s.onload=ok;s.onerror=ko;document.head.appendChild(s)});return PDFLIB=window.PDFLib}
 async function ppBytes(f){const r=await fetch(docHref(f));if(!r.ok)throw new Error("file non trovato");return new Uint8Array(await r.arrayBuffer())}
@@ -3118,11 +3118,13 @@ async function ppFamPdf(P,r){const safe=s=>String(s||"").normalize("NFD").replac
         const mw=515,mh=730,k=Math.min(mw/j.w,mh/j.h);pg.drawImage(img,{x:40+(mw-j.w*k)/2,y:50+(mh-j.h*k),width:j.w*k,height:j.h*k})}
       return new File([await A.save()],"Passaggio di proprieta - "+safe(r.d.name)+" - "+safe(r.o.name)+".pdf",{type:"application/pdf"})}
 async function ppPack(lid,mode){const l=D.litters[lid],R=ppToSend(lid);
-  if(!R.length){toast("Non c'è niente di nuovo da mandare: i passaggi firmati sono già stati mandati.");return}toast("Preparo i PDF…");
-  try{const P=await pdflib(),files=[];
-    for(const r of R)files.push(await ppFamPdf(P,r));
+  if(!R.length){toast("Non c'è niente di nuovo da mandare: i passaggi firmati sono già stati mandati.");return}toast("Preparo il PDF…");
+  try{const P=await pdflib(),U=await P.PDFDocument.create();
+    /* un unico allegato (scelta di Paolo, 10/10/2026): nell'ordine della lista, per ogni cucciolo il passaggio e poi il documento del proprietario */
+    for(const r of R){const src=await P.PDFDocument.load(await (await ppFamPdf(P,r)).arrayBuffer());(await U.copyPages(src,src.getPageIndices())).forEach(p=>U.addPage(p))}
+    const files=[new File([await U.save()],"Passaggi di proprieta - "+String(dn(l.dam)+" x "+dn(l.sire)).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9 ._-]+/g,"").trim()+" - "+todayS()+".pdf",{type:"application/pdf"})];
     const subj=`Passaggi di proprietà cucciolata ${dn(l.dam)} × ${dn(l.sire)} – ${FM().kennel}`;
-    const body=`Buongiorno,\n\nin allegato ${R.length===1?"la dichiarazione":"le dichiarazioni"} di passaggio di proprietà della cucciolata di ${dn(l.dam)} × ${dn(l.sire)}${l.date?", nata il "+fmt(l.date):""}: un file per ogni cucciolo, con il modulo firmato da me e dall'acquirente e la copia del documento d'identità dell'acquirente.\n\n${R.map(r=>"• "+r.d.name+(r.d.chip?" (microchip "+r.d.chip+")":"")+" → "+r.o.name).join("\n")}\n\nCordiali saluti\n${FM().person}\n${FM().kennel} · ${FM().cityProv}\n${FM().phone}`;
+    const body=`Buongiorno,\n\nin allegato ${R.length===1?"la dichiarazione":"le dichiarazioni"} di passaggio di proprietà della cucciolata di ${dn(l.dam)} × ${dn(l.sire)}${l.date?", nata il "+fmt(l.date):""}: in un unico PDF, per ogni cucciolo il modulo firmato da me e dall'acquirente seguito dalla copia del documento d'identità dell'acquirente.\n\n${R.map(r=>"• "+r.d.name+(r.d.chip?" (microchip "+r.d.chip+")":"")+" → "+r.o.name).join("\n")}\n\nCordiali saluti\n${FM().person}\n${FM().kennel} · ${FM().cityProv}\n${FM().phone}`;
     const dl=f=>{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)};
     if(mode==="mail")PP_LAST={ids:R.map(r=>r.k)};
     if(mode==="mail"&&isPhone()&&navigator.canShare&&navigator.canShare({files})){try{await navigator.clipboard.writeText(ppAddr())}catch(x){}

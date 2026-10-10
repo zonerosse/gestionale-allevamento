@@ -1092,3 +1092,6 @@ Accessi e copie
   `location.href="mailto:…"` passano da lì; i link `<a href="mailto:">` sono presi da un gestore dei clic. Se il browser blocca la
   finestra compare «📧 Apri Gmail»; nei passaggi all'anagrafe «Il messaggio è partito?» ha anche «📧 Apri l'email in Gmail».
   Nella pagina delle famiglie (OWNER_MODE) resta mailto. Nuove email: usare sempre `mailGo`.
+- (10/10/2026, sera) Un unico allegato: `ppPack` unisce in un solo PDF «Passaggi di proprieta - <madre> x <padre> - <data>.pdf»,
+  nell'ordine della lista, per ogni cucciolo spuntato il passaggio firmato seguito dal documento del proprietario (`ppFamPdf`
+  resta per «👁 Vedi»).
