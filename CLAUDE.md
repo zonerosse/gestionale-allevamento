@@ -1068,3 +1068,11 @@ Accessi e copie
   copie di sicurezza, prompt di Claude (ai.js: `voice(F)`, legge i dati da D1).
 - Restano scritti nel codice di proposito: "foro competente di Ferrara" nel contratto (testo legale: Paolo non vuole toccare il
   contratto), nomi degli zip del sito (delpiccolodiavolo-*.zip), UID dei calendari, commenti.
+
+## Passaggi all'anagrafe un po' alla volta (10/10/2026, scelte di Paolo)
+- Scheda della cucciolata → Passaggi di proprietà: partono solo i passaggi firmati NON ancora mandati (`d.ppSent` = data;
+  `ppToSend`, `PP_ALL` = «Rimanda anche quelli già mandati»). Stato su ogni riga: ✍️ Da firmare / ✅ Firmato · da mandare /
+  ✉️ Mandato il …; tasto «Manda all'anagrafe i N nuovi».
+- Un PDF per famiglia (`ppPack`): il passaggio firmato + i documenti d'identità del suo proprietario (`owners[id].ids`), nome
+  «Passaggio di proprieta - <cucciolo> - <proprietario>.pdf». Il documento di Paolo NON va più (scelta di Paolo).
+- Dopo l'email `ppSentAsk`: «Il messaggio è partito?» → solo con «✓ Sì, l'ho mandato» (`ppSentYes`) si scrive `d.ppSent`.
