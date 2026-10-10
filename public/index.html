@@ -746,6 +746,13 @@ function FM(){const f=Object.assign({},FARM_DEF),s=((typeof D!=="undefined"&&D&&
   f.addr=f.street+" "+f.num;f.cityProv=f.city+(f.prov?" ("+f.prov+")":"");f.capCity=f.cap+" "+f.cityProv;f.full=f.addr+", "+f.capCity;
   f.phoneDigits=f.prefix+f.phone.replace(/\D/g,"");f.phoneIntl="+"+f.prefix+" "+f.phone;f.siteUrl="https://"+f.site;
   f.mapUrl="https://maps.google.com/?q="+encodeURIComponent(f.addr+" "+f.city);return f}
+/* Email dal computer (10/10/2026, scelta di Paolo): su Windows i link mailto aprivano Outlook. Sul computer si apre la scrittura
+   di Gmail nel browser (account dell'allevamento), sul telefono resta mailto (Gmail o Edison Mail, come sceglie il telefono).
+   mailGo(u) per i "location.href=mailto"; i link <a href="mailto:"> sono presi al clic. Nella pagina delle famiglie niente cambia. */
+const gmailUrl=u=>"https://mail.google.com/mail/?authuser="+encodeURIComponent(FM().email||"")+"&extsrc=mailto&url="+encodeURIComponent(u);
+function mailGo(u){if(typeof OWNER_MODE!=="undefined"||isPhone()){location.href=u;return true}const w=window.open(gmailUrl(u),"_blank");
+  if(!w){sheet(`<h2 style="margin-top:0">📧 Apri Gmail</h2><p>Il browser ha bloccato la finestra. Tocca qui per aprire l'email già scritta:</p><div class="actions"><a class="btn" href="${esc(gmailUrl(u))}" target="_blank" rel="noopener">📧 Apri Gmail</a></div>`);return false}return true}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="mailto:"]');if(!a||typeof OWNER_MODE!=="undefined"||isPhone())return;e.preventDefault();mailGo(a.getAttribute("href"))},true);
 function fmBrand(){try{const f=FM();document.querySelectorAll("p.brand").forEach(e=>{e.textContent=f.name});
   if(typeof OWNER_MODE==="undefined"&&!/·/.test(document.title.replace(/ · Gestionale$/,"")))document.title=f.name+" · Gestionale"}catch(e){}}
 /* ---------- Gestionale online: i dati arrivano dal database ---------- */
@@ -1885,7 +1892,7 @@ async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Obj
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
-  dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(MA_TO.email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
+  dl();if(mode==="mail")setTimeout(()=>{mailGo("mailto:"+encodeURIComponent(MA_TO.email)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt))},900);
   else setTimeout(()=>window.open("https://wa.me/39"+MA_TO.wa+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900);
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
 /* Riquadro "Modello B ENCI" nella Scheda della cucciolata (scelta di Paolo, 03/10/2026): sempre disponibile, anche dopo
@@ -2035,7 +2042,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
   const f=new File([blob],name,{type:"application/pdf"});if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
-  dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(o.email||"")+"?subject="+encodeURIComponent(en?"Deposit receipt – "+(d.nick||d.name):"Ricevuta caparra – "+(d.nick||d.name))+"&body="+encodeURIComponent(txt)},900);
+  dl();if(mode==="mail")setTimeout(()=>{mailGo("mailto:"+encodeURIComponent(o.email||"")+"?subject="+encodeURIComponent(en?"Deposit receipt – "+(d.nick||d.name):"Ricevuta caparra – "+(d.nick||d.name))+"&body="+encodeURIComponent(txt))},900);
   else{const ph=lkPhone(o);setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n"+(en?"(I'm attaching the PDF here)":"(il PDF te lo allego qui)")),"_blank","noopener"),900)}
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
 function mbName(lid){const l=D.litters[lid];return "modello-b-"+(dn(l.dam)+"-"+dn(l.sire)).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".pdf"}
@@ -2067,7 +2074,7 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
-  dl();if(mode==="mail")setTimeout(()=>{location.href="mailto:"+encodeURIComponent(S.email||"")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt)},900);
+  dl();if(mode==="mail")setTimeout(()=>{mailGo("mailto:"+encodeURIComponent(S.email||"")+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt))},900);
   else{const ph=lkPhone({phone:S.wa,country:"Italia"});setTimeout(()=>window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(txt+"\n(il PDF lo allego qui)"),"_blank","noopener"),900)}
   toast("Ho scaricato il PDF: allegalo al messaggio che si apre.")}
 // riquadro in alto: cucciolate nate negli ultimi 120 giorni con il Modello B non ancora consegnato
@@ -2186,7 +2193,7 @@ function wlAiSend(v){const [id,m]=v.split("|"),x=(D.waitlist||[]).find(w=>w.id==
   if(WL_AI.lang!=="it"&&bz!==WL_AI.bozza&&!confirm("Hai cambiato la bozza ma non l'hai ritradotta: mando la traduzione di prima?"))return;
   const t=WL_AI.lang==="it"?bz:WL_AI.out,wa=String(x.phone||"").replace(/[^\d+]/g,"").replace(/^\+/,"").replace(/^00/,"");
   if(m==="copy")aiCopy(t);else if(m==="wa")window.open("https://wa.me/"+wa+"?text="+encodeURIComponent(t),"_blank","noopener");
-  else location.href="mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(WL_AI.lang==="de"?"Ihre Anfrage – "+FM().name:WL_AI.lang==="it"?"La tua richiesta – "+FM().name:"Your enquiry – "+FM().name)+"&body="+encodeURIComponent(t)}
+  else mailGo("mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(WL_AI.lang==="de"?"Ihre Anfrage – "+FM().name:WL_AI.lang==="it"?"La tua richiesta – "+FM().name:"Your enquiry – "+FM().name)+"&body="+encodeURIComponent(t))}
 /* Referti: "✨ Leggi con Claude" nella finestra Nuovo documento. Compila titolo e data, controlla il microchip, propone i test
    genetici da aggiungere alla scheda (in tre lingue: tests, tests_en, tests_de). */
 let DOC_AI=null;
@@ -2989,11 +2996,11 @@ function linkBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const P=li
 function lkRev(k){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const en=o.lang==="en",fn=(o.name||"").split(" ")[0],nm=d.nick||d.name,F=d.sex==="F",u=FM().siteUrl+"/chiedi-recensione/";
   const t=en?`Hi ${fn}, how is ${nm} doing? 😊 If you're happy with ${F?"her":"him"}, it would mean a lot if you left a short review on Google: it helps the next family know who they're dealing with. It takes a minute:\n${u}\n\nThank you! ${FM().first} – ${FM().name}`
     :`Ciao ${fn}, come sta ${nm}? 😊 Se ti trovi bene con ${F?"lei":"lui"}, mi fai un grande favore lasciando due righe su Google: aiuta la prossima famiglia a capire con chi ha a che fare. Ci vuole un minuto:\n${u}\n\nGrazie! ${FM().first} – ${FM().name}`;
-  const ph=lkPhone(o);if(ph)window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");else if(o.email)location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(en?"A short review for "+FM().name:"Una recensione per "+FM().name)+"&body="+encodeURIComponent(t);else return;
+  const ph=lkPhone(o);if(ph)window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank","noopener");else if(o.email)mailGo("mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(en?"A short review for "+FM().name:"Una recensione per "+FM().name)+"&body="+encodeURIComponent(t));else return;
   o.revAsked=todayS();typeof saveNow==="function"&&saveNow();if(sheetOpen()&&PP_LIT)litterSheet(PP_LIT)}
 function lkSend(k,how){const d=D.dogs[k],o=D.owners[d.owner];if(!o)return;const m=lkMsg(k);
   if(how==="wa"){const ph=lkPhone(o);if(!ph){toast("Manca il telefono di "+esc(o.name)+".");return}window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(m.t),"_blank","noopener")}
-  else{if(!o.email){toast("Manca l'email di "+esc(o.name)+".");return}location.href="mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(m.s)+"&body="+encodeURIComponent(m.t)}
+  else{if(!o.email){toast("Manca l'email di "+esc(o.name)+".");return}mailGo("mailto:"+encodeURIComponent(o.email)+"?subject="+encodeURIComponent(m.s)+"&body="+encodeURIComponent(m.t))}
   o.linkSent=todayS();typeof saveNow==="function"&&saveNow();if(sheetOpen()&&PP_LIT)litterSheet(PP_LIT)}
 /* ---------- Spese per l'espatrio (solo cuccioli che vanno all'estero: proprietario con lang "en") ----------
    d.abroad={it,en}: la frase si può cambiare; se manca valgono le frasi di base. Paolo la vede sotto il contratto,
@@ -3081,7 +3088,7 @@ async function ppView(k){const w=window.open("","_blank");try{const r=ppLitRows(
   const f=await ppFamPdf(await pdflib(),r),u=URL.createObjectURL(f);if(w)w.location.href=u;else window.open(u,"_blank")}catch(x){if(w)w.close();console.error(x);toast("Non riesco a preparare il PDF.")}}
 function ppSentAsk(lid){const L=PP_LAST;if(!L||!L.ids.length)return;
   sheet(`<h2 style="margin-top:0">Il messaggio è partito?</h2><p>Se l'hai mandato, segno ${L.ids.map(k=>"<b>"+esc(D.dogs[k].name)+"</b>").join(", ")} come «mandati il ${fmt(todayS())}»: la prossima volta non ripartono.</p>
-  <div class="actions"><button class="btn" data-a="ppSentYes" data-v="${lid}">✓ Sì, l'ho mandato</button><button class="btn ghost" data-a="ppMailNo" data-v="${lid}">No, non ancora</button></div>`)}
+  ${L.mail&&!isPhone()?`<p class="small">Gmail non si è aperto? <a href="${esc(gmailUrl(L.mail))}" target="_blank" rel="noopener">📧 Apri l'email in Gmail</a></p>`:""}<div class="actions"><button class="btn" data-a="ppSentYes" data-v="${lid}">✓ Sì, l'ho mandato</button><button class="btn ghost" data-a="ppMailNo" data-v="${lid}">No, non ancora</button></div>`)}
 function ppSentYes(lid){const L=PP_LAST;if(L)L.ids.forEach(k=>{if(D.dogs[k])D.dogs[k].ppSent=todayS()});PP_LAST=null;litterSheet(lid);typeof saveNow==="function"&&saveNow();toast("Segnati come mandati.")}
 function ppLitRows(lid){return litPups(lid).filter(k=>D.dogs[k].owner&&D.owners[D.dogs[k].owner]).map(k=>{const d=D.dogs[k],o=D.owners[d.owner];return{k,d,o,doc:ppDoc(d),ids:(o.ids||[]).length}})}
 function ppLitBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";PP_LIT=lid;setTimeout(ppCount,0);const R=ppLitRows(lid);if(!R.length)return"";const ok=R.filter(r=>r.doc),send=ok.filter(r=>!r.d.ppSent);
@@ -3121,7 +3128,7 @@ async function ppPack(lid,mode){const l=D.litters[lid],R=ppToSend(lid);
     if(mode==="mail"&&isPhone()&&navigator.canShare&&navigator.canShare({files})){try{await navigator.clipboard.writeText(ppAddr())}catch(x){}
       toast("Indirizzo copiato: in Mail incollalo in “A:”.");try{await navigator.share({files,title:subj,text:body})}catch(x){}setTimeout(()=>ppSentAsk(lid),600);return}
     files.forEach((f,i)=>setTimeout(()=>dl(f),i*400));
-    if(mode==="mail"){setTimeout(()=>{location.href="mailto:"+encodeURIComponent(ppAddr())+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);setTimeout(()=>ppSentAsk(lid),1500)},files.length*400+500);toast("Ho scaricato "+(files.length===1?"il PDF":"i "+files.length+" PDF")+": allegali all'email che si apre.")}else toast("Scaricati "+(files.length===1?"1 PDF":files.length+" PDF")+".")}
+    if(mode==="mail"){setTimeout(()=>{const mu="mailto:"+encodeURIComponent(ppAddr())+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);if(PP_LAST)PP_LAST.mail=mu;mailGo(mu);setTimeout(()=>ppSentAsk(lid),1500)},files.length*400+500);toast("Ho scaricato "+(files.length===1?"il PDF":"i "+files.length+" PDF")+": allegali all'email che si apre.")}else toast("Scaricati "+(files.length===1?"1 PDF":files.length+" PDF")+".")}
   catch(x){console.error(x);toast("Non riesco a preparare i PDF: controlla la connessione e riprova.")}}
 /* Proprietari stranieri: spiegazione e traduzione inglese del modulo (si firma solo quello italiano) */
 const PP_WHY_F=()=>["Why are there two versions?","The Italian form is the official one: the breeder files it with the dog registry (Anagrafe canina) of the Municipality of "+FM().city+", and it must be in Italian. That is the one you sign.","This English version is only a translation, so you can understand what you are signing. It has no legal value and you do not sign it."];

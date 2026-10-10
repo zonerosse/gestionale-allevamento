@@ -1085,3 +1085,10 @@ Accessi e copie
   `ppMail` chiama subito `ppMailGo` (niente più finestra `ppMailAsk`, rimasta nel codice ma non usata). `ppCount` aggiorna i tasti.
 - «✍️ Firma ora» (10/10/2026) sui cuccioli da firmare della lista: `ppSignNow` → `PP_BACK` = cucciolata, apre `ppForm`; dopo
   `ppGo` riapre la Scheda della cucciolata (`litterSheet(PP_BACK)`). Da «Compila e firma» nella scheda del cucciolo `PP_BACK` = null.
+
+## Email dal computer: Gmail, non Outlook (10/10/2026, scelta di Paolo)
+- `mailGo(u)` (blocco comune): sul telefono `location.href=mailto` (Gmail o Edison Mail, quello del telefono); sul computer apre
+  Gmail nel browser `gmailUrl(u)` = mail.google.com/mail/?authuser=<email dell'allevamento>&extsrc=mailto&url=<mailto>. Tutti i
+  `location.href="mailto:…"` passano da lì; i link `<a href="mailto:">` sono presi da un gestore dei clic. Se il browser blocca la
+  finestra compare «📧 Apri Gmail»; nei passaggi all'anagrafe «Il messaggio è partito?» ha anche «📧 Apri l'email in Gmail».
+  Nella pagina delle famiglie (OWNER_MODE) resta mailto. Nuove email: usare sempre `mailGo`.
