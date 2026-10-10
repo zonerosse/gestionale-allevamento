@@ -1076,3 +1076,7 @@ Accessi e copie
 - Un PDF per famiglia (`ppPack`): il passaggio firmato + i documenti d'identità del suo proprietario (`owners[id].ids`), nome
   «Passaggio di proprieta - <cucciolo> - <proprietario>.pdf». Il documento di Paolo NON va più (scelta di Paolo).
 - Dopo l'email `ppSentAsk`: «Il messaggio è partito?» → solo con «✓ Sì, l'ho mandato» (`ppSentYes`) si scrive `d.ppSent`.
+- (10/10/2026, dopo) «Chi mando all'anagrafe?» (`ppMailAsk`): una riga per cucciolo con casella (`input[data-pp]`; di partenza i
+  firmati non ancora mandati; i da firmare disattivati), scelte rapide Tutti i firmati / Solo i nuovi / Nessuno (`ppSel`),
+  «👁 Vedi» (`ppView`: apre il PDF di quella famiglia, finestra aperta subito poi `location.href` del blob), tasto «Prepara
+  l'email con N passaggi» (`ppCount`) → `PP_SEL` = chiavi spuntate → un'unica email. PDF di una famiglia in `ppFamPdf`.
