@@ -1080,3 +1080,6 @@ Accessi e copie
   firmati non ancora mandati; i da firmare disattivati), scelte rapide Tutti i firmati / Solo i nuovi / Nessuno (`ppSel`),
   «👁 Vedi» (`ppView`: apre il PDF di quella famiglia, finestra aperta subito poi `location.href` del blob), tasto «Prepara
   l'email con N passaggi» (`ppCount`) → `PP_SEL` = chiavi spuntate → un'unica email. PDF di una famiglia in `ppFamPdf`.
+- (10/10/2026, ancora dopo, scelta di Paolo: «senza la finestra in più») caselle, «👁 Vedi», Seleziona Tutti/Solo i nuovi/Nessuno
+  e i tasti «✉️ Manda all'anagrafe N passaggi» / «⬇️ Scarica N PDF» stanno direttamente nella lista di `ppLitBox`; il tasto
+  `ppMail` chiama subito `ppMailGo` (niente più finestra `ppMailAsk`, rimasta nel codice ma non usata). `ppCount` aggiorna i tasti.
