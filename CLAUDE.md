@@ -1095,3 +1095,17 @@ Accessi e copie
 - (10/10/2026, sera) Un unico allegato: `ppPack` unisce in un solo PDF «Passaggi di proprieta - <madre> x <padre> - <data>.pdf»,
   nell'ordine della lista, per ogni cucciolo spuntato il passaggio firmato seguito dal documento del proprietario (`ppFamPdf`
   resta per «👁 Vedi»).
+
+## Statistiche, recensioni e post (12/10/2026, scelte di Paolo)
+- Sito web → Ricerche: posizione media «pulita» (`wsClean`: senza le ricerche col nome `WS_MINE` e senza quelle escluse col 🚫,
+  salvate in gbp "gsc:ex" con `POST /api/sitestats {task:"ex"}`); in piccolo quella di Google. Le escluse e quelle col nome NON si
+  vedono (né tabella, né salita/discesa, né grafico del profilo): solo il tasto «🚫 Ricerche escluse (N)» apre la lista con ↩ rimetti.
+- Ricerche del profilo: grafico «versione C» con 28 gg (= ultimo mese intero) / 3 / 6 mesi / 1 anno (`?only=gbpk&km=`), prime 6 e
+  «Mostra le altre» (`WS.kwAll`); i mesi chiusi da oltre 40 giorni restano in gbp "kw:AAAA-MM".
+- WhatsApp: contano SOLO i tocchi partiti da una pagina del sito (path presente, esclusa /prova-diag/); le aperture di /wa/ da fuori
+  dal sito si contano a parte con la provenienza (colonna `src` di `wa`, mandata dalla funzione /wa/ del sito; i precaricamenti
+  del browser non contano). Riquadro compatto «versione H» (`wsWaHtml`, nomi pagine `wsPgName`).
+- Recensioni: si apre su «Ultime arrivate»; «Nuova» (verde) = senza risposta finché non rispondi; «vecchie» = senza risposta e più
+  vecchie di un anno (`rvOld`): nascoste (solo in «Tutte»), niente risposte di Claude, fuori dal numero del menu.
+- Scrivi un post: caricata la foto, Claude la legge (compito `foto` di /api/ai → riquadro «Claude vede nella foto»); lo spunto è
+  facoltativo; «Scrivi il post» manda a Claude foto + spunto + descrizione (`post` con `key`, `seen`).

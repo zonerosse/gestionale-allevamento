@@ -710,6 +710,9 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .pg-top .btn:disabled{opacity:.45;cursor:not-allowed}
 .rv.rv-new{border:2px solid #1E8E4E}.badge.rv-nb{background:#1E8E4E;color:#fff;font-weight:700}
 .rv-oldl{border:1px dashed var(--line);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:.88rem;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.gp-step{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:.74rem;margin-right:6px}
+.gp-see{background:#EEE9FA;color:#2A2340;border-radius:10px;padding:9px 12px;margin-top:10px;font-size:.88rem}.gp-see b{color:#5B3FA8}.gp-see.busy{font-style:italic}
+:root[data-theme="dark"] .gp-see{background:#2A2340;color:#E7E9ED}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gp-see{background:#2A2340;color:#E7E9ED}:root:not([data-theme="light"]) .gp-see b{color:#B9A6F0}}
 </style>
 </head>
 <body class="owner-mode">
@@ -3610,11 +3613,20 @@ function gpRecent(){const out=[];for(const [k,d] of Object.entries(D.dogs||{})){
 function gpLinks(){const L=[["Home",SITE_F()+"/"],["Cuccioli",SITE_F()+CUC_URL.it]];
   Object.entries(D.litters||{}).filter(([lid,l])=>l.state==="nata"&&l.site&&l.site.diarDone&&siOk(lid)).sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||"")).forEach(([lid])=>L.push(["Diario: "+litPair(lid),litUrl(lid,"it")]));
   L.push(["Palmarès",SITE_F()+"/palmares-del-piccolo-diavolo/"],["Nessun tasto",""]);return L}
+/* 12/10/2026 (anteprima approvata da Paolo): 1 foto → Claude la «legge» subito (compito "foto", riquadro viola «Claude vede»),
+   2 cosa vuoi dire (facoltativo se c'è la foto), 3 «Scrivi il post» = foto + spunto (compito "post" con key e seen). */
+async function gpSee(url){const F=GP.free;if(!F||!url)return;F.seen=F.seen||{};F.seen[url]="…";if(tab==="recensioni")render();
+  try{const j=await aiCall("foto",{key:url});F.seen[url]=j.seen||""}catch(x){F.seen[url]="!"+x.message}
+  if(GP.free===F&&tab==="recensioni"){render();const e=document.getElementById("gp_idea");e&&!e.value&&e.focus()}}
+function gpSeeHtml(url){const s=((GP.free||{}).seen||{})[url];if(s==null)return"";
+  if(s==="…")return`<div class="gp-see busy">👁 Claude guarda la foto…</div>`;
+  if(s.startsWith("!"))return`<div class="gp-see">Claude non è riuscito a leggere la foto: puoi scrivere tu cosa c'è. <span class="small">(${esc(s.slice(1))})</span></div>`;
+  return s?`<div class="gp-see"><b>👁 Claude vede nella foto:</b> ${esc(s)}</div>`:""}
 function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata ora"})),sel=P[F.photo],ok=gpChecks(GP.text).every(x=>x[0]),L=gpLinks(),lk=L[F.link]||L[0];
-  return `<div class="gp-ed"><div><label class="rv-ft" for="gp_idea">Di cosa vuoi parlare? (due righe, anche scritte male)</label><textarea id="gp_idea" class="gp-tx" style="min-height:70px" placeholder="Es. Rocco va a casa sabato con la sua famiglia, foto tutti insieme">${esc(F.idea)}</textarea>
-    <div class="rv-row" style="margin:6px 0 14px"><span></span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il testo</button></div>
-    <span class="rv-ft">Foto (dal telefono o dal computer)</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${P.map((p,i)=>`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="${i}" aria-pressed="${F.photo===i}" title="${esc(p.lab)}"><img src="${esc(p.f)}" alt="" loading="lazy">${F.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}${P.length?`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="-1" aria-pressed="${F.photo===-1}" style="display:grid;place-items:center;font-size:.8rem;color:var(--muted)">Senza foto${F.photo===-1?`<span class="ck">✓</span>`:""}</button>`:""}</div>`}${P.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}
-    <label class="rv-ft" for="gp_tx">Testo (puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":"Qui compare il testo di Claude, o scrivilo tu"}">${esc(GP.text)}</textarea>
+  return `<div class="gp-ed"><div><span class="rv-ft"><span class="gp-step">1</span>Carica la foto (dal telefono o dal computer)</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${P.map((p,i)=>`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="${i}" aria-pressed="${F.photo===i}" title="${esc(p.lab)}"><img src="${esc(p.f)}" alt="" loading="lazy">${F.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}${P.length?`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="-1" aria-pressed="${F.photo===-1}" style="display:grid;place-items:center;font-size:.8rem;color:var(--muted)">Senza foto${F.photo===-1?`<span class="ck">✓</span>`:""}</button>`:""}</div>`}${P.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}${sel&&F.photo>=0?gpSeeHtml(sel.f):""}
+    <label class="rv-ft" for="gp_idea" style="margin-top:14px"><span class="gp-step">2</span>Cosa vuoi dire? <span class="small">(${sel&&F.photo>=0?"facoltativo: con la foto basta anche niente":"due righe, anche scritte male"})</span></label><textarea id="gp_idea" class="gp-tx" style="min-height:60px" placeholder="Es. è Rocco, oggi va a casa a Bologna con la sua famiglia">${esc(F.idea)}</textarea>
+    <div class="rv-row" style="margin:6px 0 14px"><span class="small">${sel&&F.photo>=0?"Claude usa quello che vede nella foto + quello che scrivi tu.":""}</span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il post</button></div>
+    <label class="rv-ft" for="gp_tx"><span class="gp-step">3</span>Testo (puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":"Qui compare il testo di Claude, o scrivilo tu"}">${esc(GP.text)}</textarea>
     <label class="rv-ft" for="gp_lnk" style="margin-top:10px">Il tasto «Scopri di più» porta a</label><select id="gp_lnk" class="gp-lnk">${L.map(([n],i)=>`<option value="${i}" ${F.link===i?"selected":""}>${esc(n)}</option>`).join("")}</select>
     <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
     <div class="rv-row"><span></span><span><button class="btn ghost small" data-a="gpFreeClose">Annulla</button> <button class="btn small rv-go" data-a="gpFreePub" ${ok&&!GP.busy?"":"disabled"}>Pubblica su Google</button></span></div></div>
@@ -3624,8 +3636,9 @@ async function gpFreeAct(a,v,b){const F=GP.free;
   if(!F)return;
   if(a==="gpFreeClose"){GP.free=null;GP.text="";render();return}
   if(a==="gpFreePh"){F.photo=+v;render();return}
-  if(a==="gpFreeWrite"){if(!F.idea.trim()){toast("Scrivi prima in due righe di cosa vuoi parlare.");return}GP.busy=1;GP.text="";render();
-    try{const j=await aiCall("post",{facts:{tipo:"post libero di Paolo"},idea:F.idea});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render();return}
+  if(a==="gpFreeWrite"){const ph=F.photo>=0?GP.up[F.photo]:"",sn=ph&&F.seen?F.seen[ph]:"";
+    if(!F.idea.trim()&&!ph){toast("Carica una foto o scrivi in due righe di cosa vuoi parlare.");return}GP.busy=1;GP.text="";render();
+    try{const j=await aiCall("post",{facts:{tipo:"post libero di Paolo"},idea:F.idea,key:ph||"",seen:sn&&sn!=="…"&&!sn.startsWith("!")?sn:""});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render();return}
   if(a==="gpFreePub"){const P=GP.up.map(f=>({f,date:"",lab:""})),p=F.photo>=0?P[F.photo]:null,lk=gpLinks()[F.link]||["",""];aiBusy(b,1,"Pubblico…");
     try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:lk[1],file:p?p.f.replace(/^\/files\//,""):""})}),j=await r.json();
       if(!j.ok)throw new Error(j.error||"errore");GP.free=null;GP.text="";GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}
@@ -3634,7 +3647,7 @@ document.addEventListener("input",e=>{const t=e.target;if(t&&t.id==="gp_idea"&&G
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="gp_lnk"&&GP.free){GP.free.link=+t.value;render()}});
 async function gpUpload(inp){const fs=[...inp.files];if(!fs.length)return;toast(fs.length===1?"Carico la foto…":"Carico "+fs.length+" foto…");let n=0;
   for(const f of fs){try{const s=await shrink(f);if(!s)continue;const url=await uploadData(s.data);GP.up.unshift(url);n++}catch(x){alert("Foto non caricata.\n\n"+x.message)}}
-  if(n){if(GP.free)GP.free.photo=0;else GP.photo=0;render();toast(n===1?"Foto aggiunta.":"Foto aggiunte: "+n)}}
+  if(n){if(GP.free)GP.free.photo=0;else GP.photo=0;render();toast(n===1?"Foto aggiunta.":"Foto aggiunte: "+n);if(GP.free)gpSee(GP.up[0])}}
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("gpUp"))gpUpload(t)});
 function gpFind(k){return gpEvents().find(e=>e.k===k)}
 function gpMark(k,newest){const [t,a,b]=k.split("|");if(t==="l"&&D.litters[a])D.litters[a].gpost={date:newest||todayS(),at:todayS()};

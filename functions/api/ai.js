@@ -10,7 +10,9 @@ import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
    - "testmating": { data, media, sire, dam } → { pair, single, coi8, coi3, coi5, uniq, loss, top } pagina di SBTpedigree
    - "referto":  { key | data, media, dog } → { title, title_en, date, lab, chip, tests:[{it,en,de}], note }
    - "agenda":   { text, today, weekday, families } → { type, date, time, who, from, dog, want, note, summary }
-   - "post":     { facts, idea? }           → { text }                          post per gli Aggiornamenti del profilo Google
+   - "post":     { facts, idea?, key?, seen? } → { text }                       post per gli Aggiornamenti del profilo Google
+                 (key = foto del post in R2: Claude la guarda e usa solo ciò che si vede, 12/10/2026)
+   - "foto":     { key }                    → { seen }                          cosa si vede nella foto caricata per un post
    - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
    - "sito":     { fields:{title,desc,h1,ap}, links:[testo], kw:{it,en,de}, orig } → { en:{…,links}, de:{…,links} }
                  Google → Pagine del sito: traduce in inglese e tedesco i campi cambiati da Paolo in italiano
@@ -31,12 +33,20 @@ const ask = async (env, system, content, max = 1200) => {
   const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim();
   return JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
 };
+// Foto caricata dal gestionale (/files/<chiave> in R2) come blocco immagine per Claude; null se manca o non è una foto
+async function photoBlock(env, key) {
+  if (!key) return null;
+  const obj = await env.FILES.get(String(key).replace(/^\/?files\//, "")); if (!obj) return null;
+  const media = (obj.httpMetadata && obj.httpMetadata.contentType) || "image/jpeg";
+  if (!/^image\/(jpeg|png|gif|webp)$/.test(media)) return null;
+  return { type: "image", source: { type: "base64", media_type: media, data: b64(await obj.arrayBuffer()) } };
+}
 const b64 = buf => { const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], sito: ["recensioni", 2] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -64,12 +74,23 @@ Formato: {"options":[{"label":"","it":"","out":""}]}`,
         `Messaggio originale:\n${String(p.msg || "").slice(0, 3000)}\n\nTraduzione italiana:\n${String(p.it || "").slice(0, 3000)}`, 1800);
       return json({ ok: true, options: (o.options || []).slice(0, 3).map(x => ({ label: x.label || "", it: x.it || "", out: x.out || "" })) });
     }
+    if (task === "foto") {
+      // 12/10/2026 (Paolo): la foto caricata per un post viene "letta" subito, così Paolo vede cosa ha capito Claude.
+      const img = await photoBlock(env, p.key); if (!img) return json({ ok: false, error: "Foto non trovata." });
+      const o = await ask(env, `Guarda la foto, caricata dall'allevamento ${F.name} (${F.breed}) per un post sul profilo Google.
+Descrivi in italiano, in una o due frasi brevi (massimo 35 parole), SOLO quello che si vede: cani (razza se riconoscibile, colore, età apparente cucciolo/adulto), persone (senza dare nomi né età precise), luogo, situazione.
+Non inventare nomi, date o fatti; non giudicare l'aspetto delle persone.
+Formato: {"seen":"..."}`, [img, { type: "text", text: "Ecco la foto." }], 300);
+      return json({ ok: true, seen: String(o.seen || "") });
+    }
     if (task === "post") {
       // Post per la sezione "Aggiornamenti" del profilo Google: una notizia, non una vendita.
+      const img = await photoBlock(env, p.key);
       const o = await ask(env, `${voice(F)}
 Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevamento, in italiano, partendo SOLO dai fatti che ti do.
 Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` ${F.first} aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
-Formato: {"text":"testo del post"}`, JSON.stringify(p.facts || {}).slice(0, 3000), 700);
+${img ? ` Ti do anche la FOTO del post: puoi raccontare quello che si vede (cani, colori, luogo, situazione), senza inventare nomi, età o fatti che non si vedono e che ${F.first} non ha scritto; i nomi dei cani e delle persone solo se li scrive lui.${p.seen ? ` Prima hai descritto la foto così: "${String(p.seen).slice(0, 300)}".` : ""}` : ""}
+Formato: {"text":"testo del post"}`, img ? [img, { type: "text", text: JSON.stringify(p.facts || {}).slice(0, 3000) }] : JSON.stringify(p.facts || {}).slice(0, 3000), 700);
       return json({ ok: true, text: String(o.text || "") });
     }
     if (task === "sito") {
