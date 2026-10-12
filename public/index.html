@@ -751,6 +751,7 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .vz-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:sticky;top:0;z-index:3;background:var(--paper);padding:6px 0;border-bottom:1px solid var(--line)}.vz-tools input[type=range]{width:110px}.vz-br{flex-basis:100%;height:0}
 .vz-st{position:relative;display:inline-block;max-width:100%}.vz-st canvas{max-width:100%;height:auto;display:block;border-radius:10px;touch-action:none;cursor:crosshair}
 #vz_ring{position:absolute;pointer-events:none;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.5);transform:translate(-50%,-50%);display:none}
+.gp-found{background:var(--ok-soft);color:var(--ok);border-radius:8px;padding:7px 10px;font-size:.86rem;margin:0 0 12px}
 </style>
 </head>
 <body>
@@ -3933,10 +3934,26 @@ function gpSeeHtml(url){const s=((GP.free||{}).seen||{})[url];if(s==null)return"
   if(s==="…")return`<div class="gp-see busy">👁 Claude guarda la foto…</div>`;
   if(s.startsWith("!"))return`<div class="gp-see">Claude non è riuscito a leggere la foto: puoi scrivere tu cosa c'è. <span class="small">(${esc(s.slice(1))})</span></div>`;
   return s?`<div class="gp-see"><b>👁 Claude vede nella foto:</b> ${esc(s)}</div>`:""}
+/* Dati del gestionale per i post (12/10/2026, Paolo: «deve interagire con il gestionale con tutti i dati che ha»): dallo spunto
+   si riconoscono famiglie (nome e cognome del proprietario, anche invertiti) e cani (nome, soprannome); per ognuno si mandano a
+   Claude nome di chiamata, sesso, età, genitori, cucciolata. Nomi e cognomi delle persone NON vanno nel post (solo «la sua famiglia»). */
+function gpNorm(t){return String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim()}
+function gpHas(txt,w){w=gpNorm(w);return w.length>=3&&(" "+txt+" ").includes(" "+w+" ")}
+function gpDogFacts(id,via){const d=D.dogs[id];if(!d)return null;const l=d.litter&&D.litters?D.litters[d.litter]:null;
+  return{nome_di_chiamata:d.nick||"",nome:d.name||"",sesso:d.sex==="M"?"maschio":d.sex==="F"?"femmina":"",nato_il:d.birth||"",eta:typeof age==="function"?age(d):"",
+    madre:dn(d.dam),padre:dn(d.sire),colore:d.color||"",stato:d.status||"",cucciolata_del:l?l.date||"":"",allevato_da_noi:!!(d.bred||l),trovato_da:via}}
+function gpFacts(idea){const t=gpNorm(idea),out={cani:[],famiglie:0},seen=new Set();if(!t)return out;
+  for(const [oid,o] of Object.entries(D.owners||{})){const ws=gpNorm(o.name).split(" ").filter(w=>w.length>=3);if(ws.length<2)continue;
+    if(ws.every(w=>gpHas(t,w))){out.famiglie++;for(const [id,d] of Object.entries(D.dogs||{}))if(d.owner===oid&&!seen.has(id)){seen.add(id);out.cani.push(gpDogFacts(id,"famiglia citata"))}}}
+  for(const [id,d] of Object.entries(D.dogs||{})){if(seen.has(id))continue;const nk=gpNorm(d.nick),nm=gpNorm(d.name);
+    if((nk&&gpHas(t,nk))||(nm&&nm.split(" ").length>1&&t.includes(nm))){seen.add(id);out.cani.push(gpDogFacts(id,"nome citato"))}}
+  out.cani=out.cani.filter(Boolean).slice(0,6);return out}
+function gpFactsTxt(f){if(!f||!f.cani.length)return"";return f.cani.map(c=>`${c.nome_di_chiamata||c.nome}${c.sesso?" ("+c.sesso+")":""}${c.eta?", "+c.eta:""}${c.madre||c.padre?", figlio di "+[c.madre,c.padre].filter(Boolean).join(" × "):""}`).join(" · ")}
 function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata ora"})),sel=P[F.photo],ok=gpChecks(GP.text).every(x=>x[0]),L=gpLinks(),lk=L[F.link]||L[0];
   return `<div class="gp-ed"><div><span class="rv-ft"><span class="gp-step">1</span>Carica la foto (dal telefono o dal computer)</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${P.map((p,i)=>`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="${i}" aria-pressed="${F.photo===i}" title="${esc(p.lab)}"><img src="${esc(p.f)}" alt="" loading="lazy">${F.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}${P.length?`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="-1" aria-pressed="${F.photo===-1}" style="display:grid;place-items:center;font-size:.8rem;color:var(--muted)">Senza foto${F.photo===-1?`<span class="ck">✓</span>`:""}</button>`:""}</div>`}${P.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}${sel&&F.photo>=0?gpFaceBtn(F.photo)+gpSeeHtml(sel.f):""}
     <label class="rv-ft" for="gp_idea" style="margin-top:14px"><span class="gp-step">2</span>Cosa vuoi dire? <span class="small">(${sel&&F.photo>=0?"facoltativo: con la foto basta anche niente":"due righe, anche scritte male"})</span></label><textarea id="gp_idea" class="gp-tx" style="min-height:60px" placeholder="Es. è Rocco, oggi va a casa a Bologna con la sua famiglia">${esc(F.idea)}</textarea>
-    <div class="rv-row" style="margin:6px 0 14px"><span class="small">${sel&&F.photo>=0?"Claude usa quello che vede nella foto + quello che scrivi tu.":""}</span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il post</button></div>
+    <div class="rv-row" style="margin:6px 0 14px"><span class="small">${sel&&F.photo>=0?"Claude usa la foto, quello che scrivi tu e i dati del gestionale.":"Claude usa quello che scrivi tu e i dati del gestionale."}</span><button class="btn small" data-a="gpFreeWrite">✨ Scrivi il post</button></div>
+    ${F.found?`<p class="gp-found">${F.found==="—"?"🔎 Nel gestionale non ho trovato cani o famiglie citate nello spunto (scrivi il nome del cucciolo o nome e cognome della famiglia).":"🔎 Dal gestionale: "+esc(F.found)}</p>`:""}
     <label class="rv-ft" for="gp_tx"><span class="gp-step">3</span>Testo (puoi correggerlo)</label><textarea id="gp_tx" class="gp-tx" maxlength="1500" placeholder="${GP.busy?"⏳ Claude scrive…":"Qui compare il testo di Claude, o scrivilo tu"}">${esc(GP.text)}</textarea>
     <label class="rv-ft" for="gp_lnk" style="margin-top:10px">Il tasto «Scopri di più» porta a</label><select id="gp_lnk" class="gp-lnk">${L.map(([n],i)=>`<option value="${i}" ${F.link===i?"selected":""}>${esc(n)}</option>`).join("")}</select>
     <ul class="gp-checks" id="gp_ck">${gpChecksHtml(GP.text)}</ul>
@@ -3949,7 +3966,8 @@ async function gpFreeAct(a,v,b){const F=GP.free;
   if(a==="gpFreePh"){F.photo=+v;render();return}
   if(a==="gpFreeWrite"){const ph=F.photo>=0?GP.up[F.photo]:"",sn=ph&&F.seen?F.seen[ph]:"";
     if(!F.idea.trim()&&!ph){toast("Carica una foto o scrivi in due righe di cosa vuoi parlare.");return}GP.busy=1;GP.text="";render();
-    try{const j=await aiCall("post",{facts:{tipo:"post libero di Paolo"},idea:F.idea,key:ph||"",seen:sn&&sn!=="…"&&!sn.startsWith("!")?sn:""});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render();return}
+    const gf=gpFacts(F.idea);F.found=gpFactsTxt(gf)||(F.idea.trim()?"—":"");
+    try{const j=await aiCall("post",{facts:{tipo:"post libero di Paolo",dal_gestionale:gf.cani,famiglie_citate:gf.famiglie},idea:F.idea,key:ph||"",seen:sn&&sn!=="…"&&!sn.startsWith("!")?sn:""});GP.text=j.text||""}catch(x){alert("Claude non risponde.\n\n"+x.message)}GP.busy=0;render();return}
   if(a==="gpFreePub"){const P=GP.up.map(f=>({f,date:"",lab:""})),p=F.photo>=0?P[F.photo]:null,lk=gpLinks()[F.link]||["",""];aiBusy(b,1,"Pubblico…");
     try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:lk[1],file:p?p.f.replace(/^\/files\//,""):""})}),j=await r.json();
       if(!j.ok)throw new Error(j.error||"errore");GP.free=null;GP.text="";GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}

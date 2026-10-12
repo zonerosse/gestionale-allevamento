@@ -1117,3 +1117,6 @@ Accessi e copie
   telefono; visi piccoli cercati anche a pezzi ingranditi), poi pennello 🖌 Copri / 🧽 Scopri, Annulla, Ricomincia, intensità
   Leggera/Media/Forte (parte da Media). Sfocatura = foto rimpicciolita e ingrandita (niente pixel), con maschera morbida.
   «Usa questa foto» carica la versione sfocata (`uploadData`) e la mette al posto dell'originale in `GP.up`.
+- Post con i dati del gestionale (12/10/2026): `gpFacts(spunto)` riconosce famiglie (nome+cognome del proprietario, anche invertiti,
+  senza accenti) e cani (soprannome o nome completo) e manda a Claude `facts.dal_gestionale` (nome di chiamata, sesso, età, genitori,
+  cucciolata). Sotto lo spunto «🔎 Dal gestionale: …». Nel post le persone non si nominano mai (solo «la sua famiglia»).
