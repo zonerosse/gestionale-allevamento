@@ -85,16 +85,22 @@ function out(site, fresh, it, P, t, pt, daily, q, pq, pages) {
 }
 async function waStats(env, days) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS wa (id INTEGER PRIMARY KEY, ts INTEGER, day TEXT, path TEXT, lang TEXT)").run();
+  try { await env.DB.prepare("ALTER TABLE wa ADD COLUMN src TEXT").run(); } catch (e) {}   // provenienza (12/10/2026), colonna in più
   const now = Date.now(), from = now - days * 864e5, pfrom = now - 2 * days * 864e5;
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Rome" }).format(new Date());
   const q = (sql, ...b) => env.DB.prepare(sql).bind(...b).all().then(r => r.results || []);
-  const [[tot], [prev], [td], daily, paths, langs] = await Promise.all([
-    q("SELECT COUNT(*) n FROM wa WHERE ts >= ?", from), q("SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ts < ?", pfrom, from),
-    q("SELECT COUNT(*) n FROM wa WHERE day = ?", today),
-    q("SELECT day, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY day ORDER BY day", from),
-    q("SELECT path, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY path ORDER BY n DESC LIMIT 8", from),
-    q("SELECT lang, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY lang ORDER BY n DESC", from)]);
-  return { tot: tot.n, prev: prev.n, today: td.n, days, daily, paths, langs };
+  // 12/10/2026 (Paolo): contano SOLO i tocchi partiti da una pagina del sito (path presente). Il link /wa/ aperto da fuori
+  // (messaggi, app, profili: niente pagina di partenza) non è un tocco sul sito: si conta a parte (out), con la provenienza.
+  const S = "path <> ''";
+  const [[tot], [prev], [td], daily, paths, langs, [out], outSrc] = await Promise.all([
+    q(`SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ${S}`, from), q(`SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ts < ? AND ${S}`, pfrom, from),
+    q(`SELECT COUNT(*) n FROM wa WHERE day = ? AND ${S}`, today),
+    q(`SELECT day, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY day ORDER BY day`, from),
+    q(`SELECT path, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY path ORDER BY n DESC LIMIT 8`, from),
+    q(`SELECT lang, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY lang ORDER BY n DESC`, from),
+    q("SELECT COUNT(*) n FROM wa WHERE ts >= ? AND path = ''", from),
+    q("SELECT src, COUNT(*) n FROM wa WHERE ts >= ? AND path = '' GROUP BY src ORDER BY n DESC LIMIT 6", from)]);
+  return { tot: tot.n, prev: prev.n, today: td.n, days, daily, paths, langs, out: out.n, outSrc };
 }
 // Ricerche che mostrano il profilo Google (Business Profile Performance API), mese per mese.
 // 12/10/2026 (scelta di Paolo): periodo a scelta 1 («28 gg» = ultimo mese completo: Google dà solo mesi interi), 3, 6, 12 mesi.

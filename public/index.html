@@ -4140,7 +4140,7 @@ const WS_MINE=/piccolo\s*diavolo|delpiccolodiavolo/i;
 function wsOut(q){return WS_MINE.test(q)||(WS.ex||[]).includes(q)}
 // 12/10/2026 (Paolo: «non voglio vederle»): le ricerche escluse col 🚫 spariscono da tabella, «In salita/discesa» e conteggi;
 // si rivedono e si rimettono solo dal tasto «🚫 Ricerche escluse (N)» (wsExSheet). Quelle col nome restano, sbarrate.
-function wsVis(G){const ex=WS.ex||[];return G.queries.filter(q=>!ex.includes(q.q))}
+function wsVis(G){return G.queries.filter(q=>!wsOut(q.q))}   // 12/10/2026: via anche quelle col nome (Paolo: «non mettere quelle che tolgo»)
 function wsList(G){return wsVis(G).filter(q=>q.q.includes(WS.find.toLowerCase())).sort((a,b)=>WS.sort==="p"?a.p-b.p:b[WS.sort]-a[WS.sort])}
 function wsClean(G){const w=L=>{let i=0,s=0;for(const x of L||[])if(!wsOut(x.q)&&x.i){i+=x.i;s+=x.p*x.i}return i?s/i:0};return{c:w(G.queries),p:w(G.prevq)}}
 const WS_PRI=["allevamento staffordshire bull terrier","cuccioli staffordshire bull terrier"];
@@ -4165,7 +4165,7 @@ function wsPage(){const X=WS.data;let h=`<h1>Statistiche</h1>${stChips()}<div cl
       ${wsPmKpi(G)}</div>${wsChart(G.daily)}`;
     const L=wsList(G);
     const th=(k,l)=>`<th data-a="wsSort" data-v="${k}">${l}${WS.sort===k?(k==="p"?" ▴":" ▾"):""}</th>`;
-    h+=`<h2>Parole chiave</h2><input class="ws-find" id="ws_find" placeholder="Cerca una parola…" value="${esc(WS.find)}"><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca su Google</th>${th("c","Clic")}${th("i","Impressioni")}<th>CTR</th>${th("p","Posizione")}<th>Rispetto a prima</th><th>Conta</th></tr></thead><tbody id="ws_q">${wsRows(WS.find||WS.allq?L:L.slice(0,10))}</tbody></table>${!WS.find&&L.length>10?`<button class="ws-more" data-a="wsAllQ">${WS.allq?"▴ Mostra solo le prime 10":"▾ Mostra le altre "+(L.length-10)+" parole chiave"}</button>`:""}</div><p class="ws-src">⭐ = le tue parole chiave principali. ▲ verde = sei salito in classifica. 🚫 = la ricerca non conta più nella posizione media «pulita» e sparisce dalla tabella; «tuo nome» = esclusa sempre, da sola.</p><div id="ws_exbox">${wsExBox()}</div>`;
+    h+=`<h2>Parole chiave</h2><input class="ws-find" id="ws_find" placeholder="Cerca una parola…" value="${esc(WS.find)}"><div class="nbox ws-tw"><table class="ws-t"><thead><tr><th>Ricerca su Google</th>${th("c","Clic")}${th("i","Impressioni")}<th>CTR</th>${th("p","Posizione")}<th>Rispetto a prima</th><th>Conta</th></tr></thead><tbody id="ws_q">${wsRows(WS.find||WS.allq?L:L.slice(0,10))}</tbody></table>${!WS.find&&L.length>10?`<button class="ws-more" data-a="wsAllQ">${WS.allq?"▴ Mostra solo le prime 10":"▾ Mostra le altre "+(L.length-10)+" parole chiave"}</button>`:""}</div><p class="ws-src">⭐ = le tue parole chiave principali. ▲ verde = sei salito in classifica. 🚫 = la ricerca sparisce e non conta più nella posizione media «pulita». Le ricerche col tuo nome non si mostrano mai.</p><div id="ws_exbox">${wsExBox()}</div>`;
     const mv=wsVis(G).filter(q=>q.dp!=null&&q.i>=10),up=mv.filter(q=>q.dp<=-1).sort((a,b)=>a.dp-b.dp).slice(0,5),dn=mv.filter(q=>q.dp>=1).sort((a,b)=>b.dp-a.dp).slice(0,5);
     const ml=A=>A.length?`<ul class="ws-mini">${A.map(q=>`<li><span>${esc(q.q)}</span>${wsPos(q.dp)}</li>`).join("")}</ul>`:`<p class="row-meta">Niente di rilevante.</p>`;
     h+=`<div class="ws-two"><div><h2>In salita</h2><div class="nbox">${ml(up)}</div></div><div><h2>In discesa</h2><div class="nbox">${ml(dn)}</div></div></div>`;
@@ -4208,9 +4208,9 @@ function wsGbpkHtml(){const X=WS.data;let h=`<h2>🔎 Ricerche che mostrano il t
   h+=`<p class="ws-src">Dal profilo Google dell'allevamento · quante volte la scheda è comparsa per ogni ricerca · ${N===1?`<b>${wsMese(M[0])}</b> — Google dà questi dati solo per mese intero: con «28 gg» vedi l'ultimo mese completo`:wsMese(M[0],anni)+" – "+wsMese(M[N-1],anni)} · Google non dà la posizione</p>`;
   if(!K.rows.length)return h+`<p class="nbox row-meta">Google non ha ancora dati sulle ricerche per questo periodo.</p>`;
   const low=x=>typeof x==="string"&&x.startsWith("<"),nv=x=>typeof x==="number"?x:low(x)?Math.max(1,(parseInt(x.slice(1),10)||15)/2):0,lab=x=>low(x)?"meno di "+x.slice(1):wsN(x);
-  const mx=Math.max(1,...K.rows.flatMap(r=>r.v.map(nv))),col=N===1?["var(--accent)"]:N===3?["var(--wsm1)","var(--wsm2)","var(--accent)"]:null;
+  const mx=Math.max(1,...K.rows.filter(r=>!wsOut(String(r.k).toLowerCase())).flatMap(r=>r.v.map(nv))),col=N===1?["var(--accent)"]:N===3?["var(--wsm1)","var(--wsm2)","var(--accent)"]:null;
   // 12/10/2026 (Paolo): solo le prime 6 ricerche, le altre col tasto a tendina «Mostra le altre N» (WS.kwAll)
-  const RW=WS.kwAll?K.rows:K.rows.slice(0,6),more=K.rows.length-6;
+  const KR=K.rows.filter(r=>!wsOut(String(r.k).toLowerCase())),RW=WS.kwAll?KR:KR.slice(0,6),more=KR.length-6;   // senza nome e senza le escluse col 🚫
   h+=`<div class="nbox ws-kbox">${RW.map(r=>{const a=r.v[N-1],b=N>1?r.v[N-2]:r.pv;let t="";
       if(b!=null&&!low(a)&&!low(b))t=a>b?`<span class="ws-up">▲ sale</span>`:a<b?`<span class="ws-dn">▼ scende</span>`:"";
       let g;if(N<=3)g=`<div class="ws-kb">${r.v.map((x,i)=>`<div class="ws-kbr"><span class="${low(x)?"ws-low":""}" style="width:${x===0?"2px":(nv(x)/mx*78).toFixed(1)+"%"};background:${col[i]}"></span>${N>1?WS_MN[+M[i].slice(5)-1].slice(0,3)+" ":""}${lab(x)}</div>`).join("")}</div>`;
@@ -4222,7 +4222,8 @@ function wsGbpkHtml(){const X=WS.data;let h=`<h2>🔎 Ricerche che mostrano il t
 /* Contatti WhatsApp dal sito: tocchi sul tasto WhatsApp (funzione /wa/ del sito → /api/public/walog), conteggio esatto */
 function wsWaHtml(){const X=WS.data;let h=`<h2>💬 Contatti WhatsApp dal sito</h2>`;
   if(!X||X.waErr)return h+`<p class="fnote">${esc((X&&X.waErr)||"")}</p>`;const W=X.wa;
-  h+=`<p class="ws-src">Ogni volta che qualcuno tocca il tasto WhatsApp sul sito · conteggio esatto, persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
+  h+=`<p class="ws-src">Ogni volta che qualcuno tocca il tasto WhatsApp da una pagina del sito · conteggio esatto, persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
+  if(W.out)h+=`<p class="ws-src">Non contate: <b>${wsN(W.out)}</b> aperture del link WhatsApp da fuori dal sito (messaggi, app, profili)${(W.outSrc||[]).length?" · "+W.outSrc.map(x=>esc(x.src||"provenienza non registrata")+" "+wsN(x.n)).join(" · "):""}.</p>`;
   if(!W.tot&&!W.prev)return h+`<p class="nbox row-meta">Ancora nessun tocco registrato: il conteggio parte da quando il sito usa il nuovo tasto WhatsApp.</p>`;
   h+=`<div class="ws-kpis ws-k3"><div class="ws-kpi"><p class="k">Tocchi su WhatsApp</p><p class="v">${wsN(W.tot)}</p>${wsPct(W.tot,W.prev)}</div><div class="ws-kpi"><p class="k">Oggi</p><p class="v">${wsN(W.today)}</p></div><div class="ws-kpi"><p class="k">Media al giorno</p><p class="v">${wsN(W.tot/W.days,1)}</p></div></div>`;
   if(W.daily.length>1){const mx=Math.max(1,...W.daily.map(d=>d.n)),n=W.daily.length,bw=Math.min(20,600/n-4);
@@ -4243,7 +4244,7 @@ function wsPmKpi(G){const t=G.tot,p=G.prev,c=wsClean(G);
   return`<div class="ws-kpi" id="ws_pm"><p class="k">Posizione media</p><p class="v">${c.c?wsN(c.c,1):"–"}</p>${c.c&&c.p?wsPos(c.c-c.p):""}<p class="ws-sub">senza il tuo nome e senza le ricerche escluse<br>tutte le ricerche: <b>${t.position?wsN(t.position,1):"–"}</b> ${t.position&&p.position?wsPos(t.position-p.position):""}</p></div>`}
 function wsExBox(){const n=(WS.ex||[]).length;return n?`<button class="btn ghost small" data-a="wsExList">🚫 Ricerche escluse (${wsN(n)})</button>`:""}
 function wsExSheetHtml(){const L=(WS.ex||[]).slice().sort((a,b)=>a.localeCompare(b,"it"));
-  return`<h2 style="margin-top:0">🚫 Ricerche escluse (${wsN(L.length)})</h2><p class="ws-src">Non contano nella posizione media e non compaiono nella tabella. «↩ rimetti» le fa tornare.</p>${L.length?`<ul class="ws-exl">${L.map(q=>`<li><span>${esc(q)}</span><button class="ws-esc on" data-a="wsEx" data-v="${esc(q)}">↩ rimetti</button></li>`).join("")}</ul>`:`<p class="row-meta">Nessuna ricerca esclusa.</p>`}`}
+  return`<h2 style="margin-top:0">🚫 Ricerche escluse (${wsN(L.length)})</h2><p class="ws-src">Non contano nella posizione media e non compaiono né nella tabella né nel grafico del profilo. «↩ rimetti» le fa tornare. Le ricerche col tuo nome non compaiono mai.</p>${L.length?`<ul class="ws-exl">${L.map(q=>`<li><span>${esc(q)}</span><button class="ws-esc on" data-a="wsEx" data-v="${esc(q)}">↩ rimetti</button></li>`).join("")}</ul>`:`<p class="row-meta">Nessuna ricerca esclusa.</p>`}`}
 function wsExSheet(){sheet(`<div id="ws_exsh">${wsExSheetHtml()}</div>`)}
 async function wsExTog(q){const on=!(WS.ex||[]).includes(q),prima=(WS.ex||[]).slice();WS.ex=on?[...prima,q]:prima.filter(x=>x!==q);wsExDraw();
   try{const r=await fetch("/api/sitestats",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"ex",q,on})}),j=await r.json();if(!j.ok)throw new Error(j.error||"errore");WS.ex=j.ex;wsExDraw()}
