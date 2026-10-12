@@ -78,8 +78,8 @@ Formato: {"options":[{"label":"","it":"","out":""}]}`,
       // 12/10/2026 (Paolo): la foto caricata per un post viene "letta" subito, così Paolo vede cosa ha capito Claude.
       const img = await photoBlock(env, p.key); if (!img) return json({ ok: false, error: "Foto non trovata." });
       const o = await ask(env, `Guarda la foto, caricata dall'allevamento ${F.name} (${F.breed}) per un post sul profilo Google.
-Descrivi in italiano, in una o due frasi brevi (massimo 35 parole), SOLO quello che si vede: cani (razza se riconoscibile, colore, età apparente cucciolo/adulto), persone (senza dare nomi né età precise), luogo, situazione.
-Non inventare nomi, date o fatti; non giudicare l'aspetto delle persone.
+Descrivi in italiano, in una o due frasi brevi (massimo 35 parole), SOLO quello che si vede: cani (razza se riconoscibile, colore, età apparente cucciolo/adulto, cosa fanno), se ci sono persone e cosa fanno con il cane (senza descriverne l'aspetto: niente viso, capelli, età, vestiti), luogo, situazione.
+Non inventare nomi, date o fatti.
 Formato: {"seen":"..."}`, [img, { type: "text", text: "Ecco la foto." }], 300);
       return json({ ok: true, seen: String(o.seen || "") });
     }
@@ -89,7 +89,7 @@ Formato: {"seen":"..."}`, [img, { type: "text", text: "Ecco la foto." }], 300);
       const o = await ask(env, `${voice(F)}
 Scrivi un post per la sezione "Aggiornamenti" del profilo Google dell'allevamento, in italiano, partendo SOLO dai fatti che ti do.
 Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), con un invito sobrio a leggere il resto sul sito; nessun numero di telefono, email o indirizzo; niente prezzi, nessuna offerta, mai le parole disponibile/disponibili, vendita, clienti, acquisto, prenotazione, caparra; non dire quanti cuccioli ci sono; niente hashtag; al massimo un'emoji; nessun fatto che non sia nei dati.${p.idea ? ` ${F.first} aggiunge: "${String(p.idea).slice(0, 500)}".` : ""}
-${img ? ` Ti do anche la FOTO del post: puoi raccontare quello che si vede (cani, colori, luogo, situazione), senza inventare nomi, età o fatti che non si vedono e che ${F.first} non ha scritto; i nomi dei cani e delle persone solo se li scrive lui.${p.seen ? ` Prima hai descritto la foto così: "${String(p.seen).slice(0, 300)}".` : ""}` : ""}
+${img ? ` Ti do anche la FOTO del post (12/10/2026, correzione chiesta da ${F.first}: il primo post sembrava una didascalia). La foto serve SOLO a capire il momento: NON descriverla ("nella foto si vede…", "una donna sorride…") e NON parlare MAI dell'aspetto delle persone (viso, capelli, età, vestiti, espressione); le persone al massimo come "la sua famiglia", "a casa", "con noi", senza nomi se ${F.first} non li scrive. Scrivi un vero post dell'allevamento: parti dal cane e da quello che il momento racconta della razza (affetto per la famiglia, voglia di giocare, carattere, vita in casa, crescita, esposizioni), con un tono caldo e naturale, come lo scriverebbe ${F.first}; 40-90 parole; una frase che dia un'informazione utile o un pensiero sulla vita con uno ${F.breed}; chiudi con un invito sobrio al sito; niente firma. Nomi dei cani solo se li scrive lui.${p.seen ? ` (Per capire il momento: ${String(p.seen).slice(0, 300)})` : ""}` : ""}
 Formato: {"text":"testo del post"}`, img ? [img, { type: "text", text: JSON.stringify(p.facts || {}).slice(0, 3000) }] : JSON.stringify(p.facts || {}).slice(0, 3000), 700);
       return json({ ok: true, text: String(o.text || "") });
     }
