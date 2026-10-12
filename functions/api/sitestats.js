@@ -4,7 +4,8 @@ import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
    GET ?days=1|7|28|90&it=1|0 → { ok, gsc | gscErr, cf | cfErr, gbpk | gbpkErr }
    - days=1: ultime 24 ore con i dati "freschi" di Google (provvisori) e grafico ora per ora; it=1 (predefinito): solo Italia.
    - wa: tocchi sul tasto WhatsApp del sito (conteggio esatto, persone vere).
-   - gbpk: ricerche che mostrano il profilo Google, ultimi 3 mesi, mese per mese (serve l'approvazione delle API del profilo).
+   - gbpk: ricerche che mostrano il profilo Google, mese per mese; km=1|3|6|12 mesi (predefinito 3). ?only=gbpk → solo questo.
+   - ex: ricerche escluse da Paolo dalla posizione media «pulita» (POST {task:"ex"}).
    - Search Console (parole chiave vere, dati fino a 2-3 giorni fa): stesso collegamento Google del profilo, permesso
      webmasters.readonly. Proprietà trovata da sola (preferita "sc-domain:delpiccolodiavolo.it"), salvata in gbp "gsc".
    - Cloudflare Web Analytics (visite quasi in tempo reale): segreti CF_API_TOKEN (permesso "Account Analytics: Read") e
@@ -78,6 +79,8 @@ function out(site, fresh, it, P, t, pt, daily, q, pq, pages) {
   const prev = Object.fromEntries(pq.map(r => [r.keys[0], r.position]));
   return { site, fresh, it, from: P.startDate, to: P.endDate, tot: t, prev: pt, daily,
     queries: q.map(r => ({ q: r.keys[0], c: r.clicks, i: r.impressions, p: r.position, dp: prev[r.keys[0]] != null ? r.position - prev[r.keys[0]] : null })),
+    // periodo prima, ricerca per ricerca: serve alla pagina per la posizione media «pulita» (12/10/2026)
+    prevq: pq.map(r => ({ q: r.keys[0], i: r.impressions, p: r.position })),
     pages: pages.map(r => ({ u: r.keys[0].replace(/^https?:\/\/[^/]+/, ""), c: r.clicks, i: r.impressions, p: r.position })) };
 }
 async function waStats(env, days) {
@@ -93,21 +96,51 @@ async function waStats(env, days) {
     q("SELECT lang, COUNT(*) n FROM wa WHERE ts >= ? GROUP BY lang ORDER BY n DESC", from)]);
   return { tot: tot.n, prev: prev.n, today: td.n, days, daily, paths, langs };
 }
-// Ricerche che mostrano il profilo Google (Business Profile Performance API), mese per mese
-async function gbpKeywords(env) {
-  const loc = await gbpGet(env, "loc"); if (!loc) throw new Error("In attesa dell'approvazione di Google per il profilo.");
-  const token = await gbpToken(env), id = loc.split("/").slice(-2).join("/"), months = [], out = {};
-  for (let k = 3; k >= 1; k--) { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - k); months.push([d.getUTCFullYear(), d.getUTCMonth() + 1]); }
-  for (const [y, m] of months) {
-    const qs = `monthlyRange.startMonth.year=${y}&monthlyRange.startMonth.month=${m}&monthlyRange.endMonth.year=${y}&monthlyRange.endMonth.month=${m}&pageSize=100`;
+// Ricerche che mostrano il profilo Google (Business Profile Performance API), mese per mese.
+// 12/10/2026 (scelta di Paolo): periodo a scelta 1 («28 gg» = ultimo mese completo: Google dà solo mesi interi), 3, 6, 12 mesi.
+// I mesi chiusi da più di 40 giorni non cambiano più: si salvano in gbp "kw:AAAA-MM" e non si richiedono a Google.
+const ym = (y, m) => y + "-" + String(m).padStart(2, "0");
+export function kwMonths(n, now = new Date()) {
+  const L = []; for (let k = n; k >= 1; k--) { const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - k, 1)); L.push([d.getUTCFullYear(), d.getUTCMonth() + 1]); } return L;
+}
+export function kwVal(v) { v = v || {}; return v.value != null ? +v.value : (v.threshold != null ? "<" + v.threshold : 0); }
+async function kwMonth(env, token, id, y, m, now = new Date()) {
+  const key = "kw:" + ym(y, m), old = (now - Date.UTC(y, m, 1)) > 40 * 864e5;   // Date.UTC(y, m, 1) = primo giorno del mese DOPO
+  if (old) { const c = await gbpGet(env, key); if (c) return JSON.parse(c); }
+  const res = {}; let tok = "";
+  for (let pg = 0; pg < 5; pg++) {   // al massimo 500 ricerche al mese
+    const qs = `monthlyRange.startMonth.year=${y}&monthlyRange.startMonth.month=${m}&monthlyRange.endMonth.year=${y}&monthlyRange.endMonth.month=${m}&pageSize=100` + (tok ? "&pageToken=" + encodeURIComponent(tok) : "");
     const r = await fetch(`https://businessprofileperformance.googleapis.com/v1/${id}/searchkeywords/impressions/monthly?${qs}`, { headers: { Authorization: "Bearer " + token } });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? "In attesa dell'approvazione di Google per il profilo." : "Profilo Google: " + ((j.error && j.error.message) || r.status));
-    for (const x of j.searchKeywordsCounts || []) { const v = x.insightsValue || {}; (out[x.searchKeyword] = out[x.searchKeyword] || {})[y + "-" + String(m).padStart(2, "0")] = v.value != null ? +v.value : (v.threshold != null ? "<" + v.threshold : 0); }
+    if (!r.ok) {
+      const msg = (j.error && j.error.message) || "";
+      if (r.status === 400 && /range|month|date/i.test(msg)) return {};   // mese troppo vecchio per Google: vuoto
+      throw new Error(r.status === 403 || r.status === 429 ? "In attesa dell'approvazione di Google per il profilo." : "Profilo Google: " + (msg || r.status));
+    }
+    for (const x of j.searchKeywordsCounts || []) res[x.searchKeyword] = kwVal(x.insightsValue);
+    tok = j.nextPageToken; if (!tok) break;
   }
-  const M = months.map(([y, m]) => y + "-" + String(m).padStart(2, "0")), num = v => typeof v === "number" ? v : 0;
-  return { months: M, rows: Object.entries(out).map(([k, v]) => ({ k, v: M.map(x => v[x] ?? 0) })).sort((a, b) => num(b.v[2]) - num(a.v[2]) || num(b.v[1]) - num(a.v[1])).slice(0, 30) };
+  if (old) await gbpSet(env, key, JSON.stringify(res));
+  return res;
 }
+export function kwTable(M, per, pm) {   // per: { "AAAA-MM": { ricerca: valore } }; pm = mese prima del periodo (per ▲▼)
+  const num = v => typeof v === "number" ? v : (String(v).startsWith("<") ? 1 : 0), all = new Set();
+  for (const m of M) for (const k in per[m] || {}) all.add(k);
+  const rows = [...all].map(k => ({ k, v: M.map(m => (per[m] || {})[k] ?? 0), pv: pm ? ((per[pm] || {})[k] ?? 0) : null })).filter(r => r.v.some(x => x !== 0));
+  const n = M.length;
+  rows.sort((a, b) => num(b.v[n - 1]) - num(a.v[n - 1]) || b.v.reduce((s, x) => s + num(x), 0) - a.v.reduce((s, x) => s + num(x), 0) || a.k.localeCompare(b.k));
+  return { months: M, rows: rows.slice(0, 30) };
+}
+async function gbpKeywords(env, n = 3) {
+  const loc = await gbpGet(env, "loc"); if (!loc) throw new Error("In attesa dell'approvazione di Google per il profilo.");
+  const token = await gbpToken(env), id = loc.split("/").slice(-2).join("/"), L = kwMonths(n + 1), per = {};
+  const R = await Promise.all(L.map(([y, m]) => kwMonth(env, token, id, y, m)));
+  L.forEach(([y, m], i) => { per[ym(y, m)] = R[i]; });
+  const K = L.map(([y, m]) => ym(y, m));
+  return kwTable(K.slice(1), per, K[0]);
+}
+// Ricerche escluse da Paolo dalla posizione media «pulita» (tasto 🚫), in gbp "gsc:ex"
+async function exList(env) { try { return JSON.parse(await gbpGet(env, "gsc:ex") || "[]"); } catch (e) { return []; } }
 async function cloudflare(env, days) {
   if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID) throw new Error("Mancano CF_API_TOKEN e CF_ACCOUNT_ID in Cloudflare (Variabili e segreti).");
   const now = new Date(), today = new Date(now); today.setUTCHours(0, 0, 0, 0);
@@ -132,12 +165,29 @@ async function cloudflare(env, days) {
 }
 export async function onRequestGet({ request, env }) {
   if (!(await can(request, env, ["statistiche", "oggi"], 1))) return deny();
-  const sp = new URL(request.url).searchParams, days = [1, 7, 28, 90].includes(+sp.get("days")) ? +sp.get("days") : 28, it = sp.get("it") !== "0";
-  const out = { ok: true, days, it };
+  const sp = new URL(request.url).searchParams, km = [1, 3, 6, 12].includes(+sp.get("km")) ? +sp.get("km") : 3;
+  // solo il grafico delle ricerche del profilo (quando si cambia il periodo del grafico)
+  if (sp.get("only") === "gbpk") {
+    const o = { ok: true, km };
+    await gbpKeywords(env, km).then(x => o.gbpk = x, e => { o.gbpkErr = String(e.message || e); });
+    return json(o);
+  }
+  const days = [1, 7, 28, 90].includes(+sp.get("days")) ? +sp.get("days") : 28, it = sp.get("it") !== "0";
+  const out = { ok: true, days, it, km, ex: await exList(env) };
   await Promise.all([
     waStats(env, days).then(x => out.wa = x, e => { out.waErr = String(e.message || e); }),
-    gbpKeywords(env).then(x => out.gbpk = x, e => { out.gbpkErr = String(e.message || e); }),
+    gbpKeywords(env, km).then(x => out.gbpk = x, e => { out.gbpkErr = String(e.message || e); }),
     searchConsole(env, days, it).then(x => out.gsc = x, e => { out.gscErr = String(e.message || e); out.gscConnect = !!e.connect; }),
     /* visite di Cloudflare tolte dalla pagina (scelta di Paolo, ottobre 2026): la funzione resta qui, non viene chiamata */]);
   return json(out);
+}
+// POST { task:"ex", q:"ricerca", on:true|false } → esclude o rimette una ricerca nella posizione media «pulita»
+export async function onRequestPost({ request, env }) {
+  if (!(await can(request, env, ["statistiche"], 1))) return deny();
+  let p = {}; try { p = await request.json(); } catch (e) {}
+  if (p.task !== "ex" || typeof p.q !== "string" || !p.q.trim()) return json({ ok: false, error: "Richiesta non valida." }, 400);
+  const q = p.q.trim().toLowerCase().slice(0, 300), L = (await exList(env)).filter(x => x !== q);
+  if (p.on) L.push(q);
+  await gbpSet(env, "gsc:ex", JSON.stringify(L.slice(-500)));
+  return json({ ok: true, ex: L });
 }
