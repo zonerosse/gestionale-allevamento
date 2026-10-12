@@ -91,12 +91,12 @@ async function waStats(env, days) {
   const q = (sql, ...b) => env.DB.prepare(sql).bind(...b).all().then(r => r.results || []);
   // 12/10/2026 (Paolo): contano SOLO i tocchi partiti da una pagina del sito (path presente). Il link /wa/ aperto da fuori
   // (messaggi, app, profili: niente pagina di partenza) non è un tocco sul sito: si conta a parte (out), con la provenienza.
-  const S = "path <> ''";
+  const S = "path <> '' AND path NOT LIKE '/prova-diag%'";   // /prova-diag/ = tocco di prova del controllo, non un contatto
   const [[tot], [prev], [td], daily, paths, langs, [out], outSrc] = await Promise.all([
     q(`SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ${S}`, from), q(`SELECT COUNT(*) n FROM wa WHERE ts >= ? AND ts < ? AND ${S}`, pfrom, from),
     q(`SELECT COUNT(*) n FROM wa WHERE day = ? AND ${S}`, today),
     q(`SELECT day, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY day ORDER BY day`, from),
-    q(`SELECT path, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY path ORDER BY n DESC LIMIT 8`, from),
+    q(`SELECT path, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY path ORDER BY n DESC LIMIT 60`, from),
     q(`SELECT lang, COUNT(*) n FROM wa WHERE ts >= ? AND ${S} GROUP BY lang ORDER BY n DESC`, from),
     q("SELECT COUNT(*) n FROM wa WHERE ts >= ? AND path = ''", from),
     q("SELECT src, COUNT(*) n FROM wa WHERE ts >= ? AND path = '' GROUP BY src ORDER BY n DESC LIMIT 6", from)]);

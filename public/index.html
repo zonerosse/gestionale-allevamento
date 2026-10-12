@@ -611,6 +611,12 @@ nav.bottom{display:none}
 .ws-bar{display:block;height:8px;border-radius:4px;background:var(--accent-soft);position:relative;margin-top:3px}.ws-bar span{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
 .ws-bt{font-weight:600;margin:0 0 8px}
 .ws-more{display:block;width:100%;border:0;border-top:1px solid var(--line);background:var(--bg);padding:10px;font-weight:600;cursor:pointer;color:var(--ink);font:inherit;font-weight:600}
+.ws-wbox{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr 1fr;gap:20px;align-items:start}
+.ws-wl{color:var(--muted);font-size:.78rem;margin:0 0 4px}.ws-wlst{list-style:none;padding:0;margin:0;font-size:.86rem}.ws-wlst li{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.ws-wlst li.mu{color:var(--muted)}
+.ws-wm{display:flex;align-items:flex-end;gap:4px;height:64px;margin-top:6px}.ws-wm div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.68rem;color:var(--muted);width:22px}
+.ws-wm b{color:var(--ink);font-size:.72rem}.ws-wm span{width:16px;background:#25A35A;border-radius:2px}.ws-wm span.z{background:var(--line)}
+.ws-wm.many{gap:2px;height:40px}.ws-wm.many div{width:auto;flex:1;min-width:3px}.ws-wm.many span{width:100%}.ws-wbox>div:first-child{min-width:190px}
+@media (max-width:820px){.ws-wbox{grid-template-columns:1fr;gap:12px}}
 .ws-wbar{background:#DDF3E5}.ws-wbar span{background:#25A35A}.ws-k3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .ws-gsc{display:inline-block;font-size:.78rem;font-weight:600;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:1px 8px;margin-left:4px}
 .ws-live{color:var(--ok);font-weight:600}
@@ -4220,17 +4226,28 @@ function wsGbpkHtml(){const X=WS.data;let h=`<h2>🔎 Ricerche che mostrano il t
   return h}
 
 /* Contatti WhatsApp dal sito: tocchi sul tasto WhatsApp (funzione /wa/ del sito → /api/public/walog), conteggio esatto */
+/* 12/10/2026, versione H scelta da Paolo: un riquadro solo e piccolo. A sinistra colonnine per giorno (con numero e iniziale
+   fino a 14 giorni; oltre, solo colonnine), al centro le prime 3 pagine + «altre N pagine», a destra le lingue con la %. */
+const WS_PG={"/":"Home","contatto":"Contatti","contact":"Contatti","kontakt":"Contatti","cuccioli-staffordshire-bull-terrier":"Cuccioli","chi-siamo":"Chi siamo",
+  "programma-allevamento":"Programma di allevamento","faq-sullo-staffordshire-bull-terrier":"FAQ sullo Staffy","blog":"Blog","recensioni":"Recensioni"};
+function wsPgName(p){p=String(p||"");const lg=/^\/en(\/|$)/.test(p)?" (inglese)":/^\/de(\/|$)/.test(p)?" (tedesco)":"",q=p.replace(/^\/(en|de)(?=\/|$)/,"")||"/";
+  const seg=q==="/"?"/":decodeURIComponent(q.replace(/\/+$/,"").split("/").pop()||"/");
+  const n=WS_PG[seg]||(seg.replace(/-/g," ").replace(/^./,c=>c.toUpperCase()));return n+lg}
 function wsWaHtml(){const X=WS.data;let h=`<h2>💬 Contatti WhatsApp dal sito</h2>`;
   if(!X||X.waErr)return h+`<p class="fnote">${esc((X&&X.waErr)||"")}</p>`;const W=X.wa;
-  h+=`<p class="ws-src">Ogni volta che qualcuno tocca il tasto WhatsApp da una pagina del sito · conteggio esatto, persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
+  h+=`<p class="ws-src">Tocchi sul tasto WhatsApp da una pagina del sito · persone vere (i robot non toccano i tasti) · ${W.days===1?"ultime 24 ore":"ultimi "+W.days+" giorni"}</p>`;
   if(W.out)h+=`<p class="ws-src">Non contate: <b>${wsN(W.out)}</b> aperture del link WhatsApp da fuori dal sito (messaggi, app, profili)${(W.outSrc||[]).length?" · "+W.outSrc.map(x=>esc(x.src||"provenienza non registrata")+" "+wsN(x.n)).join(" · "):""}.</p>`;
   if(!W.tot&&!W.prev)return h+`<p class="nbox row-meta">Ancora nessun tocco registrato: il conteggio parte da quando il sito usa il nuovo tasto WhatsApp.</p>`;
-  h+=`<div class="ws-kpis ws-k3"><div class="ws-kpi"><p class="k">Tocchi su WhatsApp</p><p class="v">${wsN(W.tot)}</p>${wsPct(W.tot,W.prev)}</div><div class="ws-kpi"><p class="k">Oggi</p><p class="v">${wsN(W.today)}</p></div><div class="ws-kpi"><p class="k">Media al giorno</p><p class="v">${wsN(W.tot/W.days,1)}</p></div></div>`;
-  if(W.daily.length>1){const mx=Math.max(1,...W.daily.map(d=>d.n)),n=W.daily.length,bw=Math.min(20,600/n-4);
-    h+=`<div class="nbox"><svg viewBox="0 0 620 160" role="img" aria-label="Tocchi su WhatsApp per giorno" style="width:100%;height:auto;display:block">${W.daily.map((d,i)=>`<rect x="${(i*(600/n)+10).toFixed(1)}" y="${(150-d.n/mx*130).toFixed(1)}" width="${bw.toFixed(1)}" height="${(d.n/mx*130).toFixed(1)}" rx="2" fill="#25A35A"><title>${fmt(d.day)}: ${d.n}</title></rect>`).join("")}</svg><p class="ws-src" style="margin:6px 0 0">giorno per giorno, ${fmt(W.daily[0].day)} – ${fmt(W.daily[n-1].day)}</p></div>`}
-  const mp=Math.max(1,...W.paths.map(p=>p.n)),pl=p=>p==="/"?"Home":p==="/en/"?"Home inglese":p==="/de/"?"Home tedesca":!p?"Pagina sconosciuta":decodeURIComponent(p);
-  h+=`<div class="ws-two" style="margin-top:12px"><div class="nbox"><p class="ws-bt">Da quale pagina</p><ul class="ws-mini">${W.paths.map(p=>`<li class="ws-bl"><span class="ws-r"><span>${esc(pl(p.path))}</span><b>${wsN(p.n)}</b></span><span class="ws-bar ws-wbar"><span style="width:${p.n/mp*100}%"></span></span></li>`).join("")}</ul></div>
-    <div class="nbox"><p class="ws-bt">In che lingua</p><ul class="ws-mini">${W.langs.map(l=>`<li><span>${{it:"Italiano",en:"Inglese",de:"Tedesco"}[l.lang]||esc(l.lang)}</span><b>${wsN(l.n)}</b></li>`).join("")}</ul></div></div>`;
+  // giorni del periodo, anche quelli a zero (ora di Roma)
+  const F=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome"}),by=Object.fromEntries((W.daily||[]).map(d=>[d.day,d.n])),G=[];
+  if(W.days>1)for(let i=W.days-1;i>=0;i--){const k=F.format(new Date(Date.now()-i*864e5));G.push({d:k,n:by[k]||0})}
+  const mx=Math.max(1,...G.map(g=>g.n)),few=G.length<=14,GL=["D","L","M","M","G","V","S"];
+  const cols=G.length?`<div class="ws-wm${few?"":" many"}">${G.map(g=>{const dt=new Date(g.d+"T12:00:00Z");return`<div title="${fmt(g.d)}: ${g.n}">${few?`<b>${g.n}</b>`:""}<span class="${g.n?"":"z"}" style="height:${Math.max(g.n/mx*34,2).toFixed(1)}px"></span>${few?GL[dt.getUTCDay()]:""}</div>`}).join("")}</div>`:"";
+  const P=W.paths||[],top=P.slice(0,3),rest=P.slice(3),rn=rest.reduce((s,p)=>s+p.n,0);
+  const LT=(W.langs||[]).reduce((s,l)=>s+l.n,0),ln=k=>((W.langs||[]).find(l=>l.lang===k)||{n:0}).n;
+  h+=`<div class="ws-wbox"><div><p class="ws-wl">${wsN(W.tot)} tocchi ${wsPct(W.tot,W.prev)} · oggi ${wsN(W.today)} · media ${wsN(W.tot/W.days,1)}</p>${cols}</div>
+    <div><p class="ws-wl">Da quale pagina</p><ul class="ws-wlst">${top.map(p=>`<li><span>${esc(wsPgName(p.path))}</span><b>${wsN(p.n)}</b></li>`).join("")}${rest.length?`<li class="mu" title="${esc(rest.map(p=>wsPgName(p.path)+" "+p.n).join(" · "))}"><span>altre ${rest.length} ${rest.length===1?"pagina":"pagine"}</span><b>${wsN(rn)}</b></li>`:""}</ul></div>
+    <div><p class="ws-wl">In che lingua</p><ul class="ws-wlst">${[["it","Italiano"],["en","Inglese"],["de","Tedesco"]].map(([k,n])=>{const v=ln(k);return`<li${v?"":` class="mu"`}><span>${n}</span><b>${wsN(v)}${v&&LT?" · "+Math.round(v/LT*100)+"%":""}</b></li>`}).join("")}</ul></div></div>`;
   return h}
 /* Provenienza delle visite (Cloudflare): voci unite (Google, Facebook, Bing…), "circa" perché sono stime campionate */
 function wsRefs(refs){const G={};const name=k=>{k=(k||"").replace(/^www\./,"").replace(/^m\./,"").replace(/^l\./,"").replace(/^lm\./,"");
