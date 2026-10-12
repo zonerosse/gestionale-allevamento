@@ -3597,10 +3597,12 @@ const gpChecks=t=>[[!/\+?\d[\d\s.\-]{7,}\d/.test(t),"Niente numero di telefono n
   [t.trim().length>0&&t.length<=1500,t.length+"/1.500 caratteri"]];
 function gpChecksHtml(t){return gpChecks(t).map(([ok,l])=>`<li class="${ok?"y":"n"}">${ok?"✓":"✗"} ${esc(l)}</li>`).join("")}
 /* Post pubblicati (12/10/2026, scelta di Paolo): tocco = il post com'è su Google, «Apri su Google» ed «Elimina da Google» con conferma */
+// foto dei post pubblicati: passano dal gestionale (/api/postimg), così si vedono anche dall'app sul telefono (12/10/2026)
+const gpImg=u=>u?"/api/postimg?u="+encodeURIComponent(u):"";
 function gpState(p){return p.state==="LIVE"?`<span class="badge ok">✓ Online su Google</span>`:p.state==="REJECTED"?`<span class="badge f">Rifiutato da Google</span>`:`<span class="badge warn">In controllo da Google</span>`}
 function gpView(i,conf){const p=(GP.list||[])[+i];if(!p)return;
   sheet(`<h2 style="margin:0 40px 2px 0">Post del ${fmt(p.date)}</h2><p class="small" style="margin:0">Com'è sul tuo profilo Google · ${gpState(p)}</p>
-  <div class="gp-prev" style="margin:10px 0 12px"><div class="gh"><div class="ga">DPD</div><div><p class="gn">${esc("Allevamento "+FM().breed+" "+FM().name)}</p><p class="gd">${fmt(p.date)}</p></div></div>${p.img?`<img src="${esc(p.img)}" alt="">`:""}<p class="gt">${esc(p.text)}</p>${p.cta?`<a class="gb" href="${esc(p.cta)}" target="_blank" rel="noopener">Scopri di più</a>`:""}</div>
+  <div class="gp-prev" style="margin:10px 0 12px"><div class="gh"><div class="ga">DPD</div><div><p class="gn">${esc("Allevamento "+FM().breed+" "+FM().name)}</p><p class="gd">${fmt(p.date)}</p></div></div>${p.img?`<img src="${esc(gpImg(p.img))}" alt="">`:""}<p class="gt">${esc(p.text)}</p>${p.cta?`<a class="gb" href="${esc(p.cta)}" target="_blank" rel="noopener">Scopri di più</a>`:""}</div>
   ${conf?`<div class="gp-conf" id="gp_conf"><b>Eliminare questo post?</b><br>Sparisce dal tuo profilo Google e non si può recuperare. Foto e dati nel gestionale restano.<div class="rv-row" style="margin-top:10px"><button class="btn ghost small" data-a="gpView" data-v="${i}">Annulla</button><button class="btn small gp-del2" data-a="gpDel" data-v="${i}">Sì, elimina da Google</button></div></div>`
     :`<div class="rv-row">${p.url?`<a class="btn ghost small" href="${esc(p.url)}" target="_blank" rel="noopener">↗ Apri su Google</a>`:"<span></span>"}<button class="btn ghost small gp-del" data-a="gpDelAsk" data-v="${i}">🗑 Elimina da Google</button></div>`}`);
   // 12/10/2026: la conferma prende il posto dei tasti e viene portata davanti (prima restava sotto, fuori dallo schermo)
@@ -3623,7 +3625,7 @@ function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'alle
       <p class="small" style="margin:10px 0 0">Google controlla ogni post prima di mostrarlo: di solito pochi minuti, a volte di più.</p></div></div>`}
   h+=`<h2>Pubblicati</h2>`;if(GP.list===null){setTimeout(gpLoad,0);GP.list=undefined}
   if(!GP.list)h+=`<p class="empty">⏳ Leggo i post da Google…</p>`;else if(GP.lerr)h+=`<p class="fnote">${esc(GP.lerr)}</p>`;else if(!GP.list.length)h+=`<p class="empty">Ancora nessun post.</p>`;
-  else h+=GP.list.map((p,i)=>`<button type="button" class="gp-post gp-open" data-a="gpView" data-v="${i}"><div class="th">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))||`<i class="small">(senza testo)</i>`}</p>${gpState(p)}<p class="pd">${fmt(p.date)} <span aria-hidden="true">›</span></p></button>`).join("");
+  else h+=GP.list.map((p,i)=>`<button type="button" class="gp-post gp-open" data-a="gpView" data-v="${i}"><div class="th">${p.img?`<img src="${esc(gpImg(p.img))}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))||`<i class="small">(senza testo)</i>`}</p>${gpState(p)}<p class="pd">${fmt(p.date)} <span aria-hidden="true">›</span></p></button>`).join("");
   return h}
 /* Post libero (scelta di Paolo): "✍️ Scrivi un post" su quello che vuole lui. Foto fra le ultime caricate nel gestionale,
    tasto verso Home / Cuccioli / Diario di una cucciolata / Palmarès / nessuno. Claude scrive dalle sue due righe. */

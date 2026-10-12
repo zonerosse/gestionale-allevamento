@@ -1120,3 +1120,5 @@ Accessi e copie
 - Post con i dati del gestionale (12/10/2026): `gpFacts(spunto)` riconosce famiglie (nome+cognome del proprietario, anche invertiti,
   senza accenti) e cani (soprannome o nome completo) e manda a Claude `facts.dal_gestionale` (nome di chiamata, sesso, età, genitori,
   cucciolata, ritiro dall'Agenda o data del passaggio, città e paese della famiglia senza via, fratelli). Sotto lo spunto «🔎 Dal gestionale: …». Nel post le persone non si nominano mai (solo «la sua famiglia»).
+- Foto dei post pubblicati (12/10/2026): sul telefono le miniature di googleusercontent restavano grigie; ora passano da
+  `GET /api/postimg?u=` (functions/api/postimg.js: solo https googleusercontent.com/ggpht.com, solo chi vede Google) con `gpImg()`.
