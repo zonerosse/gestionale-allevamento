@@ -11,3 +11,7 @@
   Cache-Control: no-cache
 /manifest.webmanifest
   Cache-Control: no-cache
+
+# riconoscitore dei visi (12/10/2026): file che non cambiano, il browser li tiene
+/vendor/visi/*
+  Cache-Control: public, max-age=31536000, immutable

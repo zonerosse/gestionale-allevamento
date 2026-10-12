@@ -1112,3 +1112,8 @@ Accessi e copie
 - Post pubblicati (12/10/2026): l'elenco legge TUTTI i post (pagine da 100); tocco = il post com'è su Google (`gpView`: foto, testo
   intero, «Scopri di più»), «↗ Apri su Google» (searchUrl) e «🗑 Elimina da Google» con conferma (`gpDel` → `POST /api/posts
   {task:"del",name}` → DELETE v4; solo post della scheda in gbp "loc").
+- 🙂 Copri i visi (12/10/2026, scelta C di Paolo): tasto sotto la foto scelta nei post (proposte e «Scrivi un post», `gpFaceBtn`) →
+  `vzOpen`: i visi trovati si sfocano da soli (face-api SSD in `public/vendor/visi/`, scaricato solo quando serve, la foto non esce dal
+  telefono; visi piccoli cercati anche a pezzi ingranditi), poi pennello 🖌 Copri / 🧽 Scopri, Annulla, Ricomincia, intensità
+  Leggera/Media/Forte (parte da Media). Sfocatura = foto rimpicciolita e ingrandita (niente pixel), con maschera morbida.
+  «Usa questa foto» carica la versione sfocata (`uploadData`) e la mette al posto dell'originale in `GP.up`.
