@@ -8,22 +8,35 @@ import { gbpGet, gbpSet } from "../_gbp.js";
    POST { task:"cfg", kw:[...], cities:["Nome", ...] } → salva; le città nuove si trovano su OpenStreetMap.
    Tetto di spesa (scelta di Paolo): al massimo MAPS_CAP ricerche al mese (predefinito 100, circa 20 centesimi);
    contatore in gbp "maps:used:AAAA-MM". Oltre il tetto il controllo non parte e lo dice. */
-// Luoghi (scelta di Paolo, ottobre 2026): Italia e regione con il nome ufficiale del fornitore (come in Sottosopra),
-// i capoluoghi con le coordinate del centro città (zoom 12), che per Maps sono le più affidabili.
+// Luoghi (scelta di Paolo, ottobre 2026): Italia, regione e città per NOME località nel formato del fornitore
+// (come in Sottosopra). È il metodo affidabile: misurare le città con le coordinate del centro dava posizioni
+// sballate (su parole larghe come "allevamento" vincevano le schede più vicine al puntino). Le coordinate restano
+// solo come RIPIEGO, usate da check() se il nome località non viene riconosciuto.
 const LOC = { "italia": "Italy", "emilia-romagna": "Emilia-Romagna,Italy", "veneto": "Veneto,Italy", "lombardia": "Lombardy,Italy",
   "toscana": "Tuscany,Italy", "marche": "Marche,Italy", "piemonte": "Piedmont,Italy", "lazio": "Lazio,Italy" };
+// Nome località (formato fornitore) per i capoluoghi noti. Chi non è qui viene geocodificato a coordinate.
+const LOCCITTA = { ...LOC,
+  "bologna": "Bologna,Emilia-Romagna,Italy", "ferrara": "Ferrara,Emilia-Romagna,Italy",
+  "forlì": "Forlì,Emilia-Romagna,Italy", "forli": "Forlì,Emilia-Romagna,Italy",
+  "modena": "Modena,Emilia-Romagna,Italy", "parma": "Parma,Emilia-Romagna,Italy",
+  "piacenza": "Piacenza,Emilia-Romagna,Italy", "ravenna": "Ravenna,Emilia-Romagna,Italy",
+  "reggio emilia": "Reggio Emilia,Emilia-Romagna,Italy", "rimini": "Rimini,Emilia-Romagna,Italy",
+  "padova": "Padua,Veneto,Italy", "rovigo": "Rovigo,Veneto,Italy" };
 const DEF = { kw: ["allevamento staffordshire bull terrier", "cuccioli staffordshire bull terrier", "allevamento staffy"],
   cities: [{ n: "Italia", loc: "Italy" }, { n: "Emilia-Romagna", loc: "Emilia-Romagna,Italy" },
-    { n: "Bologna", lat: 44.4949, lng: 11.3426 }, { n: "Ferrara", lat: 44.8381, lng: 11.6198 }, { n: "Forlì", lat: 44.2226, lng: 12.0408 },
-    { n: "Modena", lat: 44.6471, lng: 10.9252 }, { n: "Parma", lat: 44.8015, lng: 10.3279 }, { n: "Piacenza", lat: 45.0526, lng: 9.693 },
-    { n: "Ravenna", lat: 44.4184, lng: 12.2035 }, { n: "Reggio Emilia", lat: 44.6983, lng: 10.6312 }, { n: "Rimini", lat: 44.0678, lng: 12.5695 },
-    { n: "Padova", lat: 45.4064, lng: 11.8768 }, { n: "Rovigo", lat: 45.0698, lng: 11.7902 }] };
+    { n: "Bologna", loc: "Bologna,Emilia-Romagna,Italy", lat: 44.4949, lng: 11.3426 }, { n: "Ferrara", loc: "Ferrara,Emilia-Romagna,Italy", lat: 44.8381, lng: 11.6198 }, { n: "Forlì", loc: "Forlì,Emilia-Romagna,Italy", lat: 44.2226, lng: 12.0408 },
+    { n: "Modena", loc: "Modena,Emilia-Romagna,Italy", lat: 44.6471, lng: 10.9252 }, { n: "Parma", loc: "Parma,Emilia-Romagna,Italy", lat: 44.8015, lng: 10.3279 }, { n: "Piacenza", loc: "Piacenza,Emilia-Romagna,Italy", lat: 45.0526, lng: 9.693 },
+    { n: "Ravenna", loc: "Ravenna,Emilia-Romagna,Italy", lat: 44.4184, lng: 12.2035 }, { n: "Reggio Emilia", loc: "Reggio Emilia,Emilia-Romagna,Italy", lat: 44.6983, lng: 10.6312 }, { n: "Rimini", loc: "Rimini,Emilia-Romagna,Italy", lat: 44.0678, lng: 12.5695 },
+    { n: "Padova", loc: "Padua,Veneto,Italy", lat: 45.4064, lng: 11.8768 }, { n: "Rovigo", loc: "Rovigo,Veneto,Italy", lat: 45.0698, lng: 11.7902 }] };
 const MINE = /piccolo\s*diavolo|delpiccolodiavolo/i;
 async function cfg(env) {
   const s = await gbpGet(env, "maps:cfg"); if (!s) return DEF;
   const c = JSON.parse(s);
   // la prima impostazione (Ostellato, Ferrara, Bologna, Padova, Milano) passa da sola ai luoghi nuovi
   if (c.cities.map(x => x.n).join("|") === "Ostellato|Ferrara|Bologna|Padova|Milano") return { kw: c.kw, cities: DEF.cities };
+  // Alle configurazioni vecchie, salvate con le sole coordinate, si aggiunge il nome località: così il
+  // controllo usa il metodo affidabile anche senza che Paolo rifaccia la configurazione dalla pagina.
+  c.cities = c.cities.map(x => (x.loc || !LOCCITTA[String(x.n).toLowerCase()]) ? x : { ...x, loc: LOCCITTA[String(x.n).toLowerCase()] });
   return c;
 }
 const month = () => new Date().toISOString().slice(0, 7);
@@ -38,14 +51,27 @@ async function geocode(name) {
   if (!j[0]) throw new Error("Non trovo la città «" + name + "».");
   return { n: name, lat: +(+j[0].lat).toFixed(4), lng: +(+j[0].lon).toFixed(4) };
 }
-async function check(env, kw, c) {
-  const r = await fetch("https://api.dataforseo.com/v3/serp/google/maps/live/advanced", { method: "POST",
+const DFS_MAPS = "https://api.dataforseo.com/v3/serp/google/maps/live/advanced";
+async function chiama(env, kw, luogo) {
+  const r = await fetch(DFS_MAPS, { method: "POST",
     headers: { Authorization: "Basic " + btoa(env.DATAFORSEO_LOGIN + ":" + env.DATAFORSEO_PASSWORD), "content-type": "application/json" },
-    body: JSON.stringify([{ keyword: kw, ...(c.loc ? { location_name: c.loc } : { location_coordinate: `${c.lat},${c.lng},10z` }), language_code: "it", depth: 20 }]) });
+    body: JSON.stringify([{ keyword: kw, ...luogo, language_code: "it", depth: 20 }]) });
   const j = await r.json().catch(() => ({}));
   const task = (j.tasks || [])[0] || {};
-  if (!r.ok || (task.status_code && task.status_code >= 40000)) throw new Error("DataForSEO: " + (task.status_message || j.status_message || r.status));
-  const items = (((task.result || [])[0] || {}).items || []);
+  const fallita = !r.ok || (task.status_code && task.status_code >= 40000);
+  return { fallita, task, msg: (task.status_message || j.status_message || r.status) };
+}
+async function check(env, kw, c) {
+  // Prima per NOME località (il metodo affidabile). Se il fornitore non lo
+  // riconosce e abbiamo le coordinate, si ripiega su quelle: nessuna cella
+  // resta a vuoto per un nome scritto in modo diverso dal suo. Il ripiego
+  // costa una seconda chiamata solo quando il nome fallisce, cioè quasi mai.
+  let a = c.loc ? await chiama(env, kw, { location_name: c.loc }) : null;
+  if ((!a || a.fallita) && c.lat != null)
+    a = await chiama(env, kw, { location_coordinate: `${c.lat},${c.lng},10z` });
+  if (!a) a = await chiama(env, kw, { location_name: c.loc || (c.n + ",Italy") });
+  if (a.fallita) throw new Error("DataForSEO: " + a.msg);
+  const items = (((a.task.result || [])[0] || {}).items || []);
   const me = items.find(x => MINE.test(x.title || "") || MINE.test(x.domain || "") || MINE.test(x.url || ""));
   return me ? (me.rank_group || me.rank_absolute || null) : null;
 }
@@ -61,7 +87,7 @@ export async function onRequestPost({ request, env }) {
       const old = await cfg(env), kw = [...new Set((p.kw || []).map(s => String(s).trim().toLowerCase()).filter(Boolean))].slice(0, 10), cities = [];
       for (const n of (p.cities || []).map(s => String(s).trim()).filter(Boolean).slice(0, 15)) {
         const k = n.toLowerCase(), known = old.cities.find(c => c.n.toLowerCase() === k) || DEF.cities.find(c => c.n.toLowerCase() === k);
-        cities.push(known || (LOC[k] ? { n, loc: LOC[k] } : await geocode(n)));
+        cities.push(known || (LOCCITTA[k] ? { n, loc: LOCCITTA[k] } : await geocode(n)));
       }
       if (!kw.length || !cities.length) return json({ ok: false, error: "Serve almeno una parola e una città." });
       await gbpSet(env, "maps:cfg", JSON.stringify({ kw, cities })); return json({ ok: true, cfg: { kw, cities } });
