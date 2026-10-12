@@ -740,6 +740,8 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .pg-chk{padding:0;margin:6px 0;list-style:none}.pg-chk li{margin:3px 0}
 .pg-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.pg-top .btn{width:auto}
 .pg-top .btn:disabled{opacity:.45;cursor:not-allowed}
+.rv.rv-new{border:2px solid #1E8E4E}.badge.rv-nb{background:#1E8E4E;color:#fff;font-weight:700}
+.rv-oldl{border:1px dashed var(--line);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:.88rem;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
 </style>
 </head>
 <body>
@@ -3795,8 +3797,13 @@ addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
    ringraziamenti brevi scritti da Claude (/api/ai, task "recensione") o una risposta dal suo spunto; la risposta parte
    solo con "Pubblica su Google". Il numero delle recensioni sul sito (hugo.toml) cambia SOLO con il tasto
    "Aggiorna il sito", mai da solo. Collegamento a Google: /api/google (una volta sola). */
-let RV={st:"",list:[],total:0,rating:0,site:null,checked:"",f:"todo",ed:null,dr:{},pk:{},sg:{},sgw:{},id:{},msg:""};
-const rvTodo=()=>RV.list.filter(r=>r.reply==null).length;
+let RV={st:"",list:[],total:0,rating:0,site:null,checked:"",f:"ult",ed:null,dr:{},pk:{},sg:{},sgw:{},id:{},msg:""};
+/* 12/10/2026 (Paolo): «vecchie» = senza risposta e arrivate più di un anno fa (es. Verni, 2021): non si vedono (solo in «Tutte»),
+   Claude non scrive risposte per loro e non contano nel numero del menu. Tutte le altre senza risposta sono «Nuova» finché non
+   rispondi. In cima le ultime arrivate («Ultime arrivate», predefinito). */
+const rvOld=r=>r.reply==null&&!!r.date&&(Date.now()-Date.parse(r.date))>365*864e5;
+const rvNew=r=>r.reply==null&&!rvOld(r);
+const rvTodo=()=>RV.list.filter(rvNew).length;
 const rvStars=n=>"★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
 const rvVoto=x=>Number(x||0).toFixed(1);
 async function rvApi(p){const r=await fetch("/api/reviews",p?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)}:{});
@@ -3807,11 +3814,11 @@ async function rvLoad(){RV.st="load";if(tab==="recensioni")render();
       RV.checked=new Date().toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}}
   catch(x){RV.st="err";RV.err=x.message}
   if(tab==="recensioni")render();else nav();if(RV.st==="ok")rvSuggAll()}
-function rvSugHtml(i){const r=RV.list[i];if(!r||r.reply!=null)return"";const s=RV.sg[r.name];
+function rvSugHtml(i){const r=RV.list[i];if(!r||r.reply!=null)return"";if(rvOld(r))return`<p class="small">Recensione vecchia: Claude non scrive risposte pronte. Se vuoi, dai uno spunto qui sotto.</p>`;const s=RV.sg[r.name];
   if(RV.sgw[r.name]==="err")return`<p class="small">Claude non ha risposto. <button class="plink" data-a="rvSugRetry" data-v="${i}">Riprova</button></p>`;
   if(!s)return`<p class="small">⏳ Claude scrive due risposte…</p>`;
   return`<p class="rv-ft">Due risposte pronte: tocca quella che vuoi</p><div class="rv-sugg">${s.map((t,k)=>`<button type="button" class="rv-sug" data-a="rvUse" data-v="${i}|${k}" aria-pressed="${RV.pk[r.name]===k}"><span>${RV.pk[r.name]===k?"✓ Scelta":"Risposta "+(k+1)}</span>${esc(t)}</button>`).join("")}</div>`}
-async function rvSuggAll(){for(let i=0;i<RV.list.length;i++){const r=RV.list[i];if(r.reply!=null||RV.sg[r.name]||RV.sgw[r.name]===1)continue;
+async function rvSuggAll(){for(let i=0;i<RV.list.length;i++){const r=RV.list[i];if(r.reply!=null||rvOld(r)||RV.sg[r.name]||RV.sgw[r.name]===1)continue;
   RV.sgw[r.name]=1;try{const j=await aiCall("recensione",{who:r.who,stars:r.stars,text:r.text});RV.sg[r.name]=j.options||[];RV.sgw[r.name]=0}catch(x){RV.sgw[r.name]="err"}
   const box=document.getElementById("rvs_"+i);if(box&&tab==="recensioni")box.innerHTML=rvSugHtml(i)}}
 function rvRevPage(){
@@ -3827,12 +3834,13 @@ function rvRevPage(){
   <div><p class="k">Sul sito</p><p class="v">${s?esc(s.total)+" "+(same?`<span class="rv-ok">✓ uguale a Google</span>`:`<span class="rv-todo">da aggiornare</span>`):`<small>non letto</small>`}</p></div>
   <div class="act">${same||!s?`<button class="btn ghost small" data-a="rvLoad">${RV.st==="load"?"⏳ Controllo…":"Controlla adesso"}</button>`:`<button class="btn small rv-go" data-a="rvSite">Aggiorna il sito a ${RV.total}</button>`}<p class="when">Ultimo controllo: ${esc(RV.checked)}</p></div></div>`;
   if(RV.st==="err")h+=`<p class="fnote">${esc(RV.err)}</p>`;
-  h+=`<div class="toolbar"><button class="chip" data-a="rvF" data-v="todo" aria-pressed="${RV.f==="todo"}">Da rispondere (${todo.length})</button><button class="chip" data-a="rvF" data-v="all" aria-pressed="${RV.f==="all"}">Tutte (${RV.list.length})</button></div>`;
-  const L=RV.list.map((r,i)=>[r,i]).filter(([r])=>RV.f==="all"||r.reply==null||RV.ed===r.name);
-  if(!L.length)h+=`<p class="empty">Hai risposto a tutte le recensioni.</p>`;
+  const nOld=RV.list.filter(rvOld).length;
+  h+=`<div class="toolbar"><button class="chip" data-a="rvF" data-v="ult" aria-pressed="${RV.f==="ult"}">Ultime arrivate</button><button class="chip" data-a="rvF" data-v="todo" aria-pressed="${RV.f==="todo"}">Da rispondere (${todo.filter(rvNew).length})</button><button class="chip" data-a="rvF" data-v="all" aria-pressed="${RV.f==="all"}">Tutte (${RV.list.length})</button></div>`;
+  const L=RV.list.map((r,i)=>[r,i]).filter(([r])=>RV.f==="all"||RV.ed===r.name||(RV.f==="todo"?rvNew(r):!rvOld(r)));
+  if(!L.length)h+=`<p class="empty">${RV.f==="todo"?"Hai risposto a tutte le recensioni nuove.":"Nessuna recensione."}</p>`;
   for(const [r,i] of L){const ed=RV.ed===r.name,open=r.reply==null||ed,val=RV.dr[r.name]!=null?RV.dr[r.name]:(ed?r.reply:"");
-    h+=`<article class="rv${open?" open":""}"><div class="rv-h"><div class="rv-av" aria-hidden="true">${esc((r.who||"?").trim().charAt(0).toUpperCase())}</div><p class="rv-who">${esc(r.who)}</p>
-    ${r.reply!=null?`<span class="badge ok">✓ Risposta</span>`:`<span class="badge f">Da rispondere</span>`}<p class="rv-meta"><span class="rv-st" aria-label="${r.stars} stelle su 5">${rvStars(r.stars)}</span>${fmt(r.date)}</p></div>
+    h+=`<article class="rv${open?" open":""}${rvNew(r)?" rv-new":""}"><div class="rv-h"><div class="rv-av" aria-hidden="true">${esc((r.who||"?").trim().charAt(0).toUpperCase())}</div><p class="rv-who">${esc(r.who)}</p>
+    ${r.reply!=null?`<span class="badge ok">✓ Risposta</span>`:rvOld(r)?`<span class="badge">Vecchia</span>`:`<span class="badge rv-nb">Nuova</span>`}<p class="rv-meta"><span class="rv-st" aria-label="${r.stars} stelle su 5">${rvStars(r.stars)}</span>${fmt(r.date)}</p></div>
     ${r.text?`<p class="rv-text">${esc(r.text)}</p>`:`<p class="rv-text small">Solo stelle, senza testo.</p>`}`;
     if(r.reply!=null&&!ed)h+=`<div class="rv-reply"><p class="rl">✓ La tua risposta${r.replyDate?", pubblicata il "+fmt(r.replyDate):""}</p><p>${esc(r.reply)}</p><div class="row2" style="margin-top:8px"><button class="btn ghost small" data-a="rvEdit" data-v="${i}">Modifica</button></div></div>`;
     else{h+=`<div class="rv-form">`;
@@ -3841,6 +3849,7 @@ function rvRevPage(){
       <div class="rv-row"><span class="small" id="rvc_${i}">${(val||"").length}/4.000</span><span>${r.reply!=null?`<button class="btn ghost small" data-a="rvCancel" data-v="${i}">Annulla modifiche</button> `:""}<button class="btn small rv-go" data-a="rvPub" data-v="${i}" ${(val||"").trim()?"":"disabled"}>${r.reply!=null?"Salva su Google":"Pubblica su Google"}</button></span></div>
       <p class="small" style="margin:6px 0 0">${esc(r.who)} riceverà una notifica, e la risposta sarà visibile a tutti sul profilo.</p></div>`}
     h+=`</article>`}
+  if(RV.f!=="all"&&nOld)h+=`<div class="rv-oldl"><span>${nOld} ${nOld===1?"recensione vecchia":"recensioni vecchie"} senza risposta non si ${nOld===1?"vede":"vedono"} più.</span><button class="btn ghost small" data-a="rvF" data-v="all">Vedile in «Tutte»</button></div>`;
   return h}
 /* ---------- Post su Google (ottobre 2026, scelte di Paolo) ----------
    Dentro la voce "Google" (insieme alle Recensioni). Il gestionale propone un post quando c'è una novità:
@@ -4615,7 +4624,7 @@ function ogPage(){const td=todayS(),w=addD(td,7),wd=d=>["domenica","lunedì","ma
     else if(s.next){const left=dDiff(s.next,td);if(left<=21&&left>=-10)FT.push([s.next,`🔥 <b>${esc(nm)}</b>: calore previsto ${left>0?"fra "+left+" giorni":left===0?"oggi":"da "+(-left)+" giorni"}`,fmt(s.next).slice(0,5)])}}
   FT.sort((a,b)=>a[0].localeCompare(b[0]));const ftB=FT.length?`<ul class="og-l">${FT.map(x=>`<li>${x[1]}<span class="og-s">${x[2]}</span></li>`).join("")}</ul>`:`<p class="og-ok">✓ Niente parti o calori nelle prossime 3 settimane</p>`;
   // Google
-  const nG=typeof rvTodo==="function"?rvTodo():0,gB=nG?`<ul class="og-l"><li>${nG} recensioni senza risposta</li></ul>`:`<p class="og-ok">✓ Nessuna recensione da rispondere</p>`;
+  const nG=typeof rvTodo==="function"?rvTodo():0,gB=nG?`<ul class="og-l"><li>${nG} ${nG===1?"recensione nuova":"recensioni nuove"} da rispondere</li></ul>`:`<p class="og-ok">✓ Nessuna recensione da rispondere</p>`;
   let h=`<p class="og-hello">☀️ ${sal}, ${esc(FM().first)}</p><p class="og-sub">${wd(td).replace(/^./,c=>c.toUpperCase())} ${new Date(td+"T12:00").toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"})} · ecco cosa c'è</p>
   <div class="og-pills"><span class="og-p">📅 <b>${A.length}</b> appuntamenti oggi e domani</span><span class="og-p">💉 <b>${late.length}</b> scadenze in ritardo</span><span class="og-p">📝 <b>${nR}</b> richieste nuove</span><span class="og-p">💬 <b>${ogFm.length}</b> famiglie da avvisare</span></div>
   <div class="og-grid">${ogWeb()}${ogCard("📅","Agenda",A.length,agB,"agenda",true)}${ogCard("💉","Scadenze",E.length,scB,"scadenze",late.length>0)}${ogCard("📝","Richieste e interessati",nR,rqB,"attesa",true)}${ogCard("💬","Famiglie da avvisare",ogFm.length,fmB,"",false)}${ogCard("🪪","Anagrafe",AN.length,anB,"anagrafe")}${ogCard("🐾","Fattrici",FT.length,ftB,"cucciolate")}${ogCard("⭐","Google",nG,gB,"recensioni",true)}</div>`;
