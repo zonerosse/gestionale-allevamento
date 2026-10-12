@@ -3649,14 +3649,24 @@ function gpNorm(t){return String(t||"").toLowerCase().normalize("NFD").replace(/
 function gpHas(txt,w){w=gpNorm(w);return w.length>=3&&(" "+txt+" ").includes(" "+w+" ")}
 function gpDogFacts(id,via){const d=D.dogs[id];if(!d)return null;const l=d.litter&&D.litters?D.litters[d.litter]:null;
   return{nome_di_chiamata:d.nick||"",nome:d.name||"",sesso:d.sex==="M"?"maschio":d.sex==="F"?"femmina":"",nato_il:d.birth||"",eta:typeof age==="function"?age(d):"",
-    madre:dn(d.dam),padre:dn(d.sire),colore:d.color||"",stato:d.status||"",cucciolata_del:l?l.date||"":"",allevato_da_noi:!!(d.bred||l),trovato_da:via}}
+    madre:dn(d.dam),padre:dn(d.sire),colore:d.color||"",stato:d.status||"",cucciolata_del:l?l.date||"":"",allevato_da_noi:!!(d.bred||l),trovato_da:via,
+    ...gpMore(id,d)}}
+// 12/10/2026 (Paolo: «nomi dei cani, quando sono venuti a prenderla, dove andranno ad abitare…»): ritiro dall'Agenda (o data del
+// passaggio di proprietà), città e paese della famiglia (mai via e numero), nomi di chiamata dei fratelli della cucciolata
+function gpCity(o){if(!o)return"";const a=String(o.addr||"").split(",").map(x=>x.trim()).filter(Boolean),last=a.length>1?a[a.length-1]:"";
+  const c=last.replace(/\b\d{4,5}\b/g,"").replace(/\s+/g," ").trim();return c}
+function gpMore(id,d){const o=d.owner&&D.owners?D.owners[d.owner]:null,r=(D.agenda||[]).filter(x=>x.k==="r"&&x.dog===id&&x.date).sort((a,b)=>a.date<b.date?1:-1)[0];
+  const fr=d.litter?Object.entries(D.dogs||{}).filter(([k,x])=>k!==id&&x.litter===d.litter).map(([k,x])=>x.nick||"").filter(Boolean):[];
+  const m={};if(r){m.ritiro_il=r.date;m.ritiro_fatto=r.st==="r"}else if(d.pp&&d.pp.date){m.consegnato_il=d.pp.date}
+  const c=gpCity(o);if(c)m.va_a_vivere_a=c;if(o&&o.country&&!/^(it|ita|italia|italy)$/i.test(String(o.country).trim()))m.paese=o.country;
+  if(fr.length)m.fratelli=fr.slice(0,12);return m}
 function gpFacts(idea){const t=gpNorm(idea),out={cani:[],famiglie:0},seen=new Set();if(!t)return out;
   for(const [oid,o] of Object.entries(D.owners||{})){const ws=gpNorm(o.name).split(" ").filter(w=>w.length>=3);if(ws.length<2)continue;
     if(ws.every(w=>gpHas(t,w))){out.famiglie++;for(const [id,d] of Object.entries(D.dogs||{}))if(d.owner===oid&&!seen.has(id)){seen.add(id);out.cani.push(gpDogFacts(id,"famiglia citata"))}}}
   for(const [id,d] of Object.entries(D.dogs||{})){if(seen.has(id))continue;const nk=gpNorm(d.nick),nm=gpNorm(d.name);
     if((nk&&gpHas(t,nk))||(nm&&nm.split(" ").length>1&&t.includes(nm))){seen.add(id);out.cani.push(gpDogFacts(id,"nome citato"))}}
   out.cani=out.cani.filter(Boolean).slice(0,6);return out}
-function gpFactsTxt(f){if(!f||!f.cani.length)return"";return f.cani.map(c=>`${c.nome_di_chiamata||c.nome}${c.sesso?" ("+c.sesso+")":""}${c.eta?", "+c.eta:""}${c.madre||c.padre?", figlio di "+[c.madre,c.padre].filter(Boolean).join(" × "):""}`).join(" · ")}
+function gpFactsTxt(f){if(!f||!f.cani.length)return"";return f.cani.map(c=>`${c.nome_di_chiamata||c.nome}${c.sesso?" ("+c.sesso+")":""}${c.eta?", "+c.eta:""}${c.madre||c.padre?", figlio di "+[c.madre,c.padre].filter(Boolean).join(" × "):""}${c.ritiro_il?", ritiro "+fmt(c.ritiro_il):c.consegnato_il?", consegnato "+fmt(c.consegnato_il):""}${c.va_a_vivere_a?", va a vivere a "+c.va_a_vivere_a:""}${c.paese?" ("+c.paese+")":""}`).join(" · ")}
 function gpFreeHtml(){const F=GP.free,P=GP.up.map(f=>({f,date:"",lab:"Caricata ora"})),sel=P[F.photo],ok=gpChecks(GP.text).every(x=>x[0]),L=gpLinks(),lk=L[F.link]||L[0];
   return `<div class="gp-ed"><div><span class="rv-ft"><span class="gp-step">1</span>Carica la foto (dal telefono o dal computer)</span>${`<div class="gp-photos"><label class="gp-ph gp-add" title="Aggiungi foto"><span>➕<br>Aggiungi foto</span><input type="file" accept="image/*" multiple hidden class="gpUp"></label>${P.map((p,i)=>`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="${i}" aria-pressed="${F.photo===i}" title="${esc(p.lab)}"><img src="${esc(p.f)}" alt="" loading="lazy">${F.photo===i?`<span class="ck">✓</span>`:""}</button>`).join("")}${P.length?`<button type="button" class="gp-ph" data-a="gpFreePh" data-v="-1" aria-pressed="${F.photo===-1}" style="display:grid;place-items:center;font-size:.8rem;color:var(--muted)">Senza foto${F.photo===-1?`<span class="ck">✓</span>`:""}</button>`:""}</div>`}${P.length?"":`<p class="small">Se non aggiungi una foto, il post esce senza foto.</p>`}${sel&&F.photo>=0?gpFaceBtn(F.photo)+gpSeeHtml(sel.f):""}
     <label class="rv-ft" for="gp_idea" style="margin-top:14px"><span class="gp-step">2</span>Cosa vuoi dire? <span class="small">(${sel&&F.photo>=0?"facoltativo: con la foto basta anche niente":"due righe, anche scritte male"})</span></label><textarea id="gp_idea" class="gp-tx" style="min-height:60px" placeholder="Es. è Rocco, oggi va a casa a Bologna con la sua famiglia">${esc(F.idea)}</textarea>
