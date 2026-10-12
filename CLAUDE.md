@@ -1109,3 +1109,6 @@ Accessi e copie
   vecchie di un anno (`rvOld`): nascoste (solo in «Tutte»), niente risposte di Claude, fuori dal numero del menu.
 - Scrivi un post: caricata la foto, Claude la legge (compito `foto` di /api/ai → riquadro «Claude vede nella foto»); lo spunto è
   facoltativo; «Scrivi il post» manda a Claude foto + spunto + descrizione (`post` con `key`, `seen`).
+- Post pubblicati (12/10/2026): l'elenco legge TUTTI i post (pagine da 100); tocco = il post com'è su Google (`gpView`: foto, testo
+  intero, «Scopri di più»), «↗ Apri su Google» (searchUrl) e «🗑 Elimina da Google» con conferma (`gpDel` → `POST /api/posts
+  {task:"del",name}` → DELETE v4; solo post della scheda in gbp "loc").
