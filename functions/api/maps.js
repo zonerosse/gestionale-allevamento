@@ -41,7 +41,7 @@ async function geocode(name) {
 async function check(env, kw, c) {
   const r = await fetch("https://api.dataforseo.com/v3/serp/google/maps/live/advanced", { method: "POST",
     headers: { Authorization: "Basic " + btoa(env.DATAFORSEO_LOGIN + ":" + env.DATAFORSEO_PASSWORD), "content-type": "application/json" },
-    body: JSON.stringify([{ keyword: kw, ...(c.loc ? { location_name: c.loc } : { location_coordinate: `${c.lat},${c.lng},12z` }), language_code: "it", depth: 20 }]) });
+    body: JSON.stringify([{ keyword: kw, ...(c.loc ? { location_name: c.loc } : { location_coordinate: `${c.lat},${c.lng},10z` }), language_code: "it", depth: 20 }]) });
   const j = await r.json().catch(() => ({}));
   const task = (j.tasks || [])[0] || {};
   if (!r.ok || (task.status_code && task.status_code >= 40000)) throw new Error("DataForSEO: " + (task.status_message || j.status_message || r.status));
