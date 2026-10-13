@@ -1149,3 +1149,7 @@ Accessi e copie
   dentro «Scrivi un post» per chi vuole il testo di Claude.
 - (13/10/2026, scelta di Paolo) Tolto «🎬 Aggiungi video» da «Scrivi un post»: i video si fanno solo da Google → 🎬 Video.
   Le funzioni del video nel post (`GP.vid`, `vdUse`, `gpVidDel`) restano nel codice ma non si raggiungono più.
+- (13/10/2026, Paolo: «nella sezione video aggiungi testo e post per GBP») Google → 🎬 Video: dopo «Prepara» → «✓ Usa questo
+  video» (`vsAct` vsUse, `VD.used`) la pagina (`vdPage`) mostra il video pronto, lo spunto (`VS.idea`), «✨ Scrivi il post» (`vsWrite`:
+  carica su R2 solo il fotogramma per Claude, compito `post` con `gpFacts` come «Scrivi un post»), il testo modificabile con i
+  controlli (`gpChecks`), «📋 Copia il testo», «⬇️ Salva il video», «Nuovo video». La pubblicazione resta a mano dal profilo Google.
