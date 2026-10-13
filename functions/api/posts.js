@@ -39,6 +39,17 @@ export async function onRequestPost({ request, env }) {
     const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
     const body = { languageCode: "it", summary: text, topicType: "STANDARD" };
     if (p.url && /^https:\/\/delpiccolodiavolo\.it\//.test(p.url)) body.callToAction = { actionType: "LEARN_MORE", url: p.url };
+    const okKey = k => k && /^[\w\-./]+$/.test(k) && !k.includes("..");
+    const pub = k => new URL(request.url).origin + "/api/public/gpost/" + k.split("/").map(encodeURIComponent).join("/");
+    // video (13/10/2026): si prova a mandarlo come VIDEO; se Google lo rifiuta la pagina chiede se pubblicare con il fotogramma
+    if (okKey(p.video) && /\.(mp4|webm|mov)$/i.test(p.video)) {
+      await gbpSet(env, "media:" + p.video, String(Date.now() + 2 * 86400e3));
+      body.media = [{ mediaFormat: "VIDEO", sourceUrl: pub(p.video) }];
+      try {
+        const j = await gget("https://mybusiness.googleapis.com/v4/" + loc + "/localPosts", await gbpToken(env), "POST", body);
+        return json({ ok: true, name: j.name, state: j.state || "PROCESSING", video: true });
+      } catch (e) { if (e.connect) throw e; return json({ ok: false, video: true, error: String(e.message || e) }); }
+    }
     if (p.file && /^[\w\-./]+$/.test(p.file) && !p.file.includes("..")) {
       await gbpSet(env, "media:" + p.file, String(Date.now() + 2 * 86400e3));
       body.media = [{ mediaFormat: "PHOTO", sourceUrl: new URL(request.url).origin + "/api/public/gpost/" + p.file.split("/").map(encodeURIComponent).join("/") }];

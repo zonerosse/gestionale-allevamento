@@ -1122,3 +1122,12 @@ Accessi e copie
   cucciolata, ritiro dall'Agenda o data del passaggio, città e paese della famiglia senza via, fratelli). Sotto lo spunto «🔎 Dal gestionale: …». Nel post le persone non si nominano mai (solo «la sua famiglia»).
 - Foto dei post pubblicati (12/10/2026): sul telefono le miniature di googleusercontent restavano grigie; ora passano da
   `GET /api/postimg?u=` (functions/api/postimg.js: solo https googleusercontent.com/ggpht.com, solo chi vede Google) con `gpImg()`.
+
+## 🎬 Video nei post (13/10/2026)
+- Google → Post → «✍️ Scrivi un post» → riquadro «🎬 Aggiungi video» (input `.gpVid`) → finestra `vdOpen`: si sceglie il pezzo
+  (inizio, durata 10/15/20/30 s, «togli l'audio») e «Prepara» (`vdGo`): il telefono lo rifà con canvas + MediaRecorder (MP4 se
+  possibile, 720p sul lato corto, 3,5 Mbps) e tiene un fotogramma. «✓ Usa nel post» (`vdUse`) carica video e fotogramma su R2
+  (`/api/upload` ora accetta video/mp4, webm, quicktime fino a 80 MB) → `GP.vid`, `GP.free.photo=-2`. Claude guarda il fotogramma.
+- Pubblica: `POST /api/posts {video}` → media VIDEO via `/api/public/gpost/` (che ora risponde anche a Range). Se Google lo
+  rifiuta (`{ok:false,video:true}`) la pagina chiede se pubblicare con il fotogramma come foto; «⬇️ Salva il video» (`vdSave`,
+  condivisione sul telefono) per metterlo a mano dal profilo Google. La pagina di prova `prova-video.html` è stata tolta.
