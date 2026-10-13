@@ -1147,3 +1147,5 @@ Accessi e copie
 - (13/10/2026, «troppi passaggi») Voce **🎬 Video** nel menu Google (`RV.sub="vid"`, `vdPage`): «Scegli il video» → stessa finestra
   `vdOpen(file,solo)` → Prepara → solo «⬇️ Salva il video» (niente «Usa nel post», niente caricamento su R2). Resta anche il video
   dentro «Scrivi un post» per chi vuole il testo di Claude.
+- (13/10/2026, scelta di Paolo) Tolto «🎬 Aggiungi video» da «Scrivi un post»: i video si fanno solo da Google → 🎬 Video.
+  Le funzioni del video nel post (`GP.vid`, `vdUse`, `gpVidDel`) restano nel codice ma non si raggiungono più.
