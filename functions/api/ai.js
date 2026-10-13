@@ -26,7 +26,7 @@ Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmar
 const ask = async (env, system, content, max = 1200) => {
   for (let i = 0; ; i++) {
     try { return await ask1(env, system, content, max); }
-    catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo."); }
+    catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo. (" + e.why + ")"); }
   }
 };
 const ask1 = async (env, system, content, max) => {
@@ -41,7 +41,14 @@ const ask1 = async (env, system, content, max) => {
   const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim();
   const a = t.indexOf("{"), z = t.lastIndexOf("}");
   try { if (a < 0 || z <= a) throw 0; return JSON.parse(t.slice(a, z + 1)); }
-  catch (x) { const e = new Error("senza JSON"); e.noJson = true; throw e; }
+  catch (x) {
+    // 13/10/2026 (post che non si riscriveva mai): si salva quello che c'è. JSON tagliato o con a capo dentro il testo →
+    // si prende il campo "text"; solo parole senza JSON → quelle sono il testo.
+    const m = t.match(/"text"\s*:\s*"((?:[^"\\]|\\.)*)/);
+    if (m && m[1].trim()) { let v = m[1]; try { v = JSON.parse('"' + v.replace(/\n/g, "\\n").replace(/\r/g, "") + '"'); } catch (y) { v = v.replace(/\\n/g, "\n").replace(/\\"/g, '"'); } return { text: v.trim() }; }
+    if (t && a < 0) return { text: t };
+    const e = new Error("senza JSON"); e.noJson = true; e.why = (j.stop_reason || "?") + (t ? ": " + t.slice(0, 120) : ", risposta vuota"); throw e;
+  }
 };
 // Foto caricata dal gestionale (/files/<chiave> in R2) come blocco immagine per Claude; null se manca o non è una foto
 async function photoBlock(env, key) {
@@ -102,7 +109,7 @@ Regole: 50-110 parole; una notizia (cosa è successo, cosa si vede nelle foto), 
 ${img ? ` Ti do anche la FOTO del post (12/10/2026, correzione chiesta da ${F.first}: il primo post sembrava una didascalia). La foto serve SOLO a capire il momento: NON descriverla ("nella foto si vede…", "una donna sorride…") e NON parlare MAI dell'aspetto delle persone (viso, capelli, età, vestiti, espressione); le persone al massimo come "la sua famiglia", "a casa", "con noi", senza nomi se ${F.first} non li scrive. Scrivi un vero post dell'allevamento: parti dal cane e da quello che il momento racconta della razza (affetto per la famiglia, voglia di giocare, carattere, vita in casa, crescita, esposizioni), con un tono caldo e naturale, come lo scriverebbe ${F.first}; 40-90 parole; se viene naturale, un pensiero sulla vita con uno ${F.breed}; chiudi con un invito sobrio al sito; niente firma. Nomi dei cani solo se li scrive lui o se sono in «dal_gestionale».${p.seen ? ` (Per capire il momento: ${String(p.seen).slice(0, 300)})` : ""}` : ""}
 ${p.facts && Array.isArray(p.facts.dal_gestionale) && p.facts.dal_gestionale.length ? ` Oggi è ${new Intl.DateTimeFormat("it-IT", { timeZone: "Europe/Rome", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date())}. Nei fatti trovi «dal_gestionale»: i dati veri dei cani che ${F.first} ha citato (nome di chiamata, sesso, età, genitori, cucciolata, giorno del ritiro e se è già avvenuto, città e paese dove va a vivere, nomi dei fratelli): sono lo SFONDO, non un elenco da riportare: scegli al massimo UNO o DUE dettagli che rendono la storia viva (per esempio il nome e la città dove va a vivere, oppure i fratelli che restano a casa) e lascia perdere il resto; mai date, genitori, età e colore tutti insieme. Città e paese sì, mai via o numero civico. Date dette in modo naturale ("sabato scorso", "a metà ottobre" solo se sei sicuro; altrimenti la data). Se il ritiro è nel futuro non dire che è già partito. Le persone invece non si nominano MAI nel post: niente nomi né cognomi di proprietari o familiari (anche se ${F.first} li scrive nello spunto), solo «la sua famiglia», «la sua nuova famiglia», «a casa sua»; la «mamma di …» diventa per esempio «in braccio alla sua nuova famiglia».` : ""}
 ${p.facts && /libero/.test(String(p.facts.tipo || "")) ? ` STILE (12/10/2026, richiesta di ${F.first}: «post simpatici e fantasiosi, non snocciolare dati»): il post deve far sorridere chi lo legge. Racconta una piccola scena con fantasia e calore, con un pizzico di ironia leggera: per esempio la voce o i pensieri del cucciolo («Rocco ha già deciso: il divano di Bologna è suo»), un'immagine buffa, un paragone, una battuta sullo Staffy che sorride sempre. Ogni post diverso dagli altri: cambia apertura e struttura, niente formule fisse («Oggi è un giorno speciale», «Siamo felici di annunciare» sono vietate). Frasi corte, ritmo vivo, 30-80 parole. Resta vero: la fantasia è nel modo di raccontare, i fatti non si inventano.` : ""}
-Formato: {"text":"testo del post"}`, img ? [img, { type: "text", text: JSON.stringify(p.facts || {}).slice(0, 3000) }] : JSON.stringify(p.facts || {}).slice(0, 3000), 700);
+Formato: {"text":"testo del post"}`, img ? [img, { type: "text", text: JSON.stringify(p.facts || {}).slice(0, 3000) }] : JSON.stringify(p.facts || {}).slice(0, 3000), 1500);
       return json({ ok: true, text: String(o.text || "") });
     }
     if (task === "sito") {

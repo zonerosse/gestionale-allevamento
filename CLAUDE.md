@@ -1133,3 +1133,6 @@ Accessi e copie
   condivisione sul telefono) per metterlo a mano dal profilo Google. La pagina di prova `prova-video.html` è stata tolta.
 - Claude che risponde senza JSON (13/10/2026, «Unexpected end of JSON input» riscrivendo un post): `ask` in ai.js riprova una volta
   da solo (`ask1`, errore `noJson`); se ancora niente: «Claude ha risposto in modo strano. Riprova tra un attimo.» Vale per tutti i compiti.
+- (13/10/2026, dopo) Il post continuava a non riscriversi: `ask1` ora salva il testo anche da risposte imperfette (JSON con a capo
+  dentro, JSON tagliato, solo parole → `{text}`), il post ha 1500 token invece di 700, e l'errore finale dice il motivo di Claude
+  (`stop_reason` e inizio della risposta) per capire cosa succede.
