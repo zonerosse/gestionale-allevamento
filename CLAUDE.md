@@ -1136,3 +1136,7 @@ Accessi e copie
 - (13/10/2026, dopo) Il post continuava a non riscriversi: `ask1` ora salva il testo anche da risposte imperfette (JSON con a capo
   dentro, JSON tagliato, solo parole → `{text}`), il post ha 1500 token invece di 700, e l'errore finale dice il motivo di Claude
   (`stop_reason` e inizio della risposta) per capire cosa succede.
+- (13/10/2026) Peso dei video: Google li vuole sotto ~25 MB (prima si puntava a 75; il primo video di Paolo pesava 32 MB e Google ha
+  risposto 500). `vdGo` calcola la qualità per stare sui 20 MB (`VD_GOAL`); se esce oltre 24 MB (`VD_MAX`, Safari a volte non rispetta
+  la qualità chiesta) lo rifà da solo più leggero una volta; se pesa ancora troppo, niente «Usa nel post» e chiede una durata più corta.
+  Non è sicuro che le API dei post accettino i video: se Google rifiuta resta il ripiego sul fotogramma + «Salva il video».
