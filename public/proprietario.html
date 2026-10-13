@@ -3712,7 +3712,9 @@ document.addEventListener("change",e=>{const t=e.target;if(t&&t.classList&&t.cla
 let VD=null;const vdMb=b=>(b/1048576).toFixed(1).replace(".",",")+" MB";
 function vdType(){for(const t of["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9,opus","video/webm"])if(window.MediaRecorder&&MediaRecorder.isTypeSupported(t))return t;return""}
 const vdWait=(el,ev,ms)=>new Promise(r=>{let d=0;const f=()=>{if(!d){d=1;el.removeEventListener(ev,f);r(true)}};el.addEventListener(ev,f);setTimeout(()=>{if(!d){d=1;el.removeEventListener(ev,f);r(false)}},ms)});
-function vdOpen(file){if(!file)return;if(VD&&VD.ac){try{VD.ac.close()}catch(e){}}VD={file,src:URL.createObjectURL(file)};
+/* 🎬 Video (13/10/2026, Paolo: «troppi passaggi»): voce a sé nel menu Google, solo preparare e salvare il video per il profilo. */
+function vdPage(){return`<p class="lead">Prepara un video per il profilo Google: lo tagli a massimo 30 secondi, il telefono lo porta a 720p e sotto i 25 MB, poi lo salvi e lo pubblichi tu dal profilo Google.</p><p><label class="btn rv-go">🎬 Scegli il video<input type="file" accept="video/*" hidden class="gpVid" data-solo="1"></label></p>`}
+function vdOpen(file,solo){if(!file)return;if(VD&&VD.ac){try{VD.ac.close()}catch(e){}}VD={file,solo:!!solo,src:URL.createObjectURL(file)};
   sheet(`<h2>🎬 Video per il post</h2><p class="small" style="margin:0 0 10px">Google vuole video di massimo 30 secondi e meno di 25 MB. Scegli il pezzo da tenere e premi «Prepara»: il telefono lo taglia, lo porta a 720p e lo alleggerisce. Ci vuole circa il tempo del video stesso.</p>
   <p class="small" id="vd_info">Apro il video…</p><video id="vd_v" class="vd-v" controls playsinline preload="auto" src="${VD.src}"></video>
   <div class="rv-row" style="margin-top:8px"><span class="small">Inizio: <b id="vd_st">0</b> s</span><span class="small">fino a <b id="vd_en">30</b> s</span></div>
@@ -3757,7 +3759,7 @@ async function vdGo(auto){if(!VD||VD.busy)return;if(!auto){VD.br=0;VD.try=0}cons
       $("#vd_out").innerHTML=`<h2 style="margin-top:14px">✅ Pronto</h2><video class="vd-v" controls playsinline src="${u}"></video>
         <div class="vd-cmp"><div><span class="small">Prima</span><b>${vdMb(VD.file.size)}</b><span class="small">${Math.round(V.duration)} s · ${w0}×${h0}</span></div><div><span class="small">Dopo</span><b>${vdMb(blob.size)}</b><span class="small">${Math.round(dur)} s · ${W}×${H}</span></div></div>
         <ul class="vd-chk">${ok(dur<=30,"Durata fino a 30 secondi")+ok(blob.size<=VD_MAX,"Peso sotto 25 MB"+(blob.size<=VD_MAX?"":": scegli una durata più corta (15 o 20 secondi) e premi di nuovo «Prepara»"))+ok(Math.min(W,H)>=720||k===1,"720p"+(k===1&&Math.min(W,H)<720?" (il video era già più piccolo)":""))+ok(mime.includes("mp4"),"Formato MP4"+(mime.includes("mp4")?"":": questo browser fa solo WebM, Google potrebbe non accettarlo"))}</ul>
-        <div class="rv-row"><button class="btn ghost small" data-a="vdSave">⬇️ Salva il video</button>${blob.size<=VD_MAX?`<button class="btn rv-go" data-a="vdUse">✓ Usa nel post</button>`:""}</div>`;
+        <div class="rv-row">${VD.solo?`<span></span>${blob.size<=VD_MAX?`<button class="btn rv-go" data-a="vdSave">⬇️ Salva il video</button>`:""}`:`<button class="btn ghost small" data-a="vdSave">⬇️ Salva il video</button>${blob.size<=VD_MAX?`<button class="btn rv-go" data-a="vdUse">✓ Usa nel post</button>`:""}`}</div>`;
       say("");$("#vd_out").scrollIntoView({behavior:"smooth",block:"start"})};
     rec.start(500);
     try{await V.play()}catch(e){finish();throw new Error("il telefono non ha fatto partire il video ("+e.name+"): premi ▶ sul video una volta e poi di nuovo «Prepara»")}
@@ -3773,7 +3775,7 @@ async function vdSave(o){o=o||(VD&&VD.out);if(!o||!o.blob){toast("Il video non c
   const f=new File([o.blob],name,{type:o.mime||o.blob.type});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(e){}return}
   const a=document.createElement("a");a.href=o.local||URL.createObjectURL(o.blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
-document.addEventListener("change",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("gpVid")){const f=t.files&&t.files[0];t.value="";vdOpen(f)}});
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("gpVid")){const f=t.files&&t.files[0],so=t.dataset.solo==="1";t.value="";vdOpen(f,so)}});
 
 /* 🙂 Copri i visi nelle foto dei post (12/10/2026, scelta C di Paolo dopo l'anteprima): i visi trovati si sfocano da soli
    (ovale morbido, sfumato), poi pennello 🖌 Copri / 🧽 Scopri, Annulla, Ricomincia, intensità Leggera/Media/Forte (parte da Media).
@@ -3987,7 +3989,7 @@ document.addEventListener("change",ev=>{const t=ev.target;if(!t||!t.dataset||!PG
 
 const rvBadge=()=>{let n=rvTodo();try{n+=gpEvents().length}catch(e){}return n};
 function rvPage(){const sub=RV.sub||"rev",n1=rvTodo();let n2=0;try{n2=gpEvents().length}catch(e){}
-  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button><button class="chip" data-a="rvSub" data-v="pag" aria-pressed="${sub==="pag"}">🌐 Pagine del sito${pgDirty().length?" (✏️ "+pgDirty().length+")":""}</button></div>`+(sub==="post"?gpPage():sub==="pag"?pgSite():rvRevPage())}
+  return `<h1>Google</h1><div class="toolbar" role="group" aria-label="Sezioni Google"><button class="chip" data-a="rvSub" data-v="rev" aria-pressed="${sub==="rev"}">⭐ Recensioni${n1?" ("+n1+")":""}</button><button class="chip" data-a="rvSub" data-v="post" aria-pressed="${sub==="post"}">📣 Post${n2?" ("+n2+")":""}</button><button class="chip" data-a="rvSub" data-v="pag" aria-pressed="${sub==="pag"}">🌐 Pagine del sito${pgDirty().length?" (✏️ "+pgDirty().length+")":""}</button><button class="chip" data-a="rvSub" data-v="vid" aria-pressed="${sub==="vid"}">🎬 Video</button></div>`+(sub==="post"?gpPage():sub==="pag"?pgSite():sub==="vid"?vdPage():rvRevPage())}
 async function rvAct(a,v,b){const i=parseInt(v,10),r=RV.list[i];
   if(a==="rvSub"){RV.sub=v;render();return}
   if(a==="rvLoad"){RV.msg="";rvLoad();return}

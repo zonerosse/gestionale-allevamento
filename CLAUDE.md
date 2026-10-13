@@ -1144,3 +1144,6 @@ Accessi e copie
   25 MB). Scelta di Paolo: col video scelto nel post non c'è più «Pubblica su Google», solo «⬇️ Salva il video» (il gestionale
   prepara il video per GBP e Claude scrive il testo; Paolo pubblica a mano dal profilo). Il ramo `video` di api/posts.js resta ma
   la pagina non lo usa più.
+- (13/10/2026, «troppi passaggi») Voce **🎬 Video** nel menu Google (`RV.sub="vid"`, `vdPage`): «Scegli il video» → stessa finestra
+  `vdOpen(file,solo)` → Prepara → solo «⬇️ Salva il video» (niente «Usa nel post», niente caricamento su R2). Resta anche il video
+  dentro «Scrivi un post» per chi vuole il testo di Claude.
