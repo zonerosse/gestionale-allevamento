@@ -1140,3 +1140,7 @@ Accessi e copie
   risposto 500). `vdGo` calcola la qualità per stare sui 20 MB (`VD_GOAL`); se esce oltre 24 MB (`VD_MAX`, Safari a volte non rispetta
   la qualità chiesta) lo rifà da solo più leggero una volta; se pesa ancora troppo, niente «Usa nel post» e chiede una durata più corta.
   Non è sicuro che le API dei post accettino i video: se Google rifiuta resta il ripiego sul fotogramma + «Salva il video».
+- (13/10/2026) Google NON accetta video nei post via API («Video uploaded from post is not currently supported», anche sotto i
+  25 MB). Scelta di Paolo: col video scelto nel post non c'è più «Pubblica su Google», solo «⬇️ Salva il video» (il gestionale
+  prepara il video per GBP e Claude scrive il testo; Paolo pubblica a mano dal profilo). Il ramo `video` di api/posts.js resta ma
+  la pagina non lo usa più.
