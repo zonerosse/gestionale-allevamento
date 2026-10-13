@@ -1131,3 +1131,5 @@ Accessi e copie
 - Pubblica: `POST /api/posts {video}` → media VIDEO via `/api/public/gpost/` (che ora risponde anche a Range). Se Google lo
   rifiuta (`{ok:false,video:true}`) la pagina chiede se pubblicare con il fotogramma come foto; «⬇️ Salva il video» (`vdSave`,
   condivisione sul telefono) per metterlo a mano dal profilo Google. La pagina di prova `prova-video.html` è stata tolta.
+- Claude che risponde senza JSON (13/10/2026, «Unexpected end of JSON input» riscrivendo un post): `ask` in ai.js riprova una volta
+  da solo (`ask1`, errore `noJson`); se ancora niente: «Claude ha risposto in modo strano. Riprova tra un attimo.» Vale per tutti i compiti.

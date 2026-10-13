@@ -21,7 +21,15 @@ const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
 const voice = F => `Scrivi come ${F.person}, allevatore di ${F.breed} a ${F.city} (${F.provName}), allevamento ${F.name}, dal ${F.since}.
 Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "${F.first}".`;
+// 13/10/2026: a volte Claude risponde senza il JSON (testo vuoto o solo parole): prima dava "Unexpected end of JSON input".
+// Ora si riprova una volta da soli; se ancora niente, un messaggio chiaro.
 const ask = async (env, system, content, max = 1200) => {
+  for (let i = 0; ; i++) {
+    try { return await ask1(env, system, content, max); }
+    catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo."); }
+  }
+};
+const ask1 = async (env, system, content, max) => {
   const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({ model: MODEL, max_tokens: max, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
@@ -31,7 +39,9 @@ const ask = async (env, system, content, max = 1200) => {
     throw new Error(/credit|balance/i.test(m) ? "Credito di Claude finito: ricarica in console.anthropic.com → Billing." : "Claude " + r.status + ": " + m);
   }
   const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim();
-  return JSON.parse(t.slice(t.indexOf("{"), t.lastIndexOf("}") + 1));
+  const a = t.indexOf("{"), z = t.lastIndexOf("}");
+  try { if (a < 0 || z <= a) throw 0; return JSON.parse(t.slice(a, z + 1)); }
+  catch (x) { const e = new Error("senza JSON"); e.noJson = true; throw e; }
 };
 // Foto caricata dal gestionale (/files/<chiave> in R2) come blocco immagine per Claude; null se manca o non è una foto
 async function photoBlock(env, key) {
