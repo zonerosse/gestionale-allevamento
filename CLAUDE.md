@@ -1153,3 +1153,13 @@ Accessi e copie
   video» (`vsAct` vsUse, `VD.used`) la pagina (`vdPage`) mostra il video pronto, lo spunto (`VS.idea`), «✨ Scrivi il post» (`vsWrite`:
   carica su R2 solo il fotogramma per Claude, compito `post` con `gpFacts` come «Scrivi un post»), il testo modificabile con i
   controlli (`gpChecks`), «📋 Copia il testo», «⬇️ Salva il video», «Nuovo video». La pubblicazione resta a mano dal profilo Google.
+
+## Modello A/B: email dal computer con il PDF già allegato (15/10/2026, Paolo)
+- Problema: "Email alla delegazione" apriva Gmail senza allegato e il PDF non finiva nei Download.
+- Ora dal computer (`!isPhone()`) `encMail` → `gmDraft`: accesso Google (stesso client di Drive, permesso
+  `gmail.compose`, token `GM_TOK`) e BOZZA Gmail con destinatario, oggetto, testo e PDF allegato; finestra `gmReady` con
+  «📧 Apri l'email in Gmail» (link vero, #drafts?compose=<id>) e «📥 Scarica il PDF». Nulla parte da solo: Paolo preme Invia.
+- Se Gmail risponde errore (API Gmail non attiva nel progetto Google Cloud del client Drive) torna la strada di prima:
+  scarica + Gmail da compilare, con avviso.
+- Nuovo bottone «📥 Scarica nei Download» (mode "dl") nei riquadri Modello A e B; `dlUrl(url,name)` per tutti gli scarichi.
+- I link «Scarica» dei file salvati (`a.fb-dl[href^='/files/']`) ora scaricano via fetch → blob (non si aprono nel browser).

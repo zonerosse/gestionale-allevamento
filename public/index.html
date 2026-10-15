@@ -907,6 +907,11 @@ window.addEventListener("popstate",e=>{if(LB_BACK){LB_BACK=false;return}if(typeo
    Li apro come file vero (blob), così "Visualizza" funziona subito. */
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href^='data:application/pdf']");if(!a||a.hasAttribute("download"))return;e.preventDefault();
   const w=window.open("","_blank");fetch(a.getAttribute("href")).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);if(w)w.location.href=u;else location.href=u}).catch(()=>{if(w)w.close();toast("Non riesco ad aprire il PDF.")})});
+/* "Scarica" di un file già salvato (/files/…): lo prendo io e lo salvo come file vero nella cartella Download, così non può
+   aprirsi nel browser invece di scaricarsi (15/10/2026, Paolo: "non c'è verso di salvarlo nei download"). */
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a.fb-dl[href^='/files/']");if(!a)return;e.preventDefault();e.stopPropagation();
+  fetch(a.getAttribute("href"),{credentials:"include"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.blob()}).then(b=>{const u=URL.createObjectURL(b);dlUrl(u,a.getAttribute("download")||"file.pdf");toast("Scaricato nella cartella Download.");setTimeout(()=>URL.revokeObjectURL(u),60e3)})
+  .catch(()=>toast("Non riesco a scaricare il file."))},true);
 /* Foto: si aprono sopra la pagina, con la X o il tasto indietro per tornare */
 function lbClose(fromPop){const l=document.getElementById("lbx");if(!l)return false;l.remove();if(!fromPop&&history.state&&history.state.lb){LB_BACK=true;history.back()}return true}
 document.addEventListener("click",e=>{const a=e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
@@ -1905,6 +1910,7 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   return `<h2>📄 Modello A ENCI</h2><div class="cs" style="gap:8px">
   ${w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti resta vuoto sul modulo):<br>${w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi.</div>`}
   <div class="row2"><button class="btn ghost" data-a="maGo" data-v="${lid}|view">👁 Visualizza</button><button class="btn" data-a="maGo" data-v="${lid}|save">💾 Salva</button></div>
+  <div class="row2"><button class="btn ghost" data-a="maGo" data-v="${lid}|dl">📥 Scarica nei Download</button></div>
   <div class="row2"><button class="btn ma-mail" data-a="maGo" data-v="${lid}|mail">✉️ Email alla delegazione</button><button class="btn mb-wa" data-a="maGo" data-v="${lid}|wa">WhatsApp a ${MA_TO.who}</button></div>
   ${l.enciA?"":`<div class="row2"><button class="btn mb-done" data-a="maGo" data-v="${lid}|done">✔ Consegnato</button></div>`}
   <p class="row-meta" style="margin:0">${l.enciA?"✅ Consegnato il "+fmt(l.enciA):l.date?"Scadenza "+fmt(addD(l.date,25))+" · entro 25 giorni dalla nascita":"Scadenza: entro 25 giorni dalla nascita"}</p>
@@ -1916,16 +1922,45 @@ function maBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
 function encGmail(to,subj,txt){const u="https://mail.google.com/mail/?authuser="+encodeURIComponent(FM().email)+"&view=cm&fs=1&to="+encodeURIComponent(to||"")+"&su="+encodeURIComponent(subj)+"&body="+encodeURIComponent(txt);
   window.open(u,"_blank","noopener");toast("Il PDF è nella cartella Download: trascinalo nell'email di Gmail.")}
 const encDesktop=()=>!(window.matchMedia&&matchMedia("(pointer:coarse)").matches);
+/* Email ENCI dal computer CON IL PDF GIÀ ALLEGATO (15/10/2026, Paolo: "non si porta dietro l'allegato e non riesco a salvarlo
+   nei download"). Con l'accesso Google (stesso di "Salva in Drive", permesso in più gmail.compose) il gestionale crea una BOZZA
+   in Gmail con destinatario, oggetto, testo e PDF allegato, poi la apre. Niente parte da solo: si preme Invia in Gmail.
+   Se Gmail non risponde (API Gmail non attiva nel progetto Google) resta la strada di prima: scarica + Gmail da compilare. */
+let GM_TOK=null,GM_EXP=0;
+async function gmToken(){if(GM_TOK&&Date.now()<GM_EXP-60e3)return GM_TOK;await drLoad();
+  return await new Promise((ok,ko)=>{const tc=google.accounts.oauth2.initTokenClient({client_id:DRIVE_CLIENT,scope:"https://www.googleapis.com/auth/gmail.compose",hint:FM().email||"",
+    callback:r=>{if(r&&r.access_token){GM_TOK=r.access_token;GM_EXP=Date.now()+(+r.expires_in||3600)*1000;ok(GM_TOK)}else ko(new Error((r&&r.error)||"accesso negato"))},
+    error_callback:e=>ko(new Error((e&&e.type)||"accesso annullato"))});tc.requestAccessToken({prompt:""})})}
+const b64u=t=>btoa(unescape(encodeURIComponent(t)));
+async function gmDraft(to,subj,txt,blob,name){const tok=await gmToken(),
+  pdf=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.readAsDataURL(blob)}),b="dpd"+Math.random().toString(36).slice(2),
+  mime=["To: "+to,"Subject: =?UTF-8?B?"+b64u(subj)+"?=","MIME-Version: 1.0","Content-Type: multipart/mixed; boundary=\""+b+"\"","",
+    "--"+b,"Content-Type: text/plain; charset=UTF-8","Content-Transfer-Encoding: base64","",b64u(txt).replace(/.{76}/g,"$&\r\n"),"",
+    "--"+b,"Content-Type: application/pdf; name=\""+name+"\"","Content-Disposition: attachment; filename=\""+name+"\"","Content-Transfer-Encoding: base64","",pdf.replace(/.{76}/g,"$&\r\n"),"","--"+b+"--",""].join("\r\n"),
+  raw=btoa(mime).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  const r=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/drafts",{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify({message:{raw}})});
+  if(!r.ok){const t=await r.text().catch(()=>"");if(r.status===401)GM_TOK=null;throw new Error("Gmail "+r.status+" "+t.slice(0,200))}
+  const d=await r.json();return "https://mail.google.com/mail/?authuser="+encodeURIComponent(FM().email||"")+"#drafts?compose="+d.message.id}
+/* finestra finale: il link si preme a mano (un clic vero, così il browser non blocca la nuova scheda) + Scarica di riserva */
+function gmReady(u,url,name,to){sheet(`<h2>✅ Email pronta in Gmail</h2><p>Destinatario <b>${esc(to)}</b>, oggetto e testo sono scritti e il PDF <b>${esc(name)}</b> è <b>già allegato</b>. Controlla e premi <b>Invia</b>.</p>
+  <div class="cs" style="gap:8px"><a class="btn ma-mail" href="${esc(u)}" target="_blank" rel="noopener">📧 Apri l'email in Gmail</a><a class="btn ghost fb-dl" href="${url}" download="${esc(name)}">📥 Scarica il PDF</a></div>
+  <p class="small">La trovi anche in Gmail tra le <b>Bozze</b>.</p>`)}
+async function encMail(to,subj,txt,blob,name,url){try{toast("Preparo l'email con il PDF allegato…");const u=await gmDraft(to,subj,txt,blob,name);gmReady(u,url,name,to)}
+  catch(e){console.error(e);dlUrl(url,name);encGmail(to,subj,txt);
+    alert("Non sono riuscito a mettere il PDF dentro l'email da solo.\n\nIl PDF è nella cartella Download: in Gmail premi la graffetta 📎 e allegalo.\n\n("+e.message+")")}}
+/* scaricare un PDF in modo sicuro (blob, mai pagina bianca) */
+function dlUrl(url,name){const a=document.createElement("a");a.href=url;a.download=name;a.rel="noopener";a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1500)}
 async function maGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];l.modA=Object.assign({deleg:MA_TO.deleg},l.modA||{});
   if(mode==="done"){if(!confirm("Segnare il Modello A come consegnato? La scadenza sparisce."))return;l.enciA=todayS();render();if(sheetOpen())litterSheet(lid);typeof saveNow==="function"&&saveNow();toast("Modello A consegnato.");return}
   toast("Preparo il Modello A…");let blob;try{blob=await maBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
   const name=maName(lid),url=URL.createObjectURL(blob),subj="Modello A – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+(l.date?" nata il "+fmt(l.date):""),txt=maText(lid);
   if(mode==="view"){window.open(url,"_blank","noopener");return}
+  if(mode==="dl"){dlUrl(url,name);toast("PDF scaricato nella cartella Download.");return}
   if(mode==="save"){const data=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.modA.file=data;l.modA.saved=todayS();
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if(sheetOpen())litterSheet(lid);else render();toast("Modello A salvato.");return}
-  const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
-  if(mode==="mail"&&encDesktop()){dl();encGmail(MA_TO.email,subj,txt);return}
+  const dl=()=>dlUrl(url,name);
+  if(mode==="mail"&&!isPhone()){await encMail(MA_TO.email,subj,txt,blob,name,url);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"){try{await navigator.clipboard.writeText(MA_TO.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
@@ -1940,6 +1975,7 @@ function mbBox(lid){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=="und
   return `<h2>📄 Modello B ENCI</h2><div class="cs" style="gap:8px">
   ${c.w.length?`<div class="mb-warn">⚠️ Da completare (altrimenti restano vuoti sul modulo):<br>${c.w.map(x=>"· "+esc(x)).join("<br>")}</div>`:`<div class="mb-ok">✔ Dati completi per tutti i ${c.P.length} cuccioli. Fattrice, stallone, microchip e LOI a posto.</div>`}
   <div class="row2"><button class="btn ghost" data-a="mbGo" data-v="${lid}|view">👁 Visualizza</button><button class="btn" data-a="mbGo" data-v="${lid}|save">💾 Salva</button></div>
+  <div class="row2"><button class="btn ghost" data-a="mbGo" data-v="${lid}|dl">📥 Scarica nei Download</button></div>
   <div class="row2"><button class="btn ma-mail" data-a="mbGo" data-v="${lid}|mail">✉️ Email alla delegazione</button><button class="btn mb-wa" data-a="mbGo" data-v="${lid}|wa">WhatsApp a ${MA_TO.who}</button></div>
   <div class="row2"><button class="btn ghost" data-a="mbForm" data-v="${lid}">✏️ Altri dati (stallone, data del modulo)</button>${l.enciB?"":`<button class="btn mb-done" data-a="mbGo" data-v="${lid}|done">✔ Consegnato</button>`}</div>
   <p class="row-meta" style="margin:0">${l.enciB?"✅ Consegnato il "+fmt(l.enciB):"Scadenza "+fmt(due)+" · "+(g<0?"<strong>scaduto da "+(-g)+" giorni</strong>":g===0?"<strong>scade oggi</strong>":"mancano "+g+" giorni")}${l.mbSaved?" · salvato il "+fmt(l.mbSaved)+(l.mbFile&&/^\/files\//.test(l.mbFile)?" "+fBtns(l.mbFile,mbName(lid)):""):""}</p>
@@ -2075,7 +2111,7 @@ async function depGo(v){const [id,mode]=v.split("|"),d=D.dogs[id],o=D.owners[d.o
   render();if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow();render()}
   const blob=doc.output("blob"),url=URL.createObjectURL(blob),en=o.lang==="en",fn=(o.name||"").split(" ")[0];
   const txt=en?`Hi ${fn}, here is the receipt for the ${eu(tot)} deposit for ${d.nick||d.name}. Thank you! ${FM().first} – ${FM().name}`:`Ciao ${fn}, ti mando la ricevuta della caparra di ${eu(tot)} per ${d.nick||d.name}. Grazie! ${FM().first} – ${FM().name}`;
-  const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  const dl=()=>dlUrl(url,name);
   if(mode==="save"){toast("Ricevuta salvata: la trovi in Referti e documenti.");return}
   if(mode==="view"){window.open(url,"_blank","noopener");return}if(mode==="dl"){dl();return}
   const f=new File([blob],name,{type:"application/pdf"});if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt})}catch(x){}return}
@@ -2101,13 +2137,13 @@ async function mbGo(v){const [lid,mode]=v.split("|"),l=D.litters[lid];
   if(mode==="done"){if(!confirm("Segnare il Modello B come consegnato? Il riquadro in alto e la scadenza spariscono."))return;l.enciB=todayS();if($("#mb_st")){closeSheet();render()}else{render();if(sheetOpen())litterSheet(lid)}typeof saveNow==="function"&&saveNow();toast("Modello B consegnato.");return}
   toast("Preparo il Modello B…");let blob;try{blob=await mbBuild(lid)}catch(e){console.error(e);toast("Non riesco a preparare il PDF.");return}
   const name=mbName(lid),url=URL.createObjectURL(blob),S0=(D.settings||{}).modB||{},S={email:S0.email||MA_TO.email,wa:S0.wa||MA_TO.wa},subj="Modello B – cucciolata "+dn(l.dam)+" × "+dn(l.sire)+" nata il "+fmt(l.date),txt=mbText(lid);
-  const dl=()=>{const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  const dl=()=>dlUrl(url,name);
   if(mode==="view"){window.open(url,"_blank","noopener");return}
-  if(mode==="dl"){dl();return}
+  if(mode==="dl"){dlUrl(url,name);toast("PDF scaricato nella cartella Download.");return}
   if(mode==="save"){l.mbFile=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(blob)});l.mbSaved=todayS();
     if(typeof saveNow==="function"){while(typeof BUSY!=="undefined"&&BUSY)await new Promise(r=>setTimeout(r,300));await saveNow()}
     if($("#mb_st"))closeSheet();render();if(sheetOpen())litterSheet(lid);toast("Modello B salvato.");return}
-  if(mode==="mail"&&encDesktop()){dl();encGmail(S.email,subj,txt);return}
+  if(mode==="mail"&&!isPhone()){await encMail(S.email,subj,txt,blob,name,url);return}
   const f=new File([blob],name,{type:"application/pdf"});
   if(isPhone()&&navigator.canShare&&navigator.canShare({files:[f]})){if(mode==="mail"&&S.email){try{await navigator.clipboard.writeText(S.email);toast("Indirizzo copiato: incollalo in “A:”.")}catch(x){}}
     try{await navigator.share({files:[f],title:subj,text:txt})}catch(x){}return}
