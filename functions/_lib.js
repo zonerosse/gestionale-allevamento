@@ -162,7 +162,7 @@ export async function dailyCopy(env, data, txt, now, version, note) {
 }
 
 // ---------- Cucciolate sul sito (punto 10) ----------
-// Solo le cucciolate con "Sul sito" (l.web): stato, numeri e genitori (foto, test e titoli in IT/EN/DE, genitori, SBT). Mai note né proprietari.
+// Solo le cucciolate con "Sul sito" (l.web): stato e genitori (foto, test e titoli in IT/EN/DE, genitori, SBT). Mai note né proprietari.
 export function siteLitters(data) {
   const D = data || {}, dogs = D.dogs || {}, dn = k => (dogs[k] && dogs[k].name) || "";
   const split = s => String(s || "").split(" · ").map(x => x.trim()).filter(Boolean);
@@ -174,8 +174,8 @@ export function siteLitters(data) {
     if (!l.web) continue;
     const pups = Object.values(dogs).filter(d => d.litter === lid);
     const avail = pups.some(d => !d.owner && !["prenotato", "ceduto", "deceduto", "casa"].includes(d.status || ""));
-    out.push({ id: lid, state: l.state === "pianificata" ? "plan" : "born", date: l.date || "", n: pups.length,
-      m: pups.filter(d => d.sex === "M").length, f: pups.filter(d => d.sex === "F").length, avail,
+    /* niente numero di cuccioli, maschi e femmine sul sito (Paolo, 15/10/2026: "non voglio spiattellare quanti cuccioli faccio") */
+    out.push({ id: lid, state: l.state === "pianificata" ? "plan" : "born", date: l.date || "", avail,
       sbtUrl: l.sbtUrl || "", dam: par(l.dam), sire: par(l.sire) });
   }
   return out.sort((a, b) => (a.state === b.state ? (b.date || "").localeCompare(a.date || "") : a.state === "plan" ? 1 : -1));

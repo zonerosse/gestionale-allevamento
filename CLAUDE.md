@@ -1167,3 +1167,8 @@ Accessi e copie
   4 bottoni Vedi · Scarica · Email a Cristina · WhatsApp a Cristina, casella «Consegnato alla delegazione» (mode "done" ora
   spunta/toglie, senza conferma), link «✏️ Correggi i dati» (solo B → mbForm). Tolti Salva e la riga "salvato il…":
   `encAuto` salva il PDF da solo quando si scarica o si manda. mbForm ha gli stessi 4 bottoni + casella + Chiudi.
+
+## Niente numero di cuccioli sul sito (15/10/2026, Paolo)
+- "Non voglio spiattellare quanti cuccioli faccio": il sito non mostra mai quanti cuccioli, maschi o femmine sono nati.
+  Tolti da cucciolate.html (Hugo e JS), ultima-cucciolata-scheda.html (resta solo "Colori"), front matter scheda.maschi/femmine
+  dei diari Bilquis, riga vuota "Geborene Welpen" del diario Red Nora DE. Il gestionale non manda più n/m/f e non li scrive nei testi.
