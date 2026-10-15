@@ -1163,3 +1163,7 @@ Accessi e copie
   scarica + Gmail da compilare, con avviso.
 - Nuovo bottone «📥 Scarica nei Download» (mode "dl") nei riquadri Modello A e B; `dlUrl(url,name)` per tutti gli scarichi.
 - I link «Scarica» dei file salvati (`a.fb-dl[href^='/files/']`) ora scaricano via fetch → blob (non si aprono nel browser).
+- (15/10/2026, anteprima approvata) Riquadri Modello A e B semplificati con `encBoxH`: stato in cima (⏳ arancione / ✅ verde),
+  4 bottoni Vedi · Scarica · Email a Cristina · WhatsApp a Cristina, casella «Consegnato alla delegazione» (mode "done" ora
+  spunta/toglie, senza conferma), link «✏️ Correggi i dati» (solo B → mbForm). Tolti Salva e la riga "salvato il…":
+  `encAuto` salva il PDF da solo quando si scarica o si manda. mbForm ha gli stessi 4 bottoni + casella + Chiudi.
