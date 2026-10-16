@@ -1182,3 +1182,9 @@ Accessi e copie
   I suoi file si vedono da `/api/public/<token>/f/<key>` (metadato owner). Paolo: `GET/POST(seen)/DELETE /api/ownerposts`, file da /files/.
 - Paolo: avviso «🔔 Novità dai proprietari» in Cani e Oggi (`owpBanner`), le voci si segnano viste quando apre la scheda;
   🗑 cancella voce e file. Pagina del proprietario: «📝 Aggiungi tu» con 7 bottoni e finestrella (`owpOwnerHtml`, `owpForm`, `owpSave`).
+
+## 📲 Pagina del proprietario sulla schermata Home (16/10/2026, anteprima approvata)
+- Bottone in cima «Metti <cane> sulla schermata Home» (`owHomeBar`), solo sul telefono, non se già aperta dall'icona, non dopo «Non ora»
+  (localStorage owHomeOff). Android: finestra di installazione (beforeinstallprompt, `window.OW_BIP`), se manca istruzioni ⋮.
+  iPhone: Apple non lo permette ai siti → finestrella con 3 tocchi (`owHomeIOS`).
+- Manifest per link segreto: `/api/public/<token>/manifest` (nome del cane, start_url e scope /p/<token>); meta apple-* nel <head>.
