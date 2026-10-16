@@ -108,6 +108,19 @@ export async function ensureRequests(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, json TEXT, created TEXT)").run();
 }
 
+// Cose scritte dal proprietario sulla scheda del suo cane (16/10/2026, scelta di Paolo): foto e video, peso, vaccini, vermifughi,
+// visite, esposizioni, referti. Tabella a parte: non toccano mai i dati di Paolo (store 'main'). Solo per i cani con d.ownW.
+export async function ensureOwnerPosts(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS ownerposts (id TEXT PRIMARY KEY, dog TEXT, owner TEXT, json TEXT, created TEXT, seen INTEGER DEFAULT 0)").run();
+}
+export const OWP_TYPES = ["foto", "peso", "vacc", "verm", "vet", "expo", "ref"];
+export const OWP_KEY = /^o[a-f0-9]{20}\.(jpg|png|webp|heic|gif|pdf|mp4|webm|mov)$/;
+export function owpRow(r, fileBase) {
+  let x = {}; try { x = JSON.parse(r.json); } catch (e) {}
+  x.files = (x.files || []).map(f => Object.assign({}, f, { url: fileBase + f.key }));
+  return Object.assign(x, { id: r.id, dog: r.dog, owner: r.owner, created: r.created, seen: !!r.seen });
+}
+
 export async function loadData(env) {
   const row = await env.DB.prepare("SELECT version, json, updated FROM store WHERE id = 'main'").first();
   return row ? { version: row.version, data: JSON.parse(row.json), updated: row.updated } : null;

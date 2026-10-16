@@ -1172,3 +1172,13 @@ Accessi e copie
 - "Non voglio spiattellare quanti cuccioli faccio": il sito non mostra mai quanti cuccioli, maschi o femmine sono nati.
   Tolti da cucciolate.html (Hugo e JS), ultima-cucciolata-scheda.html (resta solo "Colori"), front matter scheda.maschi/femmine
   dei diari Bilquis, riga vuota "Geborene Welpen" del diario Red Nora DE. Il gestionale non manda più n/m/f e non li scrive nei testi.
+
+## Il proprietario scrive sulla scheda del suo cane (16/10/2026, anteprima approvata: "tutto")
+- Interruttore «Il proprietario può scrivere» nella scheda del cane (riquadro «📝 Dal proprietario», `owpBox`): `d.ownW`, spento
+  per tutti finché Paolo non lo accende. Tipi: foto e video, peso, vaccino, vermifugo, visita dal veterinario, esposizione, referto.
+- Dati a parte, tabella D1 `ownerposts` (id, dog, owner, json, created, seen): non toccano mai lo store 'main' di Paolo.
+  Proprietario: `GET/POST/DELETE /api/public/<token>/posts` (solo i suoi cani con ownW; toglie solo le sue voci) e
+  `POST /api/public/<token>/upload?dog=` (R2, chiave "o…", metadato owner; foto ridotte a 2000 px nel telefono, video max 80 MB).
+  I suoi file si vedono da `/api/public/<token>/f/<key>` (metadato owner). Paolo: `GET/POST(seen)/DELETE /api/ownerposts`, file da /files/.
+- Paolo: avviso «🔔 Novità dai proprietari» in Cani e Oggi (`owpBanner`), le voci si segnano viste quando apre la scheda;
+  🗑 cancella voce e file. Pagina del proprietario: «📝 Aggiungi tu» con 7 bottoni e finestrella (`owpOwnerHtml`, `owpForm`, `owpSave`).
