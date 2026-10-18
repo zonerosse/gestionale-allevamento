@@ -1202,3 +1202,8 @@ Accessi e copie
 - 📷 dal sito (18/10/2026, Paolo scelta A): `POST /api/public/sacco` (solo Origin delpiccolodiavolo.it, CORS) legge la foto del sacco
   con Claude; limite 30 letture al giorno per tutti e 3 per visitatore (tabella `sacco`, impronta = hash di IP+giorno, IP non salvato,
   righe più vecchie di 7 giorni cancellate). Foto non salvata. Se non c'è kcal né componenti, ricerca web dal nome.
+- 18/10/2026 (Paolo: "sistema anche sul gestionale"): uguale al calcolatore del sito. Senza cane: età da elenco `FD_AGES`
+  (o data di nascita, `feed.mode="date"`), peso a occhio o per taglia (`FD_SZ`, femmina ×0,9). Sesso (dal cane, cambiabile),
+  figure del cane visto dall'alto (`FD_DOGS`, `feed.bcs` −1/0/1 = +10%/0/−10%), crescita più lunga nei cani grandi (`fdFine`,
+  `fdEq`), tre riquadri numerati, kcal al giorno, «Stampa o salva in PDF» (`fdPrint`, body.fd-print) e «Ricomincia» (`fdReset`;
+  con un cane tiene solo le crocchette). Con un cane: età dalla nascita, peso da adulto dall'ultima pesata se ha 18+ mesi.
