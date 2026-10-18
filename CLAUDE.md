@@ -1242,3 +1242,5 @@ Accessi e copie
   (`FD_CAT`, `fdLoadCat`, un gruppo per marca). Per aggiungere un altro produttore: nuove voci nel file (id "cat_…" unici).
   19/10/2026: + 131 Farmina (N&D Ancestral Grain, Pumpkin, Prime, Quinoa, Ocean, Tropical Selection, Spirulina, White, Brown, Cibau,
   Ecopet Natural, Team Breeder, Top Farmina) dalle pagine farmina.com/it (nomi tradotti in italiano dal titolo inglese).
+  Poi (scelta di Paolo: marche di qualità, niente Royal Canin/Purina/Hill's/Trainer): Carnilove, Brit Care, Acana, Orijen, Forza10
+  (senza la linea dietetica Active), Oasy (senza la gamma Grain Free precedente). Diete veterinarie escluse ovunque.

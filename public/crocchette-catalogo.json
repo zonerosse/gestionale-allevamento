@@ -4464,6 +4464,1462 @@ null
 12
 ],
 "url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-fittrim.html"
+},
+{
+"id": "cat_fo001",
+"brand": "Forza10 Maintenance",
+"name": "Mini Puppy - Pollo con patate",
+"en": "Mini Puppy - Chicken with Potatoes",
+"kcal": 385,
+"src": "p",
+"c": [
+30,
+16,
+2.5,
+7,
+null
+],
+"url": "https://forza10.com/product/29032299/mini-puppy-pollo-con-patate"
+},
+{
+"id": "cat_fo002",
+"brand": "Forza10 Maintenance",
+"name": "Mini Puppy - Pesce",
+"en": "Mini Puppy - Fish",
+"kcal": 386,
+"src": "p",
+"c": [
+30,
+15,
+2.3,
+7,
+null
+],
+"url": "https://forza10.com/product/29038134/mini-puppy-pesce"
+},
+{
+"id": "cat_fo003",
+"brand": "Forza10 Maintenance",
+"name": "Mini Adult - Pollo con Patate",
+"en": "Mini Adult - Chicken with Potatoes",
+"kcal": 374,
+"src": "p",
+"c": [
+26,
+14,
+2.4,
+7.4,
+null
+],
+"url": "https://forza10.com/product/29038267/mini-adult-pollo-con-patate"
+},
+{
+"id": "cat_fo004",
+"brand": "Forza10 Maintenance",
+"name": "Mini Adult - Pesce",
+"en": "Mini Adult - Fish",
+"kcal": 372,
+"src": "p",
+"c": [
+26,
+13,
+2.6,
+7.4,
+null
+],
+"url": "https://forza10.com/product/29032332/mini-adult-pesce"
+},
+{
+"id": "cat_fo005",
+"brand": "Forza10 Maintenance",
+"name": "Mini Adult - Cervo e Patate",
+"en": "Mini Adult - Venison and Potatoes",
+"kcal": 366,
+"src": "p",
+"c": [
+26,
+13,
+2.5,
+8,
+null
+],
+"url": "https://forza10.com/product/29038274/mini-adult-cervo-e-patate"
+},
+{
+"id": "cat_fo006",
+"brand": "Forza10 Maintenance",
+"name": "Mini Adult - Agnello",
+"en": "Mini Adult - Lamb",
+"kcal": 367,
+"src": "p",
+"c": [
+24,
+12,
+2.2,
+7,
+null
+],
+"url": "https://forza10.com/product/29038281/mini-adult-agnello"
+},
+{
+"id": "cat_fo007",
+"brand": "Forza10 Maintenance",
+"name": "Medium/Maxi Puppy - Pollo con Patate",
+"en": "Medium/Maxi Puppy - Chicken with Potatoes",
+"kcal": 385,
+"src": "p",
+"c": [
+30,
+16,
+2.5,
+7,
+null
+],
+"url": "https://forza10.com/product/29038259/medium-maxi-puppy-pollo-con-patate"
+},
+{
+"id": "cat_fo008",
+"brand": "Forza10 Maintenance",
+"name": "Medium/Maxi Puppy - Pesce",
+"en": "Medium/Maxi Puppy - Fish",
+"kcal": 386,
+"src": "p",
+"c": [
+30,
+15,
+2.3,
+7,
+null
+],
+"url": "https://forza10.com/product/29038231/medium-maxi-puppy-pesce"
+},
+{
+"id": "cat_fo009",
+"brand": "Forza10 Maintenance",
+"name": "Medium Adult - Pollo con Patate",
+"en": "Medium Adult - Chicken with Potatoes",
+"kcal": 365,
+"src": "p",
+"c": [
+24,
+12,
+2.4,
+7,
+null
+],
+"url": "https://forza10.com/product/29038284/medium-adult-pollo-con-patate"
+},
+{
+"id": "cat_fo010",
+"brand": "Forza10 Maintenance",
+"name": "Medium Adult - Pesce",
+"en": "Medium Adult - Fish",
+"kcal": 362,
+"src": "p",
+"c": [
+24,
+11,
+2.7,
+7.1,
+null
+],
+"url": "https://forza10.com/product/29032354/medium-adult-pesce"
+},
+{
+"id": "cat_fo011",
+"brand": "Forza10 Maintenance",
+"name": "Medium Adult - Cervo e Patate",
+"en": "Medium Adult - Venison and Potatoes",
+"kcal": 361,
+"src": "p",
+"c": [
+25,
+12,
+2.5,
+8,
+null
+],
+"url": "https://forza10.com/product/29038306/medium-adult-cervo-e-patate"
+},
+{
+"id": "cat_fo012",
+"brand": "Forza10 Maintenance",
+"name": "Medium Adult - Agnello",
+"en": "Medium Adult - Lamb",
+"kcal": 367,
+"src": "p",
+"c": [
+24,
+12,
+2.2,
+7,
+null
+],
+"url": "https://forza10.com/product/29032373/medium-adult-agnello"
+},
+{
+"id": "cat_fo013",
+"brand": "Forza10 Maintenance",
+"name": "Maxi Adult - Pesce",
+"en": "Maxi Adult - Fish",
+"kcal": 372,
+"src": "p",
+"c": [
+26,
+13,
+2.6,
+7.4,
+null
+],
+"url": "https://forza10.com/product/29038362/maxi-adult-pesce"
+},
+{
+"id": "cat_fo014",
+"brand": "Forza10 Maintenance",
+"name": "Maxi Adult - Cervo e Patate",
+"en": "Maxi Adult - Venison and Potatoes",
+"kcal": 366,
+"src": "p",
+"c": [
+26,
+13,
+2.5,
+8,
+null
+],
+"url": "https://forza10.com/product/29032384/maxi-adult-cervo-e-patate"
+},
+{
+"id": "cat_fo015",
+"brand": "Forza10 Maintenance",
+"name": "All Size Light Adult - Tonno con Riso",
+"en": "All Size Light Adult - Tuna with Rice",
+"kcal": 338,
+"src": "p",
+"c": [
+24,
+8,
+3.4,
+8,
+null
+],
+"url": "https://forza10.com/product/29032404/all-size-light-adult-tonno-con-riso"
+},
+{
+"id": "cat_fo016",
+"brand": "Forza10 Maintenance",
+"name": "All Size Adult - Pesce con Riso",
+"en": "All Size Adult - Fish with Rice",
+"kcal": 350,
+"src": "p",
+"c": [
+25,
+13,
+2.5,
+8,
+null
+],
+"url": "https://forza10.com/product/29038369/all-size-adult-pesce-con-riso"
+},
+{
+"id": "cat_fo017",
+"brand": "Forza10 Maintenance",
+"name": "All Size Adult - Maiale",
+"en": "All Size Adult - Pork",
+"kcal": 376,
+"src": "p",
+"c": [
+26,
+14,
+2.7,
+7.1,
+null
+],
+"url": "https://forza10.com/product/29038421/all-size-adult-maiale"
+},
+{
+"id": "cat_fo018",
+"brand": "Forza10 Monoprotein",
+"name": "Mini/Toy Adult - Sensitive Skin Pesce",
+"en": "Mini/Toy Adult - Sensitive Skin Fish",
+"kcal": 396,
+"src": "p",
+"c": [
+35.5,
+17.5,
+2.0,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29042922/mini-toy-adult-sensitive-skin-pesce"
+},
+{
+"id": "cat_fo019",
+"brand": "Forza10 Monoprotein",
+"name": "Mini/Toy Adult - Sensitive Digestion Pesce",
+"en": "Mini/Toy Adult - Sensitive Digestion Fish",
+"kcal": 392,
+"src": "p",
+"c": [
+36.5,
+16.5,
+2.0,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29028081/mini-toy-adult-sensitive-digestion-pesce"
+},
+{
+"id": "cat_fo020",
+"brand": "Forza10 Monoprotein",
+"name": "Mini/Toy Adult - Cavallo e Piselli",
+"en": "Mini/Toy Adult - Horse Meat and Peas",
+"kcal": 361,
+"src": "p",
+"c": [
+26.0,
+12.0,
+3.2,
+8.0,
+null
+],
+"url": "https://forza10.com/product/29042894/mini-toy-adult-cavallo-e-piselli"
+},
+{
+"id": "cat_fo021",
+"brand": "Forza10 Monoprotein",
+"name": "Mini/Toy Adult - Agnello",
+"en": "Mini/Toy Adult - Lamb",
+"kcal": 377,
+"src": "p",
+"c": [
+27.8,
+15.0,
+3.5,
+6.8,
+null
+],
+"url": "https://forza10.com/product/29042901/mini-toy-adult-agnello"
+},
+{
+"id": "cat_fo022",
+"brand": "Forza10 Monoprotein",
+"name": "Mini Adult - Pesce",
+"en": "Mini Adult - Fish",
+"kcal": 376,
+"src": "p",
+"c": [
+28.0,
+14.0,
+2.4,
+8.0,
+null
+],
+"url": "https://forza10.com/product/28116834/mini-adult-pesce"
+},
+{
+"id": "cat_fo023",
+"brand": "Forza10 Monoprotein",
+"name": "Mini Adult - Maiale con Patate",
+"en": "Mini Adult - Pork with Potatoes",
+"kcal": 377,
+"src": "p",
+"c": [
+25.5,
+15,
+3,
+7.6,
+null
+],
+"url": "https://forza10.com/product/29043002/mini-adult-maiale-con-patate"
+},
+{
+"id": "cat_fo024",
+"brand": "Forza10 Monoprotein",
+"name": "Mini Adult - Cervo con Patate",
+"en": "Mini Adult - Venison with Potatoes",
+"kcal": 367,
+"src": "p",
+"c": [
+27.0,
+13.0,
+3.1,
+7.9,
+null
+],
+"url": "https://forza10.com/product/29042987/mini-adult-cervo-con-patate"
+},
+{
+"id": "cat_fo025",
+"brand": "Forza10 Monoprotein",
+"name": "Medium/Maxi Adult - Sensitive Skin Pesce",
+"en": "Medium/Maxi Adult - Sensitive Skin Fish",
+"kcal": 396,
+"src": "p",
+"c": [
+35.5,
+17.5,
+2.0,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29032278/medium-maxi-adult-sensitive-skin-pesce"
+},
+{
+"id": "cat_fo026",
+"brand": "Forza10 Monoprotein",
+"name": "Medium/Maxi Adult - Sensitive Digestion Pesce",
+"en": "Medium/Maxi Adult - Sensitive Digestion Fish",
+"kcal": 392,
+"src": "p",
+"c": [
+36.5,
+16.5,
+2.0,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29530334/medium-maxi-adult-sensitive-digestion-pesce"
+},
+{
+"id": "cat_fo027",
+"brand": "Forza10 Monoprotein",
+"name": "Medium Adult - Pesce",
+"en": "Medium Adult - Fish",
+"kcal": 372,
+"src": "p",
+"c": [
+26.0,
+13.0,
+2.5,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29032138/medium-adult-pesce"
+},
+{
+"id": "cat_fo028",
+"brand": "Forza10 Monoprotein",
+"name": "Medium Adult - Maiale con Patate",
+"en": "Medium Adult - Pork with Potatoes",
+"kcal": 377,
+"src": "p",
+"c": [
+25.0,
+14.5,
+2.7,
+7.6,
+null
+],
+"url": "https://forza10.com/product/29530011/medium-adult-maiale-con-patate"
+},
+{
+"id": "cat_fo029",
+"brand": "Forza10 Monoprotein",
+"name": "Medium Adult - Cervo con Patate",
+"en": "Medium Adult - Venison with Potatoes",
+"kcal": 363,
+"src": "p",
+"c": [
+26.0,
+12.0,
+2.9,
+7.9,
+null
+],
+"url": "https://forza10.com/product/29043013/medium-adult-cervo-con-patate"
+},
+{
+"id": "cat_fo030",
+"brand": "Forza10 Monoprotein",
+"name": "Medium Adult - Cavallo e Piselli",
+"en": "Medium Adult - Horse Meat and Peas",
+"kcal": 371,
+"src": "p",
+"c": [
+26.3,
+14.0,
+3.1,
+8.0,
+null
+],
+"url": "https://forza10.com/product/29032242/medium-adult-cavallo-e-piselli"
+},
+{
+"id": "cat_fo031",
+"brand": "Forza10 Monoprotein",
+"name": "Medium Adult - Agnello",
+"en": "Medium Adult - Lamb",
+"kcal": 378,
+"src": "p",
+"c": [
+27.0,
+14.5,
+3.0,
+6.8,
+null
+],
+"url": "https://forza10.com/product/29528347/medium-adult-agnello"
+},
+{
+"id": "cat_fo032",
+"brand": "Forza10 Monoprotein",
+"name": "Maxi Adult - Pesce",
+"en": "Maxi Adult - Fish",
+"kcal": 377,
+"src": "p",
+"c": [
+26.3,
+13.7,
+2.3,
+7.5,
+null
+],
+"url": "https://forza10.com/product/29537740/maxi-adult-pesce"
+},
+{
+"id": "cat_fo033",
+"brand": "Forza10 Monoprotein",
+"name": "All Size Puppy - Pesce",
+"en": "All Size Puppy - Fish",
+"kcal": 386,
+"src": "p",
+"c": [
+30.0,
+16.5,
+2.8,
+7.7,
+null
+],
+"url": "https://forza10.com/product/29027887/all-size-puppy-pesce"
+},
+{
+"id": "cat_fo034",
+"brand": "Forza10 Monoprotein",
+"name": "All Size Adult - 100% Vegetal",
+"en": "All Size Adult - 100% Vegetal",
+"kcal": 344,
+"src": "p",
+"c": [
+24,
+10.5,
+4.6,
+6.7,
+null
+],
+"url": "https://forza10.com/product/29032255/all-size-adult-100-vegetal"
+},
+{
+"id": "cat_fo035",
+"brand": "Forza10 Special Care",
+"name": "Regularity Care - Mini/Toy Adult",
+"en": "Regularity Care - Mini/Toy Adult",
+"kcal": 354,
+"src": "p",
+"c": [
+29,
+14,
+5.5,
+7,
+9
+],
+"url": "https://forza10.com/product/41255360/regularity-care-mini-toy-adult"
+},
+{
+"id": "cat_fo036",
+"brand": "Forza10 Special Care",
+"name": "Joint Care - Mini/Toy Adult",
+"en": "Joint Care - Mini/Toy Adult",
+"kcal": 387,
+"src": "p",
+"c": [
+26,
+16.2,
+2.6,
+7.3,
+8
+],
+"url": "https://forza10.com/product/41255311/joint-care-mini-toy-adult"
+},
+{
+"id": "cat_fo037",
+"brand": "Forza10 Special Care",
+"name": "Shiny White Care - Mini/Toy Adult",
+"en": "Shiny White Care - Mini/Toy Adult",
+"kcal": 370,
+"src": "p",
+"c": [
+26,
+12.5,
+2.6,
+7.3,
+8
+],
+"url": "https://forza10.com/product/41255103/shiny-white-care-mini-toy-adult"
+},
+{
+"id": "cat_fo038",
+"brand": "Oasy Original Formula",
+"name": "Puppy Starter Pollo",
+"en": "Puppy Starter Chicken",
+"kcal": 408,
+"src": "p",
+"c": [
+31,
+20,
+2,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-puppy-starter-pollo"
+},
+{
+"id": "cat_fo039",
+"brand": "Oasy Original Formula",
+"name": "Puppy & Junior Small/Mini Pollo",
+"en": "Puppy & Junior Small/Mini Chicken",
+"kcal": 395,
+"src": "p",
+"c": [
+30,
+18,
+2.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-puppy-junior-small-mini-pollo"
+},
+{
+"id": "cat_fo040",
+"brand": "Oasy Original Formula",
+"name": "Puppy & Junior Medium/Large Pollo",
+"en": "Puppy & Junior Medium/Large Chicken",
+"kcal": 390,
+"src": "p",
+"c": [
+29,
+17,
+2.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-puppy-junior-medium-large-pollo"
+},
+{
+"id": "cat_fo041",
+"brand": "Oasy Original Formula",
+"name": "Adult Small/Mini Pollo",
+"en": "Adult Small/Mini Chicken",
+"kcal": 386,
+"src": "p",
+"c": [
+27,
+17,
+2.6,
+8.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-small-mini-pollo"
+},
+{
+"id": "cat_fo042",
+"brand": "Oasy Original Formula",
+"name": "Adult Small/Mini Agnello",
+"en": "Adult Small/Mini Lamb",
+"kcal": 385,
+"src": "p",
+"c": [
+27,
+17,
+3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-smallmini-agnello"
+},
+{
+"id": "cat_fo043",
+"brand": "Oasy Original Formula",
+"name": "Adult Small/Mini Maiale",
+"en": "Adult Small/Mini Pork",
+"kcal": 382,
+"src": "p",
+"c": [
+27,
+17,
+3.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-smallmini-maiale"
+},
+{
+"id": "cat_fo044",
+"brand": "Oasy Original Formula",
+"name": "Adult Medium/Large Pollo",
+"en": "Adult Medium/Large Chicken",
+"kcal": 377,
+"src": "p",
+"c": [
+25,
+15,
+2.5,
+8.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-medium-large-pollo"
+},
+{
+"id": "cat_fo045",
+"brand": "Oasy Original Formula",
+"name": "Adult Medium/Large Maiale",
+"en": "Adult Medium/Large Pork",
+"kcal": 367,
+"src": "p",
+"c": [
+25,
+14,
+3.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-mediumlarge-maiale"
+},
+{
+"id": "cat_fo046",
+"brand": "Oasy Original Formula",
+"name": "Adult Extra Large Pollo",
+"en": "Adult Extra Large Chicken",
+"kcal": 372,
+"src": "p",
+"c": [
+24,
+14,
+2.5,
+8.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-extra-large-pollo"
+},
+{
+"id": "cat_fo047",
+"brand": "Oasy Original Formula",
+"name": "Adult Light in Fat Pollo",
+"en": "Adult Light in Fat Chicken",
+"kcal": 337,
+"src": "p",
+"c": [
+20,
+10,
+5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-light-in-fat-pollo"
+},
+{
+"id": "cat_fo048",
+"brand": "Oasy Original Formula",
+"name": "Adult Performance Pollo",
+"en": "Adult Performance Chicken",
+"kcal": 404,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-adult-performance-pollo"
+},
+{
+"id": "cat_fo049",
+"brand": "Oasy Original Formula",
+"name": "Mature & Senior Pollo",
+"en": "Mature & Senior Chicken",
+"kcal": 348,
+"src": "p",
+"c": [
+20,
+11,
+4.3,
+7.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-original-formula-cane/original-formula-mature-senior-pollo"
+},
+{
+"id": "cat_fo050",
+"brand": "Oasy Monoprotein Formula",
+"name": "Puppy & Junior Medium/Large Agnello",
+"en": "Puppy & Junior Medium/Large Lamb",
+"kcal": 390,
+"src": "p",
+"c": [
+29,
+18,
+3.3,
+7.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-puppy-junior-mediumlarge-agnello"
+},
+{
+"id": "cat_fo051",
+"brand": "Oasy Monoprotein Formula",
+"name": "Puppy & Junior Small/Mini Agnello",
+"en": "Puppy & Junior Small/Mini Lamb",
+"kcal": 395,
+"src": "p",
+"c": [
+30,
+19,
+3.3,
+7.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-puppy-junior-smallmini-agnello"
+},
+{
+"id": "cat_fo052",
+"brand": "Oasy Monoprotein Formula",
+"name": "Puppy & Junior Small/Mini Salmone",
+"en": "Puppy & Junior Small/Mini Salmon",
+"kcal": 400,
+"src": "p",
+"c": [
+31,
+20,
+3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-puppy-junior-smallmini-salmone"
+},
+{
+"id": "cat_fo053",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Extra Large Maiale",
+"en": "Adult Extra Large Pork",
+"kcal": 386,
+"src": "p",
+"c": [
+28,
+17,
+3,
+7.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-extralarge-maiale"
+},
+{
+"id": "cat_fo054",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Light in Fat Sterilized Salmone",
+"en": "Adult Light in Fat Sterilized Salmon",
+"kcal": 355,
+"src": "p",
+"c": [
+26,
+11.5,
+4.2,
+7.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-light-in-fat-sterilized-salmone"
+},
+{
+"id": "cat_fo055",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Agnello",
+"en": "Adult Medium/Large Lamb",
+"kcal": 379,
+"src": "p",
+"c": [
+25,
+16,
+3.3,
+7.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-agnello"
+},
+{
+"id": "cat_fo056",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Cinghiale",
+"en": "Adult Medium/Large Wild Boar",
+"kcal": 381,
+"src": "p",
+"c": [
+27,
+16,
+3.5,
+7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-cinghiale"
+},
+{
+"id": "cat_fo057",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Coniglio",
+"en": "Adult Medium/Large Rabbit",
+"kcal": 381,
+"src": "p",
+"c": [
+27,
+16,
+3.5,
+7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-coniglio"
+},
+{
+"id": "cat_fo058",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Maiale",
+"en": "Adult Medium/Large Pork",
+"kcal": 377,
+"src": "p",
+"c": [
+27,
+16,
+3.5,
+7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-maiale"
+},
+{
+"id": "cat_fo059",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Salmone",
+"en": "Adult Medium/Large Salmon",
+"kcal": 377,
+"src": "p",
+"c": [
+27,
+16,
+3.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-salmone"
+},
+{
+"id": "cat_fo060",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Medium/Large Trota",
+"en": "Adult Medium/Large Trout",
+"kcal": 379,
+"src": "p",
+"c": [
+25,
+16,
+3.3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-mediumlarge-trota"
+},
+{
+"id": "cat_fo061",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Agnello",
+"en": "Adult Small/Mini Lamb",
+"kcal": 379,
+"src": "p",
+"c": [
+25,
+16,
+3.3,
+7.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-agnello"
+},
+{
+"id": "cat_fo062",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Anatra",
+"en": "Adult Small/Mini Duck",
+"kcal": 382,
+"src": "p",
+"c": [
+26,
+16,
+3.2,
+7.6,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-anatra"
+},
+{
+"id": "cat_fo063",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Coniglio",
+"en": "Adult Small/Mini Rabbit",
+"kcal": 389,
+"src": "p",
+"c": [
+28,
+17,
+3,
+7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-coniglio"
+},
+{
+"id": "cat_fo064",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Maiale",
+"en": "Adult Small/Mini Pork",
+"kcal": 389,
+"src": "p",
+"c": [
+28,
+17,
+2.6,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-maiale"
+},
+{
+"id": "cat_fo065",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Salmone",
+"en": "Adult Small/Mini Salmon",
+"kcal": 386,
+"src": "p",
+"c": [
+28,
+17,
+3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-salmone"
+},
+{
+"id": "cat_fo066",
+"brand": "Oasy Monoprotein Formula",
+"name": "Adult Small/Mini Trota",
+"en": "Adult Small/Mini Trout",
+"kcal": 379,
+"src": "p",
+"c": [
+25,
+16,
+3.3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-adult-smallmini-trota"
+},
+{
+"id": "cat_fo067",
+"brand": "Oasy Monoprotein Formula",
+"name": "Mature & Senior Agnello",
+"en": "Mature & Senior Lamb",
+"kcal": 358,
+"src": "p",
+"c": [
+25.5,
+12,
+4,
+7.5,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/monoprotein-formula/monoprotein-formula-mature-senior-agnello"
+},
+{
+"id": "cat_fo068",
+"brand": "Oasy Grain Free Formula",
+"name": "Puppy Medium/Large Maiale",
+"en": "Puppy Medium/Large Pork",
+"kcal": 387,
+"src": "p",
+"c": [
+29,
+18,
+3.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-puppy-mediumlarge-maiale"
+},
+{
+"id": "cat_fo069",
+"brand": "Oasy Grain Free Formula",
+"name": "Puppy Medium/Large Tonno",
+"en": "Puppy Medium/Large Tuna",
+"kcal": 393,
+"src": "p",
+"c": [
+29,
+19,
+3,
+8.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-puppy-mediumlarge-tonno"
+},
+{
+"id": "cat_fo070",
+"brand": "Oasy Grain Free Formula",
+"name": "Puppy Small/Mini Maiale",
+"en": "Puppy Small/Mini Pork",
+"kcal": 403,
+"src": "p",
+"c": [
+31,
+20,
+3,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-puppy-smallmini-maiale"
+},
+{
+"id": "cat_fo071",
+"brand": "Oasy Grain Free Formula",
+"name": "Puppy Small/Mini Tonno",
+"en": "Puppy Small/Mini Tuna",
+"kcal": 394,
+"src": "p",
+"c": [
+30,
+19,
+3,
+8.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-puppy-smallmini-tonno"
+},
+{
+"id": "cat_fo072",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Medium/Large Agnello",
+"en": "Adult Medium/Large Lamb",
+"kcal": 383,
+"src": "p",
+"c": [
+27,
+17,
+3.2,
+8.7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/secco-grain-free-formula-adult-mediumlarge-agnello"
+},
+{
+"id": "cat_fo073",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Medium/Large Bufalo",
+"en": "Adult Medium/Large Buffalo",
+"kcal": 375,
+"src": "p",
+"c": [
+28,
+15,
+3,
+8.8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-mediumlarge-bufalo"
+},
+{
+"id": "cat_fo074",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Medium/Large Maiale",
+"en": "Adult Medium/Large Pork",
+"kcal": 378,
+"src": "p",
+"c": [
+27,
+16,
+4,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-mediumlarge-maiale"
+},
+{
+"id": "cat_fo075",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Medium/Large Tonno",
+"en": "Adult Medium/Large Tuna",
+"kcal": 382,
+"src": "p",
+"c": [
+27,
+17,
+3.2,
+8.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-mediumlarge-tonno"
+},
+{
+"id": "cat_fo076",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Small/Mini Agnello",
+"en": "Adult Small/Mini Lamb",
+"kcal": 383,
+"src": "p",
+"c": [
+27,
+17,
+3.2,
+8.7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-smallmini-agnello"
+},
+{
+"id": "cat_fo077",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Small/Mini Anatra",
+"en": "Adult Small/Mini Duck",
+"kcal": 390,
+"src": "p",
+"c": [
+27,
+18.5,
+3.2,
+8.7,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/secco-grain-free-formula-adult-smallmini-anatra"
+},
+{
+"id": "cat_fo078",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Small/Mini Bufalo",
+"en": "Adult Small/Mini Buffalo",
+"kcal": 375,
+"src": "p",
+"c": [
+28,
+15,
+3,
+8.8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-smallmini-bufalo"
+},
+{
+"id": "cat_fo079",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Small/Mini Maiale",
+"en": "Adult Small/Mini Pork",
+"kcal": 382,
+"src": "p",
+"c": [
+28,
+17,
+3.5,
+8,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/secco-grain-free-formula-adult-smallmini-maiale"
+},
+{
+"id": "cat_fo080",
+"brand": "Oasy Grain Free Formula",
+"name": "Adult Small/Mini Tonno",
+"en": "Adult Small/Mini Tuna",
+"kcal": 382,
+"src": "p",
+"c": [
+27,
+17,
+3.2,
+8.9,
+null
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/grain-free-formula/grain-free-formula-adult-smallmini-tonno"
+},
+{
+"id": "cat_fo081",
+"brand": "Oasy Lifestage",
+"name": "Adult Small Pesce",
+"en": "Adult Small Fish",
+"kcal": 384,
+"src": "p",
+"c": [
+27,
+17,
+3,
+8,
+8.5
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/adult-small-pesce"
+},
+{
+"id": "cat_fo082",
+"brand": "Oasy Lifestage",
+"name": "Adult Medium Pesce",
+"en": "Adult Medium Fish",
+"kcal": 374,
+"src": "p",
+"c": [
+25,
+15,
+3,
+8,
+8.5
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/adult-medium-pesce"
+},
+{
+"id": "cat_fo083",
+"brand": "Oasy Lifestage",
+"name": "Adult Medium Agnello",
+"en": "Adult Medium Lamb",
+"kcal": 374,
+"src": "p",
+"c": [
+25,
+15,
+3,
+7.5,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/adult-medium-agnello"
+},
+{
+"id": "cat_fo084",
+"brand": "Oasy Lifestage",
+"name": "Adult Large Agnello",
+"en": "Adult Large Lamb",
+"kcal": 366,
+"src": "p",
+"c": [
+24,
+14,
+3,
+8.2,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/adult-large-agnello"
+},
+{
+"id": "cat_fo085",
+"brand": "Oasy Lifestage",
+"name": "Adult Performance Pollo",
+"en": "Adult Performance Chicken",
+"kcal": 398,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8.5,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/adult-performance-pollo"
+},
+{
+"id": "cat_fo086",
+"brand": "Oasy Lifestage",
+"name": "Mature & Senior Pollo",
+"en": "Mature & Senior Chicken",
+"kcal": 344,
+"src": "p",
+"c": [
+20,
+11,
+4.3,
+7.5,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/cibo-secco-cane/mature-senior-pollo"
+},
+{
+"id": "cat_fo087",
+"brand": "Oasy One Animal Protein",
+"name": "Puppy & Junior Small/Mini Agnello",
+"en": "Puppy & Junior Small/Mini Lamb",
+"kcal": 400,
+"src": "p",
+"c": [
+31,
+20,
+2.7,
+7.5,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-one-animal-protein/puppy-agnello-small-mini"
+},
+{
+"id": "cat_fo088",
+"brand": "Oasy One Animal Protein",
+"name": "Puppy & Junior Medium/Large Salmone",
+"en": "Puppy & Junior Medium/Large Salmon",
+"kcal": 392,
+"src": "p",
+"c": [
+29,
+18,
+2.7,
+7,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-one-animal-protein/puppy-salmone-medium-large"
+},
+{
+"id": "cat_fo089",
+"brand": "Oasy One Animal Protein",
+"name": "Adult Small/Mini Cinghiale",
+"en": "Adult Small/Mini Wild Boar",
+"kcal": 382,
+"src": "p",
+"c": [
+28,
+17,
+3.5,
+7,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-one-animal-protein/adult-cinghiale-small-mini"
+},
+{
+"id": "cat_fo090",
+"brand": "Oasy One Animal Protein",
+"name": "Adult Medium/Large Anatra",
+"en": "Adult Medium/Large Duck",
+"kcal": 379,
+"src": "p",
+"c": [
+25,
+15.5,
+3.2,
+7.6,
+8
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-one-animal-protein/one-animal-protein-adult-mediumlarge-anatra"
+},
+{
+"id": "cat_fo091",
+"brand": "Oasy One Animal Protein",
+"name": "Adult Medium/Large Cinghiale",
+"en": "Adult Medium/Large Wild Boar",
+"kcal": 380,
+"src": "p",
+"c": [
+27,
+16,
+3,
+7,
+9
+],
+"url": "https://www.oasy.com/it/per-il-tuo-cane/secco-one-animal-protein/adult-cinghiale-medium-large"
 }
 ]
 }
