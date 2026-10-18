@@ -1215,3 +1215,11 @@ Accessi e copie
   18 mesi. Le scelte restano nel telefono del proprietario (localStorage `owFeed_<id>`), i dati di Paolo non cambiano. Elenco:
   copia di `FD_DB` in proprietario.html (**aggiornare insieme**). Foto del sacco: `/api/public/sacco`, che ora accetta anche
   l'origine del gestionale (stessi limiti: 30 al giorno, 3 per persona).
+- 18/10/2026 (Paolo: "una sorta di database, in automatico, dopo un tuo controllo"): **elenco comune delle crocchette**. Chi aggiunge
+  una crocchetta (sito, pagina del proprietario, gestionale) la propone a `POST /api/public/crocchette` (functions/api/public/crocchette.js,
+  origini sito e gestionale). Claude (con ricerca web) controlla che il prodotto esista e che le kcal tornino entro il 7% con il produttore
+  o con i componenti, sistema marca e nome (anche in inglese): "ok" → tabella D1 `crocchette` status ok, visibile a tutti con
+  `GET /api/public/crocchette`; "no" → resta solo a chi l'ha scritta. Limiti: 20 controlli al giorno in tutto, 5 proposte per visitatore
+  (tabella `crocch_lim`, hash IP+giorno); stessa proposta già scartata o tolta → niente nuovo controllo. Paolo: Quanto mangia →
+  «👥 Crocchette aggiunte dagli utenti» (`fdUList`, `GET/POST /api/crocchette`: 🗑 Togli = status del, ✓ Metti nell'elenco).
+  Nel gestionale le accettate stanno in `FD_U` (gruppo «Aggiunte dagli utenti (controllate)», src "u").
