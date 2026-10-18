@@ -4048,6 +4048,422 @@ null
 10
 ],
 "url": "https://brit.pet/en/products/brit-care-mini-fd-raw-delights-turkey-with-shrimp"
+},
+{
+"id": "cat_ao001",
+"brand": "Acana",
+"name": "Adult Small Breed Recipe",
+"en": "Adult Small Breed Recipe",
+"kcal": 351,
+"src": "c",
+"c": [
+31,
+17,
+5,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-adult-small.html"
+},
+{
+"id": "cat_ao002",
+"brand": "Acana",
+"name": "Adult Large Breed Recipe",
+"en": "Adult Large Breed Recipe",
+"kcal": 338,
+"src": "p",
+"c": [
+31,
+15,
+6,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-adult-large.html"
+},
+{
+"id": "cat_ao003",
+"brand": "Acana",
+"name": "Puppy Small Breed Recipe",
+"en": "Puppy Small Breed Recipe",
+"kcal": 366,
+"src": "p",
+"c": [
+33,
+20,
+5,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-puppy-small.html"
+},
+{
+"id": "cat_ao004",
+"brand": "Acana",
+"name": "Puppy Large Breed Recipe",
+"en": "Puppy Large Breed Recipe",
+"kcal": 338,
+"src": "p",
+"c": [
+33,
+15,
+6,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-puppy-large.html"
+},
+{
+"id": "cat_ao005",
+"brand": "Acana",
+"name": "Senior Recipe",
+"en": "Senior Recipe",
+"kcal": 332,
+"src": "p",
+"c": [
+33,
+14,
+6,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-senior.html"
+},
+{
+"id": "cat_ao006",
+"brand": "Acana",
+"name": "Light & Fit Recipe",
+"en": "Light & Fit Recipe",
+"kcal": 307,
+"src": "p",
+"c": [
+35,
+11,
+8,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-light-fit.html"
+},
+{
+"id": "cat_ao007",
+"brand": "Acana",
+"name": "Sport & Agility Recipe",
+"en": "Sport & Agility Recipe",
+"kcal": 372,
+"src": "p",
+"c": [
+35,
+22,
+5,
+8,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-sport-agility.html"
+},
+{
+"id": "cat_ao008",
+"brand": "Acana",
+"name": "Singles Free-Run Duck (anatra)",
+"en": "Singles Free-Run Duck",
+"kcal": 339,
+"src": "p",
+"c": [
+31,
+15,
+5,
+7.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-singles-duck-new.html"
+},
+{
+"id": "cat_ao009",
+"brand": "Acana",
+"name": "Singles Yorkshire Pork Recipe (maiale)",
+"en": "Singles Yorkshire Pork Recipe",
+"kcal": 339,
+"src": "p",
+"c": [
+31,
+15,
+5,
+7.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-singles-pork-new.html"
+},
+{
+"id": "cat_ao010",
+"brand": "Acana",
+"name": "Singles Grass-fed Lamb Recipe (agnello)",
+"en": "Singles Grass-fed Lamb Recipe",
+"kcal": 340,
+"src": "p",
+"c": [
+31,
+15,
+5,
+7.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-singles-lamb-new.html"
+},
+{
+"id": "cat_ao011",
+"brand": "Acana",
+"name": "Classics Wild Coast (salmone e aringa, con cereali)",
+"en": "Classics Wild Coast",
+"kcal": 344,
+"src": "p",
+"c": [
+27,
+16,
+5,
+7.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-wildcoast.html"
+},
+{
+"id": "cat_ao012",
+"brand": "Acana",
+"name": "Classics Prairie Poultry (pollame, con cereali)",
+"en": "Classics Prairie Poultry",
+"kcal": 344,
+"src": "p",
+"c": [
+27,
+16,
+5,
+7.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-prairiepoultry.html"
+},
+{
+"id": "cat_ao013",
+"brand": "Acana",
+"name": "Classics Red Meat (manzo, maiale, agnello, con cereali)",
+"en": "Classics Red Meat",
+"kcal": 342,
+"src": "c",
+"c": [
+27,
+16,
+5,
+8,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-classicred.html"
+},
+{
+"id": "cat_ao014",
+"brand": "Acana",
+"name": "Ranchlands (manzo, agnello, maiale, pesce)",
+"en": "Ranchlands Recipe",
+"kcal": 379,
+"src": "p",
+"c": [
+35,
+17,
+6,
+8.5,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-ranchlands.html"
+},
+{
+"id": "cat_ao015",
+"brand": "Acana",
+"name": "Wild Prairie (pollame, pesce)",
+"en": "Wild Prairie Recipe",
+"kcal": 385,
+"src": "p",
+"c": [
+35,
+17,
+6,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-wild-prairie.html"
+},
+{
+"id": "cat_ao016",
+"brand": "Acana",
+"name": "Pacifica (aringa, sgombro, sardina del Pacifico)",
+"en": "Pacifica Recipe",
+"kcal": 385,
+"src": "p",
+"c": [
+35,
+17,
+6,
+7,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-pacifica.html"
+},
+{
+"id": "cat_ao017",
+"brand": "Acana",
+"name": "Grasslands (agnello, anatra, uova, pesce)",
+"en": "Grasslands Recipe",
+"kcal": 381,
+"src": "p",
+"c": [
+35,
+17,
+6,
+8,
+12
+],
+"url": "https://emea.acana.com/it-IT/per-cani/eu-aca-grasslands.html"
+},
+{
+"id": "cat_ao018",
+"brand": "Orijen",
+"name": "Puppy Large Breed",
+"en": "Puppy Large Breed",
+"kcal": 380,
+"src": "p",
+"c": [
+38,
+16,
+6,
+8,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-puppy-large.html"
+},
+{
+"id": "cat_ao019",
+"brand": "Orijen",
+"name": "Small Breed Puppy",
+"en": "Small Breed Puppy",
+"kcal": 400,
+"src": "p",
+"c": [
+38,
+20,
+4,
+9,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-small-breed-puppy.html"
+},
+{
+"id": "cat_ao020",
+"brand": "Orijen",
+"name": "Small Breed",
+"en": "Small Breed",
+"kcal": 390,
+"src": "p",
+"c": [
+39,
+18,
+4,
+9,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-small-breed.html"
+},
+{
+"id": "cat_ao021",
+"brand": "Orijen",
+"name": "Small Breed Marine Fish (pesce)",
+"en": "Small Breed Marine Fish",
+"kcal": 371,
+"src": "p",
+"c": [
+40,
+15,
+4,
+10,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-small-breed-marine-fish.html"
+},
+{
+"id": "cat_ao022",
+"brand": "Orijen",
+"name": "Six Fish (sei pesci)",
+"en": "Six Fish",
+"kcal": 407,
+"src": "p",
+"c": [
+38,
+18,
+5,
+8.5,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-sixfish.html"
+},
+{
+"id": "cat_ao023",
+"brand": "Orijen",
+"name": "Regional Red (carni rosse)",
+"en": "Regional Red",
+"kcal": 386,
+"src": "p",
+"c": [
+38,
+18,
+5,
+9,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/eu-ori-ns-ori-regionalred.html"
+},
+{
+"id": "cat_ao024",
+"brand": "Orijen",
+"name": "Tundra (selvaggina, pesce)",
+"en": "Tundra",
+"kcal": 386,
+"src": "p",
+"c": [
+40,
+18,
+5,
+9,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-tundra.html"
+},
+{
+"id": "cat_ao025",
+"brand": "Orijen",
+"name": "Senior",
+"en": "Senior",
+"kcal": 334,
+"src": "c",
+"c": [
+38,
+15,
+6,
+8,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-senior.html"
+},
+{
+"id": "cat_ao026",
+"brand": "Orijen",
+"name": "Fit & Trim",
+"en": "Fit & Trim",
+"kcal": 353,
+"src": "p",
+"c": [
+40,
+13,
+8,
+8,
+12
+],
+"url": "https://emea.orijenpetfoods.com/it-IT/dogs/dog-food/eu-ori-ns-ori-fittrim.html"
 }
 ]
 }
