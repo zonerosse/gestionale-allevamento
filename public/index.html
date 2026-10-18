@@ -1015,8 +1015,9 @@ const FD_DB=[["rc_mp","Royal Canin","Medium Puppy",410,"p",[32,20,1.7,8.2,null]]
 FD_DB.sort((a,b)=>(a.brand+a.name).toLowerCase().localeCompare((b.brand+b.name).toLowerCase()));
 /* elenco comune (18/10/2026): crocchette proposte dagli utenti e controllate da Claude (/api/public/crocchette); qui Paolo le vede tutte */
 let FD_U=null,FD_ALL=[];
-function fdLoadU(){FD_U=FD_U||[];fetch("/api/crocchette").then(r=>r.json()).then(j=>{FD_ALL=j.items||[];FD_U=FD_ALL.filter(x=>x.status==="ok").map(x=>{let c=null;try{c=JSON.parse(x.comp||"null")}catch(e){}return{id:"u_"+x.id,brand:x.brand,name:x.name,kcal:x.kcal,src:"u",c}});if(tab==="pappa")render()}).catch(()=>{})}
-const fdFoods=()=>FD_DB.concat(FD_U||[],((D.settings||{}).foods)||[]);
+let FD_CAT=[];function fdLoadCat(){fetch("/crocchette-catalogo.json").then(r=>r.json()).then(j=>{FD_CAT=j.items||[];if(tab==="pappa")render()}).catch(()=>{})}
+function fdLoadU(){if(!FD_CAT.length)fdLoadCat();FD_U=FD_U||[];fetch("/api/crocchette").then(r=>r.json()).then(j=>{FD_ALL=j.items||[];FD_U=FD_ALL.filter(x=>x.status==="ok").map(x=>{let c=null;try{c=JSON.parse(x.comp||"null")}catch(e){}return{id:"u_"+x.id,brand:x.brand,name:x.name,kcal:x.kcal,src:"u",c}});if(tab==="pappa")render()}).catch(()=>{})}
+const fdFoods=()=>FD_DB.concat(FD_CAT,FD_U||[],((D.settings||{}).foods)||[]);
 const fdFood=id=>fdFoods().find(x=>x.id===id);
 const FD_G=[[2,.25],[3,.38],[4,.5],[5,.62],[6,.72],[7,.8],[8,.86],[9,.9],[10,.93],[11,.96],[12,.98],[18,1]];
 function fdFrac(m){if(m>=18)return 1;if(m<=2)return .25*Math.max(.3,m/2);for(let i=1;i<FD_G.length;i++)if(m<=FD_G[i][0]){const [a,pa]=FD_G[i-1],[b,pb]=FD_G[i];return pa+(pb-pa)*(m-a)/(b-a)}return 1}
@@ -1049,7 +1050,7 @@ function fdAgeTxt(m){if(m==null)return"data di nascita da inserire";if(m<4)retur
 function fdBox(id){const d=fdObj(id);if(!d||d.ext)return"";const s=fdState(id),F=s.F,ro=RO?" disabled":"",nm=d.free?"il tuo cane":(d.nick||d.name),dec=x=>String(x).replace(".",",");
   const brands=[...new Set(FD_DB.map(x=>x.brand))],my=((D.settings||{}).foods)||[];
   const opt=x=>`<option value="${esc(x.id)}"${x.id===F.food?" selected":""}>${esc(x.brand)} ${esc(x.name)} · ${x.kcal} kcal</option>`;
-  const sel=`<select data-fd="${id}|food"${ro}><option value="">— scegli le crocchette —</option>${my.length?`<optgroup label="Le mie crocchette">${my.map(opt).join("")}</optgroup>`:""}${brands.map(b=>`<optgroup label="${esc(b)}">${FD_DB.filter(x=>x.brand===b).map(opt).join("")}</optgroup>`).join("")}${(FD_U||[]).length?`<optgroup label="Aggiunte dagli utenti (controllate)">${FD_U.map(opt).join("")}</optgroup>`:""}</select>`;
+  const sel=`<select data-fd="${id}|food"${ro}><option value="">— scegli le crocchette —</option>${my.length?`<optgroup label="Le mie crocchette">${my.map(opt).join("")}</optgroup>`:""}${brands.map(b=>`<optgroup label="${esc(b)}">${FD_DB.filter(x=>x.brand===b).map(opt).join("")}</optgroup>`).join("")}${[...new Set(FD_CAT.map(x=>x.brand))].map(b=>`<optgroup label="${esc(b)}">${FD_CAT.filter(x=>x.brand===b).map(opt).join("")}</optgroup>`).join("")}${(FD_U||[]).length?`<optgroup label="Aggiunte dagli utenti (controllate)">${FD_U.map(opt).join("")}</optgroup>`:""}</select>`;
   const cur=k=>k==="sex"?s.sex:F[k];
   const chips=(k,L)=>`<div class="fd-ch">${L.map(([v,t])=>`<button class="fd-c${String(cur(k))===String(v)?" on":""}" data-a="fdSet" data-v="${id}|${k}|${v}"${ro}>${t}</button>`).join("")}</div>`;
   const H=(n,t)=>`<h3 class="fd-h"><i>${n}</i>${t}</h3>`;

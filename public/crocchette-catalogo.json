@@ -1,0 +1,1237 @@
+{
+"note": "Catalogo preparato da Claude dalle schede tecniche dei produttori (monge.it), 19/10/2026. Si aggiunge all'elenco del calcolatore.",
+"items": [
+{
+"id": "cat_mo001",
+"brand": "Monge Natural Superpremium",
+"name": "Extra Small Puppy & Junior ricco di pollo",
+"en": "Extra Small Puppy & Junior rich in chicken",
+"kcal": 426,
+"src": "p",
+"c": [
+31,
+18,
+2,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-extra-small-puppy-and-junior-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo002",
+"brand": "Monge Natural Superpremium",
+"name": "Extra Small Adult ricco di pollo",
+"en": "Extra Small Adult rich in chicken",
+"kcal": 405,
+"src": "p",
+"c": [
+26,
+14,
+2.5,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-extra-small-adult-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo003",
+"brand": "Monge Natural Superpremium",
+"name": "Extra Small Adult Monoprotein salmone con riso",
+"en": "Extra Small Adult Monoprotein salmon with rice",
+"kcal": 413,
+"src": "p",
+"c": [
+26,
+15,
+2.5,
+5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-extra-small-adult-monoprotein-salmon-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo004",
+"brand": "Monge Natural Superpremium",
+"name": "Extra Small Adult agnello con riso e patate",
+"en": "Extra Small Adult lamb with rice and potatoes",
+"kcal": 413,
+"src": "p",
+"c": [
+26,
+15,
+2.5,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-extra-small-adult-lamb-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo005",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Starter ricco in pollo (madre e cuccioli)",
+"en": "Mini Starter rich in chicken (mother and puppies)",
+"kcal": 444,
+"src": "p",
+"c": [
+32,
+22,
+1.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-starter-for-mother-and-baby-dogs-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo006",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Puppy & Junior ricco in pollo",
+"en": "Mini Puppy & Junior rich in chicken",
+"kcal": 425,
+"src": "p",
+"c": [
+30,
+18,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-puppy-and-junior-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo007",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Puppy & Junior Monoprotein agnello con riso",
+"en": "Mini Puppy & Junior Monoprotein lamb with rice",
+"kcal": 424,
+"src": "p",
+"c": [
+28,
+18,
+2,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-puppy-and-junior-monoprotein-lamb-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo008",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Puppy & Junior Monoprotein salmone con riso",
+"en": "Mini Puppy & Junior Monoprotein salmon with rice",
+"kcal": 433,
+"src": "p",
+"c": [
+30,
+18.5,
+2,
+4.8,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-puppy-and-junior-monoprotein-salmon-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo009",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Adult ricco in pollo",
+"en": "Mini Adult rich in chicken",
+"kcal": 405,
+"src": "p",
+"c": [
+26,
+14,
+2.5,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-adult-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo010",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Adult Monoprotein salmone con riso",
+"en": "Mini Adult Monoprotein salmon with rice",
+"kcal": 402,
+"src": "p",
+"c": [
+25,
+14,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-adult-monoprotein-salmon-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo011",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Adult Monoprotein agnello con riso e patate",
+"en": "Mini Adult Monoprotein lamb with rice and potatoes",
+"kcal": 402,
+"src": "p",
+"c": [
+27,
+14,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-adult-monoprotein-lamb-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo012",
+"brand": "Monge Natural Superpremium",
+"name": "Mini Senior ricco in pollo",
+"en": "Mini Senior rich in chicken",
+"kcal": 390,
+"src": "p",
+"c": [
+28,
+14,
+3,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-mini-senior-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo013",
+"brand": "Monge Natural Superpremium",
+"name": "Medium Starter ricco in pollo (madre e cuccioli)",
+"en": "Medium Starter rich in chicken (mother and puppies)",
+"kcal": 450,
+"src": "p",
+"c": [
+31,
+22,
+1.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-medium-starter-for-mother-and-baby-dogs-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo014",
+"brand": "Monge Natural Superpremium",
+"name": "Medium Senior ricco in pollo",
+"en": "Medium Senior rich in chicken",
+"kcal": 395,
+"src": "p",
+"c": [
+26,
+13,
+3,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-medium-senior-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo015",
+"brand": "Monge Natural Superpremium",
+"name": "Maxi Puppy & Junior ricco in pollo",
+"en": "Maxi Puppy & Junior rich in chicken",
+"kcal": 412,
+"src": "p",
+"c": [
+28,
+16,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-maxi-puppy-and-junior-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo016",
+"brand": "Monge Natural Superpremium",
+"name": "Maxi Adult ricco di pollo",
+"en": "Maxi Adult rich in chicken",
+"kcal": 400,
+"src": "p",
+"c": [
+27,
+12.5,
+2.5,
+6.2,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-maxi-adult-rich-in-chicken-ENG.pdf"
+},
+{
+"id": "cat_mo017",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Puppy & Junior agnello con riso",
+"en": "All Breeds Puppy & Junior lamb with rice",
+"kcal": 420,
+"src": "p",
+"c": [
+30,
+18,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-puppy-and-junior-lamb-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo018",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Puppy & Junior Monoprotein salmone con riso",
+"en": "All Breeds Puppy & Junior Monoprotein salmon with rice",
+"kcal": 426,
+"src": "p",
+"c": [
+31,
+18,
+2,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-puppy-and-junior-monoprotein-salmon-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo019",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Puppy & Junior Monoprotein trota con riso e patate",
+"en": "All Breeds Puppy & Junior Monoprotein trout with rice and potatoes",
+"kcal": 431,
+"src": "p",
+"c": [
+31.5,
+18.5,
+1.9,
+5.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-puppy-and-junior-monoprotein-trout-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo020",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Puppy & Junior Monoprotein anatra con riso e patate",
+"en": "All Breeds Puppy & Junior Monoprotein duck with rice and potatoes",
+"kcal": 426,
+"src": "p",
+"c": [
+31.5,
+18.5,
+1.8,
+6.8,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-puppy-and-junior-monoprotein-duck-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo021",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Puppy & Junior Monoprotein maiale con riso e patate",
+"en": "All Breeds Puppy & Junior Monoprotein pork with rice and potatoes",
+"kcal": 427,
+"src": "p",
+"c": [
+32,
+18,
+1.5,
+6.2,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-puppy-and-junior-monoprotein-pork-with-rice-And-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo022",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein salmone con riso",
+"en": "All Breeds Adult Monoprotein salmon with rice",
+"kcal": 402,
+"src": "p",
+"c": [
+25,
+14,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-salmon-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo023",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein agnello con riso e patate",
+"en": "All Breeds Adult Monoprotein lamb with rice and potatoes",
+"kcal": 410,
+"src": "p",
+"c": [
+25,
+16,
+2.2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-lamb-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo024",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein pollo con riso e patate",
+"en": "All Breeds Adult Monoprotein chicken with rice and potatoes",
+"kcal": 410,
+"src": "p",
+"c": [
+25,
+15,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-chicken-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo025",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein anatra con riso e patate",
+"en": "All Breeds Adult Monoprotein duck with rice and potatoes",
+"kcal": 410,
+"src": "p",
+"c": [
+25,
+16,
+2.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-duck-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo026",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein maiale con riso e patate",
+"en": "All Breeds Adult Monoprotein pork with rice and potatoes",
+"kcal": 407,
+"src": "p",
+"c": [
+28,
+15,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2026/03/Monge-natural-superpremium-all-breeds-adult-monoprotein-pork-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo027",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein trota con riso e patate",
+"en": "All Breeds Adult Monoprotein trout with rice and potatoes",
+"kcal": 408,
+"src": "p",
+"c": [
+28.5,
+15,
+2.2,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-trout-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo028",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein coniglio con riso e patate",
+"en": "All Breeds Adult Monoprotein rabbit with rice and potatoes",
+"kcal": 407,
+"src": "p",
+"c": [
+26,
+15,
+2.5,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-rabbit-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo029",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein manzo con riso",
+"en": "All Breeds Adult Monoprotein beef with rice",
+"kcal": 403,
+"src": "p",
+"c": [
+27,
+16,
+2.2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-beef-with-rice-ENG.pdf"
+},
+{
+"id": "cat_mo030",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Monoprotein tacchino con riso e patate",
+"en": "All Breeds Adult Monoprotein turkey with rice and potatoes",
+"kcal": 405,
+"src": "p",
+"c": [
+30,
+13,
+2,
+5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-monoprotein-turkey-with-rice-and-potatoes-ENG.pdf"
+},
+{
+"id": "cat_mo031",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Active con pollo",
+"en": "All Breeds Adult Active with chicken",
+"kcal": 437,
+"src": "p",
+"c": [
+30,
+21,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-active-ENG.pdf"
+},
+{
+"id": "cat_mo032",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Hypo con salmone e tonno",
+"en": "All Breeds Adult Hypo with salmon and tuna",
+"kcal": 394,
+"src": "p",
+"c": [
+24,
+12,
+2,
+6.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-hypo-with-salmon-and-tuna-ENG.pdf"
+},
+{
+"id": "cat_mo033",
+"brand": "Monge Natural Superpremium",
+"name": "All Breeds Adult Light salmone con riso",
+"en": "All Breeds Adult Light salmon with rice",
+"kcal": 395,
+"src": "p",
+"c": [
+24,
+12,
+2.5,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Monge-natural-superpremium-all-breeds-adult-light-ENG.pdf"
+},
+{
+"id": "cat_mo034",
+"brand": "Monge BWild",
+"name": "Grain Free Mini Adult anatra con patate",
+"en": "Grain Free Mini Adult duck with potatoes",
+"kcal": 382,
+"src": "c",
+"c": [
+30,
+20,
+2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-MINI-ADULT-DUCK-WITH-POTATOES-EN.pdf"
+},
+{
+"id": "cat_mo035",
+"brand": "Monge BWild",
+"name": "Grain Free Mini Adult acciughe con patate e piselli",
+"en": "Grain Free Mini Adult anchovies with potatoes and peas",
+"kcal": 384,
+"src": "c",
+"c": [
+31,
+20,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-MINI-ADULT-ANCHOVIES-WITH-POTATOES-AND-PEAS-EN.pdf"
+},
+{
+"id": "cat_mo036",
+"brand": "Monge BWild",
+"name": "Grain Free All Breeds Puppy & Junior anatra con patate",
+"en": "Grain Free All Breeds Puppy & Junior duck with potatoes",
+"kcal": 372,
+"src": "c",
+"c": [
+29,
+18,
+2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-PUPPYJUNIOR-ALL-BREEDS-DUCK-WITH-POTATOES-EN.pdf"
+},
+{
+"id": "cat_mo037",
+"brand": "Monge BWild",
+"name": "Grain Free All Breeds Adult anatra con patate",
+"en": "Grain Free All Breeds Adult duck with potatoes",
+"kcal": 382,
+"src": "c",
+"c": [
+30,
+20,
+2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-ADULT-ALL-BREEDS-DUCK-WITH-POTATOES-EN.pdf"
+},
+{
+"id": "cat_mo038",
+"brand": "Monge BWild",
+"name": "Grain Free All Breeds Adult acciughe con patate e piselli",
+"en": "Grain Free All Breeds Adult anchovies with potatoes and peas",
+"kcal": 384,
+"src": "c",
+"c": [
+31,
+20,
+2,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-ADULT-ALL-BREEDS-ANCHOVIES-WITH-POTATOES-AND-PEAS-EN.pdf"
+},
+{
+"id": "cat_mo039",
+"brand": "Monge BWild",
+"name": "Grain Free All Breeds Adult agnello con patate e piselli",
+"en": "Grain Free All Breeds Adult lamb with potatoes and peas",
+"kcal": 364,
+"src": "c",
+"c": [
+28,
+16.5,
+2.2,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-ADULT-ALL-BREEDS-LAMB-WITH-POTATOES-AND-PEAS-EN.pdf"
+},
+{
+"id": "cat_mo040",
+"brand": "Monge BWild",
+"name": "Grain Free All Breeds Adult salmone con piselli",
+"en": "Grain Free All Breeds Adult salmon with peas",
+"kcal": 366,
+"src": "c",
+"c": [
+32,
+16,
+2.2,
+6,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-GRAIN-FREE-ADULT-ALL-BREEDS-SALMON-WITH-PEAS-EN.pdf"
+},
+{
+"id": "cat_mo041",
+"brand": "Monge BWild",
+"name": "Low Grain All Breeds Adult cervo",
+"en": "Low Grain All Breeds Adult deer",
+"kcal": 417,
+"src": "p",
+"c": [
+28,
+18,
+2.6,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-LOW-GRAIN-ADULT-ALL-BREEDS-DEER-EN.pdf"
+},
+{
+"id": "cat_mo042",
+"brand": "Monge BWild",
+"name": "Low Grain All Breeds Puppy & Junior cervo",
+"en": "Low Grain All Breeds Puppy & Junior deer",
+"kcal": 420,
+"src": "p",
+"c": [
+31,
+18,
+2.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2020/02/BWild-Low-Grain-All-Breeds-Puppy-and-Junior-Deer.pdf"
+},
+{
+"id": "cat_mo043",
+"brand": "Monge BWild",
+"name": "Low Grain All Breeds Adult oca",
+"en": "Low Grain All Breeds Adult goose",
+"kcal": 425,
+"src": "p",
+"c": [
+30,
+19,
+2.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2020/02/BWild-Low-Grain-All-Breeds-Adult-Dog-Goose.pdf"
+},
+{
+"id": "cat_mo044",
+"brand": "Monge BWild",
+"name": "Low Grain All Breeds Adult cinghiale",
+"en": "Low Grain All Breeds Adult wild boar",
+"kcal": 415,
+"src": "p",
+"c": [
+29,
+17,
+2.5,
+7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/MONGE-NATURAL-SUPERPREMIUM-BWILD-LOW-GRAIN-ADULT-ALL-BREEDS-WILD-BOAR-EN.pdf"
+},
+{
+"id": "cat_mo045",
+"brand": "Gemon",
+"name": "Maxi Adult con pollo e riso",
+"en": "Maxi Adult with Chicken and Rice",
+"kcal": 383,
+"src": "p",
+"c": [
+24,
+12,
+2.5,
+6.8,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-maxi-adult-with-chicken-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo046",
+"brand": "Gemon",
+"name": "Mini Adult con pollo e riso",
+"en": "Mini Adult with Chicken and Rice",
+"kcal": 394,
+"src": "p",
+"c": [
+26,
+13,
+2.8,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-mini-adult-with-chicken-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo047",
+"brand": "Gemon",
+"name": "Mini Adult con salmone e riso",
+"en": "Mini Adult with Salmon and Rice",
+"kcal": 394,
+"src": "p",
+"c": [
+26,
+13,
+2.8,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-mini-adult-with-salmon-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo048",
+"brand": "Gemon",
+"name": "All Breeds Adult con agnello e riso",
+"en": "All Breeds Adult with Lamb and Rice",
+"kcal": 391,
+"src": "p",
+"c": [
+25,
+13,
+2.5,
+8.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-all-breeds-adult-with-lamb-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo049",
+"brand": "Gemon",
+"name": "All Breeds Adult con tonno e riso",
+"en": "All Breeds Adult with Tuna and Rice",
+"kcal": 391,
+"src": "p",
+"c": [
+25,
+13,
+2.5,
+8.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-all-breeds-adult-with-tuna-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo050",
+"brand": "Gemon",
+"name": "All Breeds Adult con maiale e riso",
+"en": "All Breeds Adult with Pork and Rice",
+"kcal": 386,
+"src": "p",
+"c": [
+24,
+12,
+2.5,
+8.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/11/Gemon-all-breeds-adult-with-pork-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo051",
+"brand": "Gemon",
+"name": "All Breeds Adult con salmone e riso",
+"en": "All Breeds Adult with Salmon and Rice",
+"kcal": 390,
+"src": "p",
+"c": [
+26,
+12,
+2.5,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2025/06/Gemon-all-breeds-adult-with-salmon-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo052",
+"brand": "Gemon",
+"name": "All Breeds Adult con manzo e riso",
+"en": "All Breeds Adult with Beef and Rice",
+"kcal": 384,
+"src": "p",
+"c": [
+26,
+12,
+2.5,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2025/06/Gemon-all-breeds-adult-with-beef-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo053",
+"brand": "Gemon",
+"name": "All Breeds Adult con anatra e riso",
+"en": "All Breeds Adult with Duck and Rice",
+"kcal": 384,
+"src": "p",
+"c": [
+25,
+12,
+2.5,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2025/06/Gemon-all-breeds-adult-with-duck-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo054",
+"brand": "Gemon",
+"name": "Performance All Breeds Adult con pollo e riso",
+"en": "Performance All Breeds Adult with Chicken and Rice",
+"kcal": 405,
+"src": "p",
+"c": [
+27,
+15,
+2.5,
+8.2,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/11/Gemon-performance-all-breeds-adult-with-chicken-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo055",
+"brand": "Gemon",
+"name": "All Breeds Puppy & Junior con pollo e riso",
+"en": "All Breeds Puppy & Junior with Chicken and Rice",
+"kcal": 408,
+"src": "p",
+"c": [
+31,
+16,
+2.5,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-all-breeds-puppy-and-junior-with-chicken-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo056",
+"brand": "Gemon",
+"name": "All Breeds Puppy & Junior con tonno e riso",
+"en": "All Breeds Puppy & Junior with Tuna and Rice",
+"kcal": 404,
+"src": "p",
+"c": [
+30,
+15,
+2.7,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-all-breeds-puppy-and-junior-with-tuna-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo057",
+"brand": "Gemon",
+"name": "Mini Puppy & Junior con pollo e riso",
+"en": "Mini Puppy & Junior with Chicken and Rice",
+"kcal": 408,
+"src": "p",
+"c": [
+29,
+15,
+2.7,
+6.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Gemon-mini-puppy-and-junior-with-chicken-and-rice-ENG.pdf"
+},
+{
+"id": "cat_mo058",
+"brand": "Gemon",
+"name": "Mini Puppy & Junior con tonno e riso",
+"en": "Mini Puppy & Junior with Tuna and Rice",
+"kcal": 356,
+"src": "c",
+"c": [
+30,
+15,
+2.7,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2016/02/gemon_dog_dry_mini_puppy_and_junior_with_tuna_and_rice_GB.pdf"
+},
+{
+"id": "cat_mo059",
+"brand": "Gemon",
+"name": "Maxi Puppy & Junior con pollo e riso",
+"en": "Maxi Puppy & Junior with Chicken and Rice",
+"kcal": 415,
+"src": "p",
+"c": [
+28,
+15,
+2.0,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2016/11/gemon_dog_dry_maxi_puppy_with_chicken_and_rice_GB.pdf"
+},
+{
+"id": "cat_mo060",
+"brand": "Special Dog Excellence",
+"name": "Medium Adult con pollo",
+"en": "Medium Adult with Chicken",
+"kcal": 423,
+"src": "p",
+"c": [
+28,
+18,
+1.7,
+7.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MEDIUM-ADULT-WITH-CHICKEN-RICE-LINSEED-CITRUS-FRUITS-EN.pdf"
+},
+{
+"id": "cat_mo061",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult con pollo",
+"en": "Mini Adult with Chicken",
+"kcal": 422,
+"src": "p",
+"c": [
+30,
+18,
+1.7,
+7.2,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MINI-ADULT-WITH-CHICKEN-RICE-LINSEED-CITRUS-FRUITS-EN.pdf"
+},
+{
+"id": "cat_mo062",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult con tacchino",
+"en": "Mini Adult with Turkey",
+"kcal": 393,
+"src": "p",
+"c": [
+26,
+13,
+2.5,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MINI-ADULT-WITH-TURKEY-RICE-LINSEED-CITRUS-FRUITS-EN.pdf"
+},
+{
+"id": "cat_mo063",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult con tonno",
+"en": "Mini Adult with Tuna",
+"kcal": 405,
+"src": "p",
+"c": [
+30,
+15.5,
+2.7,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MINI-ADULT-WITH-TUNA-RICE-LINSEED-CITRUS-FRUITS-EN.pdf"
+},
+{
+"id": "cat_mo064",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult con agnello",
+"en": "Mini Adult with Lamb",
+"kcal": 394,
+"src": "p",
+"c": [
+29,
+13.5,
+3.0,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MINI-ADULT-WITH-LAMB-RICE-EGGS-CITRUS-FRUITS-EN.pdf"
+},
+{
+"id": "cat_mo065",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult con salmone",
+"en": "Mini Adult with Salmon",
+"kcal": 385,
+"src": "p",
+"c": [
+23,
+11,
+2.0,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-Mini-Adult-With-Salmon-EN.pdf"
+},
+{
+"id": "cat_mo066",
+"brand": "Special Dog Excellence",
+"name": "Mini Adult Monoproteico agnello",
+"en": "Mini Adult Monoprotein Lamb",
+"kcal": 393,
+"src": "p",
+"c": [
+26,
+13,
+2.5,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-Mini-Adult-Monoprotein-Lamb-EN.pdf"
+},
+{
+"id": "cat_mo067",
+"brand": "Special Dog Excellence",
+"name": "Medium Adult Monoproteico maiale",
+"en": "Medium Adult Monoprotein Pork",
+"kcal": 400,
+"src": "p",
+"c": [
+27,
+14,
+2.7,
+6.7,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-EXCELLENCE-MEDIUM-ADULT-MONOPROTEIN-PORK-CON-AVENA-UOVA-MELA-EN.pdf"
+},
+{
+"id": "cat_mo068",
+"brand": "Special Dog Excellence",
+"name": "All Breeds Adult Monoproteico salmone",
+"en": "All Breeds Adult Monoprotein Salmon",
+"kcal": 394,
+"src": "p",
+"c": [
+25,
+13.5,
+3.0,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-All-Breeds-Monoprotein-Adult-Dog-Salmon-EN.pdf"
+},
+{
+"id": "cat_mo069",
+"brand": "Special Dog Excellence",
+"name": "All Breeds Adult Monoproteico manzo",
+"en": "All Breeds Adult Monoprotein Beef",
+"kcal": 384,
+"src": "p",
+"c": [
+25,
+12,
+3.0,
+8.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-All-Breeds-Monoprotein-Adult-Dog-Beef-EN.pdf"
+},
+{
+"id": "cat_mo070",
+"brand": "Special Dog Excellence",
+"name": "Grain Free All Breeds Adult anatra e patate",
+"en": "Grain Free All Breeds Adult Duck with Potatoes",
+"kcal": 420,
+"src": "p",
+"c": [
+29,
+18,
+2.0,
+7.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-Grain-Free-Formula-All-Breeds-Duck-With-Potatoes-EN.pdf"
+},
+{
+"id": "cat_mo071",
+"brand": "Special Dog Excellence",
+"name": "All Breeds Puppy & Junior con pollo",
+"en": "All Breeds Puppy & Junior with Chicken",
+"kcal": 427,
+"src": "p",
+"c": [
+33,
+19,
+1.8,
+7.2,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/Special-Dog-Excellence-All-Breeds-Puppy-And-Junior-Chicken-EN.pdf"
+},
+{
+"id": "cat_mo072",
+"brand": "Special Dog",
+"name": "Classic Adult All Breeds con pollo",
+"en": "Classic Adult All Breeds with Chicken",
+"kcal": 368,
+"src": "p",
+"c": [
+22,
+10,
+3.5,
+9.0,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/SPECIAL-DOG-ALL-BREEDS-WITH-CHICKEN-EN.pdf"
+},
+{
+"id": "cat_mo073",
+"brand": "Special Dog",
+"name": "Crocchette Regular con pollo fresco",
+"en": "Kibbles Regular with Fresh Chicken",
+"kcal": 335,
+"src": "c",
+"c": [
+24,
+12,
+3.0,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/special_dog_dog_dry_dry_food_croquettes_regular_with_fresh_chicken_GB.pdf"
+},
+{
+"id": "cat_mo074",
+"brand": "Special Dog",
+"name": "Crocchette Speciality con agnello e riso",
+"en": "Kibbles Speciality with Lamb and Rice",
+"kcal": 335,
+"src": "c",
+"c": [
+24,
+12,
+3.0,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/special_dog_dog_dry_speciality_croquettes_with_lamb_and_rice_GB.pdf"
+},
+{
+"id": "cat_mo075",
+"brand": "Special Dog",
+"name": "Crocchette Speciality con tonno e riso",
+"en": "Kibbles Speciality with Tuna and Rice",
+"kcal": 335,
+"src": "c",
+"c": [
+24,
+12,
+3.0,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2023/09/special_dog_dog_dry_speciality_croquettes_with_tuna_and_rice_GB.pdf"
+},
+{
+"id": "cat_mo076",
+"brand": "Special Dog",
+"name": "Crocchette Delicate (Light) con pollo fresco",
+"en": "Kibbles Delicate (Light) with Fresh Chicken",
+"kcal": 323,
+"src": "c",
+"c": [
+21,
+10,
+3.5,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2016/02/Special-Dog-Kibbles-Delicate-with-Fresh-Chicken.pdf"
+},
+{
+"id": "cat_mo077",
+"brand": "Special Dog",
+"name": "Crocchette Puppy & Junior con pollo e riso",
+"en": "Kibbles Puppy & Junior with Chicken and Rice",
+"kcal": 345,
+"src": "c",
+"c": [
+29,
+14,
+3.0,
+8.5,
+null
+],
+"url": "https://www.monge.it/wp-content/uploads/2016/02/Special-Dog-Kibbles-Puppy-and-Junior-with-Chicken-and-Rice.pdf"
+}
+]
+}

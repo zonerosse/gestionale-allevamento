@@ -1235,3 +1235,8 @@ Accessi e copie
   «🔎 Trova kcal e componenti dal nome» (`findName` nel calcolatore del sito/proprietario, `fdFind` nel gestionale): prima cerca
   nell'elenco, poi `POST /api/public/crocchette {find:true,name}` (`findByName`: Claude con ricerca web; trovato → entra subito
   nell'elenco comune, src "w"). Stessi limiti dei controlli (`overLimit`).
+- 19/10/2026 (Paolo: "cataloga tutti i prodotti Monge"): **catalogo** `public/crocchette-catalogo.json` (`{items:[{id,brand,name,en,kcal,src,c,url}]}`),
+  preparato da Claude dalle schede tecniche PDF dei produttori: 77 crocchette secche Monge (Natural Superpremium, BWild, Gemon,
+  Special Dog Excellence, Special Dog); kcal del produttore ("p") o calcolate dai componenti ("c", umidità 10%). Lo leggono:
+  `GET /api/public/crocchette` (via `env.ASSETS`, prima delle aggiunte degli utenti → sito e pagina del proprietario) e il gestionale
+  (`FD_CAT`, `fdLoadCat`, un gruppo per marca). Per aggiungere un altro produttore: nuove voci nel file (id "cat_…" unici).

@@ -37,7 +37,11 @@ export async function onRequestGet({ request, env }) {
   const H = Object.assign(cors(request.headers.get("origin") || ""), { "cache-control": "public, max-age=60" });
   await ensureCrocchette(env);
   const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp FROM crocchette WHERE status = 'ok' ORDER BY brand, name LIMIT 1000").all();
-  return json({ items: (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: "u", c: cj(x.comp) })) }, 200, H);
+  const items = (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: "u", c: cj(x.comp) }));
+  // catalogo preparato da Claude dai siti dei produttori (public/crocchette-catalogo.json, 19/10/2026): va prima delle aggiunte
+  let cat = [];
+  try { const a = await env.ASSETS.fetch(new URL("/crocchette-catalogo.json", request.url)); if (a.ok) cat = (await a.json()).items || []; } catch (e) {}
+  return json({ items: cat.concat(items) }, 200, H);
 }
 
 async function overLimit(request, env) {
