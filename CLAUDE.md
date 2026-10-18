@@ -1190,7 +1190,9 @@ Accessi e copie
 - Manifest per link segreto: `/api/public/<token>/manifest` (nome del cane, start_url e scope /p/<token>); meta apple-* nel <head>.
 
 ## 🍖 Quanto mangiare (18/10/2026, anteprima approvata: stile B «plastico» con i colori del gestionale)
-- Riquadro nella scheda del cane (`fdBox`/`fdDraw`), dopo Crescita. RER 70×kg^0,75 × fattore (3 fino a 3 mesi → 2 a 6 mesi →
+- Voce di menu propria «Quanto mangia» (tab "pappa", `fdPage`, 18/10/2026: Paolo vuole una voce indipendente, non nella scheda del cane):
+  si sceglie un cane (FD_PICK) oppure «Nessun cane» (`_free`, D.settings.feedFree con data di nascita e peso scritti a mano).
+  Riquadro `fdBox`/`fdDraw`. RER 70×kg^0,75 × fattore (3 fino a 3 mesi → 2 a 6 mesi →
   1,8 intero / 1,6 sterilizzato a 12 mesi; 8+ anni 1,4) × movimento (0,85/1/1,25/1,6). Tabella ogni mezzo mese 2–6 mesi, poi mensile
   fino a 12, adulto, anziano; peso per età = quota del peso adulto previsto (`FD_G`). Pasti 1–5 con «consigliato» (4/3/2).
 - `d.feed` = {food, act, ster, meals, kg?, adult}. Elenco `FD_DB` (21 crocchette taglia media, kcal/100 g; "p" produttore, "c" calcolate)
