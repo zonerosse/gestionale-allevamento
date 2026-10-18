@@ -1195,7 +1195,7 @@ Accessi e copie
   Riquadro `fdBox`/`fdDraw`. RER 70×kg^0,75 × fattore (3 fino a 3 mesi → 2 a 6 mesi →
   1,8 intero / 1,6 sterilizzato a 12 mesi; 8+ anni 1,4) × movimento (0,85/1/1,25/1,6). Tabella ogni mezzo mese 2–6 mesi, poi mensile
   fino a 12, adulto, anziano; peso per età = quota del peso adulto previsto (`FD_G`). Pasti 1–5 con «consigliato» (4/3/2).
-- `d.feed` = {food, act, ster, meals, kg?, adult}. Elenco `FD_DB` (21 crocchette taglia media, kcal/100 g; "p" produttore, "c" calcolate)
+- `d.feed` = {food, act, ster, meals, kg?, adult}. Elenco `FD_DB` (34 crocchette taglia media, kcal/100 g; "p" produttore, "c" calcolate)
   + `D.settings.foods` (aggiunte da Paolo). ✏️ a mano (kcal o componenti → Atwater modificato), 📷 foto del sacco: task AI "sacco"
   (kcal scritte o calcolate dai componenti); se c'è solo il nome: prima l'elenco, poi task "kcalnome" con la ricerca web di Claude.
 - Da mettere sul sito per tutti (IT/EN/DE) quando Paolo dice che è perfezionato.

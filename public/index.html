@@ -1004,11 +1004,15 @@ async function owpDel(pid){if(!confirm("Cancellare questa voce scritta dal propr
    1,6 sterilizzato; anziano 8+ anni 1,4) × movimento; grammi = kcal / (kcal per 100 g / 100).
    d.feed = {food, act, ster, meals, adult}; crocchette aggiunte da Paolo in D.settings.foods [{id,brand,name,kcal,src}]
    (src "m" scritte a mano, "f" lette dalla foto del sacco con Claude: kcal scritte, o calcolate dai componenti del retro, o dal nome sul fronte cercando prima nell'elenco e poi in internet con Claude, task "kcalnome"). Da mettere poi sul sito. */
-const FD_DB=[["rc_mp","Royal Canin","Medium Puppy",413,"p"],["rc_ma","Royal Canin","Medium Adult",388,"p"],["hi_mp","Hill's Science Plan","Puppy Medium pollo",385,"p"],["hi_ma","Hill's Science Plan","Adult Medium pollo",374,"c"],
+const FD_DB=[["rc_mp","Royal Canin","Medium Puppy",410,"p"],["rc_ma","Royal Canin","Medium Adult",388,"p"],["hi_mp","Hill's Science Plan","Puppy Medium pollo",385,"p"],["hi_ma","Hill's Science Plan","Adult Medium pollo",374,"c"],
   ["pp_mp","Purina Pro Plan","Medium Puppy pollo",405,"p"],["pp_ma","Purina Pro Plan","Medium Adult pollo",390,"p"],["nd_p","Farmina N&D Ancestral Grain","Puppy Medium/Maxi pollo e melograno",444,"p"],["nd_a","Farmina N&D Ancestral Grain","Adult Medium/Maxi pollo e melograno",389,"p"],
   ["mo_mp","Monge","Medium Puppy & Junior pollo",420,"p"],["mo_ma","Monge","Medium Adult pollo",400,"p"],["eu_ma","Eukanuba","Adult Medium Breed",406,"p"],["ac_p","Acana","Puppy Recipe",366,"c"],["ac_a","Acana","Adult Dog Recipe",351,"p"],
   ["or_o","Orijen","Original",394,"p"],["al_ma","Almo Nature Holistic","Medium Adult pollo e riso",379,"p"],["jo_ys","Josera","YoungStar",373,"p"],["bc_p","Brit Care","Puppy agnello e riso",400,"p"],["tw_p","Taste of the Wild","High Prairie Puppy",366,"p"],
-  ["ex_mp","Exclusion Mediterraneo","Puppy Medium pollo",389,"c"],["ex_ma","Exclusion Mediterraneo","Adult Medium pollo",373,"c"],["sc_mp","Schesir","Medium Puppy pollo",387,"c"]].map(([id,brand,name,kcal,src])=>({id,brand,name,kcal,src}));
+  ["ex_mp","Exclusion Mediterraneo","Puppy Medium pollo",389,"c"],["ex_ma","Exclusion Mediterraneo","Adult Medium pollo",373,"c"],["sc_mp","Schesir","Medium Puppy pollo",387,"c"],
+  ["rc_ms","Royal Canin","Medium Sterilised",340,"c"],["po_ma","Purina One","Medium/Maxi Adult pollo",365,"c"],["ndp_p","Farmina N&D Pumpkin","Puppy Medium/Maxi agnello e zucca",414,"p"],["ad_mp","Advance","Medium Puppy Protect pollo",428,"p"],
+  ["ge_ma","Gemon","Medium Adult pollo e riso",399,"p"],["sd_xa","Special Dog Excellence","Maxi Adult pollo",420,"p"],["jo_fe","Josera","Festival",382,"p"],["jo_js","Josera","JosiDog Adult Sensitive",374,"p"],
+  ["bc_am","Brit Care","Adult Medium Breed agnello e riso",381,"p"],["nt_pm","Natural Trainer","Puppy & Junior Medium pollo",380,"c"],["or_p","Orijen","Puppy",400,"p"],["tw_a","Taste of the Wild","High Prairie Adult",372,"p"],["ww_a","Wolf of Wilderness","Adult Oak Woods cinghiale",369,"p"]].map(([id,brand,name,kcal,src])=>({id,brand,name,kcal,src}));
+FD_DB.sort((a,b)=>(a.brand+a.name).toLowerCase().localeCompare((b.brand+b.name).toLowerCase()));
 const fdFoods=()=>FD_DB.concat(((D.settings||{}).foods)||[]);
 const fdFood=id=>fdFoods().find(x=>x.id===id);
 const FD_G=[[2,.25],[3,.38],[4,.5],[5,.62],[6,.72],[7,.8],[8,.86],[9,.9],[10,.93],[11,.96],[12,.98],[18,1]];
