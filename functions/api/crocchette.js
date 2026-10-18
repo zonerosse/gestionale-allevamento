@@ -5,7 +5,7 @@ import { ensureCrocchette, croKey } from "./public/crocchette.js";
 export async function onRequestGet({ request, env }) {
   const w = await who(request, env); if (!w.role) return deny();
   await ensureCrocchette(env);
-  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, status, reason, url, src, sent, origin, created FROM crocchette ORDER BY created DESC LIMIT 1000").all();
+  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp, status, reason, url, src, sent, origin, created FROM crocchette ORDER BY created DESC LIMIT 1000").all();
   return json({ items: r.results || [] });
 }
 // { del: id } → tolta dall'elenco comune (non torna più con lo stesso nome); { ok: id } → messa nell'elenco comune

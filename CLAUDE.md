@@ -1223,3 +1223,8 @@ Accessi e copie
   (tabella `crocch_lim`, hash IP+giorno); stessa proposta già scartata o tolta → niente nuovo controllo. Paolo: Quanto mangia →
   «👥 Crocchette aggiunte dagli utenti» (`fdUList`, `GET/POST /api/crocchette`: 🗑 Togli = status del, ✓ Metti nell'elenco).
   Nel gestionale le accettate stanno in `FD_U` (gruppo «Aggiunte dagli utenti (controllate)», src "u").
+- 18/10/2026 (Paolo: "quando si sceglie un sacco o lo si aggiunge vorrei vedere i componenti analitici"): sotto la scelta delle
+  crocchette il riquadro «Componenti analitici» (proteina, grassi, fibra, ceneri, umidità + carboidrati calcolati; `fdCmpHtml`, nel
+  calcolatore del proprietario `cmpHtml`, classe `po-cmp`). Dati: 6° elemento di `FD_DB` `c:[p,f,fi,a,u]` (null se non pubblicato),
+  presi dai siti dei produttori o da Zooplus il 18/10/2026; crocchette aggiunte: dai campi dei componenti o dalla foto
+  (sacco.js ora restituisce anche p,f,fi,a,u); elenco comune: colonna `comp` della tabella `crocchette` (Claude riporta i componenti).

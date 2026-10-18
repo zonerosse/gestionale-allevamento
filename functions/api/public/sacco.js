@@ -47,6 +47,7 @@ Se la foto non è un sacco di cibo per cani: tutto vuoto o null.
 Formato: {"brand":"","name":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null}`,
       [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 500);
     const r = { ok: true, brand: String(x.brand || "").slice(0, 80), name: String(x.name || "").slice(0, 120), kcal: null, how: "" };
+    for (const q of ["p", "f", "fi", "a", "u"]) r[q] = n(x[q]);
     let k = n(x.kcal); if (k && k > 1000) k = k / 10;
     if (k && k > 200 && k < 700) { r.kcal = Math.round(k); r.how = "sacco"; }
     else if (n(x.p) != null && n(x.f) != null && n(x.a) != null) {
