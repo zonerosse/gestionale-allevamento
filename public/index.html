@@ -1019,7 +1019,7 @@ const FD_G=[[2,.25],[3,.38],[4,.5],[5,.62],[6,.72],[7,.8],[8,.86],[9,.9],[10,.93
 function fdFrac(m){if(m>=18)return 1;if(m<=2)return .25*Math.max(.3,m/2);for(let i=1;i<FD_G.length;i++)if(m<=FD_G[i][0]){const [a,pa]=FD_G[i-1],[b,pb]=FD_G[i];return pa+(pb-pa)*(m-a)/(b-a)}return 1}
 function fdFac(m,ster,act){const ad=ster?1.6:1.8;let f;if(m<=3)f=3;else if(m<=6)f=3-(m-3)/3;else if(m<=12)f=2-(2-ad)*(m-6)/6;else if(m<96)f=ad;else f=1.4;return m<4?f*Math.min(act,1.1):f*act}
 const fdGrams=(kg,m,ster,act,kcal)=>70*Math.pow(kg,.75)*fdFac(m,ster,act)/(kcal/100);
-const fdSug=m=>m<3?4:m<6?3:2;
+const fdSug=m=>m<6?3:2;
 const fdNum=v=>parseFloat(String(v==null?"":v).replace(",","."))||0;
 /* voce di menu «Quanto mangia» (18/10/2026, Paolo: "voce indipendente"): si sceglie un cane, oppure "_free" = nessun cane,
    data di nascita e peso scritti a mano (D.settings.feedFree), come sarà sul sito */
@@ -1057,7 +1057,7 @@ function fdBox(id){const d=fdObj(id);if(!d||d.ext)return"";const s=fdState(id),F
 function fdDraw(id){const el=document.getElementById("fd_"+id);if(!el)return;const s=fdState(id),F=s.F,sg=s.m!=null?fdSug(s.m):2,ml=F.meals||sg,f=s.food,ster=+F.ster===1,act=+F.act||1;
   $("#fdsrc_"+id).textContent=f?({p:"✓ valore del produttore",c:"✓ calcolato dai componenti del sacco",m:"✓ scritto da te",f:"✓ letto dalla foto del sacco"}[f.src]||""):"";
   $("#fdm_"+id).innerHTML=[1,2,3,4,5].map(n=>`<button class="fd-c${n===ml?" on":""}" data-a="fdSet" data-v="${id}|meals|${n}"${RO?" disabled":""}>${n}${n===sg?"<small>consigliato</small>":""}</button>`).join("");
-  $("#fdms_"+id).textContent=s.m==null?"":sg===4?"Fino a 3 mesi: 4 pasti. Poi 3 fino a 6 mesi, da lì 2.":sg===3?"Da 3 a 6 mesi: 3 pasti. Dopo i 6 mesi bastano 2.":"Dai 6 mesi in su: 2 pasti (mattina e sera). 1 solo pasto è sconsigliato.";
+  $("#fdms_"+id).textContent=s.m==null?"":sg===3?"Fino a 6 mesi: 3 pasti. Dopo i 6 mesi bastano 2.":"Dai 6 mesi in su: 2 pasti (mattina e sera). 1 solo pasto è sconsigliato.";
   const g=$("#fdg_"+id),gs=$("#fdgs_"+id),tb=$("#fdtb_"+id);
   if(!f||!s.kg||s.m==null){g.textContent="—";gs.textContent=!f?"scegli le crocchette":!s.kg?"scrivi il peso di oggi":"manca la data di nascita";tb.innerHTML="";return}
   const gr=fdGrams(s.kg,s.m,ster,act,f.kcal);g.textContent=Math.round(gr/5)*5+" g al giorno";gs.textContent=ml+(ml===1?" pasto":" pasti")+" da circa "+Math.round(gr/ml)+" g";
