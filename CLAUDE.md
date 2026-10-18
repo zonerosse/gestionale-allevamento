@@ -1199,3 +1199,6 @@ Accessi e copie
   + `D.settings.foods` (aggiunte da Paolo). ✏️ a mano (kcal o componenti → Atwater modificato), 📷 foto del sacco: task AI "sacco"
   (kcal scritte o calcolate dai componenti); se c'è solo il nome: prima l'elenco, poi task "kcalnome" con la ricerca web di Claude.
 - Da mettere sul sito per tutti (IT/EN/DE) quando Paolo dice che è perfezionato.
+- 📷 dal sito (18/10/2026, Paolo scelta A): `POST /api/public/sacco` (solo Origin delpiccolodiavolo.it, CORS) legge la foto del sacco
+  con Claude; limite 30 letture al giorno per tutti e 3 per visitatore (tabella `sacco`, impronta = hash di IP+giorno, IP non salvato,
+  righe più vecchie di 7 giorni cancellate). Foto non salvata. Se non c'è kcal né componenti, ricerca web dal nome.
