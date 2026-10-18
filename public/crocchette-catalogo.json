@@ -1232,6 +1232,2102 @@ null
 null
 ],
 "url": "https://www.monge.it/wp-content/uploads/2016/02/Special-Dog-Kibbles-Puppy-and-Junior-with-Chicken-and-Rice.pdf"
+},
+{
+"id": "cat_fa001",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Starter Puppy",
+"en": "Chicken & Pomegranate Starter Puppy",
+"kcal": 430,
+"src": "p",
+"c": [
+30,
+22,
+2.2,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/105-chicken-&-pomegranate-starter-puppy.html"
+},
+{
+"id": "cat_fa002",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Puppy Mini",
+"en": "Chicken & Pomegranate Puppy Mini",
+"kcal": 418,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/106-chicken-&-pomegranate-puppy-mini.html"
+},
+{
+"id": "cat_fa003",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Adult Mini",
+"en": "Chicken & Pomegranate Adult Mini",
+"kcal": 400,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+6.8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/109-chicken-&-pomegranate-adult-mini.html"
+},
+{
+"id": "cat_fa004",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Light Mini",
+"en": "Chicken & Pomegranate Light Mini",
+"kcal": 338,
+"src": "p",
+"c": [
+34,
+11,
+6.4,
+8.7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/595-chicken-&-pomegranate-light-mini.html"
+},
+{
+"id": "cat_fa005",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Light Medium & Maxi",
+"en": "Chicken & Pomegranate Light Medium & Maxi",
+"kcal": 338,
+"src": "p",
+"c": [
+34,
+11,
+6.4,
+8.7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/113-chicken-&-pomegranate-light-medium-&-maxi.html"
+},
+{
+"id": "cat_fa006",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Senior Mini",
+"en": "Chicken & Pomegranate Senior Mini",
+"kcal": 370,
+"src": "p",
+"c": [
+27,
+15,
+5,
+7.7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/596-chicken-&-pomegranate-senior-mini.html"
+},
+{
+"id": "cat_fa007",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Pollo e melograno Senior Medium & Maxi",
+"en": "Chicken & Pomegranate Senior Medium & Maxi",
+"kcal": 370,
+"src": "p",
+"c": [
+27,
+15,
+5,
+7.7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/115-chicken-&-pomegranate-senior-medium-&-maxi.html"
+},
+{
+"id": "cat_fa008",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Agnello e mirtillo Puppy Mini",
+"en": "Lamb & Blueberry Puppy Mini",
+"kcal": 416,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/400-lamb-&-blueberry-puppy-mini.html"
+},
+{
+"id": "cat_fa009",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Agnello e mirtillo Puppy Medium & Maxi",
+"en": "Lamb & Blueberry Puppy Medium & Maxi",
+"kcal": 416,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/401-lamb-&-blueberry-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa010",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Agnello e mirtillo Adult Mini",
+"en": "Lamb & Blueberry Adult Mini",
+"kcal": 394,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.2,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/119-lamb-&-blueberry-adult-mini.html"
+},
+{
+"id": "cat_fa011",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Agnello e mirtillo Adult Medium & Maxi",
+"en": "Lamb & Blueberry Adult Medium & Maxi",
+"kcal": 394,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.2,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/597-lamb-&-blueberry-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa012",
+"brand": "Farmina N&D Ancestral Grain",
+"name": "Selection Adult Medium & Maxi",
+"en": "Selection Adult Medium & Maxi",
+"kcal": 388,
+"src": "p",
+"c": [
+27,
+16,
+2.7,
+7.5,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ancestral-grain-canine/631-selection-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa013",
+"brand": "Farmina N&D Pumpkin",
+"name": "Pollo, zucca e melograno Starter Puppy",
+"en": "Chicken, Pumpkin and Pomegranate Starter Puppy",
+"kcal": 419,
+"src": "p",
+"c": [
+30,
+20,
+2.2,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/715-chicken,-pumpkin-and-pomegranate-starter-puppy.html"
+},
+{
+"id": "cat_fa014",
+"brand": "Farmina N&D Pumpkin",
+"name": "Pollo, zucca e melograno Puppy Mini",
+"en": "Chicken, Pumpkin and Pomegranate Puppy Mini",
+"kcal": 415,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/716-chicken,-pumpkin-and-pomegranate-puppy-mini.html"
+},
+{
+"id": "cat_fa015",
+"brand": "Farmina N&D Pumpkin",
+"name": "Pollo, zucca e melograno Puppy Medium & Maxi",
+"en": "Chicken, Pumpkin and Pomegranate Puppy Medium & Maxi",
+"kcal": 415,
+"src": "p",
+"c": [
+30,
+20,
+1.9,
+7.8,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/717-chicken,-pumpkin-and-pomegranate-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa016",
+"brand": "Farmina N&D Pumpkin",
+"name": "Agnello e mirtillo Puppy Mini",
+"en": "Lamb & Blueberry Puppy Mini",
+"kcal": 414,
+"src": "p",
+"c": [
+30,
+20,
+2.5,
+8.1,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/388-lamb-&-blueberry-puppy-mini.html"
+},
+{
+"id": "cat_fa017",
+"brand": "Farmina N&D Pumpkin",
+"name": "Pollo e melograno Adult Mini",
+"en": "Chicken and Pomegranate Adult Mini",
+"kcal": 399,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/390-chicken-and-pomegranate-adult-mini.html"
+},
+{
+"id": "cat_fa018",
+"brand": "Farmina N&D Pumpkin",
+"name": "Pollo e melograno Adult Medium & Maxi",
+"en": "Chicken and Pomegranate Adult Medium & Maxi",
+"kcal": 399,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/391-chicken-and-pomegranate-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa019",
+"brand": "Farmina N&D Pumpkin",
+"name": "Agnello e mirtillo Adult Mini",
+"en": "Lamb & Blueberry Adult Mini",
+"kcal": 393,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/392-lamb-&-blueberry-adult-mini.html"
+},
+{
+"id": "cat_fa020",
+"brand": "Farmina N&D Pumpkin",
+"name": "Agnello e mirtillo Adult Medium & Maxi",
+"en": "Lamb & Blueberry Adult Medium & Maxi",
+"kcal": 393,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/393-lamb-&-blueberry-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa021",
+"brand": "Farmina N&D Pumpkin",
+"name": "Cinghiale e mela Adult Mini",
+"en": "Boar and Apple Adult Mini",
+"kcal": 400,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+6.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/396-boar-and-apple-adult-mini.html"
+},
+{
+"id": "cat_fa022",
+"brand": "Farmina N&D Pumpkin",
+"name": "Cinghiale e mela Adult Medium & Maxi",
+"en": "Boar and Apple Adult Medium & Maxi",
+"kcal": 400,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+6.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/397-boar-and-apple-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa023",
+"brand": "Farmina N&D Pumpkin",
+"name": "Anatra e melone Adult Mini",
+"en": "Duck & Cantaloupe Melon Adult Mini",
+"kcal": 398,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7.3,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/974-duck-&-cantaloupe-melon-adult-mini.html"
+},
+{
+"id": "cat_fa024",
+"brand": "Farmina N&D Pumpkin",
+"name": "Anatra e melone Adult Medium & Maxi",
+"en": "Duck & Cantaloupe Melon Adult Medium & Maxi",
+"kcal": 398,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7.3,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/975-duck-&-cantaloupe-melon-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa025",
+"brand": "Farmina N&D Pumpkin",
+"name": "Quaglia e melograno Adult Mini",
+"en": "Quail & Pomegranate Adult Mini",
+"kcal": 398,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7.3,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/976-quail-&-pomegranate-adult-mini.html"
+},
+{
+"id": "cat_fa026",
+"brand": "Farmina N&D Pumpkin",
+"name": "Quaglia e melograno Adult Medium & Maxi",
+"en": "Quail & Pomegranate Adult Medium & Maxi",
+"kcal": 398,
+"src": "p",
+"c": [
+30,
+18,
+2.9,
+7.3,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/977-quail-&-pomegranate-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa027",
+"brand": "Farmina N&D Pumpkin",
+"name": "Cervo e mela Adult Mini",
+"en": "Venison & Apple Adult Mini",
+"kcal": 393,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/978-venison-&-apple-adult-mini.html"
+},
+{
+"id": "cat_fa028",
+"brand": "Farmina N&D Pumpkin",
+"name": "Cervo e mela Adult Medium & Maxi",
+"en": "Venison & Apple Adult Medium & Maxi",
+"kcal": 393,
+"src": "p",
+"c": [
+28,
+18,
+2.9,
+8.6,
+9
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-pumpkin-canine/979-venison-&-apple-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa029",
+"brand": "Farmina N&D Prime",
+"name": "Pollo e melograno Puppy Mini",
+"en": "Chicken & Pomegranate Puppy Mini",
+"kcal": 419,
+"src": "p",
+"c": [
+36.0,
+22.0,
+2.3,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/585-chicken-&-pomegranate-puppy-mini.html"
+},
+{
+"id": "cat_fa030",
+"brand": "Farmina N&D Prime",
+"name": "Pollo e melograno Puppy Medium & Maxi",
+"en": "Chicken & Pomegranate Puppy Medium & Maxi",
+"kcal": 419,
+"src": "p",
+"c": [
+36.0,
+22.0,
+2.3,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/586-chicken-&-pomegranate-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa031",
+"brand": "Farmina N&D Prime",
+"name": "Pollo e melograno Adult Mini",
+"en": "Chicken & Pomegranate Adult Mini",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/587-chicken-&-pomegranate-adult-mini.html"
+},
+{
+"id": "cat_fa032",
+"brand": "Farmina N&D Prime",
+"name": "Pollo e melograno Adult Medium & Maxi",
+"en": "Chicken & Pomegranate Adult Medium & Maxi",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/588-chicken-&-pomegranate-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa033",
+"brand": "Farmina N&D Prime",
+"name": "Cinghiale e mela Adult Mini",
+"en": "Wild Boar & Apple Adult Mini",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/589-wild-boar-&-apple-adult-mini.html"
+},
+{
+"id": "cat_fa034",
+"brand": "Farmina N&D Prime",
+"name": "Cinghiale e mela Adult Medium & Maxi",
+"en": "Wild Boar & Apple Adult Medium & Maxi",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/590-wild-boar-&-apple-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa035",
+"brand": "Farmina N&D Prime",
+"name": "Agnello e mirtillo Adult Mini",
+"en": "Lamb & Blueberry Adult Mini",
+"kcal": 398,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+8.3,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/591-lamb-&-blueberry-adult-mini.html"
+},
+{
+"id": "cat_fa036",
+"brand": "Farmina N&D Prime",
+"name": "Agnello e mirtillo Adult Medium & Maxi",
+"en": "Lamb & Blueberry Adult Medium & Maxi",
+"kcal": 398,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+8.3,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-prime-canine/592-lamb-&-blueberry-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa037",
+"brand": "Farmina N&D Quinoa",
+"name": "Digestion agnello Mini",
+"en": "Digestion Lamb Mini",
+"kcal": 375,
+"src": "p",
+"c": [
+25.0,
+12.0,
+1.9,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/691-digestion-mini.html"
+},
+{
+"id": "cat_fa038",
+"brand": "Farmina N&D Quinoa",
+"name": "Digestion agnello Medium & Maxi",
+"en": "Digestion Lamb Medium & Maxi",
+"kcal": 375,
+"src": "p",
+"c": [
+25.0,
+12.0,
+1.9,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1029-digestion-lamb-medium-&-maxi.html"
+},
+{
+"id": "cat_fa039",
+"brand": "Farmina N&D Quinoa",
+"name": "Weight Management agnello Mini",
+"en": "Weight Management Lamb Mini",
+"kcal": 314,
+"src": "p",
+"c": [
+28.0,
+8.0,
+8.2,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/692-weight-management-mini.html"
+},
+{
+"id": "cat_fa040",
+"brand": "Farmina N&D Quinoa",
+"name": "Weight Management agnello Medium & Maxi",
+"en": "Weight Management Lamb Medium & Maxi",
+"kcal": 314,
+"src": "p",
+"c": [
+28.0,
+8.0,
+8.2,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1034-weight-management-lamb-medium-&-maxi.html"
+},
+{
+"id": "cat_fa041",
+"brand": "Farmina N&D Quinoa",
+"name": "Neutered Adult Mini",
+"en": "Neutered Adult Mini",
+"kcal": 344,
+"src": "p",
+"c": [
+30.0,
+11.0,
+5.7,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/689-neutered-adult-mini.html"
+},
+{
+"id": "cat_fa042",
+"brand": "Farmina N&D Quinoa",
+"name": "Neutered Adult Medium & Maxi",
+"en": "Neutered Adult Medium & Maxi",
+"kcal": 344,
+"src": "p",
+"c": [
+30.0,
+11.0,
+5.7,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/690-neutered-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa043",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat anatra Mini",
+"en": "Skin & Coat Duck Mini",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/693-skin-&-coat-duck-mini.html"
+},
+{
+"id": "cat_fa044",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat anatra Medium & Maxi",
+"en": "Skin & Coat Duck Medium & Maxi",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1033-skin-&-coat-duck-medium-&-maxi.html"
+},
+{
+"id": "cat_fa045",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat aringa Mini",
+"en": "Skin & Coat Herring Mini",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/694-skin-&-coat-herring-mini.html"
+},
+{
+"id": "cat_fa046",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat aringa Medium & Maxi",
+"en": "Skin & Coat Herring Medium & Maxi",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1030-skin-&-coat-herring-medium-&-maxi.html"
+},
+{
+"id": "cat_fa047",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat cervo Mini",
+"en": "Skin & Coat Venison Mini",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/695-skin-&-coat-venison-mini.html"
+},
+{
+"id": "cat_fa048",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat cervo Medium & Maxi",
+"en": "Skin & Coat Venison Medium & Maxi",
+"kcal": 366,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1032-skin-&-coat-venison-medium-&-maxi.html"
+},
+{
+"id": "cat_fa049",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat quaglia Mini",
+"en": "Skin & Coat Quail Mini",
+"kcal": 369,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.2,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/696-skin-&-coat-quail-mini.html"
+},
+{
+"id": "cat_fa050",
+"brand": "Farmina N&D Quinoa",
+"name": "Skin & Coat quaglia Medium & Maxi",
+"en": "Skin & Coat Quail Medium & Maxi",
+"kcal": 369,
+"src": "p",
+"c": [
+23.0,
+12.0,
+2.8,
+7.2,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1031-skin-&-coat-quail-medium-&-maxi.html"
+},
+{
+"id": "cat_fa051",
+"brand": "Farmina N&D Quinoa",
+"name": "Senior agnello, Quinoa, mela verde e cocco Mini",
+"en": "Senior Lamb, Quinoa, Green Apple & Coconut Mini",
+"kcal": 356,
+"src": "p",
+"c": [
+27.0,
+15.0,
+6.5,
+7.7,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1212-lamb,-quinoa,-green-apple-and-coconut-senior-mini.html"
+},
+{
+"id": "cat_fa052",
+"brand": "Farmina N&D Quinoa",
+"name": "Senior agnello, Quinoa, mela verde e cocco Medium & Maxi",
+"en": "Senior Lamb, Quinoa, Green Apple & Coconut Medium & Maxi",
+"kcal": 356,
+"src": "p",
+"c": [
+27.0,
+15.0,
+6.5,
+7.7,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-quinoa-canine/1213-lamb,-quinoa,-green-apple-and-coconut-senior-medium-&-maxi.html"
+},
+{
+"id": "cat_fa053",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, zucca e melone Puppy Mini",
+"en": "Cod, Pumpkin & Cantaloupe Melon Puppy Mini",
+"kcal": 412,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/704-cod,-pumpkin-and-cantaloupe-melon-puppy-mini.html"
+},
+{
+"id": "cat_fa054",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, zucca e melone Puppy Medium & Maxi",
+"en": "Cod, Pumpkin & Cantaloupe Melon Puppy Medium & Maxi",
+"kcal": 406,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/705-cod,-pumpkin-and-cantaloupe-melon-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa055",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, zucca e arancia Adult Mini",
+"en": "Cod, Pumpkin & Orange Adult Mini",
+"kcal": 398,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.3,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/580-cod,-pumpkin-&-orange-adult-mini.html"
+},
+{
+"id": "cat_fa056",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, zucca e arancia Adult Medium & Maxi",
+"en": "Cod, Pumpkin & Orange Adult Medium & Maxi",
+"kcal": 398,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.3,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/582-cod,-pumpkin-&-orange-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa057",
+"brand": "Farmina N&D Ocean",
+"name": "Aringa e arancia Adult Mini",
+"en": "Herring & Orange Adult Mini",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/581-herring-&-orange-adult-mini.html"
+},
+{
+"id": "cat_fa058",
+"brand": "Farmina N&D Ocean",
+"name": "Aringa e arancia Adult Medium & Maxi",
+"en": "Herring & Orange Adult Medium & Maxi",
+"kcal": 400,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/485-herring-&-orange-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa059",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, farro, avena e arancia Adult Mini",
+"en": "Cod, Spelt, Oats & Orange Adult Mini",
+"kcal": 399,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+6.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/583-cod,-spelt,-oats-&-orange-adult-mini.html"
+},
+{
+"id": "cat_fa060",
+"brand": "Farmina N&D Ocean",
+"name": "Merluzzo, farro, avena e arancia Adult Medium & Maxi",
+"en": "Cod, Spelt, Oats & Orange Adult Medium & Maxi",
+"kcal": 399,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+6.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/584-cod,-spelt,-oats-&-orange-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa061",
+"brand": "Farmina N&D Ocean",
+"name": "Salmone, merluzzo e melone Adult Mini",
+"en": "Salmon, Cod & Cantaloupe Melon Adult Mini",
+"kcal": 394,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/706-salmon,-cod-&-cantalupe-melon-adult-mini.html"
+},
+{
+"id": "cat_fa062",
+"brand": "Farmina N&D Ocean",
+"name": "Salmone, merluzzo e melone Adult Medium & Maxi",
+"en": "Salmon, Cod & Cantaloupe Melon Adult Medium & Maxi",
+"kcal": 394,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/707-salmon,-cod-&-cantalupe-melon-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa063",
+"brand": "Farmina N&D Ocean",
+"name": "Salmone, merluzzo e melone Adult Maxi Giant",
+"en": "Salmon, Cod & Cantaloupe Melon Adult Maxi Giant",
+"kcal": 394,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-ocean-canine/723-salmon,-cod-&-cantalupe-melon-adult-maxi-giant.html"
+},
+{
+"id": "cat_fa064",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Maiale, farro, avena e frutti tropicali Adult Mini",
+"en": "Pork, Spelt, Oats and Tropical Fruits Adult Mini",
+"kcal": 388,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.7,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1017-pork.html"
+},
+{
+"id": "cat_fa065",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Pollo, farro, avena e frutti tropicali Adult Mini",
+"en": "Chicken, Spelt, Oats and Tropical Fruits Adult Mini",
+"kcal": 388,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.7,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1013-chicken-and-tropical-fruits-adult-mini.html"
+},
+{
+"id": "cat_fa066",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Agnello, farro, avena e frutti tropicali Adult Mini",
+"en": "Lamb, Spelt, Oats and Tropical Fruits Adult Mini",
+"kcal": 386,
+"src": "p",
+"c": [
+25.0,
+16.0,
+2.7,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1015-lamb-and-tropical-fruits-adult-mini.html"
+},
+{
+"id": "cat_fa067",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Salmone, farro, avena e frutti tropicali Adult Mini",
+"en": "Salmon, Spelt, Oats and Tropical Fruits Adult Mini",
+"kcal": 386,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.9,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1016-salmon-and-tropical-fruits-adult-mini.html"
+},
+{
+"id": "cat_fa068",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Agnello, farro, avena e frutti tropicali Puppy Mini",
+"en": "Lamb, Spelt, Oats and Tropical Fruits Puppy Mini",
+"kcal": 406,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.7,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1018-lamb-and-tropical-fruits-puppy-mini.html"
+},
+{
+"id": "cat_fa069",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Agnello, farro, avena e frutti tropicali Puppy Medium & Maxi",
+"en": "Lamb, Spelt, Oats and Tropical Fruits Puppy Medium & Maxi",
+"kcal": 406,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.7,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1019-lamb-and-tropical-fruits-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa070",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Pollo, farro, avena e frutti tropicali Adult Medium & Maxi",
+"en": "Chicken, Spelt, Oats and Tropical Fruits Adult Medium & Maxi",
+"kcal": 388,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.7,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1020-chicken-and-tropical-fruits-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa071",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Agnello, farro, avena e frutti tropicali Adult Medium & Maxi",
+"en": "Lamb, Spelt, Oats and Tropical Fruits Adult Medium & Maxi",
+"kcal": 386,
+"src": "p",
+"c": [
+25.0,
+16.0,
+2.7,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1021-lamb-and-tropical-fruits-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa072",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Salmone, farro, avena e frutti tropicali Adult Medium & Maxi",
+"en": "Salmon, Spelt, Oats and Tropical Fruits Adult Medium & Maxi",
+"kcal": 386,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.9,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1022-salmon-and-tropical-fruits-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa073",
+"brand": "Farmina N&D Tropical Selection",
+"name": "Maiale, farro, avena e frutti tropicali Adult Medium & Maxi",
+"en": "Pork, Spelt, Oats and Tropical Fruits Adult Medium & Maxi",
+"kcal": 388,
+"src": "p",
+"c": [
+27.0,
+16.0,
+2.7,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-tropical-selection-canine/1023-pork-and-tropical-fruits-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa074",
+"brand": "Farmina N&D Spirulina",
+"name": "Agnello, Spirulina e goji Puppy Mini",
+"en": "Lamb, Spirulina and Wolfberry Puppy Mini",
+"kcal": 407,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.1,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/996-lamb,-spirulina-and-wolfberry-puppy-mini.html"
+},
+{
+"id": "cat_fa075",
+"brand": "Farmina N&D Spirulina",
+"name": "Agnello, Spirulina e goji Puppy Medium & Maxi",
+"en": "Lamb, Spirulina and Wolfberry Puppy Medium & Maxi",
+"kcal": 407,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.1,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/997-lamb,-spirulina-and-wolfberry-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa076",
+"brand": "Farmina N&D Spirulina",
+"name": "Agnello, Spirulina e goji Adult Mini",
+"en": "Lamb, Spirulina and Wolfberry Adult Mini",
+"kcal": 393,
+"src": "p",
+"c": [
+28.0,
+18.0,
+2.9,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/998-lamb,-spirulina-and-wolfberry-adult-mini.html"
+},
+{
+"id": "cat_fa077",
+"brand": "Farmina N&D Spirulina",
+"name": "Agnello, Spirulina e goji Adult Medium & Maxi",
+"en": "Lamb, Spirulina and Wolfberry Adult Medium & Maxi",
+"kcal": 393,
+"src": "p",
+"c": [
+28.0,
+18.0,
+2.9,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/999-lamb,-spirulina-and-wolfberry-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa078",
+"brand": "Farmina N&D Spirulina",
+"name": "Aringa, Spirulina e goji Adult Mini",
+"en": "Herring, Spirulina and Wolfberry Adult Mini",
+"kcal": 397,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/1000-herring,-spirulina-and-wolfberry-adult-mini.html"
+},
+{
+"id": "cat_fa079",
+"brand": "Farmina N&D Spirulina",
+"name": "Aringa, Spirulina e goji Adult Medium & Maxi",
+"en": "Herring, Spirulina and Wolfberry Adult Medium & Maxi",
+"kcal": 397,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-spirulina-canine/1001-herring,-spirulina-and-wolfberry-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa080",
+"brand": "Farmina N&D White",
+"name": "Branzino, Spirulina e finocchio Adult Mini",
+"en": "Sea Bass, Spirulina and Fennel Adult Mini",
+"kcal": 393,
+"src": "p",
+"c": [
+23.0,
+18.0,
+2.9,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-white/1006-sea-bass,-spirulina-and-fennel-mini.html"
+},
+{
+"id": "cat_fa081",
+"brand": "Farmina N&D White",
+"name": "Branzino, Spirulina e finocchio Adult Medium & Maxi",
+"en": "Sea Bass, Spirulina and Fennel Adult Medium & Maxi",
+"kcal": 393,
+"src": "p",
+"c": [
+23.0,
+18.0,
+2.9,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-white/1145-sea-bass,-spirulina-and-fennel-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa082",
+"brand": "Farmina N&D White",
+"name": "Branzino, Spirulina e finocchio Puppy Mini",
+"en": "Sea Bass, Spirulina and Fennel Puppy Mini",
+"kcal": 405,
+"src": "p",
+"c": [
+28.0,
+20.0,
+2.5,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-white/1147-sea-bass,-spirulina-and-fennel-puppy-mini.html"
+},
+{
+"id": "cat_fa083",
+"brand": "Farmina N&D White",
+"name": "Branzino, Spirulina e finocchio Puppy Medium & Maxi",
+"en": "Sea Bass, Spirulina and Fennel Puppy Medium & Maxi",
+"kcal": 405,
+"src": "p",
+"c": [
+28.0,
+20.0,
+2.5,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-white/1148-sea-bass,-spirulina-and-fennel-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa084",
+"brand": "Farmina N&D Brown",
+"name": "Agnello, Spirulina e carota Adult Mini",
+"en": "Lamb, Spirulina and Carrot Adult Mini",
+"kcal": 392,
+"src": "p",
+"c": [
+34.0,
+18.0,
+3.3,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-brown/1010-lamb,-spirulina-and-carrot-mini.html"
+},
+{
+"id": "cat_fa085",
+"brand": "Farmina N&D Brown",
+"name": "Agnello, Spirulina e carota Adult Medium & Maxi",
+"en": "Lamb, Spirulina and Carrot Adult Medium & Maxi",
+"kcal": 392,
+"src": "p",
+"c": [
+34.0,
+18.0,
+3.3,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-brown/1146-lamb,-spirulina-and-carrot-adult-medium-&-maxi.html"
+},
+{
+"id": "cat_fa086",
+"brand": "Farmina N&D Brown",
+"name": "Agnello, Spirulina e carota Puppy Mini",
+"en": "Lamb, Spirulina and Carrot Puppy Mini",
+"kcal": 412,
+"src": "p",
+"c": [
+32.0,
+22.0,
+3.0,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-brown/1149-lamb,-spirulina-and-carrot-puppy-mini.html"
+},
+{
+"id": "cat_fa087",
+"brand": "Farmina N&D Brown",
+"name": "Agnello, Spirulina e carota Puppy Medium & Maxi",
+"en": "Lamb, Spirulina and Carrot Puppy Medium & Maxi",
+"kcal": 412,
+"src": "p",
+"c": [
+32.0,
+22.0,
+3.0,
+8.5,
+9.0
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/n&d-brown/1150-lamb,-spirulina-and-carrot-puppy-medium-&-maxi.html"
+},
+{
+"id": "cat_fa088",
+"brand": "Farmina Cibau",
+"name": "Puppy Medium",
+"en": "Puppy Medium",
+"kcal": 391,
+"src": "p",
+"c": [
+30.0,
+20.0,
+1.9,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/123-puppy-medium.html"
+},
+{
+"id": "cat_fa089",
+"brand": "Farmina Cibau",
+"name": "Puppy Maxi",
+"en": "Puppy Maxi",
+"kcal": 371,
+"src": "p",
+"c": [
+28.0,
+16.0,
+1.8,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/124-puppy-maxi.html"
+},
+{
+"id": "cat_fa090",
+"brand": "Farmina Cibau",
+"name": "Adult Mini",
+"en": "Adult Mini",
+"kcal": 366,
+"src": "p",
+"c": [
+27.0,
+15.0,
+2.0,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/125-adult-mini.html"
+},
+{
+"id": "cat_fa091",
+"brand": "Farmina Cibau",
+"name": "Adult Medium",
+"en": "Adult Medium",
+"kcal": 354,
+"src": "p",
+"c": [
+25.0,
+12.0,
+2.0,
+6.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/126-adult-medium.html"
+},
+{
+"id": "cat_fa092",
+"brand": "Farmina Cibau",
+"name": "Adult Maxi",
+"en": "Adult Maxi",
+"kcal": 371,
+"src": "p",
+"c": [
+26.0,
+16.0,
+1.8,
+7.6,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/127-adult-maxi.html"
+},
+{
+"id": "cat_fa093",
+"brand": "Farmina Cibau",
+"name": "Sensitive pesce Medium & Maxi",
+"en": "Sensitive Fish Medium & Maxi",
+"kcal": 354,
+"src": "p",
+"c": [
+24.0,
+12.0,
+2.0,
+6.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/129-sensitive-fish-medium-&-maxi.html"
+},
+{
+"id": "cat_fa094",
+"brand": "Farmina Cibau",
+"name": "Sensitive agnello Medium & Maxi",
+"en": "Sensitive Lamb Medium & Maxi",
+"kcal": 342,
+"src": "p",
+"c": [
+23.0,
+10.0,
+2.0,
+7.0,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/cibau/131-sensitive-lamb-medium-&-maxi.html"
+},
+{
+"id": "cat_fa095",
+"brand": "Farmina Ecopet Natural",
+"name": "Puppy Medium",
+"en": "Puppy Medium",
+"kcal": 367,
+"src": "p",
+"c": [
+29.0,
+16.0,
+2.2,
+8.2,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/133-puppy-medium.html"
+},
+{
+"id": "cat_fa096",
+"brand": "Farmina Ecopet Natural",
+"name": "Puppy Maxi",
+"en": "Puppy Maxi",
+"kcal": 367,
+"src": "p",
+"c": [
+29.0,
+16.0,
+2.2,
+8.2,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/134-puppy-maxi.html"
+},
+{
+"id": "cat_fa097",
+"brand": "Farmina Ecopet Natural",
+"name": "Adult Mini",
+"en": "Adult Mini",
+"kcal": 344,
+"src": "p",
+"c": [
+24.0,
+12.0,
+3.0,
+8.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/135-adult-mini.html"
+},
+{
+"id": "cat_fa098",
+"brand": "Farmina Ecopet Natural",
+"name": "Adult Medium",
+"en": "Adult Medium",
+"kcal": 344,
+"src": "p",
+"c": [
+24.0,
+12.0,
+3.0,
+8.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/136-adult-medium.html"
+},
+{
+"id": "cat_fa099",
+"brand": "Farmina Ecopet Natural",
+"name": "Adult Maxi",
+"en": "Adult Maxi",
+"kcal": 344,
+"src": "p",
+"c": [
+24.0,
+12.0,
+3.0,
+8.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/137-adult-maxi.html"
+},
+{
+"id": "cat_fa100",
+"brand": "Farmina Ecopet Natural",
+"name": "Pesce Medium",
+"en": "Fish Medium",
+"kcal": 344,
+"src": "p",
+"c": [
+24.0,
+12.0,
+3.0,
+8.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/139-fish-medium.html"
+},
+{
+"id": "cat_fa101",
+"brand": "Farmina Ecopet Natural",
+"name": "Agnello Medium",
+"en": "Lamb Medium",
+"kcal": 346,
+"src": "p",
+"c": [
+24.0,
+12.0,
+3.0,
+8.5,
+null
+],
+"url": "https://www.farmina.com/it/eshop/alimenti-per-cani/ecopet-natural/142-lamb-medium.html"
+},
+{
+"id": "cat_fa102",
+"brand": "Farmina Team Breeder (Pumpkin Grain Free)",
+"name": "Puppy agnello e mirtillo",
+"en": "Puppy Lamb & Blueberry",
+"kcal": 444,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.1,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/424-puppy-lamb-&-blueberry.html"
+},
+{
+"id": "cat_fa103",
+"brand": "Farmina Team Breeder (Pumpkin Grain Free)",
+"name": "Adult pollo e melograno",
+"en": "Adult Chicken & Pomegranate",
+"kcal": 435,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.8,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/425-adult-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa104",
+"brand": "Farmina Team Breeder (Pumpkin Grain Free)",
+"name": "Adult merluzzo e arancia",
+"en": "Adult Codfish & Orange",
+"kcal": 434,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.3,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/426-adult-codfish-&-orange.html"
+},
+{
+"id": "cat_fa105",
+"brand": "Farmina Team Breeder (Pumpkin Grain Free)",
+"name": "Adult cinghiale e mela",
+"en": "Adult Boar & Apple",
+"kcal": 435,
+"src": "p",
+"c": [
+34.0,
+18.0,
+2.6,
+7.9,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/427-adult-boar-&-apple.html"
+},
+{
+"id": "cat_fa106",
+"brand": "Farmina Team Breeder (Pumpkin Grain Free)",
+"name": "Adult agnello e mirtillo",
+"en": "Adult Lamb & Blueberry",
+"kcal": 425,
+"src": "p",
+"c": [
+28.0,
+18.0,
+2.9,
+8.6,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/428-adult-lamb-&-blueberry.html"
+},
+{
+"id": "cat_fa107",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Gravidanza e allattamento",
+"en": "Pregnancy & Lactation",
+"kcal": 387,
+"src": "p",
+"c": [
+28.0,
+16.0,
+2.8,
+7.9,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/732-pregnancy-&-lactation.html"
+},
+{
+"id": "cat_fa108",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Baby Start pollo e melograno",
+"en": "Baby Start Chicken & Pomegranate",
+"kcal": 405,
+"src": "p",
+"c": [
+30.0,
+22.0,
+2.2,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/171-baby-start-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa109",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Puppy Mini pollo e melograno",
+"en": "Puppy Mini Chicken & Pomegranate",
+"kcal": 392,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/172-puppy-mini-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa110",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Puppy Medium pollo e melograno",
+"en": "Puppy Medium Chicken & Pomegranate",
+"kcal": 392,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/173-puppy-medium-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa111",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Puppy Maxi pollo e melograno",
+"en": "Puppy Maxi Chicken & Pomegranate",
+"kcal": 392,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/174-puppy-maxi-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa112",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Puppy Medium agnello e mirtillo",
+"en": "Puppy Medium Lamb & Blueberry",
+"kcal": 390,
+"src": "p",
+"c": [
+30.0,
+20.0,
+2.5,
+8.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/412-puppy-medium-lamb-&-blueberry.html"
+},
+{
+"id": "cat_fa113",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Adult Mini pollo e melograno",
+"en": "Adult Mini Chicken & Pomegranate",
+"kcal": 380,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+6.8,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/175-adult-mini-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa114",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Adult Medium pollo e melograno",
+"en": "Adult Medium Chicken & Pomegranate",
+"kcal": 380,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+6.8,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/176-adult-medium-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa115",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Adult Maxi pollo e melograno",
+"en": "Adult Maxi Chicken & Pomegranate",
+"kcal": 380,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+7.0,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/177-adult-maxi-chicken-&-pomegranate.html"
+},
+{
+"id": "cat_fa116",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Adult Medium merluzzo e arancia",
+"en": "Adult Medium Codfish & Orange",
+"kcal": 380,
+"src": "p",
+"c": [
+30.0,
+18.0,
+2.9,
+6.9,
+9.0
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/178-adult-medium-codfish-&-orange.html"
+},
+{
+"id": "cat_fa117",
+"brand": "Farmina Team Breeder (Ancestral Grain)",
+"name": "Adult Medium agnello e mirtillo",
+"en": "Adult Medium Lamb & Blueberry",
+"kcal": 375,
+"src": "p",
+"c": [
+28.0,
+18.0,
+2.9,
+8.2,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/179-adult-medium-lamb-&-blueberry.html"
+},
+{
+"id": "cat_fa118",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Puppy Mini",
+"en": "Puppy Mini",
+"kcal": 396,
+"src": "p",
+"c": [
+31.0,
+21.0,
+1.9,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/180-puppy-mini.html"
+},
+{
+"id": "cat_fa119",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Puppy Medium",
+"en": "Puppy Medium",
+"kcal": 391,
+"src": "p",
+"c": [
+30.0,
+20.0,
+1.9,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/181-puppy-medium.html"
+},
+{
+"id": "cat_fa120",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Puppy Maxi",
+"en": "Puppy Maxi",
+"kcal": 371,
+"src": "p",
+"c": [
+28.0,
+16.0,
+1.8,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/182-puppy-maxi.html"
+},
+{
+"id": "cat_fa121",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Maintenance Mini",
+"en": "Maintenance Mini",
+"kcal": 366,
+"src": "p",
+"c": [
+27.0,
+15.0,
+2.0,
+7.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/183-maintenance-mini.html"
+},
+{
+"id": "cat_fa122",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Maintenance Medium",
+"en": "Maintenance Medium",
+"kcal": 354,
+"src": "p",
+"c": [
+25.0,
+12.0,
+2.0,
+6.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/184-maintenance-medium.html"
+},
+{
+"id": "cat_fa123",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Maintenance Maxi",
+"en": "Maintenance Maxi",
+"kcal": 371,
+"src": "p",
+"c": [
+26.0,
+16.0,
+1.8,
+7.6,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/185-maintenance-maxi.html"
+},
+{
+"id": "cat_fa124",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Sensible pesce Medium & Maxi",
+"en": "Sensible Fish Medium & Maxi",
+"kcal": 354,
+"src": "p",
+"c": [
+24.0,
+12.0,
+2.0,
+6.5,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/190-sensible-fish-medium-&-maxi.html"
+},
+{
+"id": "cat_fa125",
+"brand": "Farmina Team Breeder (Superpremium)",
+"name": "Sensible agnello",
+"en": "Sensible Lamb",
+"kcal": 342,
+"src": "p",
+"c": [
+23.0,
+10.0,
+2.0,
+7.0,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/191-sensible-lamb.html"
+},
+{
+"id": "cat_fa126",
+"brand": "Farmina Top Farmina",
+"name": "Top Farmina",
+"en": "Top Farmina",
+"kcal": 404,
+"src": "p",
+"c": [
+28.5,
+21.5,
+2.0,
+5.8,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/196-top-farmina.html"
+},
+{
+"id": "cat_fa127",
+"brand": "Farmina Top Farmina",
+"name": "Top Farmina salmone",
+"en": "Top Farmina Salmon",
+"kcal": 397,
+"src": "p",
+"c": [
+28.0,
+20.5,
+2.0,
+6.4,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/197-top-salmon.html"
+},
+{
+"id": "cat_fa128",
+"brand": "Farmina Top Farmina",
+"name": "Top Farmina agnello",
+"en": "Top Farmina Lamb",
+"kcal": 423,
+"src": "p",
+"c": [
+28.5,
+21.5,
+2.0,
+6.7,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/728-top-lamb.html"
+},
+{
+"id": "cat_fa129",
+"brand": "Farmina Team Breeder (Premium)",
+"name": "Basic Maintenance",
+"en": "Basic Maintenance",
+"kcal": 338,
+"src": "p",
+"c": [
+23.0,
+11.0,
+3.0,
+8.6,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/193-basic-maintenance.html"
+},
+{
+"id": "cat_fa130",
+"brand": "Farmina Team Breeder (Premium)",
+"name": "Basic pesce",
+"en": "Basic Fish",
+"kcal": 343,
+"src": "p",
+"c": [
+23.0,
+11.0,
+3.0,
+8.6,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/194-basic-fish.html"
+},
+{
+"id": "cat_fa131",
+"brand": "Farmina Team Breeder (Premium)",
+"name": "Basic agnello",
+"en": "Basic Lamb",
+"kcal": 328,
+"src": "p",
+"c": [
+23.0,
+11.0,
+3.0,
+8.6,
+null
+],
+"url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/195-basic-lamb.html"
 }
 ]
 }
