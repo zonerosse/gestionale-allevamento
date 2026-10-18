@@ -1231,3 +1231,7 @@ Accessi e copie
 - 18/10/2026 (Paolo: "tener conto della % di proteine soprattutto per i cuccioli"): la razione resta calcolata sull'energia; sotto i
   grammi la riga «Proteine: X g al giorno · Y g ogni 1000 kcal» con il controllo dei minimi FEDIAF (62,5 fino a 14 settimane,
   50 in crescita, adulto 45 o 52,1 se sterilizzato/tranquillo) e l'avviso se è sotto (`fdProt`, nel calcolatore del proprietario `protHtml`).
+- 18/10/2026 (Paolo: "se ti scrivo il nome giusto devi trovare tu i dati"): nel modulo per aggiungere una crocchetta il tasto
+  «🔎 Trova kcal e componenti dal nome» (`findName` nel calcolatore del sito/proprietario, `fdFind` nel gestionale): prima cerca
+  nell'elenco, poi `POST /api/public/crocchette {find:true,name}` (`findByName`: Claude con ricerca web; trovato → entra subito
+  nell'elenco comune, src "w"). Stessi limiti dei controlli (`overLimit`).

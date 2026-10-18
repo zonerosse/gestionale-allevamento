@@ -40,11 +40,62 @@ export async function onRequestGet({ request, env }) {
   return json({ items: (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: "u", c: cj(x.comp) })) }, 200, H);
 }
 
+async function overLimit(request, env) {
+  const day = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+  const ip = request.headers.get("cf-connecting-ip") || "?";
+  const hb = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(day + "|" + ip + "|crocchette"));
+  const who = [...new Uint8Array(hb)].slice(0, 8).map(x => x.toString(16).padStart(2, "0")).join("");
+  const get = async w => ((await env.DB.prepare("SELECT n FROM crocch_lim WHERE day = ? AND who = ?").bind(day, w).first()) || { n: 0 }).n;
+  if (await get("*") >= LIMITE_GIORNO || await get(who) >= LIMITE_VISITATORE) return true;
+  for (const w of ["*", who]) await env.DB.prepare("INSERT INTO crocch_lim (day, who, n) VALUES (?, ?, 1) ON CONFLICT(day, who) DO UPDATE SET n = n + 1").bind(day, w).run();
+  await env.DB.prepare("DELETE FROM crocch_lim WHERE day < ?").bind(new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)).run();
+  return false;
+}
+// Dal solo nome: Claude cerca il prodotto in internet (produttore o negozi seri) e trova kcal e componenti; se li trova la
+// crocchetta entra subito nell'elenco comune (i dati vengono dalla fonte, non dall'utente).
+async function findByName(request, env, H, q, o) {
+  if (q.replace(/[^\p{L}\p{N}]/gu, "").length < 4) return json({ ok: false, status: "nome" }, 200, H);
+  await ensureCrocchette(env);
+  const k = croKey("", q);
+  const all = (await env.DB.prepare("SELECT * FROM crocchette WHERE status = 'ok'").all()).results || [];
+  const w = k.split(" ").filter(x => x.length > 1);
+  const hit = all.map(x => ({ x, n: w.filter(t => (x.k || "").includes(t)).length })).sort((a, b) => b.n - a.n)[0];
+  if (hit && hit.n >= Math.max(2, w.length)) { const x = hit.x; return json({ ok: true, status: "ok", item: { id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: "u", c: cj(x.comp) } }, 200, H); }
+  if (!env.ANTHROPIC_API_KEY) return json({ ok: true, status: "limit" }, 200, H);
+  if (await overLimit(request, env)) return json({ ok: true, status: "limit" }, 200, H);
+  let x;
+  try {
+    x = await claude(env, `Un utente cerca i dati di una crocchetta (cibo secco per cani) scrivendo solo il nome: "${q}".
+Cerca in internet il prodotto (sito del produttore, versione europea/italiana; altrimenti negozi seri come Zooplus, Arcaplanet, Maxi Zoo).
+Se il nome è ambiguo (più versioni: puppy/adult, taglie, gusti) scegli la più probabile e scrivila per intero nel nome.
+Riporta: marca e nome come li scrive il produttore (gusto in italiano), nome in inglese, energia metabolizzabile in kcal per 100 g
+(3850 kcal/kg = 385; se non è pubblicata calcolala dai componenti: 3,5 × proteina + 8,5 × grassi + 3,5 × (100 − proteina − grassi − fibra − ceneri − umidità; umidità 10 se manca)),
+i componenti analitici in % (proteina, grassi, fibra, ceneri, umidità; null se non pubblicati), il link della fonte.
+"found": true solo se hai trovato il prodotto vero con almeno proteina e grassi o le kcal. Non inventare.
+Formato: {"found":true,"brand":"","name":"","name_en":"","kcal":0,"kcalSrc":"produttore|calcolate","p":null,"f":null,"fi":null,"a":null,"u":null,"url":""}`,
+      [{ type: "text", text: q }], 1500, [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }]);
+  } catch (e) { return json({ ok: true, status: "limit" }, 200, H); }
+  let kc = num(x && x.kcal); if (kc && kc > 1000) kc = kc / 10;
+  const P = num(x && x.p), F = num(x && x.f);
+  if ((!kc || kc < 250 || kc > 600) && P != null && F != null) { const u = num(x.u) == null ? 10 : num(x.u); kc = 3.5 * P + 8.5 * F + 3.5 * Math.max(0, 100 - P - F - (num(x.fi) || 0) - (num(x.a) || 0) - u); }
+  if (!x || !x.found || !kc || kc < 250 || kc > 600) return json({ ok: true, status: "notfound" }, 200, H);
+  const B = String(x.brand || "").slice(0, 80), N = String(x.name || q).slice(0, 120), K = Math.round(kc), k2 = croKey(B, N);
+  const CC = P != null && F != null ? [P, F, num(x.fi), num(x.a), num(x.u)] : null;
+  const dup = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status = 'ok'").bind(k2).first();
+  if (dup) return json({ ok: true, status: "ok", item: { id: "u_" + dup.id, brand: dup.brand, name: dup.name, en: dup.name_en || "", kcal: dup.kcal, src: "u", c: cj(dup.comp) } }, 200, H);
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  await env.DB.prepare("INSERT INTO crocchette (id, k, brand, name, name_en, kcal, status, reason, url, src, sent, origin, created, comp) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+    .bind(id, k2, B, N, String(x.name_en || "").slice(0, 120), K, "ok", "Trovata da Claude dal nome (" + (x.kcalSrc === "calcolate" ? "kcal calcolate dai componenti" : "kcal del produttore") + ").",
+      String(x.url || "").slice(0, 300), "w", JSON.stringify({ name: q }), o.includes("gestionale") ? "gestionale" : "sito", new Date().toISOString(), CC ? JSON.stringify(CC) : null).run();
+  return json({ ok: true, status: "ok", found: true, item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "u", c: CC }, url: String(x.url || "") }, 200, H);
+}
+
 export async function onRequestPost({ request, env }) {
   const o = request.headers.get("origin") || "", H = cors(o);
   if (!SITI.includes(o)) return json({ ok: false, error: "Solo dal sito." }, 403, H);
   let b; try { b = await request.json(); } catch (e) { return json({ ok: false, error: "Dati non validi" }, 400, H); }
   const brand = String(b.brand || "").trim().slice(0, 80), name = String(b.name || "").trim().slice(0, 120);
+  if (b.find) return findByName(request, env, H, (brand + " " + name).trim(), o); // 🔎 «Trova i dati dal nome» (18/10/2026, Paolo)
   const kcal = Math.round(num(b.kcal) || 0), how = ["m", "c", "f"].includes(b.how) ? b.how : "m";
   const c = b.comp || {}, comp = { p: num(c.p), f: num(c.f), fi: num(c.fi), a: num(c.a), u: num(c.u) };
   if ((brand + name).replace(/[^\p{L}\p{N}]/gu, "").length < 4) return json({ ok: false, status: "no", reason: "nome" }, 200, H);
@@ -57,15 +108,7 @@ export async function onRequestPost({ request, env }) {
   const no = await env.DB.prepare("SELECT reason FROM crocchette WHERE k = ? AND status = 'no' AND kcal = ? ORDER BY created DESC").bind(k, kcal).first();
   if (no) return json({ ok: true, status: "no", reason: no.reason || "" }, 200, H); // già scartata con gli stessi dati: niente nuovo controllo
   if (!env.ANTHROPIC_API_KEY) return json({ ok: true, status: "wait" }, 200, H);
-  // limiti
-  const day = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
-  const ip = request.headers.get("cf-connecting-ip") || "?";
-  const hb = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(day + "|" + ip + "|crocchette"));
-  const who = [...new Uint8Array(hb)].slice(0, 8).map(x => x.toString(16).padStart(2, "0")).join("");
-  const get = async w => ((await env.DB.prepare("SELECT n FROM crocch_lim WHERE day = ? AND who = ?").bind(day, w).first()) || { n: 0 }).n;
-  if (await get("*") >= LIMITE_GIORNO || await get(who) >= LIMITE_VISITATORE) return json({ ok: true, status: "limit" }, 200, H);
-  for (const w of ["*", who]) await env.DB.prepare("INSERT INTO crocch_lim (day, who, n) VALUES (?, ?, 1) ON CONFLICT(day, who) DO UPDATE SET n = n + 1").bind(day, w).run();
-  await env.DB.prepare("DELETE FROM crocch_lim WHERE day < ?").bind(new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)).run();
+  if (await overLimit(request, env)) return json({ ok: true, status: "limit" }, 200, H);
   let x;
   try {
     x = await claude(env, `Controlli una crocchetta (cibo secco per cani) che un utente vuole aggiungere a un elenco pubblico di un calcolatore delle razioni.
