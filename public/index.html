@@ -1873,8 +1873,8 @@ function ownerPreview(id){
   <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">${esc(FM().person)}</p><span class="row-meta">${esc(T(FM().kennel+" · "+FM().cityProv,FM().kennelEn+" · "+FM().cityProv+", Italy"))}</span>
   <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+${FM().phoneDigits}">${esc(FM().phoneIntl)}</a></span><span>Email: <a href="mailto:${esc(FM().email)}">${esc(FM().email)}</a></span></div>
   <div class="brd-b"><a class="btn small" href="tel:+${FM().phoneDigits}">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/${FM().phoneDigits}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:${esc(FM().email)}">Email</a></div></div></div>`;
-  html+=owFdHtml(id);LANG="it";
-  sheet(`${html}
+  const fdh=owFdHtml(id);LANG="it";
+  sheet(`${html}${fdh}
   ${o._none?`<p class="lead" style="margin-top:14px">Questo cane non ha ancora un proprietario: è un'anteprima. Lingua: <button class="chip" aria-pressed="${o.lang!=="en"}" data-a="ovLang" data-v="${id}|it">Italiano</button> <button class="chip" aria-pressed="${o.lang==="en"}" data-a="ovLang" data-v="${id}|en">English</button></p>`:""}
   ${d.owner?ownLink(d.owner):""}<div class="actions"><button class="btn ghost" data-a="close">${o.lang==="en"?"Close":"Chiudi"}</button></div>`);
   document.querySelectorAll(".owfd-box").forEach(el=>{LANG=o.lang==="en"?"en":"it";try{owFdMount(el,el.dataset.dog)}catch(x){console.warn(x)}LANG="it"});
