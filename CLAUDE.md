@@ -1228,3 +1228,6 @@ Accessi e copie
   calcolatore del proprietario `cmpHtml`, classe `po-cmp`). Dati: 6° elemento di `FD_DB` `c:[p,f,fi,a,u]` (null se non pubblicato),
   presi dai siti dei produttori o da Zooplus il 18/10/2026; crocchette aggiunte: dai campi dei componenti o dalla foto
   (sacco.js ora restituisce anche p,f,fi,a,u); elenco comune: colonna `comp` della tabella `crocchette` (Claude riporta i componenti).
+- 18/10/2026 (Paolo: "tener conto della % di proteine soprattutto per i cuccioli"): la razione resta calcolata sull'energia; sotto i
+  grammi la riga «Proteine: X g al giorno · Y g ogni 1000 kcal» con il controllo dei minimi FEDIAF (62,5 fino a 14 settimane,
+  50 in crescita, adulto 45 o 52,1 se sterilizzato/tranquillo) e l'avviso se è sotto (`fdProt`, nel calcolatore del proprietario `protHtml`).
