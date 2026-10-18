@@ -3328,6 +3328,726 @@ null
 null
 ],
 "url": "https://www.farmina.com/it/alimenti-per-cani/farmina-team-breeder-canine/195-basic-lamb.html"
+},
+{
+"id": "cat_cb001",
+"brand": "Carnilove",
+"name": "Active salmone Adult",
+"en": "Active Salmon Adult",
+"kcal": 370,
+"src": "p",
+"c": [
+34,
+15,
+2.8,
+8.7,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-for-adult-dogs"
+},
+{
+"id": "cat_cb002",
+"brand": "Carnilove",
+"name": "Active salmone e tacchino Adult Small",
+"en": "Active Salmon & Turkey Adult Small",
+"kcal": 391,
+"src": "p",
+"c": [
+35,
+18,
+2.6,
+7.2,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-and-turkey-for-small-dogs"
+},
+{
+"id": "cat_cb003",
+"brand": "Carnilove",
+"name": "Active salmone e tacchino Adult Large",
+"en": "Active Salmon & Turkey Adult Large",
+"kcal": 370,
+"src": "p",
+"c": [
+35,
+15,
+3.5,
+7.2,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-and-turkey-for-large-dogs"
+},
+{
+"id": "cat_cb004",
+"brand": "Carnilove",
+"name": "Active salmone e tacchino Junior Large",
+"en": "Active Salmon & Turkey Junior Large",
+"kcal": 364,
+"src": "p",
+"c": [
+34,
+14,
+3.6,
+7.4,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-and-turkey-for-junior-dogs"
+},
+{
+"id": "cat_cb005",
+"brand": "Carnilove",
+"name": "Active salmone e tacchino Adult",
+"en": "Active Salmon & Turkey Adult",
+"kcal": 379,
+"src": "p",
+"c": [
+34,
+16,
+2.9,
+7.2,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-and-turkey-for-adult-dogs"
+},
+{
+"id": "cat_cb006",
+"brand": "Carnilove",
+"name": "Active anatra e fagiano",
+"en": "Active Duck & Pheasant",
+"kcal": 383,
+"src": "p",
+"c": [
+34,
+17,
+3.0,
+7.2,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-dog-food-made-with-duck-and-pheasant"
+},
+{
+"id": "cat_cb007",
+"brand": "Carnilove",
+"name": "Active agnello e cinghiale",
+"en": "Active Lamb & Wild Boar",
+"kcal": 379,
+"src": "p",
+"c": [
+35,
+18,
+3.6,
+8.4,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-dog-food-made-with-lamb-and-wild-boar"
+},
+{
+"id": "cat_cb008",
+"brand": "Carnilove",
+"name": "Active cervo e renna",
+"en": "Active Venison & Reindeer",
+"kcal": 400,
+"src": "p",
+"c": [
+34,
+20,
+2.4,
+7.6,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-dog-food-made-with-venison-and-reindeer"
+},
+{
+"id": "cat_cb009",
+"brand": "Carnilove",
+"name": "Active salmone e tacchino Puppy",
+"en": "Active Salmon & Turkey Puppy",
+"kcal": 396,
+"src": "p",
+"c": [
+36,
+19,
+2.5,
+7.3,
+10
+],
+"url": "https://carnilove.com/en/products/active-dry-food-made-with-salmon-and-turkey-for-puppies"
+},
+{
+"id": "cat_cb010",
+"brand": "Carnilove",
+"name": "True Fresh anatra Adult Small",
+"en": "True Fresh Duck Adult Small",
+"kcal": 379,
+"src": "p",
+"c": [
+29,
+18,
+3.8,
+7.5,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-duck-dry-food-for-small-breeds"
+},
+{
+"id": "cat_cb011",
+"brand": "Carnilove",
+"name": "True Fresh pesce e tacchino Dry Dog food",
+"en": "True Fresh Fish & Turkey Dry Dog food",
+"kcal": 361,
+"src": "p",
+"c": [
+29,
+15,
+4.2,
+7.8,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-fish-and-turkey-dry-dog-food"
+},
+{
+"id": "cat_cb012",
+"brand": "Carnilove",
+"name": "True Fresh anatra Adult Large",
+"en": "True Fresh Duck Adult Large",
+"kcal": 363,
+"src": "p",
+"c": [
+27,
+15,
+4.0,
+7.5,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-duck-dry-food-for-large-breeds"
+},
+{
+"id": "cat_cb013",
+"brand": "Carnilove",
+"name": "True Fresh anatra Junior Large",
+"en": "True Fresh Duck Junior Large",
+"kcal": 360,
+"src": "p",
+"c": [
+28,
+14,
+3.8,
+7.7,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-duck-dry-food-for-junior-large-breeds"
+},
+{
+"id": "cat_cb014",
+"brand": "Carnilove",
+"name": "True Fresh anatra Adult",
+"en": "True Fresh Duck Adult",
+"kcal": 370,
+"src": "p",
+"c": [
+28,
+16,
+3.8,
+7.5,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-duck-dry-food-for-adult-dogs"
+},
+{
+"id": "cat_cb015",
+"brand": "Carnilove",
+"name": "True Fresh tacchino Dry Dog food",
+"en": "True Fresh Turkey Dry Dog food",
+"kcal": 368,
+"src": "p",
+"c": [
+29,
+16,
+4.0,
+7.5,
+10
+],
+"url": "https://carnilove.com/en/products/carnilove-true-fresh-dog-dry-turkey-for-adult-all-breeds"
+},
+{
+"id": "cat_cb016",
+"brand": "Carnilove",
+"name": "True Fresh manzo Dry Dog food",
+"en": "True Fresh Beef Dry Dog food",
+"kcal": 374,
+"src": "p",
+"c": [
+30,
+16,
+3.5,
+7.0,
+10
+],
+"url": "https://carnilove.com/en/products/carnilove-true-fresh-dog-dry-beef-for-adult-all-breeds"
+},
+{
+"id": "cat_cb017",
+"brand": "Carnilove",
+"name": "True Fresh anatra Puppy",
+"en": "True Fresh Duck Puppy",
+"kcal": 388,
+"src": "p",
+"c": [
+30,
+19,
+3.0,
+7.9,
+10
+],
+"url": "https://carnilove.com/en/products/true-fresh-duck-dry-food-for-puppies"
+},
+{
+"id": "cat_cb018",
+"brand": "Brit Care",
+"name": "Hypoallergenic Adult Large Breed agnello e riso",
+"en": "Hypoallergenic Adult Large Breed Lamb & Rice",
+"kcal": 369,
+"src": "p",
+"c": [
+26,
+14,
+3,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-adult-large-breed"
+},
+{
+"id": "cat_cb020",
+"brand": "Brit Care",
+"name": "Hypoallergenic Adult Small Breed agnello e riso",
+"en": "Hypoallergenic Adult Small Breed Lamb & Rice",
+"kcal": 387,
+"src": "p",
+"c": [
+28,
+17,
+2.5,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-adult-small-breed"
+},
+{
+"id": "cat_cb021",
+"brand": "Brit Care",
+"name": "Hypoallergenic Weight Loss coniglio e riso",
+"en": "Hypoallergenic Weight Loss Rabbit & Rice",
+"kcal": 311,
+"src": "p",
+"c": [
+27,
+9,
+9.5,
+5.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-weight-loss"
+},
+{
+"id": "cat_cb022",
+"brand": "Brit Care",
+"name": "Hypoallergenic Senior All Breeds agnello",
+"en": "Hypoallergenic Senior All Breeds Lamb",
+"kcal": 338,
+"src": "p",
+"c": [
+25,
+11,
+6,
+6.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-senior"
+},
+{
+"id": "cat_cb023",
+"brand": "Brit Care",
+"name": "Hypoallergenic Junior Large Breed agnello e riso",
+"en": "Hypoallergenic Junior Large Breed Lamb & Rice",
+"kcal": 385,
+"src": "p",
+"c": [
+28,
+16,
+2.2,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-junior-large-breed"
+},
+{
+"id": "cat_cb025",
+"brand": "Brit Care",
+"name": "Hypoallergenic Dog Show Champion salmone e aringa",
+"en": "Hypoallergenic Dog Show Champion Salmon & Herring",
+"kcal": 383,
+"src": "p",
+"c": [
+26,
+16,
+3,
+5.8,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-hypoallergenic-dog-show-champion"
+},
+{
+"id": "cat_cb026",
+"brand": "Brit Care",
+"name": "Grain-free Adult salmone e patate",
+"en": "Grain-free Adult Salmon & Potato",
+"kcal": 374,
+"src": "p",
+"c": [
+26,
+15,
+3.5,
+6.2,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-grain-free-adult"
+},
+{
+"id": "cat_cb027",
+"brand": "Brit Care",
+"name": "Grain-free Adult Large Breed salmone e patate",
+"en": "Grain-free Adult Large Breed Salmon & Potato",
+"kcal": 364,
+"src": "p",
+"c": [
+25,
+14,
+4,
+6.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-grain-free-adult-large-breed"
+},
+{
+"id": "cat_cb028",
+"brand": "Brit Care",
+"name": "Grain-free Junior Large Breed salmone e patate",
+"en": "Grain-free Junior Large Breed Salmon & Potato",
+"kcal": 373,
+"src": "p",
+"c": [
+28,
+15,
+3.2,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-grain-free-junior-large-breed"
+},
+{
+"id": "cat_cb029",
+"brand": "Brit Care",
+"name": "Grain-free Puppy salmone e patate",
+"en": "Grain-free Puppy Salmon & Potato",
+"kcal": 393,
+"src": "p",
+"c": [
+30,
+18,
+2.5,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-grain-free-puppy"
+},
+{
+"id": "cat_cb030",
+"brand": "Brit Care",
+"name": "Grain-free Senior e Light salmone e patate",
+"en": "Grain-free Senior & Light Salmon & Potato",
+"kcal": 341,
+"src": "p",
+"c": [
+25,
+12,
+6.2,
+6.5,
+10
+],
+"url": "https://brit.pet/cz/produkty/brit-care-dog-grain-free-senior-a-light"
+},
+{
+"id": "cat_cb031",
+"brand": "Brit Care",
+"name": "Grain-free Sensitive cervo e patate",
+"en": "Grain-free Sensitive Venison & Potato",
+"kcal": 364,
+"src": "p",
+"c": [
+25,
+14,
+3,
+8.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-grain-free-sensitive"
+},
+{
+"id": "cat_cb032",
+"brand": "Brit Care",
+"name": "Sustainable Sensitive insetti e pesce",
+"en": "Sustainable Sensitive Insect & Fish",
+"kcal": 365,
+"src": "p",
+"c": [
+25,
+13,
+3.2,
+6.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-sensitive"
+},
+{
+"id": "cat_cb033",
+"brand": "Brit Care",
+"name": "Sustainable Adult Small Breed pollo e insetti",
+"en": "Sustainable Adult Small Breed Chicken & Insect",
+"kcal": 386,
+"src": "p",
+"c": [
+28,
+17,
+3,
+6.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-adult-small-breed"
+},
+{
+"id": "cat_cb034",
+"brand": "Brit Care",
+"name": "Sustainable Adult Medium Breed pollo e insetti",
+"en": "Sustainable Adult Medium Breed Chicken & Insect",
+"kcal": 384,
+"src": "p",
+"c": [
+26,
+16,
+2.8,
+6,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-adult-medium-breed"
+},
+{
+"id": "cat_cb035",
+"brand": "Brit Care",
+"name": "Sustainable Adult Large Breed pollo e insetti",
+"en": "Sustainable Adult Large Breed Chicken & Insect",
+"kcal": 376,
+"src": "p",
+"c": [
+25,
+14,
+2.8,
+5.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-adult-large-breed"
+},
+{
+"id": "cat_cb036",
+"brand": "Brit Care",
+"name": "Sustainable Senior pollo e insetti",
+"en": "Sustainable Senior Chicken & Insect",
+"kcal": 342,
+"src": "p",
+"c": [
+24,
+11,
+6,
+5.2,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-senior"
+},
+{
+"id": "cat_cb037",
+"brand": "Brit Care",
+"name": "Sustainable Activity pollo e insetti",
+"en": "Sustainable Activity Chicken & Insect",
+"kcal": 429,
+"src": "p",
+"c": [
+32,
+24,
+1.2,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-activity"
+},
+{
+"id": "cat_cb038",
+"brand": "Brit Care",
+"name": "Sustainable Junior Large Breed pollo e insetti",
+"en": "Sustainable Junior Large Breed Chicken & Insect",
+"kcal": 384,
+"src": "p",
+"c": [
+28,
+15,
+2.2,
+5.7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-junior-large-breed"
+},
+{
+"id": "cat_cb039",
+"brand": "Brit Care",
+"name": "Sustainable Puppy pollo e insetti",
+"en": "Sustainable Puppy Chicken & Insect",
+"kcal": 409,
+"src": "p",
+"c": [
+31,
+19,
+1.5,
+5.9,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-dog-sustainable-puppy"
+},
+{
+"id": "cat_cb040",
+"brand": "Brit Care",
+"name": "Mini Grain Free Puppy agnello",
+"en": "Mini Grain Free Puppy Lamb",
+"kcal": 420,
+"src": "p",
+"c": [
+33,
+23,
+1.5,
+8.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-puppy-lamb"
+},
+{
+"id": "cat_cb041",
+"brand": "Brit Care",
+"name": "Mini Grain Free Adult agnello",
+"en": "Mini Grain Free Adult Lamb",
+"kcal": 388,
+"src": "p",
+"c": [
+29,
+18,
+2.5,
+8.4,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-adult-lamb"
+},
+{
+"id": "cat_cb042",
+"brand": "Brit Care",
+"name": "Mini Grain Free Hair e Skin salmone e aringa",
+"en": "Mini Grain Free Hair & Skin Salmon & Herring",
+"kcal": 395,
+"src": "p",
+"c": [
+32,
+18,
+1.8,
+8.4,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-hair-skin"
+},
+{
+"id": "cat_cb043",
+"brand": "Brit Care",
+"name": "Mini Grain Free Sensitive cervo",
+"en": "Mini Grain Free Sensitive Venison",
+"kcal": 386,
+"src": "p",
+"c": [
+28,
+17,
+2,
+8.8,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-sensitive"
+},
+{
+"id": "cat_cb044",
+"brand": "Brit Care",
+"name": "Mini Grain Free Light e Sterilised coniglio e salmone",
+"en": "Mini Grain Free Light & Sterilised Rabbit & Salmon",
+"kcal": 380,
+"src": "p",
+"c": [
+26,
+12,
+8.5,
+5.5,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-light-sterilised"
+},
+{
+"id": "cat_cb045",
+"brand": "Brit Care",
+"name": "Mini Grain Free Yorkshire salmone e tonno",
+"en": "Mini Grain Free Yorkshire Salmon & Tuna",
+"kcal": 391,
+"src": "p",
+"c": [
+30,
+19,
+2.8,
+8.4,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-grain-free-yorkshire"
+},
+{
+"id": "cat_cb046",
+"brand": "Brit Care",
+"name": "Mini FD Raw Delights manzo",
+"en": "Mini FD Raw Delights Beef",
+"kcal": 393,
+"src": "p",
+"c": [
+33,
+17,
+2,
+6.4,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-fd-raw-delights-beef"
+},
+{
+"id": "cat_cb047",
+"brand": "Brit Care",
+"name": "Mini FD Raw Delights tacchino con gamberetti",
+"en": "Mini FD Raw Delights Turkey with Shrimp",
+"kcal": 378,
+"src": "p",
+"c": [
+31,
+16,
+3,
+7,
+10
+],
+"url": "https://brit.pet/en/products/brit-care-mini-fd-raw-delights-turkey-with-shrimp"
 }
 ]
 }
