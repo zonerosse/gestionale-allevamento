@@ -1207,3 +1207,11 @@ Accessi e copie
   figure del cane visto dall'alto (`FD_DOGS`, `feed.bcs` −1/0/1 = +10%/0/−10%), crescita più lunga nei cani grandi (`fdFine`,
   `fdEq`), tre riquadri numerati, kcal al giorno, «Stampa o salva in PDF» (`fdPrint`, body.fd-print) e «Ricomincia» (`fdReset`;
   con un cane tiene solo le crocchette). Con un cane: età dalla nascita, peso da adulto dall'ultima pesata se ha 18+ mesi.
+- 18/10/2026 (Paolo: cucciolata di Billy, Maris in inglese; "dammi la possibilità di condividere o meno"): **«Quanto mangia» nella
+  pagina del proprietario**, cane per cane (`d.ownFeed`, interruttore sotto «Il proprietario può scrivere» in `owpBox`, più il bottone
+  per tutti i cuccioli con proprietario della stessa cucciolata). In `proprietario.html` è il calcolatore del sito (italiano/inglese
+  secondo `owner.lang`), portato in `owFdMount` (classi `po-*` per non scontrarsi con `.pp-*` dei contratti, id con prefisso per cane),
+  già compilato con nascita, sesso, ultima pesata e peso da adulto tipico dello Staffy (16 kg maschio, 14 femmina) se non ha ancora
+  18 mesi. Le scelte restano nel telefono del proprietario (localStorage `owFeed_<id>`), i dati di Paolo non cambiano. Elenco:
+  copia di `FD_DB` in proprietario.html (**aggiornare insieme**). Foto del sacco: `/api/public/sacco`, che ora accetta anche
+  l'origine del gestionale (stessi limiti: 30 al giorno, 3 per persona).
