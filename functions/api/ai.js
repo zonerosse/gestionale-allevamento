@@ -16,6 +16,9 @@ import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
    - "recensione": { who, stars, text, idea? } → { options:[testo] }  2 ringraziamenti brevi, o 1 risposta con l'idea di Paolo
    - "sito":     { fields:{title,desc,h1,ap}, links:[testo], kw:{it,en,de}, orig } → { en:{…,links}, de:{…,links} }
                  Google → Pagine del sito: traduce in inglese e tedesco i campi cambiati da Paolo in italiano
+   - "sacco":    { parts:[base64 jpeg] }   → { brand, name, stage, kcal, kcalRead, p, f, fi, a, u }  foto del sacco di crocchette (18/10/2026):
+                 kcal per 100 g scritte sul sacco; se mancano, calcolate qui dai componenti analitici (Atwater modificato, NRC/FEDIAF)
+   - "kcalnome": { brand, name }           → { kcal, src, url }  kcal per 100 g cercate in internet dal nome letto sul sacco (18/10/2026)
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
 const LANGS = { it: "italiano", en: "inglese", de: "tedesco", fr: "francese", es: "spagnolo", sl: "sloveno", hr: "croato", pl: "polacco", nl: "olandese", pt: "portoghese" };
@@ -23,16 +26,16 @@ const voice = F => `Scrivi come ${F.person}, allevatore di ${F.breed} a ${F.city
 Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "${F.first}".`;
 // 13/10/2026: a volte Claude risponde senza il JSON (testo vuoto o solo parole): prima dava "Unexpected end of JSON input".
 // Ora si riprova una volta da soli; se ancora niente, un messaggio chiaro.
-const ask = async (env, system, content, max = 1200) => {
+const ask = async (env, system, content, max = 1200, tools) => {
   for (let i = 0; ; i++) {
-    try { return await ask1(env, system, content, max); }
+    try { return await ask1(env, system, content, max, tools); }
     catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo. (" + e.why + ")"); }
   }
 };
-const ask1 = async (env, system, content, max) => {
+const ask1 = async (env, system, content, max, tools) => {
   const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: MODEL, max_tokens: max, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
+    body: JSON.stringify(Object.assign({ model: MODEL, max_tokens: max, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }, tools ? { tools } : {})) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) {
     const m = (j.error && j.error.message) || "errore";
@@ -63,7 +66,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -200,6 +203,38 @@ Formato: {"lang":"codice ISO 639-1 di chi scrive","sunto":"...","bozza":"...","o
 Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","loi":"","tests":[{"it":"","en":"","de":""}],"items":[{"cat":"","it":"","en":"","de":"","date":""}],"note":""}`,
         [doc, { type: "text", text: `Cane atteso: ${dog.name || ""}, microchip ${dog.chip || "non indicato"}.` }], 3000);
       return json({ ok: true, title: o.title || "", title_en: o.title_en || "", date: o.date || "", lab: o.lab || "", chip: String(o.chip || "").replace(/\D/g, ""), loi: o.loi || "", tests: Array.isArray(o.tests) ? o.tests : [], items: Array.isArray(o.items) ? o.items : [], note: o.note || "" });
+    }
+    if (task === "sacco") {
+      const parts = (Array.isArray(p.parts) ? p.parts : []).filter(Boolean).slice(0, 3).map(x => String(x).replace(/^data:[^,]*,/, ""));
+      if (!parts.length) return json({ ok: false, error: "Manca la foto." });
+      const o = await ask(env, `Leggi le foto di un sacco di crocchette per cani (fronte e/o retro). Estrai SOLO quello che è scritto, senza inventare.
+- "brand": marca; "name": nome del prodotto (linea, taglia, età, gusto), come scritto.
+- "stage": "puppy" se è per cuccioli/junior, "adult" se per adulti, "senior", oppure "" se non si capisce.
+- "kcal": energia metabolizzabile in kcal per 100 g SOLO se è scritta sul sacco (converti: 3850 kcal/kg = 385; 16,1 MJ/kg = 385; 385 kcal/100 g = 385). null se non è scritta.
+- "p","f","fi","a","u": percentuali dei componenti analitici: proteina grezza, grassi (oli e grassi grezzi), fibra grezza, ceneri grezze, umidità. Numeri (es. 25.5). null se un valore non è scritto.
+Formato: {"brand":"","name":"","stage":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null}`,
+        [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 600);
+      const n = v => (v === null || v === undefined || v === "" || isNaN(+v)) ? null : +v;
+      const r = { brand: String(o.brand || ""), name: String(o.name || ""), stage: String(o.stage || ""), p: n(o.p), f: n(o.f), fi: n(o.fi), a: n(o.a), u: n(o.u) };
+      let k = n(o.kcal); if (k && k > 1000) k = k / 10; // kcal/kg scritte per sbaglio
+      r.kcalRead = !!(k && k > 200 && k < 700);
+      if (r.kcalRead) r.kcal = Math.round(k);
+      else if (r.p != null && r.f != null && r.a != null) { const u = r.u == null ? 10 : r.u, nfe = Math.max(0, 100 - r.p - r.f - (r.fi || 0) - r.a - u); r.kcal = Math.round(3.5 * r.p + 8.5 * r.f + 3.5 * nfe); r.uGuess = r.u == null; }
+      else r.kcal = null;
+      return json(Object.assign({ ok: true }, r));
+    }
+    if (task === "kcalnome") {
+      const q = (String(p.brand || "") + " " + String(p.name || "")).trim().slice(0, 160);
+      if (!q) return json({ ok: false, error: "Manca il nome delle crocchette." });
+      const o = await ask(env, `Cerca in internet l'energia metabolizzabile di queste crocchette per cani: "${q}". Usa il sito del produttore o negozi seri; preferisci la versione venduta in Italia/Europa.
+- "kcal": kcal per 100 g (converti: 3850 kcal/kg = 385; 16,1 MJ/kg = 385). Se trovi solo i componenti analitici (proteina, grassi, fibra, ceneri, umidità), calcola 3,5×proteina + 8,5×grassi + 3,5×(100 − proteina − grassi − fibra − ceneri − umidità) e metti "src":"calcolato".
+- "src": "produttore" se il numero è pubblicato, "calcolato" se l'hai calcolato dai componenti.
+- "url": la pagina da cui l'hai preso.
+- "found": il nome esatto del prodotto trovato.
+Se non trovi niente di affidabile: {"kcal":null}. Non inventare.
+Formato: {"kcal":null,"src":"","url":"","found":""}`, [{ type: "text", text: q }], 1500, [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }]);
+      let k = o.kcal == null || isNaN(+o.kcal) ? null : +o.kcal; if (k && k > 1000) k = k / 10;
+      return json({ ok: true, kcal: k && k > 200 && k < 700 ? Math.round(k) : null, src: o.src || "", url: o.url || "", found: o.found || "" });
     }
     if (task === "testmating") {
       const parts = (Array.isArray(p.parts) && p.parts.length ? p.parts : [p.data]).filter(Boolean).slice(0, 6).map(x => String(x).replace(/^data:[^,]*,/, "")), media = p.media || "image/jpeg";
