@@ -3808,6 +3808,32 @@ function importLitDocs(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD
   if(!confirm(ok.map(([x,k])=>"• Cucciolata "+D.dogs[D.litters[k].dam].name+" × "+D.dogs[D.litters[k].sire].name+(x.docs||[]).map(z=>"\n   documento: "+z.title+(z.date?" ("+fmt(z.date)+")":"")).join("")).join("\n\n")+(miss.length?"\n\nNon trovate: "+miss.map(p=>p[0].dam+" × "+p[0].sire).join(", "):"")+"\n\nProcedere?"))return
   let n=0;ok.forEach(([x,k])=>{const l=D.litters[k];l.docs=l.docs||[];(x.docs||[]).forEach(z=>{if(!l.docs.some(y=>y.fname===z.fname)){l.docs.push({id:"ld"+Date.now().toString(36)+n,title:z.title||z.fname,date:z.date||"",file:z.file,fname:z.fname||""});n++}})});
   render();typeof saveNow==="function"&&saveNow();alert("Fatto: "+n+" documenti aggiunti alla cucciolata (Scheda della cucciolata → Archivio). Il salvataggio online parte da solo.")}
+// "Importa modifiche" con {controlloCuccioli:{dam,sire,date,pups:[{name,sex,chip,color,color_en}]}} (20/10/2026): confronta i dati di un
+// documento (es. certificato dei microchip) con le schede dei cuccioli della cucciolata; "Completa" scrive SOLO i campi vuoti,
+// le differenze si mostrano e non si cambiano.
+let CC=null;
+function importCheck(o){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim(),dg=s=>String(s||"").replace(/\D/g,"");
+  const hit=(id,n)=>{const d=D.dogs[id];return d&&n&&(nn(d.name).includes(nn(n))||nn(n).includes(nn(d.name))||(d.nick&&nn(d.nick)===nn(n)))};
+  let c=Object.keys(D.litters).filter(k=>{const l=D.litters[k];return hit(l.dam,o.dam)&&hit(l.sire,o.sire)});if(c.length>1&&o.date)c=c.filter(k=>D.litters[k].date===o.date);
+  if(c.length!==1){alert("Non trovo la cucciolata "+o.dam+" × "+o.sire+" nel gestionale.");return}const lid=c[0],P=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid),used=new Set();
+  const rows=(o.pups||[]).map(x=>{let k=P.find(k=>!used.has(k)&&x.chip&&dg(D.dogs[k].chip)===dg(x.chip));
+    if(!k){const m=P.filter(k=>!used.has(k)&&((" "+nn(D.dogs[k].name)+" ").includes(" "+nn(x.name)+" ")||nn(D.dogs[k].nick)===nn(x.name)));if(m.length===1)k=m[0]}
+    if(k)used.add(k);return{x,k}});
+  CC={lid,rows,extra:P.filter(k=>!used.has(k))};ccShow()}
+function ccCmp(cur,nw,same){return !nw?["",""]:!cur?["add","manca: si aggiunge «"+nw+"»"]:same(cur,nw)?["ok",cur]:["diff","nella scheda «"+cur+"», nel documento «"+nw+"»"]}
+function ccShow(){const {lid,rows,extra}=CC,l=D.litters[lid],dg=s=>String(s||"").replace(/\D/g,""),nn=s=>String(s||"").toLowerCase().trim();let nAdd=0,nDiff=0;
+  const ic={ok:'<span class="ok-v">✓</span>',add:'<b style="color:var(--accent2,#c26a00)">＋</b>',diff:'<b style="color:#c0392b">≠</b>',"":"–"};
+  const body=rows.map(({x,k})=>{if(!k){nDiff++;return `<div class="pp-r" style="padding:8px 0;border-top:1px solid var(--line)"><b>${esc(x.name)}</b> <span class="row-meta">(${x.sex==="F"?"femmina":"maschio"} · ${esc(x.chip||"")})</span><div style="color:#c0392b">Non trovo la sua scheda in questa cucciolata.</div></div>`}
+    const d=D.dogs[k],C=[["Microchip",ccCmp(d.chip,x.chip,(a,b)=>dg(a)===dg(b))],["Sesso",x.sex?(d.sex===x.sex?["ok",d.sex==="F"?"femmina":"maschio"]:["diff","nella scheda "+(d.sex==="F"?"femmina":"maschio")+", nel documento "+(x.sex==="F"?"femmina":"maschio")]):["",""]],["Mantello",ccCmp(d.color,x.color,(a,b)=>nn(a)===nn(b))]];
+    C.forEach(z=>{if(z[1][0]==="add")nAdd++;if(z[1][0]==="diff")nDiff++});
+    return `<div class="pp-r" style="padding:8px 0;border-top:1px solid var(--line)"><b>${esc(x.name)}</b> <span class="row-meta">→ ${esc(d.nick?d.nick+" · ":"")}${esc(d.name)}</span>${C.map(([t,[st,v]])=>`<div style="display:flex;gap:8px;min-width:0"><span style="width:18px;flex:none">${ic[st]}</span><span class="row-meta" style="width:80px;flex:none">${t}</span><span style="min-width:0;overflow-wrap:anywhere">${esc(v||"–")}</span></div>`).join("")}</div>`}).join("");
+  CC.nAdd=nAdd;
+  sheet(`<h2>Controllo dei cuccioli</h2><div class="row-meta" style="margin-bottom:8px">${esc(D.dogs[l.dam].name)} × ${esc(D.dogs[l.sire].name)} · documento confrontato con le schede</div>
+  <div class="note" style="margin:0 0 10px">${nDiff?`<b style="color:#c0392b">${nDiff} cose non tornano</b> (segnate ≠): non le cambio, controlla tu. `:"<b>Nessuna differenza.</b> "}${nAdd?`<b>${nAdd} dati mancano</b> nelle schede (segnati ＋).`:"Nelle schede non manca niente."}</div>
+  ${body}${extra.length?`<div class="pp-r" style="padding:8px 0;border-top:1px solid var(--line)"><span class="row-meta">Schede della cucciolata che non sono nel documento:</span> ${extra.map(k=>esc(D.dogs[k].nick||D.dogs[k].name)).join(", ")}</div>`:""}
+  <div class="btns" style="margin-top:12px">${nAdd?`<button class="btn" data-a="ccFill">Completa i ${nAdd} dati mancanti</button>`:""}<button class="btn ghost" data-a="close">Chiudi</button></div>`)}
+function ccFill(){if(!CC)return;let n=0;CC.rows.forEach(({x,k})=>{if(!k)return;const d=D.dogs[k];if(x.chip&&!d.chip){d.chip=x.chip;n++}if(x.color&&!d.color){d.color=x.color;if(x.color_en&&!d.color_en)d.color_en=x.color_en;n++}});
+  typeof saveNow==="function"&&saveNow();render();ccShow();toast(n+" dati aggiunti alle schede")}
 // "Importa modifiche" con {aggiungiAlCane:[{chip,name,owner,vacc:[{date,prod,prod_en,next,file,fname}],docs:[{title,title_en,date,file,fname,private}]}]}:
 // aggiunge vaccinazioni e documenti al cucciolo giusto (stessa ricerca dei certificati), senza doppioni
 function importAdd(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -4649,6 +4675,7 @@ document.addEventListener("click",e=>{
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}
     case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);/* richiesta del sito: non deve tornare al prossimo caricamento */if(/^r[0-9a-f]{12}$/.test(v)){D.wlGone=(D.wlGone||[]).concat(v);try{fetch("/api/requests?id="+encodeURIComponent(v),{method:"DELETE"}).catch(()=>{})}catch(e){}}closeSheet();render();typeof saveNow==="function"&&saveNow();break}
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
+    case "ccFill":ccFill();break;
     case "ldDel":{const [lid,id]=v.split("|"),l=D.litters[lid];if(!l||!confirm("Eliminare questo documento della cucciolata?"))break;l.docs=(l.docs||[]).filter(x=>x.id!==id);typeof saveNow==="function"&&saveNow();litterSheet(lid);break}
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
@@ -5982,6 +6009,7 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
       if(o.certificatiIscrizione){importIsc(o.certificatiIscrizione);return}
       if(o.aggiungiAlCane){importAdd(o.aggiungiAlCane);return}
       if(o.documentiCucciolata){importLitDocs(o.documentiCucciolata);return}
+      if(o.controlloCuccioli){importCheck(o.controlloCuccioli);return}
       if(o.attestatoAnagrafe){importAtt(o.attestatoAnagrafe);return}
       if(o.coiTestMating){const by=x=>Object.keys(D.dogs).find(k=>(x.sbt&&String(D.dogs[k].sbt||"")===String(x.sbt))||(x.name&&(D.dogs[k].name||"").trim().toLowerCase()===x.name.trim().toLowerCase()));
         let n=0,miss=[];o.coiTestMating.forEach(c=>{const S=by(c.sire),M=by(c.dam);if(!S||!M){miss.push((c.sire.name||c.sire.sbt)+" × "+(c.dam.name||c.dam.sbt));return}

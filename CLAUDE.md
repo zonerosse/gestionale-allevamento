@@ -1445,3 +1445,6 @@ Accessi e copie
 - "Importa modifiche" con `{documentiCucciolata:[{dam,sire,date,docs:[{title,date,fname,file}]}]}` (`importLitDocs`): cucciolata
   dai nomi dei genitori (e dalla data se ce n'è più di una), senza doppioni (fname). Primo: certificato di inoculazione dei
   microchip della cucciolata Billy × Black Jack (18/08/2026).
+- "Importa modifiche" con `{controlloCuccioli:{dam,sire,date,pups:[{name,sex,chip,color,color_en}]}}` (`importCheck`, `ccShow`,
+  `ccFill`): confronta un documento (es. certificato dei microchip) con le schede dei cuccioli della cucciolata (microchip, poi nome
+  o soprannome): ✓ uguale, ＋ manca, ≠ diverso. «Completa i N dati mancanti» scrive SOLO i campi vuoti; le differenze non si cambiano.
