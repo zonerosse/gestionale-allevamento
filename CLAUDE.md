@@ -1430,3 +1430,5 @@ Accessi e copie
   La fascia beige del salvataggio (`bannerHtml`) è ora una riga sottile (`.banner.sbar`): puntino verde «Salvato alle …» (arancione con
   l'errore), «Copia di sicurezza» e «Importa modifiche» come collegamenti. Gli avvisi veri (database vuoto, conflitto, solo da guardare)
   restano come prima.
+- (20/10/2026, anteprima approvata) Agenda: «Leggi un messaggio di WhatsApp» è un riquadro chiuso in fondo (`PSEC("ag-wa")`); si apre da
+  solo se c'è già un testo (comando rapido `#agenda=`), Claude sta leggendo o c'è il risultato. Casella del messaggio larga quanto il riquadro.
