@@ -3787,6 +3787,27 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.classList||!
 function iscAdd(k,file,fname,date){const d=D.dogs[k];d.docs=d.docs||[];if(d.docs.some(x=>x.isc&&x.fname===fname))return false;d.docs.push({title:ISC_T[0],title_en:ISC_T[1],date:date||todayS(),file,fname,private:false,isc:true});return true}
 function iscSave(lid){const P=litPups(lid);let n=0,skip=0;ISC_PEND.forEach((x,i)=>{const v=($("#isc_"+i)||{}).value;if(!v){skip++;return}(v==="*"?P:[v]).forEach(k=>{if(iscAdd(k,x.data,x.name))n++})});
   if(skip&&!confirm(skip+" file senza cucciolo non verranno salvati. Procedere?"))return;ISC_PEND=[];litterSheet(lid);typeof saveNow==="function"&&saveNow();toast(n?"Certificati salvati.":"Nessun certificato salvato.")}
+// Documenti della cucciolata (20/10/2026, scelta A di Paolo): l.docs=[{id,title,date,file,fname}], solo per Paolo
+// (ownerSubset/limitedData/viewerData li tolgono). Es. certificato di inoculazione dei microchip.
+function ldHtml(lid){const l=D.litters[lid];if(!l||typeof OWNER_MODE!=="undefined")return"";const L=(l.docs||[]).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  return `<div class="ld-box" style="margin:0 0 12px"><div class="row-meta" style="font-weight:600;margin-bottom:6px">Documenti della cucciolata${L.length?' <span class="ok-v">✓</span>':""} <small style="font-weight:400">(li vedi solo tu)</small></div>
+  ${L.length?L.map(x=>`<div class="hrow" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-top:1px solid var(--line)"><div style="flex:1 1 180px;min-width:0;overflow-wrap:anywhere"><b>${esc(x.title||x.fname||"Documento")}</b>${x.date?` <span class="row-meta">· ${fmt(x.date)}</span>`:""}</div>${fBtns(x.file,x.fname)}${RO?"":`<button class="btn ghost small" data-a="ldDel" data-v="${lid}|${x.id}" title="Elimina">✕</button>`}</div>`).join(""):`<div class="row-meta">Nessun documento.</div>`}
+  ${RO?"":`<label class="btn ghost small" style="margin-top:8px;display:inline-block;cursor:pointer">＋ Aggiungi documento (PDF o foto)<input type="file" class="ldIn" data-lid="${lid}" accept="application/pdf,image/*" multiple hidden></label>`}</div>`}
+document.addEventListener("change",async e=>{const i=e.target;if(!i.classList||!i.classList.contains("ldIn"))return;const lid=i.dataset.lid,l=D.litters[lid],fs=[...(i.files||[])];i.value="";if(!l||!fs.length)return;
+  for(const f of fs){let data=null;if(/^image\//.test(f.type)){const r=await shrink(f);data=r&&(r.data||r)}else data=await new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>ok(null);r.readAsDataURL(f)});
+    if(!data){toast("Non riesco a leggere "+f.name);continue}const t=prompt("Titolo del documento:",f.name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," "));if(t===null)continue;
+    const dt=prompt("Data del documento (gg/mm/aaaa, facoltativa):","")||"",m=dt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    (l.docs=l.docs||[]).push({id:"ld"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),title:t.trim()||f.name,date:m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):"",file:data,fname:f.name})}
+  typeof saveNow==="function"&&saveNow();litterSheet(lid)});
+// "Importa modifiche" con {documentiCucciolata:[{dam,sire,date,docs:[{title,date,fname,file}]}]}: trova la cucciolata dai genitori
+// (nome o soprannome) e dalla data di nascita, aggiunge i documenti senza doppioni (fname)
+function importLitDocs(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const hit=(id,n)=>{const d=D.dogs[id];return d&&n&&(nn(d.name).includes(nn(n))||nn(n).includes(nn(d.name))||(d.nick&&nn(d.nick)===nn(n)))};
+  const ok=[],miss=[];L.forEach(x=>{let c=Object.keys(D.litters).filter(k=>{const l=D.litters[k];return hit(l.dam,x.dam)&&hit(l.sire,x.sire)});if(c.length>1&&x.date)c=c.filter(k=>D.litters[k].date===x.date);(c.length===1?ok:miss).push([x,c[0]])});
+  if(!ok.length){alert("Non trovo la cucciolata nel gestionale.");return}
+  if(!confirm(ok.map(([x,k])=>"• Cucciolata "+D.dogs[D.litters[k].dam].name+" × "+D.dogs[D.litters[k].sire].name+(x.docs||[]).map(z=>"\n   documento: "+z.title+(z.date?" ("+fmt(z.date)+")":"")).join("")).join("\n\n")+(miss.length?"\n\nNon trovate: "+miss.map(p=>p[0].dam+" × "+p[0].sire).join(", "):"")+"\n\nProcedere?"))return
+  let n=0;ok.forEach(([x,k])=>{const l=D.litters[k];l.docs=l.docs||[];(x.docs||[]).forEach(z=>{if(!l.docs.some(y=>y.fname===z.fname)){l.docs.push({id:"ld"+Date.now().toString(36)+n,title:z.title||z.fname,date:z.date||"",file:z.file,fname:z.fname||""});n++}})});
+  render();typeof saveNow==="function"&&saveNow();alert("Fatto: "+n+" documenti aggiunti alla cucciolata (Scheda della cucciolata → Archivio). Il salvataggio online parte da solo.")}
 // "Importa modifiche" con {aggiungiAlCane:[{chip,name,owner,vacc:[{date,prod,prod_en,next,file,fname}],docs:[{title,title_en,date,file,fname,private}]}]}:
 // aggiunge vaccinazioni e documenti al cucciolo giusto (stessa ricerca dei certificati), senza doppioni
 function importAdd(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -4363,8 +4384,8 @@ function litPhases(lid){const l=D.litters[lid],P=litPups(lid),td=todayS(),nata=l
   // 5. Sito
   const S=l.site||{},on=!!(l.web||S.home||S.prog||S.diar);ph.push({k:"sito",ic:"web",t:"Sito",sub:"Pagina Cuccioli · Programma · Diario · Novità in Home",off:on?"":"spento",items:[],html:cuBox(lid)});
   // 6. Archivio
-  ph.push({k:"arc",ic:"arc",t:"Archivio",sub:"Google Drive · link SBTpedigree · note",items:[],off:"",
-    html:`${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small>${l.sbtUrl?' <span class="ok-v">✓</span>':""}</label>
+  ph.push({k:"arc",ic:"arc",t:"Archivio",sub:"Documenti della cucciolata · Google Drive · link SBTpedigree · note",items:(l.docs||[]).length?[{t:"Documenti della cucciolata: "+l.docs.length,todo:false}]:[],off:"",
+    html:`${ldHtml(lid)}${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small>${l.sbtUrl?' <span class="ok-v">✓</span>':""}</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="https://sbtpedigree.com/…" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn ghost small" data-a="litSbt" data-v="${lid}">Salva link</button>${l.sbtUrl?`<a class="btn ghost small" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener">Apri ↗</a>`:""}</div></div>${drBox(lid)}`});
   return ph}
 function litterSheet(lid){CK_LIT=lid;const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
@@ -4628,6 +4649,7 @@ document.addEventListener("click",e=>{
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}
     case "wlDel":{if(!confirm("Eliminare questa richiesta?"))break;D.waitlist=D.waitlist.filter(w=>w.id!==v);/* richiesta del sito: non deve tornare al prossimo caricamento */if(/^r[0-9a-f]{12}$/.test(v)){D.wlGone=(D.wlGone||[]).concat(v);try{fetch("/api/requests?id="+encodeURIComponent(v),{method:"DELETE"}).catch(()=>{})}catch(e){}}closeSheet();render();typeof saveNow==="function"&&saveNow();break}
     case "bForm":bForm(v);break;case "bSave":bSave(v);break;case "wForm":wForm(v);break;case "wSave":wSave(v);break;
+    case "ldDel":{const [lid,id]=v.split("|"),l=D.litters[lid];if(!l||!confirm("Eliminare questo documento della cucciolata?"))break;l.docs=(l.docs||[]).filter(x=>x.id!==id);typeof saveNow==="function"&&saveNow();litterSheet(lid);break}
     case "litSbt":{const u=($("#litSbt").value||"").trim();if(u&&!/^https?:\/\//i.test(u)){toast("Incolla un link che inizia con https://");break}const l=D.litters[v];if(u)l.sbtUrl=u;else delete l.sbtUrl;typeof saveNow==="function"&&saveNow();toast(u?"Link salvato: ora è nella pagina dei proprietari.":"Link tolto.");if(sheetOpen())litterSheet(v);else render();break}
     case "cancelDog":cancelSheet();break;
     case "pedDone":cancelSheet();break;
@@ -5959,6 +5981,7 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
       if(o.documentiIdentita){importIds(o.documentiIdentita);return}
       if(o.certificatiIscrizione){importIsc(o.certificatiIscrizione);return}
       if(o.aggiungiAlCane){importAdd(o.aggiungiAlCane);return}
+      if(o.documentiCucciolata){importLitDocs(o.documentiCucciolata);return}
       if(o.attestatoAnagrafe){importAtt(o.attestatoAnagrafe);return}
       if(o.coiTestMating){const by=x=>Object.keys(D.dogs).find(k=>(x.sbt&&String(D.dogs[k].sbt||"")===String(x.sbt))||(x.name&&(D.dogs[k].name||"").trim().toLowerCase()===x.name.trim().toLowerCase()));
         let n=0,miss=[];o.coiTestMating.forEach(c=>{const S=by(c.sire),M=by(c.dam);if(!S||!M){miss.push((c.sire.name||c.sire.sbt)+" × "+(c.dam.name||c.dam.sbt));return}

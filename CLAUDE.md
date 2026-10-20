@@ -1436,3 +1436,12 @@ Accessi e copie
   avviso (contratti da firmare/preparare, link da mandare, documento d'identità mancante; verde se è tutto a posto), riquadri chiusi
   Contatti · Cani · Documenti d'identità · Pagina della famiglia (`ownLink`) · Note. «Cosa c'è» non c'è più (c'è `.dph`).
   Cani › Miei sempre a gruppi chiusi (anche pochi cani), arancione il gruppo con scadenze in ritardo.
+
+## Documenti della cucciolata (20/10/2026, scelta A di Paolo)
+- Scheda della cucciolata → Archivio → «Documenti della cucciolata» (`ldHtml`): `l.docs=[{id,title,date,file,fname}]`, Visualizza/
+  Scarica, ✕ (`ldDel`), «＋ Aggiungi documento (PDF o foto)» (input `.ldIn`, chiede titolo e data). Solo per Paolo: `LIT_PRIV`
+  (pagina della famiglia), `viewerData` e `limitedData` senza Proprietari tolgono `docs`; `mergeLimited` rimette quelli veri
+  (anche mbFile/modA/modB, prima si perdevano se chi modificava le cucciolate non vedeva i Proprietari).
+- "Importa modifiche" con `{documentiCucciolata:[{dam,sire,date,docs:[{title,date,fname,file}]}]}` (`importLitDocs`): cucciolata
+  dai nomi dei genitori (e dalla data se ce n'è più di una), senza doppioni (fname). Primo: certificato di inoculazione dei
+  microchip della cucciolata Billy × Black Jack (18/08/2026).

@@ -100,7 +100,7 @@ export function viewerData(data) {
   const d = JSON.parse(JSON.stringify(data));
   for (const k of Object.keys(d.owners || {})) d.owners[k] = { name: d.owners[k].name || "" };
   for (const x of Object.values(d.dogs || {})) { delete x.contract; if (x.docs) x.docs = x.docs.filter(z => !z.private && !z.ct && !z.pp && !z.pp_en && !z.isc); }
-  for (const l of Object.values(d.litters || {})) delete l.acc;
+  for (const l of Object.values(d.litters || {})) { delete l.acc; delete l.docs; }
   delete d.accGen; d.settings = { farm: farmRaw(data) }; return d;
 }
 export const deny = () => json({ error: "Accesso non autorizzato" }, 403);
@@ -152,7 +152,7 @@ export async function loadData(env) {
 
 // Solo i dati che il proprietario può vedere: i suoi cani, i loro antenati, i test dei genitori.
 // Campi della cucciolata che il proprietario non deve mai ricevere (il Modello B contiene i dati di tutti gli acquirenti)
-const LIT_PRIV = ["acc", "notes", "mbFile", "mbSaved", "modA", "modB", "enciA", "enciB", "gpost", "site", "revDone", "homeSince", "inSite"];
+const LIT_PRIV = ["acc", "docs", "notes", "mbFile", "mbSaved", "modA", "modB", "enciA", "enciB", "gpost", "site", "revDone", "homeSince", "inSite"];
 export function ownerSubset(data, token) {
   if (!/^[A-Za-z0-9_-]{16,}$/.test(token || "")) return null;
   const oid = Object.keys(data.owners || {}).find(k => data.owners[k].token === token);
@@ -248,7 +248,7 @@ export function limitedData(data, P) {
   if (!v("proprietari")) {
     for (const k of Object.keys(d.owners)) d.owners[k] = { name: d.owners[k].name || "" };
     for (const x of Object.values(d.dogs)) { delete x.contract; delete x.dep; delete x.pp; if (x.docs) x.docs = x.docs.filter(z => !hiddenDoc(z)); }
-    for (const l of Object.values(d.litters)) { delete l.mbFile; delete l.modA; delete l.modB; } // il Modello B ha i dati degli acquirenti
+    for (const l of Object.values(d.litters)) { delete l.mbFile; delete l.modA; delete l.modB; delete l.docs; } // il Modello B ha i dati degli acquirenti
   }
   if (!v("conti")) { for (const l of Object.values(d.litters)) delete l.acc; d.accGen = []; }
   if (!v("attesa")) { delete d.waitlist; delete d.interested; delete d.wlGone; }
@@ -277,7 +277,8 @@ export function mergeLimited(cur, body, P) {
   const L = out.litters = out.litters || {}, BL = B.litters || {};
   if (m("cucciolate")) {
     for (const k of Object.keys(L)) if (!BL[k]) delete L[k];
-    for (const [k, l] of Object.entries(BL)) { const acc = L[k] && L[k].acc; L[k] = JSON.parse(JSON.stringify(l)); if (!m("conti")) { if (acc) L[k].acc = acc; else delete L[k].acc; } }
+    for (const [k, l] of Object.entries(BL)) { const old = L[k] || {}, acc = old.acc; L[k] = JSON.parse(JSON.stringify(l)); if (!m("conti")) { if (acc) L[k].acc = acc; else delete L[k].acc; }
+      if (!v("proprietari")) for (const f of ["mbFile", "modA", "modB", "docs"]) { if (old[f] !== undefined) L[k][f] = old[f]; else delete L[k][f]; } } // parti che non ha visto: restano quelle vere
   } else if (m("conti")) for (const [k, l] of Object.entries(BL)) if (L[k]) { if (l.acc) L[k].acc = l.acc; else delete L[k].acc; }
   // cani: campo per campo, secondo la sezione a cui appartiene
   const G = f => ["health", "todo", "scMove", "scSkip"].includes(f) ? ["cani", "scadenze"] : f === "anag" ? ["cani", "anagrafe"]
