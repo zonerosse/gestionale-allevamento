@@ -1390,3 +1390,11 @@ Accessi e copie
   Agenda (`agPage`: Da fissare, In programma, Visite fatte, Già ritirati, «Leggi un messaggio di WhatsApp» in fondo), Scadenze
   (`scPage`: Scadute in arancione + gruppi chiusi, campanello a linea; niente più `mbBanners` qui), Conti (`acList`: tre numeri,
   avviso cuccioli senza prezzo, una riga chiusa per cucciolata e Spese generali).
+- (20/10/2026, secondo giro) Cucciolate (`litterList`: un gruppo chiuso per «In programma» e per anno, «N da fare» da `litPhases`, avviso
+  della prima cucciolata con cose da fare), Attesa (`waitList`: avviso richieste nuove, Interessati, una riga chiusa per cucciolata con
+  ordine di scelta, «Hanno rinunciato» a parte), Anagrafe (`anagPage`: Da sistemare / Iscritti / Stato non segnato), Account
+  (`acPage` = `acPageRaw` + ogni `section.ac-c` diventa un riquadro chiuso; arancione se c'è un `ac-st ko`; `acOpenSec`), Cani
+  (intestazione PGH al posto di `hero()`, un solo avviso `caniTop()`: Modello B entro 30 giorni, se no appuntamento di oggi; tolti
+  agBanner e mbBanners dall'elenco), Accoppiamenti (fila di bottoni divisa in riquadri Consanguineità / Test genetici / Altri maschi,
+  con ✓), Statistiche (`foldMain`: ogni titolo h2 diventa un riquadro chiuso). Tutte le pagine: `#main>h1` con la riga rossa.
+- In proprietario.html `mating()` è una versione più vecchia (non usata nella pagina della famiglia): lì l'Accoppiamenti non è cambiato.
