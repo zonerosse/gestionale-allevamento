@@ -277,7 +277,7 @@ details.dfold{background:var(--paper);border:1px solid var(--line);border-radius
 .dph>summary .dic{color:var(--muted)}.dph-tt{flex:1;min-width:0}.dph-tt b{display:block;font-weight:600}.dph-tt span{font-size:.84rem;color:var(--muted);overflow-wrap:anywhere}
 .dph-st{font-size:.8rem;font-weight:600;white-space:nowrap}.dph-st.ok{color:var(--ok)}.dph-st.todo{color:var(--warn)}.dph-chev{transition:transform .2s}.dph[open]>summary .dph-chev{transform:rotate(180deg)}
 .dph-b{border-top:1px solid var(--line);padding:6px 16px 14px}.dph-l{margin:0 0 6px}.dph-r{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:.93rem}.dph-r:last-child{border-bottom:0}
-.dph-k{flex:1}.dph-v{color:var(--muted);font-size:.86rem;text-align:right}.dph-m{width:8px;height:8px;border-radius:50%;flex:none;transform:translateY(-1px);background:var(--line)}.dph-m.ok{background:var(--ok)}.dph-m.todo{background:var(--warn)}
+.dph-k{flex:1;min-width:0}.dph-v{color:var(--muted);font-size:.86rem;text-align:right;min-width:0;overflow-wrap:anywhere}.dph-m{width:8px;height:8px;border-radius:50%;flex:none;transform:translateY(-1px);background:var(--line)}.dph-m.ok{background:var(--ok)}.dph-m.todo{background:var(--warn)}
 .dph-b h2{font-family:var(--sans);font-size:1rem;font-weight:600;margin:16px 0 6px;color:var(--ink)}.dph-b h2.cz::before{display:none}.dph-b .cz-card{border-top:1px solid var(--line)!important;background-image:none!important}
 .ov-kennel{text-align:center;color:var(--muted);font-size:.85rem;margin:4px 0 10px}.ov-hello{font-family:var(--serif);font-size:1.15rem;margin:0 0 10px}.ov-brd{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0 8px}.ov-brd-t{font-size:.8rem;color:var(--muted);margin:0 0 2px}.owner-view .dph-b h2:first-child{margin-top:8px}
 .hs>summary{background:var(--paper)!important}.hs .ic{width:28px!important;height:28px!important;background:none!important;color:var(--muted)}.hs .tt b{color:var(--ink)!important;font-weight:600}.hs .n{background:none!important;color:var(--muted)!important;padding:0!important}.hs .ar{color:var(--muted)!important}.hs .body{border-top-color:var(--line)!important}.hs .hrow{border-left-color:var(--line)!important}
@@ -288,7 +288,7 @@ details.hs{border:1px solid var(--line)!important;border-radius:12px!important;b
 /* riquadri chiusi di base; quelli con qualcosa da sistemare hanno il richiamo arancione (Paolo, 20/10/2026) */
 .dph{overflow:hidden}.dph.need,.lph.need{border-left:4px solid var(--warn)!important;background:var(--paper)}.dph.need>summary,.lph.need>summary{background:var(--paper)}.dph.need[open],.lph.need[open]{background:var(--paper)}.dph.need .dph-tt b,.lph.need .lph-tt b{color:var(--warn)}
 /* pagine in ordine (20/10/2026) */
-.pgh{margin:0 0 14px}.pgh-t{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}.pgh-t h1{flex:1;min-width:0;margin:0;font-family:var(--serif);font-weight:400;line-height:1.2}.pgh-a{display:flex;gap:6px;flex-wrap:wrap}
+.pgh{margin:0 0 14px}.pgh-t{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}.pgh-t h1{flex:1 1 220px;min-width:0;overflow-wrap:anywhere;margin:0;font-family:var(--serif);font-weight:400;line-height:1.2}.pgh-a{display:flex;gap:6px;flex-wrap:wrap}
 .pgh-r{height:3px;width:56px;background:var(--accent);border-radius:2px;margin:8px 0 8px}.pgh-s{margin:0;color:var(--muted);font-size:.92rem}
 .dcta.red{border-left-color:var(--accent)}.dcta.red .dic{color:var(--accent)}.pcta-s{margin:2px 0 0;color:var(--muted);font-size:.88rem}
 .dph-st.no{color:var(--muted);font-weight:400}.dph-r .btn,.dph-r .plink{flex:none}.pg-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:14px 0 8px}
@@ -1344,8 +1344,8 @@ function dogList(top){
   if((filter==="tutti"||filter==="ext")&&ids.length)body=tuttiGroups(ids);
   else if(filter==="ceduto"&&ids.length)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
   else if(filter==="prenotato"&&ids.length>8)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
-  else if(filter==="miei"&&ids.length>10){const T=[["Fattrici",k=>isFattrice(D.dogs[k])],["Stalloni",k=>D.dogs[k].sex==="M"&&D.dogs[k].status==="stallone"],["Sterilizzati",k=>D.dogs[k].status==="sterilizzata"],["Non più con noi",k=>D.dogs[k].status==="deceduto"],["A casa",k=>true]],U=new Set();
-    body=T.map(([t,f])=>{const a=ids.filter(k=>!U.has(k)&&f(k));a.forEach(k=>U.add(k));return a.length?PSEC("cm-"+t,"paw",t,a.length+(a.length===1?" cane":" cani")+" · "+a.slice(0,3).map(k=>esc(D.dogs[k].nick||D.dogs[k].name)).join(", ")+(a.length>3?"…":""),0,`<div class="list">${rows(a)}</div>`,""):""}).join("")}
+  else if(filter==="miei"&&ids.length){const td0=todayS(),late=new Set();try{scEvents().forEach(e=>{if(!e.phone&&e.dog&&e.date<td0)late.add(e.dog)})}catch(e){}const T=[["Fattrici",k=>isFattrice(D.dogs[k])],["Stalloni",k=>D.dogs[k].sex==="M"&&D.dogs[k].status==="stallone"],["Sterilizzati",k=>D.dogs[k].status==="sterilizzata"],["Non più con noi",k=>D.dogs[k].status==="deceduto"],["A casa",k=>true]],U=new Set();
+    body=T.map(([t,f])=>{const a=ids.filter(k=>!U.has(k)&&f(k));a.forEach(k=>U.add(k));const nl=a.filter(k=>late.has(k)).length;return a.length?PSEC("cm-"+t,"paw",t,a.length+(a.length===1?" cane":" cani")+" · "+a.slice(0,3).map(k=>esc(D.dogs[k].nick||D.dogs[k].name)).join(", ")+(a.length>3?"…":""),nl,`<div class="list">${rows(a)}</div>`,""):""}).join("")}
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
   const fl=(f.find(x=>x[0]===filter)||[,""])[1];
@@ -4467,20 +4467,27 @@ function ownerList(){
   <div class="toolbar"><button class="btn" data-a="ownerForm">Aggiungi proprietario</button></div>${body}${nd}`;
 }
 function ownerDetail(id){
-  const o=D.owners[id];const dogs=Object.keys(D.dogs).filter(k=>D.dogs[k].owner===id);
-  return `<button class="back" data-a="back">‹ Tutti i proprietari</button><h1>${esc(o.name)}</h1><p class="nick">${esc(o.country||"")}</p>
-  ${EDIT==="own:"+id?`<div class="editbox"><p class="edit-h">Stai modificando i dati: niente viene salvato finché non premi <strong>Salva</strong>.</p><div class="form">
+  const o=D.owners[id];const dogs=Object.keys(D.dogs).filter(k=>D.dogs[k].owner===id),ed=EDIT==="own:"+id;
+  /* scheda del proprietario a riquadri chiusi (20/10/2026, anteprima approvata da Paolo) */
+  const nk=k=>esc(D.dogs[k].nick||D.dogs[k].name),CS=dogs.map(k=>[k,ctState(k)]),ctTodo=CS.filter(x=>x[1]==="todo"||x[1]==="sent"),ids=(o.ids||[]).length;
+  const miss=[];ctTodo.forEach(([k,s])=>miss.push(s==="sent"?"contratto di "+nk(k)+" da firmare":"contratto di "+nk(k)+" da preparare"));if(dogs.length&&!o.linkSent)miss.push("link alla sua pagina da mandare");if(!RO&&!ids)miss.push("documento d'identità da caricare");
+  const contact=[["Telefono",o.phone],["Email",o.email],["Indirizzo",o.addr],["Nato/a a",[o.bplace,fmt(o.bdate)].filter(Boolean).join(", il ")],["Paese",o.country],["Lingua della pagina",o.lang==="en"?"English":"Italiano"]];
+  const edit=`<div class="editbox"><p class="edit-h">Stai modificando i dati: niente viene salvato finché non premi <strong>Salva</strong>.</p><div class="form">
   <label class="f full">Nome<input id="eo_name" value="${esc(o.name)}"></label><label class="f">Paese<input id="eo_country" value="${esc(o.country||"")}"></label>
   <label class="f">Telefono<input id="eo_phone" type="tel" value="${esc(o.phone||"")}"></label><label class="f">Email<input id="eo_email" type="email" value="${esc(o.email||"")}"></label>
   <label class="f">Indirizzo<input id="eo_addr" value="${esc(o.addr||"")}"></label><label class="f">Nato a<input id="eo_bplace" value="${esc(o.bplace||"")}" placeholder="es. Ferrara (FE)"></label><label class="f">Il<input id="eo_bdate" type="date" value="${esc(o.bdate||"")}"></label><label class="f">Lingua della pagina privata<select id="eo_lang"><option value="it" ${o.lang!=="en"?"selected":""}>Italiano</option><option value="en" ${o.lang==="en"?"selected":""}>English</option></select></label>
   <label class="f full">Note<textarea id="eo_notes" rows="3">${esc(o.notes||"")}</textarea></label></div>
-  <div class="actions savebar"><button class="btn save" data-a="ownSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`
- :`<dl class="facts">${[["Paese",o.country],["Telefono",o.phone],["Email",o.email],["Indirizzo",o.addr],["Nato a",[o.bplace,fmt(o.bdate)].filter(Boolean).join(", il ")],["Lingua pagina",o.lang==="en"?"English":"Italiano"]].map(([l,x])=>`<div class="fact"><dt>${l}</dt><dd>${x?esc(x):`<span class="empty">da inserire</span>`}</dd></div>`).join("")}</dl>`}
-  <h2>Cani</h2>${dogs.length?`<div class="list">${rows(dogs)}</div>`:'<p class="empty">Nessun cane collegato.</p>'}
-  ${RO?"":`<h2>Documenti d'identità</h2>${idsHtml("o:"+id,o.ids)}`}
-  ${o.notes?`<h2>Note</h2><div class="note">${esc(o.notes)}</div>`:""}
-  ${EDIT==="own:"+id?"":ownLink(id)+`<div class="actions"><button class="btn" data-a="ownEdit" data-v="${id}">Modifica</button>${RO?"":`<button class="btn ghost" data-a="trOpen" data-v="${id}">💬 Messaggio tradotto</button>`}</div>`}`;
-}
+  <div class="actions savebar"><button class="btn save" data-a="ownSave" data-v="${id}">Salva</button><button class="btn ghost" data-a="editCancel">Annulla modifiche</button></div></div>`;
+  const nC=contact.filter(x=>!x[1]&&x[0]!=="Paese").length;
+  let h=`<button class="back" data-a="back">‹ Tutti i proprietari</button>`+PGH(esc(o.name),[esc(o.country||""),dogs.length?"famiglia di "+dogs.map(nk).join(", "):""].filter(Boolean).join(" · "),ed?"":`<button class="btn small" data-a="ownEdit" data-v="${id}">${dIc("pen")} Modifica</button>${RO?"":`<button class="btn small ghost" data-a="trOpen" data-v="${id}">${dIc("msg")} Messaggio tradotto</button>`}`);
+  if(ed)h+=edit;
+  else h+=miss.length?PCTA(miss[0].replace(/^./,c=>c.toUpperCase()),miss.length>1?(miss.length===2?"e poi: "+miss[1]:"e altre "+(miss.length-1)+" cose da fare, nei riquadri qui sotto"):""):`<div class="dcta" style="border-left-color:var(--ok)"><div><p class="dcta-t" style="margin:0">Tutto a posto: contratto, link e documenti</p></div></div>`;
+  h+=PSEC("ow-c"+id,"id","Contatti",[o.phone,o.email].filter(Boolean).map(esc).join(" · ")||"da inserire",0,contact.map(([l,x])=>PROW(x?"ok":"todo",l,x?esc(x):"da inserire")).join(""),nC?"":true);
+  h+=PSEC("ow-d"+id,"paw","Cani",dogs.length?dogs.map(k=>nk(k)+" · "+((STATUS[D.dogs[k].status]||["—"])[0]).toLowerCase()).join(", "):"nessun cane collegato",ctTodo.length,dogs.length?`<div class="list">${rows(dogs)}</div>`:'<p class="empty">Nessun cane collegato.</p>',ctTodo.length?0:dogs.length?true:"");
+  if(!RO)h+=PSEC("ow-i"+id,"doc","Documenti d'identità",ids?ids+(ids===1?" documento caricato":" documenti caricati"):"nessun documento",ids?0:1,idsHtml("o:"+id,o.ids),ids?true:"");
+  if(!ed&&typeof OWNER_MODE==="undefined")h+=PSEC("ow-p"+id,"web","Pagina della famiglia",o.linkSent?"link mandato il "+fmt(String(o.linkSent).slice(0,10)):dogs.length?"link non ancora mandato":"",dogs.length&&!o.linkSent?1:0,ownLink(id),o.linkSent?true:"");
+  h+=PSEC("ow-n"+id,"note","Note",o.notes?esc(String(o.notes).slice(0,60))+(o.notes.length>60?"…":""):"nessuna nota",0,o.notes?`<div class="note">${esc(o.notes)}</div>`:'<p class="empty">Nessuna nota. Si scrivono da Modifica.</p>',"");
+  return h}
 function ownerForm(id){
   const o=id?D.owners[id]:{};
   sheet(`<h2 style="margin-top:0">${id?"Modifica proprietario":"Nuovo proprietario"}</h2><div class="form">

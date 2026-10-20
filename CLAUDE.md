@@ -1432,3 +1432,7 @@ Accessi e copie
   restano come prima.
 - (20/10/2026, anteprima approvata) Agenda: «Leggi un messaggio di WhatsApp» è un riquadro chiuso in fondo (`PSEC("ag-wa")`); si apre da
   solo se c'è già un testo (comando rapido `#agenda=`), Claude sta leggendo o c'è il risultato. Casella del messaggio larga quanto il riquadro.
+- (20/10/2026, anteprima approvata) Scheda del proprietario (`ownerDetail`): intestazione PGH con Modifica e Messaggio tradotto, un solo
+  avviso (contratti da firmare/preparare, link da mandare, documento d'identità mancante; verde se è tutto a posto), riquadri chiusi
+  Contatti · Cani · Documenti d'identità · Pagina della famiglia (`ownLink`) · Note. «Cosa c'è» non c'è più (c'è `.dph`).
+  Cani › Miei sempre a gruppi chiusi (anche pochi cani), arancione il gruppo con scadenze in ritardo.
