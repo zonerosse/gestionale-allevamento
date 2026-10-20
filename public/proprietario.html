@@ -1078,7 +1078,7 @@ function dogList(top){
     if(filter!=="tutti")return d.status===filter;return true});
   ids.sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name));
   let body;
-  if(filter==="tutti"&&ids.length)body=tuttiGroups(ids);
+  if((filter==="tutti"||filter==="ext")&&ids.length)body=tuttiGroups(ids);
   else if(filter==="ceduto"&&ids.length)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
