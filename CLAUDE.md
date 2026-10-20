@@ -1288,3 +1288,11 @@ Accessi e copie
   «Annulla»/«Chiudi» dentro le finestre chiudono senza chiedere (si premono apposta).
 - `leaveOk(retry)` (uscita da Modifica di un cane/proprietario non salvata): stessa domanda al posto di `confirm`; con «Esci»
   rifà l'azione (`go`, `openItem`, indietro…). Blocco comune: identico in index.html e proprietario.html.
+
+## 🌡️ Temperatura prima del parto (20/10/2026, anteprima approvata da Paolo; idea dall'app Breedera)
+- Scheda della fattrice, subito sotto «Calori e monte» (`tpHtml`, chiamato da `reproHtml`): compare da solo dal giorno 55 della
+  gravidanza (o con misure già fatte dopo la monta) fino alla nascita. `d.temps=[{at:"AAAA-MM-GGTHH:MM",v}]`; modulo con Salva
+  (`tpAdd`), ✕ per togliere una misura (`tpDel`), grafico SVG (`tpChart`, fascia 38–39 °C, riga rossa a 37 °C) ed elenco.
+- Calo (`tpState`): ultima misura ≤ media delle 6 precedenti − 0,9 °C, oppure sotto 37 °C → riquadro rosso «parto entro 12–24 ore».
+- ☀️ Oggi: con il calo un riquadro rosso in cima (`og-alarm`, tasto «Apri la scheda»); prima del calo nella card Fattrici la riga
+  «🌡️ … misura la temperatura (giorno N)».
