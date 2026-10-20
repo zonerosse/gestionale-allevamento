@@ -255,6 +255,7 @@ label.f select,label.f input,label.f textarea{padding:10px 12px;border:1px solid
 .anc li{margin:2px 0}
 
 /* sheet */
+.lv-ask{position:fixed;inset:0;background:rgba(10,12,16,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}.lv-ask.open{display:flex}.lv-b{background:var(--paper);color:var(--ink);border-radius:16px;padding:20px;max-width:380px;width:100%;text-align:center}.lv-i{font-size:2rem}.lv-b p{margin:6px 0 14px;color:var(--muted)}.lv-big{display:block;width:100%;margin-top:8px;padding:14px}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .sheet-bg.open{display:flex}
 .sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -854,9 +855,19 @@ function nav(){
 }
 let EDIT=null,EDIRTY=false;
 document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true});document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest(".editbox"))EDIRTY=true;if(e.target.dataset&&e.target.dataset.pp!==undefined)ppCount()});
-function leaveOk(){if(!EDIT)return true;if(EDIRTY&&!confirm("Hai cambiato dei dati senza premere Salva.\n\nOK = esci e lascia perdere le modifiche\nAnnulla = resta qui per salvarle"))return false;EDIT=null;EDIRTY=false;return true}
-function go(t){if(!leaveOk())return;tab=t;view=null;render();scrollTo(0,0)}
-function openItem(id){if(!leaveOk())return;if(D.dogs[id]&&!(tab==="proprietari"&&D.owners[id]))tab="cani";view=id;render();scrollTo(0,0)}
+/* Uscire senza salvare (20/10/2026, anteprima approvata da Paolo): al posto della finestrella OK/Annulla dell'iPhone una domanda
+   del gestionale con «💾 Torna a salvare» / «Esci senza salvare». askLeave(fn): fn parte solo con «Esci senza salvare». */
+let SH_DIRTY=false,LEAVE_FN=null;
+function askLeave(fn,msg){LEAVE_FN=fn;let o=document.getElementById("lvAsk");if(!o){o=document.createElement("div");o.id="lvAsk";o.className="lv-ask";document.body.appendChild(o)}
+  o.innerHTML=`<div class="lv-b"><div class="lv-i">✋</div><b>${msg||"Hai scritto dei dati senza premere Salva"}</b><p>Se esci adesso li perdi.</p><button type="button" class="btn lv-big" data-lv="stay">💾 Torna a salvare</button><button type="button" class="btn ghost lv-big" data-lv="go">Esci senza salvare</button></div>`;o.classList.add("open")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-lv]");if(!b)return;const o=document.getElementById("lvAsk");if(o)o.classList.remove("open");const f=LEAVE_FN;LEAVE_FN=null;if(b.dataset.lv==="go"&&f)f()});
+/* qualcosa scritto, scelto o firmato in una finestra: chiudendola con ✕ o col tasto indietro si chiede prima */
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#sheet"))SH_DIRTY=true});
+document.addEventListener("change",e=>{if(e.target.closest&&e.target.closest("#sheet"))SH_DIRTY=true});
+document.addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest("#sheet canvas.pad"))SH_DIRTY=true});
+function leaveOk(retry){if(!EDIT)return true;if(!EDIRTY){EDIT=null;return true}askLeave(()=>{EDIT=null;EDIRTY=false;if(retry)retry();else render()},"Hai cambiato dei dati senza premere Salva");return false}
+function go(t){if(!leaveOk(()=>go(t)))return;tab=t;view=null;render();scrollTo(0,0)}
+function openItem(id){if(!leaveOk(()=>openItem(id)))return;if(D.dogs[id]&&!(tab==="proprietari"&&D.owners[id]))tab="cani";view=id;render();scrollTo(0,0)}
 /* Navigazione: il tasto "indietro" del telefono/browser torna alla pagina precedente del gestionale e chiude i riquadri */
 let NAVLOCK=false,lastNav="";
 const NAVSTACK=[];
@@ -877,9 +888,9 @@ function navPush(){if(typeof OWNER_MODE!=="undefined")return;const k=tab+"|"+(vi
 function sheetOpen(){const b=document.getElementById("sheetBg");return !!(b&&b.classList.contains("open"))}
 let LB_BACK=false; // "indietro" fatto da noi chiudendo una foto: non deve spostare la pagina
 window.addEventListener("popstate",e=>{if(LB_BACK){LB_BACK=false;return}if(typeof OWNER_MODE!=="undefined"){lbClose(true);return}
-  if(lbClose(true))return;if(sheetOpen()){closeSheetRaw();if(e.state&&!e.state.sheet&&e.state.tab===tab&&(e.state.view||null)===(view||null))return}
+  if(lbClose(true))return;if(sheetOpen()&&SH_DIRTY){try{history.pushState({tab,view,sheet:1},"")}catch(x){}askLeave(()=>{SH_DIRTY=false;history.back()});return}if(sheetOpen()){closeSheetRaw();if(e.state&&!e.state.sheet&&e.state.tab===tab&&(e.state.view||null)===(view||null))return}
   const st=e.state||{tab:"cani",view:null};if(st.sheet)return;if((st.tab||"cani")===tab&&(st.view||null)===(view||null)){if(NAVSTACK.length>1&&!(e.state&&e.state.lb))history.back();return} // passo doppio lasciato da un riquadro chiuso: salto alla pagina precedente
-  if(typeof leaveOk==="function"&&!leaveOk()){history.pushState({tab,view},"");return}
+  if(typeof leaveOk==="function"&&!leaveOk(()=>history.back())){history.pushState({tab,view},"");return}
   NAVLOCK=true;tab=st.tab||"cani";view=st.view||null;if(NAVSTACK.length>1)NAVSTACK.pop();render();NAVLOCK=false;window.scrollTo(0,st.y||0)});
 /* PDF appena fatti (ricevute, contratti, passaggi) restano "data:" finché non sono caricati: Chrome apre una pagina bianca.
    Li apro come file vero (blob), così "Visualizza" funziona subito. */
@@ -903,7 +914,7 @@ function lbShow(h){lbClose(true);const l=document.createElement("div");l.id="lbx
 document.addEventListener("click",e=>{const i=e.target.closest&&e.target.closest("img.hero-photo");if(i){e.preventDefault();lbShow(i.getAttribute("src"))}});
 /* Solo consultazione (VIEWERS su Cloudflare): si vede tutto tranne i dati dei proprietari, non si può cambiare niente */
 var RO=window.RO||false;
-const RO_OK=new Set(["more","open","close","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
+const RO_OK=new Set(["more","open","close","shX","back","go","filter","mate","mateWith","openDog","openLitterDog","litterSheet","ownerPreview","ovLang","ctView"]);
 function roClean(root){if(!RO||!root)return;root.querySelectorAll("[data-a]").forEach(el=>{if(!RO_OK.has(el.dataset.a))el.remove()});
   root.querySelectorAll(".hfab,.addsbt,.sbt-in,.editbox,.k-box,.cs,.olink-a,#impData").forEach(el=>el.remove())}
 document.addEventListener("click",e=>{if(!RO)return;const b=e.target.closest("[data-a]");if(b&&!RO_OK.has(b.dataset.a)){e.preventDefault();e.stopImmediatePropagation()}},true);
@@ -2232,7 +2243,7 @@ function trContact(){if(TR.int){const x=(D.interested||[]).find(i=>i.id===TR.int
 function wlMsg(id){const x=(D.waitlist||[]).find(w=>w.id===id);if(!x)return;const L=x.lang&&TR_L.some(l=>l[0]===x.lang)?x.lang:"it";
   /* il messaggio della richiesta va subito in "Ti hanno scritto": se è in italiano si legge com'è, se no lo traduce Claude */
   const msg=[x.note,x.exp?"Esperienza: "+x.exp:"",x.sex?"Preferenza: "+x.sex:""].filter(Boolean).join("\n");
-  TR={wl:id,to:null,num:x.phone||"",inTxt:msg,inIt:L==="it"?msg:"",inLang:L==="it"?"italiano":"",outIt:"",out:"",lang:L};if(!leaveOk())return;tab="traduci";view=null;render();scrollTo(0,0);
+  TR={wl:id,to:null,num:x.phone||"",inTxt:msg,inIt:L==="it"?msg:"",inLang:L==="it"?"italiano":"",outIt:"",out:"",lang:L};if(!leaveOk(()=>{tab="traduci";view=null;render();scrollTo(0,0)}))return;tab="traduci";view=null;render();scrollTo(0,0);
   if(msg&&L!=="it")setTimeout(()=>{const b=document.querySelector('[data-a="trIn"]');b&&b.click()},200)}
 let WB=null;
 function wlRecips(g){return(D.waitlist||[]).filter(x=>(x.status||"new")!=="dropped"&&(g==="*"||(x.litter||"")===g))}
@@ -2327,7 +2338,7 @@ function intToWl(id){const x=(D.interested||[]).find(i=>i.id===id);if(!x)return;
   W.push({id:"wg"+Date.now(),created:new Date().toISOString(),name:x.name||"",email:"",phone:x.phone||"",city:x.city||"",country:x.country||"",sex:x.sex||"",exp:"",note:[x.note,x.when?"Quando: "+x.when:"",x.msg].filter(Boolean).join("\n"),source:"WhatsApp",litter:"",status:"contacted",lang:x.lang||"it"});
   x.status="moved";closeSheet();render();typeof saveNow==="function"&&saveNow();toast((x.name||"La persona")+" è nella Lista d'attesa.")}
 function intMsg(id){const x=(D.interested||[]).find(i=>i.id===id);if(!x)return;const L=x.lang&&TR_L.some(l=>l[0]===x.lang)?x.lang:"it";
-  TR={int:id,wl:null,to:null,num:x.phone||"",inTxt:x.msg||"",inIt:"",inLang:"",outIt:"",out:"",lang:L};if(!leaveOk())return;tab="traduci";view=null;render();scrollTo(0,0);
+  TR={int:id,wl:null,to:null,num:x.phone||"",inTxt:x.msg||"",inIt:"",inLang:"",outIt:"",out:"",lang:L};if(!leaveOk(()=>{tab="traduci";view=null;render();scrollTo(0,0)}))return;tab="traduci";view=null;render();scrollTo(0,0);
   if(x.msg&&L!=="it")setTimeout(()=>{const b=document.querySelector('[data-a="trIn"]');b&&b.click()},200);else if(x.msg){TR.inIt=x.msg;TR.inLang="italiano";render()}}
 function intBox(){const I=(D.interested||[]).filter(i=>i.status==="open").sort((a,b)=>(b.created||"").localeCompare(a.created||""));if(!I.length)return"";
   const fl=L=>L&&L!=="it"?(TR_L.find(l=>l[0]===L)||["",""])[1].split(" ")[0]:"";
@@ -3440,7 +3451,7 @@ document.addEventListener("click",e=>{
   const el=e.target.closest("[data-a]");if(!el||el.disabled)return;
   const a=el.dataset.a,v=el.dataset.v||"";
   switch(a){
-    case "close":closeSheet();break;
+    case "close":closeSheet();break;case "shX":if(SH_DIRTY)askLeave(()=>closeSheet());else closeSheet();break;
     case "ctSigReset":{if(D.settings)delete D.settings.sellerSig;render();typeof saveNow==="function"&&saveNow();break}
     case "ctGo":{const d=D.dogs[v],p=$("#ctPrice"),nw=padData("ctMe"),s=nw||ctSellerSig();if(!p||!p.value.trim()||!s)break;
       if(nw){D.settings=D.settings||{};D.settings.sellerSig=nw}
@@ -3518,10 +3529,10 @@ document.addEventListener("change",e=>{
 });
 
 /* ---------- Sheet ---------- */
-function sheet(h){if(!sheetOpen()){try{history.pushState({tab,view,sheet:1},"")}catch(e){}}$("#sheet").innerHTML=`<button class="sh-x" data-a="close" aria-label="Chiudi">✕</button>`+h;colorize($("#sheet"));roClean($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button:not(.sh-x)");f&&f.focus()}
-function closeSheetRaw(){$("#sheetBg").classList.remove("open")}
+function sheet(h){if(!sheetOpen()){try{history.pushState({tab,view,sheet:1},"")}catch(e){}}SH_DIRTY=false;$("#sheet").innerHTML=`<button class="sh-x" data-a="shX" aria-label="Chiudi">✕</button>`+h;colorize($("#sheet"));roClean($("#sheet"));$("#sheetBg").classList.add("open");const f=$("#sheet input,#sheet button:not(.sh-x)");f&&f.focus()}
+function closeSheetRaw(){SH_DIRTY=false;$("#sheetBg").classList.remove("open")}
 function closeSheet(){const was=sheetOpen();closeSheetRaw();if(was&&history.state&&history.state.sheet){try{history.replaceState({tab,view},"")}catch(e){}}}
-$("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")cancelSheet()});
+$("#sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")toast("Per chiudere tocca ✕ in alto")}); // un tocco fuori non chiude più (si perdevano i dati)
 addEventListener("keydown",e=>{if(e.key==="Escape")cancelSheet()});
 
 
@@ -4091,7 +4102,7 @@ function sxShow(){const inp=$("#srch"),box=$("#sxsug");if(!inp||!box)return;cons
     return`<button type="button" role="option" data-sx="${i}" aria-selected="${i===SXS}"><span class="${d.sex==="F"?"sx-f":"sx-m"}">${d.sex==="F"?"♀":"♂"}</span><span class="n">${sxHl(d.name,q)}${d.nick?` <span class="nk">«${sxHl(d.nick,q)}»</span>`:""}</span><span class="g ${c}">${esc(g)}</span><span class="m">${sxHl(m,q)}</span></button>`}).join("")
     :`<p class="none">Nessun cane con «${esc(inp.value.trim())}».</p>`;
   box.hidden=false;inp.setAttribute("aria-expanded","true")}
-function sxGo(i){const k=SXR[i];if(!k)return;const box=$("#sxsug");if(box)box.hidden=true;if(typeof leaveOk==="function"&&!leaveOk())return;openItem(k)}
+function sxGo(i){const k=SXR[i];if(!k)return;const box=$("#sxsug");if(box)box.hidden=true;if(typeof leaveOk==="function"&&!leaveOk(()=>openItem(k)))return;openItem(k)}
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="srch")sxShow()});
 document.addEventListener("focusin",e=>{if(e.target&&e.target.id==="srch")sxShow()});
 document.addEventListener("keydown",e=>{if(!e.target||e.target.id!=="srch")return;const box=$("#sxsug");if(!box||box.hidden)return;const b=[...box.querySelectorAll("button")];if(!b.length)return;

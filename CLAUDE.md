@@ -1280,3 +1280,11 @@ Accessi e copie
   blocca solo i veri `data:…;base64,` (prima anche una nota che inizia con «data:») e risponde 400 al JSON rotto;
   `GET /api/ownerposts` solo con Cani, Proprietari o Oggi; publish.js protegge sempre i file `content/`; contratto: versione
   mai più vecchia di `CT_MIN` (2026-10b), così dal browser non si toglie il 4-bis. **Se cambia `CT_VER`, aggiornare `CT_MIN`.**
+
+## Finestre che non perdono i dati (20/10/2026, anteprima approvata da Paolo)
+- Un tocco fuori dalla finestra (`#sheetBg`) non la chiude più: avviso «Per chiudere tocca ✕ in alto».
+- `SH_DIRTY` (input/change/firma su canvas.pad dentro `#sheet`; si azzera in `sheet()` e `closeSheetRaw()`): la ✕ (`data-a="shX"`)
+  e il tasto indietro (`popstate`) chiedono con `askLeave(fn)` («💾 Torna a salvare» / «Esci senza salvare», `#lvAsk`, `.lv-*`).
+  «Annulla»/«Chiudi» dentro le finestre chiudono senza chiedere (si premono apposta).
+- `leaveOk(retry)` (uscita da Modifica di un cane/proprietario non salvata): stessa domanda al posto di `confirm`; con «Esci»
+  rifà l'azione (`go`, `openItem`, indietro…). Blocco comune: identico in index.html e proprietario.html.
