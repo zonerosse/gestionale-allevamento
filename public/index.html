@@ -301,10 +301,19 @@ details.hs{border:1px solid var(--line)!important;border-radius:12px!important;b
 .tr-st{display:flex;align-items:center;gap:10px}.tr-st>span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font:600 .85rem var(--sans);flex:none}
 .ef-g{margin:0 0 8px!important}.ef-g>summary{padding:11px 14px!important}.ef-g .dph-b{padding:4px 14px 12px}.ef-top{margin:0 0 10px}.ef-del .dph-tt b{color:var(--muted)}
 
+/* menu a sinistra a gruppi e riga del salvataggio (20/10/2026, scelta B di Paolo) */
+nav.side .brand-sub{margin:0 0 6px}.ngr{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#8A919C;margin:16px 10px 4px;font-weight:600}
+nav.side .navbtn{padding:6px 8px;color:var(--ink);font-weight:500;font-size:.93rem;gap:10px}nav.side .navbtn:hover{background:#F2F3F5}
+nav.side .navbtn[aria-current="true"]{background:#EEF0F3;color:var(--ink);font-weight:600}nav.side .navbtn[aria-current="true"] .nlb{border-bottom:2px solid var(--accent)}
+.nsq{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex:none}nav.side .nsq svg{width:15px;height:15px}.nlb{flex:1;min-width:0}
+nav.side .navbtn .nb{background:#F3E3E1;color:var(--accent)}
+.banner.sbar{background:none;color:var(--muted);border-radius:0;border-bottom:1px solid var(--line);padding:0 0 10px;margin:0 0 18px;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;font-size:.82rem}
+.sb-s{display:flex;align-items:center;gap:7px}.sb-s i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;flex:none}.sbar.err .sb-s{color:var(--warn)}.sbar.err .sb-s i{background:var(--warn)}
+.sb-l{display:flex;gap:16px}.sb-l>*{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}.sb-l>*:hover{color:var(--ink)}
 /* telefono: niente fuori schermo (20/10/2026) */
 .acx-r{min-width:0}.acx-r>*{min-width:0;overflow-wrap:anywhere}.ac-st{white-space:normal!important}.enc-btns>*{min-width:0;white-space:normal}.enc-btns{grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr))!important}.pp-r{flex-wrap:wrap}.pp-r .pp-m{min-width:0;flex:1 1 150px}
 .an-b{box-sizing:border-box;flex-wrap:wrap}.kr{flex-wrap:wrap}.kb{flex-wrap:wrap;justify-content:flex-end}.kr>label{min-width:0;flex:1 1 160px}
-.hrow{grid-template-columns:100px minmax(0,1fr) auto}@media(max-width:520px){.hrow{grid-template-columns:72px minmax(0,1fr) auto}.nb{table-layout:fixed;width:100%}.nb th,.nb td{padding:4px 3px!important;font-size:.85rem}.nb input,.nb select{min-width:0!important;width:100%!important;box-sizing:border-box;padding:6px 4px!important}}
+.hrow{grid-template-columns:100px minmax(0,1fr) auto}@media(max-width:520px){.hrow{grid-template-columns:72px minmax(0,1fr) auto}table.nb{table-layout:fixed;width:100%}.nb th,.nb td{padding:4px 3px!important;font-size:.85rem}table.nb input,table.nb select{min-width:0!important;width:100%!important;box-sizing:border-box;padding:6px 4px!important}}
 .dph-b .sc-box{border:0;box-shadow:none;margin:0;padding:0;background:none}.dph-b .sc-e{grid-template-columns:52px minmax(0,1fr) auto!important;padding:10px 0}.dph-b .sc-bell{background:none;border:0;color:var(--muted)}.dph-b .sc-bell.on{color:var(--warn)}.dph-b .sc-bell .dic{width:18px;height:18px}
 /* gruppi di Cani › Ceduti e Proprietari: chiusi di base (Paolo, 20/10/2026: «voglio ordine, non casino») */
 .grp{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:0 0 8px;overflow:hidden}.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 16px}.grp>summary::-webkit-details-marker{display:none}.grp-tt{flex:1;min-width:0;display:flex;flex-direction:column}.grp-tt .og-t{font-family:var(--sans);font-weight:600;font-size:1rem}.grp-chev{color:var(--muted);transition:transform .2s}.grp[open] .grp-chev{transform:rotate(180deg)}.grp>.list{border-top:1px solid var(--line);margin:0}.grp.need{border-left:4px solid var(--warn)}.grp.need>summary{background:var(--paper)}.grp.need .og-t{color:var(--warn)}.grp-n{color:var(--warn);font-size:.82rem;font-weight:600}
@@ -935,7 +944,11 @@ function nav(){
   // in basso sul telefono le 5 voci stanno su una riga: "Accoppiamenti" diventa "Coppie" (scelta B di Paolo)
   const ico=ic=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">${ic}</svg>`;
   const B=(L,sh)=>L.map(([k,l,ic])=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}">${ico(ic)}${sh&&k==="coi"?"Coppie":l}${k==="recensioni"&&typeof rvBadge==="function"&&rvBadge()?`<span class="nb">${rvBadge()}</span>`:""}${k==="agenda"&&typeof agCount==="function"&&agCount()?`<span class="nb">${agCount()}</span>`:""}</button>`).join("");
-  $("#navSide").innerHTML=B(TABS,false);$("#navBottom").classList.remove("more-on");const NO=navOrder();
+  /* menu a sinistra a gruppi (20/10/2026, scelta B di Paolo): nome del gruppo in piccolo, quadratino di colore spento con icona bianca */
+  const NG=[["Il giorno","#4E6E8E",["oggi","agenda","scadenze"]],["Allevamento","#7A5C3E",["cani","cucciolate","coi","anagrafe","pappa"]],["Famiglie","#5C7A5A",["proprietari","attesa","traduci"]],["Sito e numeri","#6B5B7B",["recensioni","statistiche","conti"]],["Impostazioni","#5F6670",["account"]]],inG=new Set(NG.flatMap(g=>g[2]));
+  const SB=([k,l,ic],c)=>`<button class="navbtn" aria-current="${tab===k}" data-a="go" data-v="${k}"><span class="nsq" style="background:${c}"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ic}</svg></span><span class="nlb">${l}</span>${k==="recensioni"&&typeof rvBadge==="function"&&rvBadge()?`<span class="nb">${rvBadge()}</span>`:""}${k==="agenda"&&typeof agCount==="function"&&agCount()?`<span class="nb">${agCount()}</span>`:""}</button>`;
+  const side=NG.map(([t,c,ks])=>{const L=ks.map(k=>TABS.find(x=>x[0]===k)).filter(Boolean);return L.length?`<p class="ngr">${t}</p>`+L.map(x=>SB(x,c)).join(""):""}).join("")+(()=>{const o=TABS.filter(x=>!inG.has(x[0]));return o.length?`<p class="ngr">Altro</p>`+o.map(x=>SB(x,"#5F6670")).join(""):""})();
+  $("#navSide").innerHTML=side;$("#navBottom").classList.remove("more-on");const NO=navOrder();
   // sul telefono: le prime 4 voci, poi "Altro" con un menu a tendina per le altre (Attesa, Conti e quelle che verranno)
   if(NO.length<=5){$("#navBottom").innerHTML=B(NO,true);return}
   const rest=NO.slice(4),on=rest.some(t=>t[0]===tab);
@@ -5875,7 +5888,9 @@ function bannerHtml(){if(RO&&window.PERM)return `<div class="banner"><strong>Sol
   if(SAVE.err==="conflict")return `<div class="banner warn-b"><strong>I dati sono stati salvati da un'altra finestra o da un altro dispositivo.</strong> Ricarica la pagina per vedere l'ultima versione (le modifiche fatte qui da allora non sono state salvate). <span class="bn-act"><button class="btn small" onclick="location.reload()">Ricarica</button></span></div>`;
   const st=SAVE.err?`<strong>${esc(SAVE.err)}</strong>`:SAVE.at?`Salvato online (ultimo salvataggio: ${SAVE.at}).`:"Le modifiche vengono salvate online da sole, pochi secondi dopo.";
   if(CONTI)return `<div class="banner">${st}</div>`;
-  return `<div class="banner">${st} <span class="bn-act"><button class="btn ghost small" data-a="exportData">Copia di sicurezza</button><label class="btn ghost small" style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
+  /* riga sottile al posto della fascia beige (20/10/2026, Paolo: «troppo pacchiano») */
+  const tm=SAVE.at?String(SAVE.at).split(", "):[],sv=SAVE.err?esc(SAVE.err):SAVE.at?(tm.length>1&&tm[0]===fmt(todayS()).slice(0,5)?"Salvato alle "+tm[1]:"Salvato il "+SAVE.at):"Si salva da solo pochi secondi dopo ogni modifica";
+  return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}</span><span class="sb-l"><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
 function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.outerHTML=bannerHtml()}
 /* ---------- Copie di sicurezza (punto 11): scarica adesso + copie automatiche giornaliere (90 giorni) con Scarica / Ripristina ---------- */
 function bkLab(day){const d=day.slice(0,10),rest=day.slice(11);return fmt(d)+(rest?" "+rest:"")}

@@ -1422,3 +1422,11 @@ Accessi e copie
   schermo o tagliati. Sistemati: tasti dell'Anagrafe, voci della Consegna (Visualizza/Stampa), righe della Salute/iscrizioni (`.hrow`),
   tabella della nascita (`.nb`, sul telefono si stringe), righe di Account (`.acx-r`, `.ac-st` va a capo), tasti dei Modelli A/B
   (`.enc-btns`), righe dei Passaggi di proprietà (`.pp-r`). Regola: righe con flex/grid → `min-width:0` sui figli e a capo.
+- (20/10/2026, Paolo: «troppo pacchiano… il menu di sx lo trovo infantile», anteprima approvata: scelta B, menu chiaro) Menu a sinistra
+  del computer a gruppi (`nav()`, `NG`): Il giorno (Oggi, Agenda, Scadenze) · Allevamento (Cani, Cucciolate, Accoppiamenti, Anagrafe,
+  Quanto mangia) · Famiglie (Proprietari, Attesa, Traduci) · Sito e numeri (Google, Statistiche, Conti) · Impostazioni (Account); nome
+  del gruppo in piccolo (`.ngr`), quadratino di colore spento con icona bianca, un colore per gruppo (`.nsq`), voce aperta sottolineata in
+  rosso. Voci nuove: metterle in un gruppo di `NG` (altrimenti finiscono in «Altro»). La barra in basso del telefono non cambia.
+  La fascia beige del salvataggio (`bannerHtml`) è ora una riga sottile (`.banner.sbar`): puntino verde «Salvato alle …» (arancione con
+  l'errore), «Copia di sicurezza» e «Importa modifiche» come collegamenti. Gli avvisi veri (database vuoto, conflitto, solo da guardare)
+  restano come prima.
