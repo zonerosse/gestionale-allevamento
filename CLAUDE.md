@@ -1448,3 +1448,19 @@ Accessi e copie
 - "Importa modifiche" con `{controlloCuccioli:{dam,sire,date,pups:[{name,sex,chip,color,color_en}]}}` (`importCheck`, `ccShow`,
   `ccFill`): confronta un documento (es. certificato dei microchip) con le schede dei cuccioli della cucciolata (microchip, poi nome
   o soprannome): ✓ uguale, ＋ manca, ≠ diverso. «Completa i N dati mancanti» scrive SOLO i campi vuoti; le differenze non si cambiano.
+
+## Stile app (20/10/2026, Paolo: «non ci metti fantasia», scelto il n. 1 Breedera, anteprima approvata «può andare»)
+- Blocco CSS «STILE APP» in fondo al primo `<style>` dei due file (uguale): carattere Plus Jakarta Sans (anche `--serif`, i titoli
+  non sono più «da libro»), sfondo #F1F3F4, riquadri tondi (`--rr` 20px) con ombra (`--sh`) e senza bordo, niente riga rossa sotto i
+  titoli, menu a sinistra con icone a linea (voce aperta bianca con ombra, testo rosso), barra in basso del telefono a pillola sospesa.
+  Niente rosa: `.badge.f` (Fattrice/Stallone) azzurro-grigio.
+- Foto automatiche (scelta di Paolo): `dogPic(d)` = cuccioli sotto l'anno l'ultima «Foto della crescita», altrimenti la foto della
+  scheda (o l'ultima della crescita); `litPic(lid)` = ultima foto di gruppo, se no l'ultima dei cuccioli, se no la madre.
+- Cani: `cards(ids)` = schede con foto quadrata, ♂/♀, «N da fare» (scadenze in ritardo), nome, nome di chiamata, stato, età,
+  famiglia; senza foto l'iniziale e «+ Foto» (`qPh`). Miei = titoli aperti per gruppo (Fattrici, Stalloni…) con le schede;
+  Prenotati, Ceduti e i gruppi per cucciolata (`litterGroups`) chiusi come prima ma con le schede dentro; Esterni e antenati restano a righe.
+- Scheda del cane e pagina della famiglia: con la foto, intestazione `idHero` (foto grande, nome ed etichette sopra, «Cambia foto»,
+  tocco = visore `img[data-lb]` → `lbShow`); senza foto come prima.
+- Oggi: `ogLitHero()` (cucciolata nata da ≤180 giorni: foto, giorni, genitori, famiglie, barra delle tappe da `litPhases`, prossima
+  cosa da fare, «Apri la cucciolata») e in fondo `ogDogs()` (i cani di casa in fila da scorrere). Scheda della cucciolata: foto di
+  gruppo in cima (`.ls-ph`).
