@@ -1405,3 +1405,8 @@ Accessi e copie
 - (20/10/2026) Cani › Tutti e Cani › Esterni (`tuttiGroups`, anteprima approvata): gruppi chiusi I miei cani (arancione se un cane ha scadenze in
   ritardo) · Prenotati · Ceduti (dentro per cucciolata, `litterGroups`) · Padri e madri esterni (usati in `D.litters`) · Antenati del
   pedigree divisi per lettera (A–C, D–G, H–M, N–R, S–Z, titoli come «Ch.» ignorati) · Non più con noi.
+- REGOLA di Paolo (20/10/2026): «tutto ciò che è lungo da scorrere lo voglio riordinato con tendina». Ogni elenco che può superare
+  ~10 voci va diviso in gruppi chiusi (`PSEC`): per anno (`yearFold(chiave,[[data,html,daFare,aperto]],icona,nome)`), per tipo o per
+  cucciolata (`litterGroups`). Fatti: Cani › Tutti/Esterni (`tuttiGroups`), Cani › Miei con più di 10 cani (Fattrici, Stalloni,
+  Sterilizzati, Non più con noi, A casa), Cani › Prenotati con più di 8 (per cucciolata), Google › Recensioni › Tutte (per anno,
+  arancione l'anno con recensioni nuove senza risposta), Google › Post pubblicati (per anno).

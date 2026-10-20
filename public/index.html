@@ -1323,6 +1323,9 @@ function dogList(top){
   let body;
   if((filter==="tutti"||filter==="ext")&&ids.length)body=tuttiGroups(ids);
   else if(filter==="ceduto"&&ids.length)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
+  else if(filter==="prenotato"&&ids.length>8)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
+  else if(filter==="miei"&&ids.length>10){const T=[["Fattrici",k=>isFattrice(D.dogs[k])],["Stalloni",k=>D.dogs[k].sex==="M"&&D.dogs[k].status==="stallone"],["Sterilizzati",k=>D.dogs[k].status==="sterilizzata"],["Non più con noi",k=>D.dogs[k].status==="deceduto"],["A casa",k=>true]],U=new Set();
+    body=T.map(([t,f])=>{const a=ids.filter(k=>!U.has(k)&&f(k));a.forEach(k=>U.add(k));return a.length?PSEC("cm-"+t,"paw",t,a.length+(a.length===1?" cane":" cani")+" · "+a.slice(0,3).map(k=>esc(D.dogs[k].nick||D.dogs[k].name)).join(", ")+(a.length>3?"…":""),0,`<div class="list">${rows(a)}</div>`,""):""}).join("")}
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
   const fl=(f.find(x=>x[0]===filter)||[,""])[1];
@@ -1406,6 +1409,12 @@ function foldMain(m,key){if(!m)return;const K=[...m.children];let cur=null;
       d.innerHTML=`<summary>${dIc("chart")}<span class="dph-tt"><b></b><span></span></span>${dIc("chev","dph-chev")}</summary><div class="dph-b"></div>`;d.querySelector(".dph-tt b").textContent=t;
       c.replaceWith(d);cur=d.querySelector(".dph-b");return}
     if(cur){if(c.classList.contains("toolbar")&&!cur.childElementCount){}cur.appendChild(c);const p=cur.parentNode.querySelector(".dph-tt span");if(p&&!p.textContent){const s=c.querySelector?((c.matches&&c.matches(".ws-src,.row-meta,.lead"))?c:c.querySelector(".ws-src,.row-meta")):null;if(s)p.textContent=s.textContent.trim().slice(0,90)}}})}
+/* Elenchi lunghi (20/10/2026, Paolo: «tutto ciò che è lungo da scorrere lo voglio riordinato con tendina»): oltre ~10 voci
+   si dividono in gruppi chiusi (per anno, per tipo, per cucciolata). yearFold(chiave, [[data,html,da fare,aperto]], icona, nome) */
+function yearFold(key,P,ic,unit){if(P.length<=10)return P.map(x=>x[1]).join("");const G={},cy=todayS().slice(0,4);
+  P.forEach(x=>{const y=String(x[0]||"").slice(0,4)||"senza data";(G[y]=G[y]||[]).push(x)});
+  return Object.keys(G).sort((a,b)=>b.localeCompare(a)).map(y=>{const L=G[y],n=L.filter(x=>x[2]).length;
+    return PSEC(key+y,"cal",y===cy?"Quest'anno · "+y:y,L.length+" "+unit,n,L.map(x=>x[1]).join(""),"",L.some(x=>x[3]))}).join("")}
 const PROW=(st,t,v,act)=>`<div class="dph-r"><span class="dph-m ${st||"no"}"></span><span class="dph-k">${t}</span>${v?`<span class="dph-v">${v}</span>`:""}${act||""}</div>`;
 
 /* Scheda del cane più corta (20/10/2026, anteprima approvata): le sezioni in fondo sono riquadri richiudibili con il riassunto
@@ -4700,7 +4709,7 @@ function rvRevPage(){
   h+=`<div class="toolbar"><button class="chip" data-a="rvF" data-v="ult" aria-pressed="${RV.f==="ult"}">Ultime arrivate</button><button class="chip" data-a="rvF" data-v="todo" aria-pressed="${RV.f==="todo"}">Da rispondere (${todo.filter(rvNew).length})</button><button class="chip" data-a="rvF" data-v="all" aria-pressed="${RV.f==="all"}">Tutte (${RV.list.length})</button></div>`;
   const L=RV.list.map((r,i)=>[r,i]).filter(([r])=>RV.f==="all"||RV.ed===r.name||(RV.f==="todo"?rvNew(r):!rvOld(r)));
   if(!L.length)h+=`<p class="empty">${RV.f==="todo"?"Hai risposto a tutte le recensioni nuove.":"Nessuna recensione."}</p>`;
-  for(const [r,i] of L){const ed=RV.ed===r.name,open=r.reply==null||ed,val=RV.dr[r.name]!=null?RV.dr[r.name]:(ed?r.reply:"");
+  const RP=[];for(const [r,i] of L){const _st=h.length;const ed=RV.ed===r.name,open=r.reply==null||ed,val=RV.dr[r.name]!=null?RV.dr[r.name]:(ed?r.reply:"");
     h+=`<article class="rv${open?" open":""}${rvNew(r)?" rv-new":""}"><div class="rv-h"><div class="rv-av" aria-hidden="true">${esc((r.who||"?").trim().charAt(0).toUpperCase())}</div><p class="rv-who">${esc(r.who)}</p>
     ${r.reply!=null?`<span class="badge ok">✓ Risposta</span>`:rvOld(r)?`<span class="badge">Vecchia</span>`:`<span class="badge rv-nb">Nuova</span>`}<p class="rv-meta"><span class="rv-st" aria-label="${r.stars} stelle su 5">${rvStars(r.stars)}</span>${fmt(r.date)}</p></div>
     ${r.text?`<p class="rv-text">${esc(r.text)}</p>`:`<p class="rv-text small">Solo stelle, senza testo.</p>`}`;
@@ -4710,7 +4719,8 @@ function rvRevPage(){
       h+=`<label class="rv-ft" for="rvt_${i}">${r.reply!=null?"Modifica la risposta":"La risposta che pubblichi (puoi correggerla)"}</label><textarea id="rvt_${i}" data-rvt="${i}" maxlength="4000" rows="4" placeholder="Scrivi la risposta che vedranno tutti su Google">${esc(val||"")}</textarea>
       <div class="rv-row"><span class="small" id="rvc_${i}">${(val||"").length}/4.000</span><span>${r.reply!=null?`<button class="btn ghost small" data-a="rvCancel" data-v="${i}">Annulla modifiche</button> `:""}<button class="btn small rv-go" data-a="rvPub" data-v="${i}" ${(val||"").trim()?"":"disabled"}>${r.reply!=null?"Salva su Google":"Pubblica su Google"}</button></span></div>
       <p class="small" style="margin:6px 0 0">${esc(r.who)} riceverà una notifica, e la risposta sarà visibile a tutti sul profilo.</p></div>`}
-    h+=`</article>`}
+    h+=`</article>`;RP.push([r.date,h.slice(_st),r.reply==null&&rvNew(r),ed]);h=h.slice(0,_st)}
+  h+=RV.f==="all"?yearFold("rv-",RP,"star","recensioni"):RP.map(x=>x[1]).join("");
   if(RV.f!=="all"&&nOld)h+=`<div class="rv-oldl"><span>${nOld} ${nOld===1?"recensione vecchia":"recensioni vecchie"} senza risposta non si ${nOld===1?"vede":"vedono"} più.</span><button class="btn ghost small" data-a="rvF" data-v="all">Vedile in «Tutte»</button></div>`;
   return h}
 /* ---------- Post su Google (ottobre 2026, scelte di Paolo) ----------
@@ -4768,7 +4778,7 @@ function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'alle
       <p class="small" style="margin:10px 0 0">Google controlla ogni post prima di mostrarlo: di solito pochi minuti, a volte di più.</p></div></div>`}
   h+=`<h2>Pubblicati</h2>`;if(GP.list===null){setTimeout(gpLoad,0);GP.list=undefined}
   if(!GP.list)h+=`<p class="empty">⏳ Leggo i post da Google…</p>`;else if(GP.lerr)h+=`<p class="fnote">${esc(GP.lerr)}</p>`;else if(!GP.list.length)h+=`<p class="empty">Ancora nessun post.</p>`;
-  else h+=GP.list.map((p,i)=>`<button type="button" class="gp-post gp-open" data-a="gpView" data-v="${i}"><div class="th">${p.img?`<img src="${esc(gpImg(p.img))}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))||`<i class="small">(senza testo)</i>`}</p>${gpState(p)}<p class="pd">${fmt(p.date)} <span aria-hidden="true">›</span></p></button>`).join("");
+  else h+=yearFold("gpl-",GP.list.map((p,i)=>[p.date,`<button type="button" class="gp-post gp-open" data-a="gpView" data-v="${i}"><div class="th">${p.img?`<img src="${esc(gpImg(p.img))}" alt="" loading="lazy">`:""}</div><p class="pt">${esc((p.text.split(/[.!?\n]/)[0]||"").slice(0,90))||`<i class="small">(senza testo)</i>`}</p>${gpState(p)}<p class="pd">${fmt(p.date)} <span aria-hidden="true">›</span></p></button>`]),"doc","post");
   return h}
 /* Post libero (scelta di Paolo): "✍️ Scrivi un post" su quello che vuole lui. Foto fra le ultime caricate nel gestionale,
    tasto verso Home / Cuccioli / Diario di una cucciolata / Palmarès / nessuno. Claude scrive dalle sue due righe. */
