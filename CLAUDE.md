@@ -1379,3 +1379,14 @@ Accessi e copie
 - (20/10/2026, Paolo: «chiusi… voglio ordine, non casino») Gruppi per cucciolata di Proprietari e di Cani › Ceduti = `details.grp` chiusi
   (aperto/chiuso ricordato da DOPEN). Richiamo arancione `need` + «N da sistemare»: Proprietari = contratto non firmato o link non
   mandato; Ceduti = passaggio non firmato o mandato senza denuncia del Comune.
+
+## Tutte le sezioni in ordine (20/10/2026, Paolo: «tutto in ordine Vergine», anteprima approvata)
+- Aiuti comuni (blocco comune, dopo `DPH_OPEN`): `PGH(titolo,sotto,tasti)` intestazione con riga rossa; `PCTA(t,s,tasto,rosso)` UN solo
+  avviso in cima; `PSEC(chiave,icona,titolo,riassunto,n,contenuto,ok,aperto)` riquadro chiuso (`details.dph`, ricordato in DPH_OPEN
+  con "pg|<chiave>"), arancione con «N da fare» se n>0, «In regola» se ok===true, testo grigio se ok è una stringa; `PROW(stato,testo,
+  valore,tasto)` riga con pallino; `noEmo` toglie l'emoji iniziale. Nuove pagine: usare questi.
+- Fondo dei riquadri «da fare» BIANCO (Paolo: niente rosa): solo striscia, titolo e «N da fare» arancioni (dph, lph, grp).
+- Fatte: ☀️ Oggi (`ogPage`: avviso più urgente = temperatura, poi scadenze in ritardo, poi appuntamento di oggi; sito; 7 riquadri),
+  Agenda (`agPage`: Da fissare, In programma, Visite fatte, Già ritirati, «Leggi un messaggio di WhatsApp» in fondo), Scadenze
+  (`scPage`: Scadute in arancione + gruppi chiusi, campanello a linea; niente più `mbBanners` qui), Conti (`acList`: tre numeri,
+  avviso cuccioli senza prezzo, una riga chiusa per cucciolata e Spese generali).
