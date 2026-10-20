@@ -1317,3 +1317,14 @@ Accessi e copie
 - Attesa → in ogni cucciolata «🎯 Ordine di scelta» (`poHtml`, `poList`): chi ha `status` deposit/assigned in fila; `l.pick` =
   ordine con ▲▼ (`poMv`), altrimenti per `depDate` e poi `created`. Chi ha il cucciolo ✓ «ha scelto …», il primo senza è «tocca a
   lui/lei» con «🐶 Assegna un cucciolo» (`wlAssign`, come prima); sotto i cuccioli, barrati quelli già presi.
+
+## Scheda del cane più semplice (20/10/2026, anteprima approvata da Paolo)
+- Percorso «dove sono» sopra il tasto indietro di ogni pagina interna (`navCrumb`/`navDecor`, classe `.pg-crumb`): ultime voci di
+  `NAVSTACK` con la sezione davanti (es. «Cani › Fattrici › Desy»). `navDecor` gira anche quando la pagina si ridisegna.
+- In fondo alla scheda del cane riquadri richiudibili `DF(titolo,riassunto,contenuto)` (`details.dfold`, chiusi, memoria DOPEN):
+  Test dei genitori, DNA, Pedigree (padre × madre), Consanguineità (COI SBT), Cucciolata di nascita, Fratelli, Cucciolate, Figli
+  (numero), Note (inizio). `ckGo` apre il riquadro chiuso. Per i cani di casa (`home`: non esterni, senza proprietario, non
+  prenotati/ceduti) la Salute sta subito dopo Dati e Calori.
+- Un solo «✏️ Modifica» (`editOn`): nel riquadro di modifica anche foto (`ef_ph`, `EF_PHOTO`, «Togli foto» `efPhDel`; si salva
+  solo con Salva), link SBTpedigree (`ef_sbt`), test, titoli e note. Tolto il tasto «Foto, test, titoli e note» (`dogForm` resta per
+  «Nuovo cane» e gli altri usi).
