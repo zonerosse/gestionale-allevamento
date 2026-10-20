@@ -1410,3 +1410,7 @@ Accessi e copie
   cucciolata (`litterGroups`). Fatti: Cani › Tutti/Esterni (`tuttiGroups`), Cani › Miei con più di 10 cani (Fattrici, Stalloni,
   Sterilizzati, Non più con noi, A casa), Cani › Prenotati con più di 8 (per cucciolata), Google › Recensioni › Tutte (per anno,
   arancione l'anno con recensioni nuove senza risposta), Google › Post pubblicati (per anno).
+- (20/10/2026, Paolo: «ho dovuto scorrere troppo») «Modifica» del cane (`dogFacts` con EDIT) a riquadri chiusi (`EG`, `details.ef-g`,
+  DPH_OPEN "ef|<id>|<parte>"): Nome, sesso e nascita · Stato e proprietario · Colore, LOI e microchip · Genitori e COI · Foto, test,
+  titoli e note · Elimina questo cane; Salva/Annulla sia in cima sia in fondo. I campi chiusi restano nella pagina: Salva li legge tutti.
+  Freccia dei riquadri: ruota solo quella del riquadro aperto (`.dph[open]>summary .dph-chev`).
