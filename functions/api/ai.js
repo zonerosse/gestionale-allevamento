@@ -66,7 +66,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -174,6 +174,14 @@ Ti arriva una richiesta di informazioni dal modulo contatti del sito. Fai tre co
 Formato: {"lang":"codice ISO 639-1 di chi scrive","sunto":"...","bozza":"...","out":"..."}`,
         `Nome: ${p.name || ""}\nMessaggio:\n${String(p.msg || "").slice(0, 4000)}`, 1500);
       return json({ ok: true, lang: o.lang || "it", langName: LANGS[o.lang] || o.lang, sunto: o.sunto || "", bozza: o.bozza || "", out: o.out || "" });
+    }
+    if (task === "cessione") { // 20/10/2026: una pagina della «Denuncia di cessione del cane» del Comune (scansione) → microchip, cane, acquirente, data
+      let data = String(p.data || "").replace(/^data:[^,]*,/, ""); if (!data) return json({ ok: false, error: "Manca il file." });
+      const media = p.media || "application/pdf";
+      const doc = media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } } : { type: "image", source: { type: "base64", media_type: media, data } };
+      const o = await ask(env, `Leggi questa pagina: è una «Denuncia di cessione del cane» di un Comune italiano (scansione). Copia SOLO quello che c'è scritto, senza interpretare.
+Formato: {"chip":"numero di microchip, solo cifre, o \"\"","dog":"nome del cane come scritto","buyer":"nome e cognome di chi riceve il cane (dopo «al Sig.»)","date":"data della cessione (dopo «in data»), AAAA-MM-GG, o \"\"","sex":"M, F o \"\""}`, [doc, { type: "text", text: "Leggi la pagina." }], 400);
+      return json({ ok: true, chip: String(o.chip || "").replace(/\D/g, ""), dog: o.dog || "", buyer: o.buyer || "", date: o.date || "", sex: o.sex || "" });
     }
     if (task === "referto") {
       let data = p.data, media = p.media;

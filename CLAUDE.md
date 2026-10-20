@@ -1328,3 +1328,16 @@ Accessi e copie
 - Un solo «✏️ Modifica» (`editOn`): nel riquadro di modifica anche foto (`ef_ph`, `EF_PHOTO`, «Togli foto» `efPhDel`; si salva
   solo con Salva), link SBTpedigree (`ef_sbt`), test, titoli e note. Tolto il tasto «Foto, test, titoli e note» (`dogForm` resta per
   «Nuovo cane» e gli altri usi).
+
+## 📥 Denunce di cessione dalla mail del Comune, firmate da Paolo (20/10/2026, anteprima approvata da Paolo)
+- Scheda della cucciolata → Passaggi di proprietà: sulle righe già mandate «⏳ manca la denuncia» / «✓ Registrato dal Comune»
+  (`cesDoc`); tasti «📥 Prendi dalla mail del Comune» (`cesStart(lid,"mail")`) e «📎 Oppure carica il PDF» (`cesStart(lid,"file")`).
+- Mail: Gmail in sola lettura dal browser (`grToken`, scope gmail.readonly, stesso client `DRIVE_CLIENT`), ricerca
+  `from:(ppAddr()) has:attachment filename:pdf after:<primo ppSent − 1 giorno>`, allegati PDF (`grGet`). Il PDF del Comune è una
+  scansione, una «Denuncia di cessione del cane» per pagina (esempio del 05/05/2026: Andy Hug, Ernesto Hoost, Jerome Le Banner).
+- `cesRead`: ogni pagina diventa un PDF a sé (pdf-lib), Claude legge microchip, cane, acquirente, data (compito `cessione` in ai.js,
+  permesso proprietari 2), miniatura con pdf.js; abbinamento dal microchip (`cesMatch`); già salvata → senza spunta.
+- `cesList`: spunte, firma salvata (o `ctPad("cesSig")`, che diventa `settings.sellerSig`), casella «Sono … e firmo …» (`cesMe`).
+  `cesSave` → `cesStamp` (firma nelle 2 righe «FIRMA DEL DICHIARANTE», `CES_SPOTS`, pagine /Rotate 270 provate) → documento
+  `{title:"Denuncia di cessione (Comune)",ces:true,cert:true,private:false,signed}` (sostituisce una precedente): in «Certificati»,
+  visibile alla famiglia (scelta di Paolo). L'originale senza firma resta nella mail.
