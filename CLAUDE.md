@@ -1414,3 +1414,5 @@ Accessi e copie
   DPH_OPEN "ef|<id>|<parte>"): Nome, sesso e nascita · Stato e proprietario · Colore, LOI e microchip · Genitori e COI · Foto, test,
   titoli e note · Elimina questo cane; Salva/Annulla sia in cima sia in fondo. I campi chiusi restano nella pagina: Salva li legge tutti.
   Freccia dei riquadri: ruota solo quella del riquadro aperto (`.dph[open]>summary .dph-chev`).
+- (20/10/2026, Paolo: «testo fuori schermata») Righe degli elenchi (`.list .row`): `min-width:0`, `max-width:100%`, `box-sizing:border-box`,
+  nomi che vanno a capo: prima i nomi lunghi dei genitori allargavano la riga e le etichette Ceduto/Firmato uscivano a destra.
