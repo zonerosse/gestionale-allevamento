@@ -1269,3 +1269,14 @@ Accessi e copie
   mentre si scrive, controllo nel gestore `data-ct="sign"`; in inglese «I am … and I sign the sale agreement for …») e passaggio di
   proprietà (`ppDecl` in `ppForm`, la spunta la mette l'acquirente; controllo in `ppGo`). Niente riga in più nei PDF (scelta di Paolo).
 - Ogni nuovo documento da far firmare deve avere la stessa casella. In `firma.html` l'articolo davanti al titolo lo mette `art()`.
+
+## Controllo del codice (20/10/2026, chiesto da Paolo: «studia se ci sono errori»)
+- Pagine: il controllo «dati non salvati» del tasto indietro (`popstate`) non partiva (era finito dentro un commento);
+  `todayS()` ora usa la data italiana (prima UTC: fra mezzanotte e le 2 dava ieri), e tutte le `new Date().toISOString().slice(0,10)`
+  per «oggi» passano da `todayS()`; righe di ⚙️ Account con classe `.acx-r` (prima `.ac-r` rompeva le righe dei Conti).
+- Server: `ownerSubset` toglie dalla cucciolata `LIT_PRIV` (note, Modello A/B con i dati di tutti gli acquirenti, sito…) e dal
+  cane `anag`; `limitedData` toglie Modelli A/B senza Proprietari e `anag` senza Anagrafe; un errore di D1 in `accessCfg` ora
+  blocca l'accesso (prima: tutti admin per 30 s); chiavi di Access riscaricate se la chiave del token non c'è; PUT /api/data
+  blocca solo i veri `data:…;base64,` (prima anche una nota che inizia con «data:») e risponde 400 al JSON rotto;
+  `GET /api/ownerposts` solo con Cani, Proprietari o Oggi; publish.js protegge sempre i file `content/`; contratto: versione
+  mai più vecchia di `CT_MIN` (2026-10b), così dal browser non si toglie il 4-bis. **Se cambia `CT_VER`, aggiornare `CT_MIN`.**

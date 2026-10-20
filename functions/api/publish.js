@@ -35,7 +35,7 @@ export async function onRequestPost({ request, env }) {
     const tree = [], skipped = [];
     const blob = async b64 => (await gh("/git/blobs", "POST", { content: b64, encoding: "base64" })).sha;
     for (const f of files) {
-      if (f.guard) { const cur = await read(f.path); if (cur != null && !OWN.test(cur)) { skipped.push(f.path); continue; } }
+      if (f.guard || /^content\//.test(f.path)) { /* le pagine del sito: mai sopra una pagina scritta a mano */ const cur = await read(f.path); if (cur != null && !OWN.test(cur)) { skipped.push(f.path); continue; } }
       tree.push({ path: f.path, mode: "100644", type: "blob", sha: await blob(f.b64) });
     }
     for (const b of blocks) {

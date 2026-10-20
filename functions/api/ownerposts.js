@@ -1,8 +1,8 @@
-import { json, who, deny, ensureOwnerPosts, owpRow, OWP_KEY } from "../_lib.js";
+import { json, who, can, deny, ensureOwnerPosts, owpRow, OWP_KEY } from "../_lib.js";
 
 // Paolo vede e cancella quello che i proprietari hanno scritto sulle schede dei cani (16/10/2026).
 export async function onRequestGet({ request, env }) {
-  const w = await who(request, env); if (!w.role) return deny();
+  if (!(await can(request, env, ["cani", "proprietari", "oggi"], 1))) return deny();
   await ensureOwnerPosts(env);
   const r = await env.DB.prepare("SELECT * FROM ownerposts ORDER BY created DESC LIMIT 2000").all();
   return json({ items: (r.results || []).map(x => owpRow(x, "/files/")) });

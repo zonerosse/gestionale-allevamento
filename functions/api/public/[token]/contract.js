@@ -21,7 +21,9 @@ export async function onRequestPost({ request, env, params }) {
   if (c36 === null) return json({ error: "Scelta 3.6 mancante" }, 400);
   // Le condizioni le ricostruisce il server dai dati di Paolo: il browser non può cambiarle.
   const pn = k => { const x = D.dogs[k]; return x ? x.name + (x.chip ? " · " + x.chip : "") : ""; };
-  const snap = { ver: s(b.ver, 20), sex: d.sex, bi: (D.owners[d.owner] || {}).lang === "en",
+  // versione del contratto: mai più vecchia di quella attuale (dal browser non si possono togliere punti come il 4-bis)
+  const CT_MIN = "2026-10b", ver = s(b.ver, 20) >= CT_MIN ? s(b.ver, 20) : CT_MIN;
+  const snap = { ver, sex: d.sex, bi: (D.owners[d.owner] || {}).lang === "en",
     dog: { name: d.name || "", chip: d.chip || "", birth: d.birth || "", color: d.color || "" },
     sire: pn(d.sire), dam: pn(d.dam), price: c.price || "" };
   await ensureContracts(env);

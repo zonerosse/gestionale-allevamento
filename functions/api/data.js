@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPut({ request, env }) {
   const w = await who(request, env), rr = w.role;
   if (rr !== "admin" && !(rr === "limited" && Object.values(w.perm).some(x => x === 2))) return deny();
-  const body = await request.json();
+  let body; try { body = await request.json(); } catch (e) { return json({ error: "Dati non validi" }, 400); }
   if (!body || !body.data || !body.data.dogs) return json({ error: "Dati non validi" }, 400);
   if (rr === "limited") { // si salvano solo le sezioni che la persona può modificare, unite ai dati veri
     const cur0 = await loadData(env); if (!cur0) return deny();
@@ -21,7 +21,7 @@ export async function onRequestPut({ request, env }) {
     body.data = mergeLimited(cur0.data, body.data, w.perm);
   }
   const txt = JSON.stringify(body.data);
-  if (txt.includes('"data:')) return json({ error: "Ci sono file non ancora caricati" }, 400);
+  if (/"data:[\w.+\/-]+;base64,/.test(txt)) return json({ error: "Ci sono file non ancora caricati" }, 400);
   const now = new Date().toISOString();
   const row = await env.DB.prepare("SELECT version, json FROM store WHERE id = 'main'").first();
   let nv;

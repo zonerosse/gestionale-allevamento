@@ -28,7 +28,11 @@ export async function accessEmail(request, env) {
       const r = await fetch(env.TEAM_DOMAIN.replace(/\/$/, "") + "/cdn-cgi/access/certs");
       CERTS = (await r.json()).keys; CERTS_AT = Date.now();
     }
-    const jwk = CERTS.find(k => k.kid === head.kid);
+    let jwk = CERTS.find(k => k.kid === head.kid);
+    if (!jwk && Date.now() - CERTS_AT > 60e3) { // chiavi di Access cambiate: riscarica (al massimo una volta al minuto)
+      const r = await fetch(env.TEAM_DOMAIN.replace(/\/$/, "") + "/cdn-cgi/access/certs");
+      CERTS = (await r.json()).keys; CERTS_AT = Date.now(); jwk = CERTS.find(k => k.kid === head.kid);
+    }
     if (!jwk) return null;
     const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
     const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64u(s), new TextEncoder().encode(h + "." + p));
@@ -40,7 +44,9 @@ export async function accessEmail(request, env) {
 let ACC = null, ACC_AT = 0;
 export async function accessCfg(env, fresh) {
   if (!fresh && ACC && Date.now() - ACC_AT < 30e3) return ACC;
-  try { const r = await env.DB.prepare("SELECT v FROM gbp WHERE k = 'cfg:access'").first(); ACC = r ? JSON.parse(r.v) : {}; } catch (e) { ACC = {}; }
+  try { const r = await env.DB.prepare("SELECT v FROM gbp WHERE k = 'cfg:access'").first(); ACC = r ? JSON.parse(r.v) : {}; }
+  catch (e) { // tabella gbp non ancora creata: come prima; qualsiasi altro errore: nessuno entra (mai tutti admin per sbaglio)
+    if (/no such table/i.test(String(e && e.message))) ACC = {}; else { ACC = null; return { error: true }; } }
   ACC_AT = Date.now(); return ACC;
 }
 export function accessReset() { ACC = null; }
@@ -59,6 +65,7 @@ export function permNorm(r) {
 export async function who(request, env) {
   const e = await accessEmail(request, env); if (e === null) return { email: null, role: null, perm: {} };
   const A = await accessCfg(env);
+  if (A && A.error) return { email: e, role: null, perm: {} };
   let r;
   if (A && A.people && Object.keys(A.people).length) { r = A.people[e]; if (r === undefined) return { email: e, role: null, perm: {} }; }
   else {
@@ -144,6 +151,8 @@ export async function loadData(env) {
 }
 
 // Solo i dati che il proprietario può vedere: i suoi cani, i loro antenati, i test dei genitori.
+// Campi della cucciolata che il proprietario non deve mai ricevere (il Modello B contiene i dati di tutti gli acquirenti)
+const LIT_PRIV = ["acc", "notes", "mbFile", "mbSaved", "modA", "modB", "enciA", "enciB", "gpost", "site", "revDone", "homeSince", "inSite"];
 export function ownerSubset(data, token) {
   if (!/^[A-Za-z0-9_-]{16,}$/.test(token || "")) return null;
   const oid = Object.keys(data.owners || {}).find(k => data.owners[k].token === token);
@@ -160,7 +169,7 @@ export function ownerSubset(data, token) {
   const dogs = {};
   for (const [k, g] of Object.entries(depth)) {
     const d = data.dogs[k], own = mine.includes(k), o = {};
-    if (own) { Object.assign(o, d); delete o.notes; o.owner = oid; if (o.contract && !o.contract.visible) delete o.contract; if (o.shows) o.shows = o.shows.filter(x => x.own); } // esposizioni: solo quelle condivise
+    if (own) { Object.assign(o, d); delete o.notes; delete o.anag; o.owner = oid; if (o.contract && !o.contract.visible) delete o.contract; if (o.shows) o.shows = o.shows.filter(x => x.own); } // esposizioni: solo quelle condivise
     else { PUB.forEach(f => { if (d[f] !== undefined) o[f] = d[f]; }); if (g <= 3 && d.photo) o.photo = d.photo; }
     if (g <= 2) o.docs = (d.docs || []).filter(x => !x.private); else delete o.docs;
     if (own) o.docs = (d.docs || []).filter(x => !x.private);
@@ -169,7 +178,7 @@ export function ownerSubset(data, token) {
   const ow = data.owners[oid];
   const owners = { [oid]: { name: ow.name, country: ow.country || "", phone: ow.phone || "", email: ow.email || "", addr: ow.addr || "", lang: ow.lang || "it", cf: ow.cf || "", doc: ow.doc || "" } };
   const litters = {};
-  mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) { litters[l] = Object.assign({}, data.litters[l]); delete litters[l].acc; } }); // i conti restano solo a Paolo
+  mine.forEach(k => { const l = data.dogs[k].litter; if (l && data.litters[l]) { litters[l] = Object.assign({}, data.litters[l]); LIT_PRIV.forEach(f => delete litters[l][f]); } }); // conti, note, Modelli ENCI, sito: solo a Paolo
   let txt = JSON.stringify({ dogs, owners, litters, matings: {}, settings: { farm: farmRaw(data) } });
   const allowed = new Set([...txt.matchAll(/\/files\/([A-Za-z0-9._-]+)/g)].map(m => m[1]));
   txt = txt.split("/files/").join("/api/public/" + token + "/f/");
@@ -239,10 +248,12 @@ export function limitedData(data, P) {
   if (!v("proprietari")) {
     for (const k of Object.keys(d.owners)) d.owners[k] = { name: d.owners[k].name || "" };
     for (const x of Object.values(d.dogs)) { delete x.contract; delete x.dep; delete x.pp; if (x.docs) x.docs = x.docs.filter(z => !hiddenDoc(z)); }
+    for (const l of Object.values(d.litters)) { delete l.mbFile; delete l.modA; delete l.modB; } // il Modello B ha i dati degli acquirenti
   }
   if (!v("conti")) { for (const l of Object.values(d.litters)) delete l.acc; d.accGen = []; }
   if (!v("attesa")) { delete d.waitlist; delete d.interested; delete d.wlGone; }
   if (!v("agenda")) delete d.agenda;
+  if (!v("anagrafe")) for (const x of Object.values(d.dogs)) delete x.anag; // pratica dell'anagrafe: documenti e firma dell'intestatario
   const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
   cp(["rules", "enti"]);
   if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken"]);
