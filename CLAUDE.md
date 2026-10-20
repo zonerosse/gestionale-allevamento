@@ -1398,3 +1398,7 @@ Accessi e copie
   agBanner e mbBanners dall'elenco), Accoppiamenti (fila di bottoni divisa in riquadri Consanguineità / Test genetici / Altri maschi,
   con ✓), Statistiche (`foldMain`: ogni titolo h2 diventa un riquadro chiuso). Tutte le pagine: `#main>h1` con la riga rossa.
 - In proprietario.html `mating()` è una versione più vecchia (non usata nella pagina della famiglia): lì l'Accoppiamenti non è cambiato.
+- (20/10/2026, terzo giro) Accoppiamenti, risultato della coppia (`calcMate`): Regole ENCI, «Su chi cade la consanguineità» e Test
+  genetici della coppia in riquadri chiusi (Regole ENCI arancione se una regola non è rispettata o è da controllare); righe ENCI con
+  pallini al posto dei cerchi colorati; `colorize` anche qui. Traduci: titoli numerati 1-2-3 (`.tr-st`). Quanto mangia: «Crocchette
+  aggiunte dagli utenti» è un riquadro chiuso (prima si apriva da solo). Google: solo titolo e sezioni sobrie (colorize).
