@@ -1307,3 +1307,13 @@ Accessi e copie
 - Finestre aperte dalla Scheda della cucciolata (`SH_PARENT`, calcolato in `sheet()` dal `CK_LIT` della finestra precedente):
   in alto «‹ Scheda della cucciolata» (`shBack`) e la riga «Cucciolate › madre × padre › titolo» (`.sh-crumb`); ✕, Annulla/Chiudi
   (`close`) e il tasto indietro riportano alla Scheda della cucciolata (`shBackTo`) invece di chiudere tutto.
+
+## Cane acquisito, barra in basso, ordine di scelta (20/10/2026, anteprima approvata da Paolo)
+- 🪪 Anagrafe → «＋ Cane acquisito» (`anagNew`): una sola finestra con nome di chiamata, nome di pedigree (vuoto = uguale) e i
+  bottoni ♂/♀ (`annSx`, `ANNEW_SX`); «Salva e apri la pratica» (`annSave`). Niente più prompt/confirm dell'iPhone.
+- ⚙️ Account → «📱 Barra in basso sul telefono» (`acNbHtml`, `acNbAct`, bozza `ACNB`): Paolo tocca fino a 4 voci nell'ordine
+  voluto → `D.settings.navBar`; `navOrder()` le mette prime in `nav()` (barra in basso), le altre in «Altro». «Come prima» toglie
+  `navBar`. Voci non permesse (permessi per sezione) vengono saltate da sole. La barra laterale del computer non cambia.
+- Attesa → in ogni cucciolata «🎯 Ordine di scelta» (`poHtml`, `poList`): chi ha `status` deposit/assigned in fila; `l.pick` =
+  ordine con ▲▼ (`poMv`), altrimenti per `depDate` e poi `created`. Chi ha il cucciolo ✓ «ha scelto …», il primo senza è «tocca a
+  lui/lei» con «🐶 Assegna un cucciolo» (`wlAssign`, come prima); sotto i cuccioli, barrati quelli già presi.
