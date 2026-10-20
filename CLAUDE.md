@@ -1341,3 +1341,12 @@ Accessi e copie
   `cesSave` → `cesStamp` (firma nelle 2 righe «FIRMA DEL DICHIARANTE», `CES_SPOTS`, pagine /Rotate 270 provate) → documento
   `{title:"Denuncia di cessione (Comune)",ces:true,cert:true,private:false,signed}` (sostituisce una precedente): in «Certificati»,
   visibile alla famiglia (scelta di Paolo). L'originale senza firma resta nella mail.
+
+## Scheda della cucciolata in ordine (20/10/2026, Paolo: «vedo un gran casino… mettiamo ordine?», anteprima approvata)
+- `litterSheet`: intestazione (genitori, nata il, giorni, cuccioli), poi «👉 Prossima cosa da fare» (la prima voce da fare dei
+  riquadri, tasto «Vai» = `lphGo`, apre e scorre al riquadro) oppure «✓ niente da fare», poi 6 riquadri `details.lph` da `litPhases(lid)`:
+  🐣 Nascita e cuccioli (birthHtml, gphotosHtml, elenco) · 📄 ENCI (maBox, mbBox) · 🪪 Anagrafe (iscBox, ppLitBox: iscrizioni,
+  passaggi firmati/mandati, denunce del Comune) · 👨‍👩‍👧 Famiglie (linkBox: contratti, link, recensioni) · 🌐 Sito (cuBox) ·
+  🗂️ Archivio (note, link SBT, drBox). Ognuno: stato «✓ fatto» / «⏳ N da fare» / spento, righe ✓ / pallino, poi i comandi di prima.
+  Aperti da soli quelli con cose da fare; aperto/chiuso ricordato (`LPH_OPEN`). Tolti qui «Cosa c'è» (ckDecorate) e l'avviso grande
+  del Modello B (mbBanners resta in Oggi/Cani/Scadenze). Per aggiungere una cosa alla scheda: metterla nel riquadro giusto di `litPhases`.
