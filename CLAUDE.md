@@ -1296,3 +1296,14 @@ Accessi e copie
 - Calo (`tpState`): ultima misura ≤ media delle 6 precedenti − 0,9 °C, oppure sotto 37 °C → riquadro rosso «parto entro 12–24 ore».
 - ☀️ Oggi: con il calo un riquadro rosso in cima (`og-alarm`, tasto «Apri la scheda»); prima del calo nella card Fattrici la riga
   «🌡️ … misura la temperatura (giorno N)».
+
+## 📜 Pedigree per la famiglia e finestre della cucciolata (20/10/2026, anteprima approvata da Paolo)
+- Scheda del cane allevato (`pedBox`, dopo la Consegna): «👁 Vedi / ⬇️ Scarica / 💬 Manda alla famiglia» (`pedGo`). `pedPdf` (jsPDF,
+  A4 orizzontale): logo `/icon-192.png`, allevamento e razza da `FM()`, nome, nome di chiamata, sesso, nascita, mantello, microchip,
+  LOI («In attesa»), 4 generazioni dai dati (genitori con titoli, LOI e test; nonni con titoli; bordo azzurro/rosa per posizione;
+  «–» se manca), COI SBT (`pedCoi`: cane, cucciolata `sbtA.c8`, coppia), firma salvata, «documento informativo: il pedigree
+  ufficiale è quello dell'ENCI». Inglese per i proprietari `lang:"en"`. Non si salva: si rifà ogni volta. Sul telefono «Manda»
+  usa il pannello Condividi col PDF; dal computer scarica e apre WhatsApp col messaggio.
+- Finestre aperte dalla Scheda della cucciolata (`SH_PARENT`, calcolato in `sheet()` dal `CK_LIT` della finestra precedente):
+  in alto «‹ Scheda della cucciolata» (`shBack`) e la riga «Cucciolate › madre × padre › titolo» (`.sh-crumb`); ✕, Annulla/Chiudi
+  (`close`) e il tasto indietro riportano alla Scheda della cucciolata (`shBackTo`) invece di chiudere tutto.
