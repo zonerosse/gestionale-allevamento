@@ -1402,3 +1402,6 @@ Accessi e copie
   genetici della coppia in riquadri chiusi (Regole ENCI arancione se una regola non è rispettata o è da controllare); righe ENCI con
   pallini al posto dei cerchi colorati; `colorize` anche qui. Traduci: titoli numerati 1-2-3 (`.tr-st`). Quanto mangia: «Crocchette
   aggiunte dagli utenti» è un riquadro chiuso (prima si apriva da solo). Google: solo titolo e sezioni sobrie (colorize).
+- (20/10/2026) Cani › Tutti (`tuttiGroups`, anteprima approvata): gruppi chiusi I miei cani (arancione se un cane ha scadenze in
+  ritardo) · Prenotati · Ceduti (dentro per cucciolata, `litterGroups`) · Padri e madri esterni (usati in `D.litters`) · Antenati del
+  pedigree divisi per lettera (A–C, D–G, H–M, N–R, S–Z, titoli come «Ch.» ignorati) · Non più con noi.

@@ -1038,6 +1038,25 @@ function hero(){const d=D.dogs[HERO];
   return `<div class="hero"><div class="hero-t"><p class="hero-k">${esc(FM().breed)}</p><h1 class="hero-h">${esc(FM().name)}</h1><p class="hero-s">Gestionale allevamento</p></div>
   <div class="hero-p">${d&&d.photo?`<img src="${d.photo}" alt="">`:""}</div></div>`;
 }
+/* Cani › Tutti in gruppi chiusi (20/10/2026, Paolo: «un casino della madonna», anteprima approvata) */
+function tuttiGroups(ids){const td=todayS(),late=new Set();try{scEvents().forEach(e=>{if(!e.phone&&e.dog&&e.date<td)late.add(e.dog)})}catch(e){}
+  const used=new Set();Object.values(D.litters||{}).forEach(l=>{if(l.sire)used.add(l.sire);if(l.dam)used.add(l.dam)});
+  const by=k=>(D.dogs[k].nick||D.dogs[k].name||"").localeCompare(D.dogs[k].nick||D.dogs[k].name||""),G={mine:[],pren:[],ced:[],ext:[],anc:[],dead:[]};
+  ids.forEach(k=>{const d=D.dogs[k];if(!d.ext&&d.status==="deceduto")G.dead.push(k);else if(d.ext)(used.has(k)?G.ext:G.anc).push(k);else if(d.status==="prenotato")G.pren.push(k);else if(d.status==="ceduto")G.ced.push(k);else G.mine.push(k)});
+  const L=a=>`<div class="list">${rows(a)}</div>`,nC=a=>a.length+(a.length===1?" cane":" cani"),nm=a=>a.slice(0,3).map(k=>esc(D.dogs[k].nick||D.dogs[k].name)).join(", ")+(a.length>3?"…":"");
+  const nLate=G.mine.filter(k=>late.has(k)).length,litN=new Set(G.ced.map(k=>D.dogs[k].litter||"?")).size;
+  let h="";
+  if(G.mine.length)h+=PSEC("ct-mine","paw","I miei cani",nC(G.mine)+" · "+nm(G.mine),nLate,L(G.mine),nLate?0:true);
+  if(G.pren.length)h+=PSEC("ct-pren","cal","Prenotati",nC(G.pren)+" · "+nm(G.pren),0,L(G.pren),"");
+  if(G.ced.length)h+=PSEC("ct-ced","fam","Ceduti",nC(G.ced)+" · "+litN+(litN===1?" cucciolata":" cucciolate"),0,`<div id="dogrows">${litterGroups(G.ced)}</div>`,"");
+  if(G.ext.length)h+=PSEC("ct-ext","paw","Padri e madri esterni",nC(G.ext)+" usati nelle tue cucciolate",0,L(G.ext.sort(by)),"");
+  if(G.anc.length){const key=k=>(D.dogs[k].name||"").replace(/^(?:(?:int|multi|it|ir|eng|am|jr|junior|grand|gr|world|ch|cib|bis|bob)(?:\.|\s)+)+/i,"").trim().toUpperCase()[0]||"#";
+    const R=[["A – C","ABC"],["D – G","DEFG"],["H – M","HIJKLM"],["N – R","NOPQR"],["S – Z","STUVWXYZ"]],used2=new Set();
+    h+=`<p class="lab" style="margin:18px 0 8px">Antenati del pedigree · ${nC(G.anc)}</p>`;
+    R.forEach(([t,ls])=>{const a=G.anc.filter(k=>ls.includes(key(k)));a.forEach(k=>used2.add(k));if(a.length)h+=PSEC("ct-a"+ls[0],"tree",t,nC(a),0,L(a.sort((x,y)=>key(x)===key(y)?(D.dogs[x].name||"").localeCompare(D.dogs[y].name||""):key(x).localeCompare(key(y)))),"")});
+    const o=G.anc.filter(k=>!used2.has(k));if(o.length)h+=PSEC("ct-a#","tree","Altri",nC(o),0,L(o.sort(by)),"")}
+  if(G.dead.length)h+=PSEC("ct-dead","note","Non più con noi",nC(G.dead),0,L(G.dead.sort(by)),"");
+  return h||rows([])}
 /* Cani raggruppati per cucciolata (usato per i Ceduti): dalla più recente, dentro ogni gruppo in ordine alfabetico */
 function litterGroups(ids){const g={};
   ids.forEach(k=>{const d=D.dogs[k];const key=d.litter&&D.litters[d.litter]?"L:"+d.litter:(d.sire||d.dam)?"P:"+(d.sire||"")+"|"+(d.dam||""):"Z";(g[key]=g[key]||[]).push(k)});
@@ -1059,7 +1078,8 @@ function dogList(top){
     if(filter!=="tutti")return d.status===filter;return true});
   ids.sort((a,b)=>D.dogs[a].name.localeCompare(D.dogs[b].name));
   let body;
-  if(filter==="ceduto"&&ids.length)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
+  if(filter==="tutti"&&ids.length)body=tuttiGroups(ids);
+  else if(filter==="ceduto"&&ids.length)body=`<div id="dogrows">${litterGroups(ids)}</div>`;
   else{const [fold,rest]=q?["",ids]:pupFold(ids,"Cucciolata attuale");
     body=`${fold?`<div style="margin:0 0 12px">${fold}</div>`:""}<div class="list" id="dogrows">${rows(rest)}</div>`}
   const fl=(f.find(x=>x[0]===filter)||[,""])[1];
