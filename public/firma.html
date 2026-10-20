@@ -40,6 +40,8 @@ const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>
 const fmt=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||"");return m?m[3]+"/"+m[2]+"/"+m[1]:""};
 const loadJs=src=>new Promise((ok,ko)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>ko(new Error(src));document.head.appendChild(s)});
 let INFO=null,PDFBUF=null,SIG=null;
+/* «firmo l'attestato…» / «firmo il documento…»: articolo davanti al titolo scritto minuscolo */
+const art=t=>{t=String(t||"documento");t=t.charAt(0).toLowerCase()+t.slice(1);return(/^[aeiouàèéìòù]/i.test(t)?"l'":/^(s[^aeiou]|z|gn|ps|x|y)/i.test(t)?"lo ":"il ")+t};
 function fail(m){$("#app").innerHTML=`<h1>✍️ Firma</h1><div class="st todo">⚠️ <span>${esc(m)}</span></div>`}
 function doneHtml(at){return `<div class="st ok">✓ <span><b>Firmato, grazie!</b><br><small>Il documento firmato${at?" il "+fmt(at):""} è già arrivato a Paolo.</small></span></div>
   <a class="btn ghost big" href="${API}/signed" target="_blank" rel="noopener">⬇️ Scarica il PDF firmato</a>`}
@@ -54,7 +56,7 @@ async function start(){
   <div class="doc" id="doc"><p class="wait">⏳ Apro il documento…</p></div>
   <div class="lbl">La tua firma:</div><canvas class="pad" id="pad"></canvas>
   <div style="margin-top:6px"><button class="btn small ghost" id="clr">↺ Cancella e rifai</button></div>
-  <label class="ck"><input type="checkbox" id="ok"><span>Sono ${esc(I.holder)} e firmo ${esc(String(I.title).charAt(0).toLowerCase()+String(I.title).slice(1))} di ${esc(I.dog)}${I.pedName&&I.pedName!==I.dog?" ("+esc(I.pedName)+")":""}.</span></label>
+  <label class="ck"><input type="checkbox" id="ok"><span>Sono ${esc(I.holder)} e firmo ${esc(art(I.title))} di ${esc(I.dog)}${I.pedName&&I.pedName!==I.dog?" ("+esc(I.pedName)+")":""}.</span></label>
   <button class="btn big" id="sign" disabled>✍️ Firma</button><div id="out"></div>`;
   padInit();
   try{const r=await fetch(API+"/pdf",{cache:"no-store"});if(!r.ok)throw 0;PDFBUF=await r.arrayBuffer();await showPage()}

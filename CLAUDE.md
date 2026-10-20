@@ -1262,3 +1262,10 @@ Accessi e copie
 - Il gestionale legge `/api/firme` (`attCheck`, permesso anagrafe ≥1): da solo quando si apre la pratica o l'Anagrafe con un link
   mandato, o con «↻ Ha firmato?»; aggiunge ai documenti `{title:"Attestato firmato da <nome>",anAttS:true,private:true}` e
   `d.anag.attSigned {file,at,name}`. L'originale resta. Nell'elenco dell'Anagrafe «✍️ manca la firma» finché non è firmato.
+
+## «Sono … e firmo …» su tutti i documenti da far firmare (20/10/2026, Paolo: «va bene come questa», cioè come l'attestato)
+- Prima di firmare, chi firma spunta una casella con nome e documento, come nella pagina della firma dell'attestato (`firma.html`):
+  contratto di cessione (pagina della famiglia, `ctme_<id>` sotto «Ho letto il contratto…», il nome segue il campo `ctb_name`
+  mentre si scrive, controllo nel gestore `data-ct="sign"`; in inglese «I am … and I sign the sale agreement for …») e passaggio di
+  proprietà (`ppDecl` in `ppForm`, la spunta la mette l'acquirente; controllo in `ppGo`). Niente riga in più nei PDF (scelta di Paolo).
+- Ogni nuovo documento da far firmare deve avere la stessa casella. In `firma.html` l'articolo davanti al titolo lo mette `art()`.

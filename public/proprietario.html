@@ -3009,11 +3009,12 @@ function ppForm(id){const d=D.dogs[id],b=ppBuyer(id),me=(D.settings||{}).ppMe||{
   ${ppEnBox(id)}
   <h3>Acquirente: ${esc(b.name)}</h3><div class="form">${I("bna","Nato a",b.bplace)}${I("bil","Il",b.bdate,"date")}${I("bcf","Codice fiscale",b.cf)}${I("bcell","Cellulare",b.cell)}${I("bres","Residente in (CAP, città, via)",b.res,"",1)}${I("bmail","Email",b.mail,"",1)}${I("note","Note (facoltative)","","",1)}</div>
   <h3>Firme</h3><div class="pp-sig"><div>${ctSellerSig()?`<div class="saved-sig"><img src="${esc(ctSellerSig())}" alt="La tua firma"><span class="small">La tua firma salvata</span></div>`:ctPad("ppMe","La tua firma: col dito dal telefono, col mouse dal computer (resta salvata)")}</div><div>${ctPad("ppB","Firma dell'acquirente: col dito dal telefono, col mouse dal computer")}</div></div>
+  <label style="display:flex;gap:10px;align-items:flex-start;font-size:.95rem;margin:10px 0 0;cursor:pointer"><input type="checkbox" id="ppDecl" style="width:22px;height:22px;flex:none;margin-top:1px"> <span>Sono <b>${esc(b.name)}</b> e firmo il passaggio di proprietà di ${esc(d.nick||d.name)}.<br><small class="row-meta">La spunta la mette l'acquirente, insieme alla firma.</small></span></label>
   <p class="small" id="ppErr" style="color:var(--accent);min-height:1.2em"></p>
   <div class="actions"><button class="btn" data-a="ppGo" data-v="${id}">Firma e crea il PDF</button><button class="btn ghost" data-a="close">Annulla</button></div>`);setTimeout(initPads,0)}
 async function ppGo(id){const d=D.dogs[id],g=k=>{const e=document.getElementById("pp_"+k);return e?e.value.trim():""},err=document.getElementById("ppErr"),say=t=>{if(err)err.textContent=t};
   const me={cf:g("mcf").toUpperCase(),bplace:g("mna"),bdate:g("mil")},sNew=padData("ppMe"),sMe=sNew||ctSellerSig(),sB=padData("ppB"),day=g("date");
-  if(!day)return say("Scrivi la data della cessione.");if(!me.cf)return say("Scrivi il tuo codice fiscale.");if(!sMe)return say("Manca la tua firma.");if(!sB)return say("Manca la firma dell'acquirente.");
+  if(!day)return say("Scrivi la data della cessione.");if(!me.cf)return say("Scrivi il tuo codice fiscale.");if(!sMe)return say("Manca la tua firma.");if(!sB)return say("Manca la firma dell'acquirente.");if(!(document.getElementById("ppDecl")||{}).checked)return say("L'acquirente deve spuntare «Sono … e firmo il passaggio di proprietà».");
   const b=ppBuyer(id),V={cn:FM().personRev,ccf:me.cf,cna:me.bplace,cil:fmt(me.bdate),cres:FM().capCity+", "+FM().addr,ccell:FM().phone,cmail:FM().email,
     an:d.name,sp:"cane",rz:FM().breed,anil:fmt(d.birth),sx:d.sex||"",tg:"media",mt:d.color||"",mc:d.chip||"",inda:fmt(day),d1:fmt(day),
     bn:b.name,bcf:g("bcf").toUpperCase(),bna:g("bna"),bil:fmt(g("bil")),bres:g("bres"),bcell:g("bcell"),bmail:g("bmail"),d2:fmt(day),note:g("note")};
@@ -3075,6 +3076,7 @@ function ctOwnerBox(id){const d=D.dogs[id],c=d.contract;if(!c||!c.visible)return
   <div>${P(T("La tua firma","Your signature"))}${ctPad("ctB1_"+id,T("Dal telefono firma col dito, dal computer col mouse","On your phone sign with your finger, on a computer with the mouse"))}</div>
   <div>${P(T("Seconda firma: approvo le clausole più importanti","Second signature: I approve the key clauses"))}<p class="small">${T("Penale, sterilizzazione, foro e le altre elencate nel contratto (artt. 1341–1342 c.c.)","Penalty, neutering, jurisdiction and the others listed in the agreement (Arts. 1341–1342 Italian Civil Code)")}</p>${ctPad("ctB2_"+id,T("Seconda firma · dal telefono firma col dito, dal computer col mouse","Second signature · on your phone sign with your finger, on a computer with the mouse"))}</div>
   <label class="small" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="ctok_${id}"> ${T("Ho letto il contratto e approvo specificamente le clausole elencate.","I have read the agreement and specifically approve the listed clauses.")}</label>
+  <label style="display:flex;gap:10px;align-items:flex-start;font-size:.95rem;margin:10px 0 0;cursor:pointer"><input type="checkbox" id="ctme_${id}" style="width:22px;height:22px;flex:none;margin-top:1px"> <span>${T("Sono","I am")} <b class="ctmeN">${esc(B.name||"…")}</b> ${T("e firmo il contratto di cessione di","and I sign the sale agreement for")} ${esc(d.nick||d.name)}.</span></label>
   <p class="small" id="cterr_${id}" style="color:var(--accent)"></p>
   <button class="btn go" data-ct="sign" data-v="${id}">${T("Firma il contratto","Sign the agreement")}</button></div>`}
 
@@ -4878,13 +4880,14 @@ function ownLink(){return ""}
   document.title=(j.dogs.length===1?D.dogs[j.dogs[0]].name+" · ":"")+FM().name;
   m.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&b.dataset.a!=="ovLang"){e.stopPropagation()}},true)})();
 /* Contratto: il proprietario firma con il dito */
+document.addEventListener("input",e=>{if(e.target.id!=="ctb_name")return;document.querySelectorAll(".ctmeN").forEach(x=>x.textContent=e.target.value.trim()||"…")});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-ct]");if(!b)return;const id=b.dataset.v,d=D.dogs[id],en=LANG==="en",T=(a,c)=>en?c:a;
   if(b.dataset.ct==="pdf"){b.disabled=true;try{const G=d.ctSigned;const p=await ctPdf(G.snap,G.buyer,G,d.contract.meSig);p.save(ctFile(G.snap))}catch(x){alert(T("Non riesco a creare il PDF: riprova.","Could not create the PDF: please try again."))}b.disabled=false;return}
   if(b.dataset.ct!=="sign")return;const err=document.getElementById("cterr_"+id),g=k=>document.getElementById("ctb_"+k).value.trim();
   const buyer={name:g("name"),cf:g("cf"),doc:g("doc"),via:g("via"),cap:g("cap"),tel:g("tel"),mail:g("mail")};
-  const r=document.querySelector(`input[name="c36_${id}"]:checked`),s1=padData("ctB1_"+id),s2=padData("ctB2_"+id),ok=document.getElementById("ctok_"+id).checked;
+  const r=document.querySelector(`input[name="c36_${id}"]:checked`),s1=padData("ctB1_"+id),s2=padData("ctB2_"+id),ok=document.getElementById("ctok_"+id).checked,meOk=(document.getElementById("ctme_"+id)||{}).checked;
   const miss=!buyer.name||!buyer.cf||!buyer.doc||!buyer.via||!buyer.cap?T("Completa nome, codice fiscale, documento e indirizzo.","Please fill in name, tax code, ID document and address."):
-    !r?T("Scegli un'opzione per foto e nome.","Please choose an option for photos and name."):!s1||!s2?T("Servono tutte e due le firme.","Both signatures are needed."):!ok?T("Spunta la casella di conferma.","Please tick the confirmation box."):"";
+    !r?T("Scegli un'opzione per foto e nome.","Please choose an option for photos and name."):!s1||!s2?T("Servono tutte e due le firme.","Both signatures are needed."):!ok?T("Spunta la casella di conferma.","Please tick the confirmation box."):!meOk?T("Spunta la casella «Sono … e firmo il contratto».","Please tick the box «I am … and I sign the agreement»."):"";
   if(miss){err.textContent=miss;return}
   err.textContent="";b.disabled=true;b.textContent=T("Firma in corso…","Signing…");
   try{const tok=location.pathname.split("/").filter(Boolean).pop()||"";
