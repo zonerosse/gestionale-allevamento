@@ -282,6 +282,8 @@ details.hs{border:1px solid var(--line)!important;border-radius:12px!important;b
 .nv-box{background:var(--paper)!important;border:1px solid var(--line)!important;border-left:4px solid #2a6fb5!important;border-radius:10px!important}
 .lph-st{background:none!important;padding:0!important;font-weight:600}.lph-ic .dic{color:var(--muted)}.lph{border-radius:12px}.lph-next{background:var(--paper)!important;border:1px solid var(--line)!important;border-left:4px solid var(--warn)!important;border-radius:10px!important}.lph-next small{text-transform:none!important;letter-spacing:0!important;font-size:.8rem!important}.lph-done{background:var(--paper)!important;border:1px solid var(--line);border-left:4px solid var(--ok)}
 .lph-dot{width:8px!important;height:8px!important;border:0!important;background:var(--warn);margin-top:7px!important}.lph-i .ok-v{width:8px;height:8px;font-size:0;margin:7px 0 0;background:var(--ok)}
+/* riquadri chiusi di base; quelli con qualcosa da sistemare hanno il richiamo arancione (Paolo, 20/10/2026) */
+.dph{overflow:hidden}.dph.need,.lph.need{border-left:4px solid var(--warn)!important;background:var(--warn-soft)}.dph.need>summary,.lph.need>summary{background:var(--warn-soft)}.dph.need[open],.lph.need[open]{background:var(--paper)}.dph.need .dph-tt b,.lph.need .lph-tt b{color:var(--warn)}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .sheet-bg.open{display:flex}
 .sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -1166,9 +1168,9 @@ function dogDetail(id){
   // Note
   P("note","note","Note",d.notes?esc(d.notes.length>50?d.notes.slice(0,50)+"…":d.notes):"Nessuna nota",[],d.notes?`<div class="note">${esc(d.notes)}</div>`:'<p class="empty">Nessuna nota. Si scrivono da Modifica.</p>');
   const nx=PH.flatMap(p=>p.items.filter(i=>i.st==="todo").map(i=>Object.assign({ph:p.k},i)))[0];
-  const phH=p=>{const n=p.items.filter(i=>i.st==="todo").length,k=id+"|"+p.k,op=(p.k==="dati"&&EDIT===id)||(DPH_OPEN.has(k)?DPH_OPEN.get(k):!!n);
+  const phH=p=>{const n=p.items.filter(i=>i.st==="todo").length,k=id+"|"+p.k,op=(p.k==="dati"&&EDIT===id)||DPH_OPEN.get(k)===true;
     const stt=n?`<span class="dph-st todo">${n} da fare</span>`:p.items.length?'<span class="dph-st ok">In regola</span>':"";
-    return `<details class="dph" data-dph="${k}" id="dph_${p.k}"${op?" open":""}><summary>${dIc(p.ic)}<span class="dph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${stt}${dIc("chev","dph-chev")}</summary><div class="dph-b">
+    return `<details class="dph${n?" need":""}" data-dph="${k}" id="dph_${p.k}"${op?" open":""}><summary>${dIc(p.ic)}<span class="dph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${stt}${dIc("chev","dph-chev")}</summary><div class="dph-b">
       ${p.items.length?`<div class="dph-l">${p.items.map(i=>`<div class="dph-r"><span class="dph-m ${i.st||"no"}"></span><span class="dph-k">${i.t}</span>${i.v?`<span class="dph-v">${i.v}</span>`:""}</div>`).join("")}</div>`:""}${p.html}</div></details>`};
   const line=[d.sex==="F"?"Femmina":d.sex==="M"?"Maschio":"",st?st.toLowerCase():"",own?"famiglia "+esc(own.name):d.bred?"allevato da te":""].filter(Boolean).join(", ");
   return `<button class="back" data-a="back">‹ Tutti i cani</button>
@@ -3509,8 +3511,8 @@ function litterSheet(lid){const l=D.litters[lid];if(!l)return;const s=l.sire,dm=
      fare», poi 6 riquadri richiudibili nell'ordine in cui succedono le cose (litPhases), ognuno con lo stato (✓ fatto / ⏳ N da fare /
      spento) e dentro una riga per ogni cosa + gli stessi comandi di prima. Si apre da solo il riquadro con qualcosa da fare. */
   const PH=litPhases(lid),nx=PH.flatMap(p=>p.items.filter(i=>i.todo).map(i=>Object.assign({ph:p.k},i)))[0];
-  const phH=p=>{const n=p.items.filter(i=>i.todo).length,st=p.off?'<span class="lph-st no">'+p.off+'</span>':n?`<span class="lph-st todo">⏳ ${n} da fare</span>`:'<span class="lph-st ok">✓ fatto</span>',k=lid+"|"+p.k,op=LPH_OPEN.has(k)?LPH_OPEN.get(k):!!n;
-    return `<details class="lph" data-lph="${k}" id="lph_${p.k}"${op?" open":""}><summary><span class="lph-ic">${dIc(p.ic)}</span><span class="lph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${st}<span class="lph-ar">▾</span></summary><div class="lph-b">
+  const phH=p=>{const n=p.items.filter(i=>i.todo).length,st=p.off?'<span class="lph-st no">'+p.off+'</span>':n?`<span class="lph-st todo">⏳ ${n} da fare</span>`:'<span class="lph-st ok">✓ fatto</span>',k=lid+"|"+p.k,op=LPH_OPEN.get(k)===true;
+    return `<details class="lph${n?" need":""}" data-lph="${k}" id="lph_${p.k}"${op?" open":""}><summary><span class="lph-ic">${dIc(p.ic)}</span><span class="lph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${st}<span class="lph-ar">▾</span></summary><div class="lph-b">
       ${p.items.length?`<div class="lph-l">${p.items.map(i=>`<div class="lph-i">${i.todo?'<span class="lph-dot"></span>':'<span class="ok-v">✓</span>'}<span>${i.todo?"<b>"+i.t+"</b>":i.t}</span></div>`).join("")}</div>`:""}${p.html}</div></details>`};
   sheet(`<p class="row-meta" style="margin:0 0 4px">Scheda della cucciolata</p>
   <h1 style="margin:0 0 4px">${dlink(dm)||"madre ?"} <span class="lx">×</span> ${dlink(s)||'<span class="empty">padre da inserire</span>'}</h1>

@@ -1373,3 +1373,6 @@ Accessi e copie
   l'emoji iniziale da titoli, tasti con testo, etichette e stati (non dai tasti fatti solo di un'emoji, né dentro `.keep-emo`);
   riquadri della Salute (`details.hs`) bianchi con icone a linea (`HS_IC`: syr, pill, flask, bug, shield); riquadri della cucciolata
   con icone `dIc` e stati scritti senza pillole; riquadro Novità neutro con bordo blu a sinistra. Nuove pagine: usare `dIc`, niente emoji.
+- (20/10/2026, Paolo) Riquadri `details.dph` (scheda del cane) e `details.lph` (Scheda della cucciolata) sempre CHIUSI di base (si apre
+  solo quello che Paolo apre, ricordato nella sessione; Dati si apre in Modifica). Se il riquadro ha qualcosa da sistemare: classe
+  `need` = richiamo arancione (bordo a sinistra, fondo e titolo arancioni, «N da fare»).
