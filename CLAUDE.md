@@ -1416,3 +1416,9 @@ Accessi e copie
   Freccia dei riquadri: ruota solo quella del riquadro aperto (`.dph[open]>summary .dph-chev`).
 - (20/10/2026, Paolo: «testo fuori schermata») Righe degli elenchi (`.list .row`): `min-width:0`, `max-width:100%`, `box-sizing:border-box`,
   nomi che vanno a capo: prima i nomi lunghi dei genitori allargavano la riga e le etichette Ceduto/Firmato uscivano a destra.
+- (20/10/2026, Paolo: «controlla tutto per la visuale da mobile… tutte le schede e finestre») Controllo automatico a 320, 360, 375, 390 e
+  414 px di tutte le voci del menu, tutti i filtri di Cani, schede dei cani (fattrice, cucciolo, esterno), Modifica, proprietario, Conti
+  della cucciolata, Scheda della cucciolata, pagina della famiglia (vera, /p/<token>) e 40 finestre: niente più testi o tasti fuori
+  schermo o tagliati. Sistemati: tasti dell'Anagrafe, voci della Consegna (Visualizza/Stampa), righe della Salute/iscrizioni (`.hrow`),
+  tabella della nascita (`.nb`, sul telefono si stringe), righe di Account (`.acx-r`, `.ac-st` va a capo), tasti dei Modelli A/B
+  (`.enc-btns`), righe dei Passaggi di proprietà (`.pp-r`). Regola: righe con flex/grid → `min-width:0` sui figli e a capo.
