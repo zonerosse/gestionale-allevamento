@@ -1244,3 +1244,21 @@ Accessi e copie
   Ecopet Natural, Team Breeder, Top Farmina) dalle pagine farmina.com/it (nomi tradotti in italiano dal titolo inglese).
   Poi (scelta di Paolo: marche di qualità, niente Royal Canin/Purina/Hill's/Trainer): Carnilove, Brit Care, Acana, Orijen, Forza10
   (senza la linea dietetica Active), Oasy (senza la gamma Grain Free precedente). Diete veterinarie escluse ovunque.
+
+## ✍️ Attestato del Comune firmato col telefono (20/10/2026, anteprima approvata da Paolo: "Ok")
+- 🪪 Anagrafe → pratica del cane → riquadro «Attestato del Comune» (`attHtml`): l'attestato di iscrizione rilasciato dal Comune è un
+  documento del cane con `anAtt:true` (privato). Caricato con «📎 Carica l'attestato del Comune» (`attLoad`, segna anche iscritto)
+  o con "Importa modifiche" `{attestatoAnagrafe:[{chip,name,birth,date,fname,file,anag:{…}}]}` (`importAtt`: campi di `anag` solo dove vuoti).
+- Manca la firma dell'intestatario (es. Daniela per Tikus): «💬 Manda a … su WhatsApp» / «📋 Copia link» (`attSend`/`attCopy`/`attPrep`)
+  creano `d.anag.sigTok` (24 caratteri) e `sigSent`; link **/p/firma/<sigTok>** (dentro il bypass di Access di `/p`).
+- Pagina `public/firma.html` (servita da `functions/p/firma/[tok].js`): mostra la pagina 1 con pdf.js (cdnjs) e i punti gialli,
+  chi firma disegna la firma una volta + spunta «Sono … e firmo …»; pdf-lib (da `/api/public/firma/<tok>/lib`, che gira
+  `/pdf-lib.min.js` fuori da Access; riserva cdnjs) mette la firma in tutti i punti, anche su pagine ruotate (provato 0/90/180/270:
+  l'attestato di Ostellato è una scansione con /Rotate 270). Punti: `ATT_SPOTS` in index.html = `SPOTS` in
+  functions/api/public/firma/[tok].js (frazioni della pagina vista dritta; **aggiornare insieme**), o `d.anag.sigSpots`.
+- API pubbliche (solo con il link): `GET/POST /api/public/firma/<tok>` (info / invio PDF firmato + firma PNG; una volta sola, 409 dopo),
+  `GET …/pdf` (originale da R2), `GET …/signed` (PDF firmato). Tabella D1 **`firme`** (tok, dog, json {key,name,sig,at,hash,ip,ua},
+  signed_at), creata da sola (`ensureFirme`); non tocca lo store `main`. `firmaFind` in _lib.js.
+- Il gestionale legge `/api/firme` (`attCheck`, permesso anagrafe ≥1): da solo quando si apre la pratica o l'Anagrafe con un link
+  mandato, o con «↻ Ha firmato?»; aggiunge ai documenti `{title:"Attestato firmato da <nome>",anAttS:true,private:true}` e
+  `d.anag.attSigned {file,at,name}`. L'originale resta. Nell'elenco dell'Anagrafe «✍️ manca la firma» finché non è firmato.

@@ -121,6 +121,23 @@ export function owpRow(r, fileBase) {
   return Object.assign(x, { id: r.id, dog: r.dog, owner: r.owner, created: r.created, seen: !!r.seen });
 }
 
+// Firme a distanza di un documento dell'Anagrafe (20/10/2026, scelta di Paolo): l'attestato del Comune si manda con un link
+// (/p/firma/<token>) a chi deve firmarlo (es. Daniela per Tikus). Tabella a parte: non tocca i dati di Paolo (store 'main').
+export async function ensureFirme(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS firme (tok TEXT PRIMARY KEY, dog TEXT, json TEXT, signed_at TEXT)").run();
+}
+// Il cane con quel link di firma e il suo attestato (d.docs con anAtt). null se il link non vale.
+export function firmaFind(data, tok) {
+  if (!/^[A-Za-z0-9_-]{20,}$/.test(tok || "")) return null;
+  const id = Object.keys(data.dogs || {}).find(k => ((data.dogs[k].anag || {}).sigTok) === tok);
+  if (!id) return null;
+  const d = data.dogs[id], A = d.anag || {}, doc = (d.docs || []).find(x => x.anAtt);
+  if (!doc) return null;
+  const H = (data.settings && data.settings.holders) || {}, h = A.holder || "paolo";
+  const f = farmOf(data), def = h === "daniela" ? "Daniela Veronesi" : f.first + " " + f.last;
+  return { id, d, A, doc, holder: (H[h] && H[h].name) || def, key: String(doc.file || "").startsWith("/files/") ? doc.file.slice(7) : "" };
+}
+
 export async function loadData(env) {
   const row = await env.DB.prepare("SELECT version, json, updated FROM store WHERE id = 'main'").first();
   return row ? { version: row.version, data: JSON.parse(row.json), updated: row.updated } : null;
