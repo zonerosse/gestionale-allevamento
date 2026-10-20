@@ -102,9 +102,9 @@ Il calcolo del gestionale (Wright, 8 generazioni) si mostra sotto, come secondar
    **solo per Paolo** (`owners[id].cf`, `.doc`, `.bplace`, `.bdate`, `.ids`; i suoi in `settings`): mai nella pagina del proprietario,
    mai a chi consulta (`ownerSubset` manda solo i campi elencati, `viewerData` riduce i proprietari al nome e toglie `settings`).
 7. Lingua: italiano, testi semplici e diretti; date `gg/mm/aaaa`; simboli ♂ azzurro / ♀ rosa (icone SVG spesse).
-8. Scelte grafiche già fatte: Proprietari raggruppati per cucciolata, tutti aperti; Cucciolate come linea del tempo
+8. Scelte grafiche già fatte: Proprietari raggruppati per cucciolata, gruppi CHIUSI di base (20/10/2026, prima tutti aperti); Cucciolate come linea del tempo
    con foto dei genitori; Salute con bottone siringa fisso;
-   Cani → filtro Ceduti raggruppato per cucciolata (dalla più recente, gruppi aperti, alfabetico dentro);
+   Cani → filtro Ceduti raggruppato per cucciolata (dalla più recente, gruppi CHIUSI di base dal 20/10/2026, alfabetico dentro);
    Consanguineità con la grafica "Scala" quando la cucciolata ha l'analisi SBT (pagina proprietario: solo numeri);
    "Copia link" anche nella scheda del cane e nell'elenco proprietari.
    "Scheda della cucciolata" (`litterSheet`, solo allevatore): da Cucciolate e dalla scheda dei genitori; mostra la scala SBT
@@ -1376,3 +1376,6 @@ Accessi e copie
 - (20/10/2026, Paolo) Riquadri `details.dph` (scheda del cane) e `details.lph` (Scheda della cucciolata) sempre CHIUSI di base (si apre
   solo quello che Paolo apre, ricordato nella sessione; Dati si apre in Modifica). Se il riquadro ha qualcosa da sistemare: classe
   `need` = richiamo arancione (bordo a sinistra, fondo e titolo arancioni, «N da fare»).
+- (20/10/2026, Paolo: «chiusi… voglio ordine, non casino») Gruppi per cucciolata di Proprietari e di Cani › Ceduti = `details.grp` chiusi
+  (aperto/chiuso ricordato da DOPEN). Richiamo arancione `need` + «N da sistemare»: Proprietari = contratto non firmato o link non
+  mandato; Ceduti = passaggio non firmato o mandato senza denuncia del Comune.

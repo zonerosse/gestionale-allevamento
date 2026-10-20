@@ -287,6 +287,8 @@ details.hs{border:1px solid var(--line)!important;border-radius:12px!important;b
 .lph-dot{width:8px!important;height:8px!important;border:0!important;background:var(--warn);margin-top:7px!important}.lph-i .ok-v{width:8px;height:8px;font-size:0;margin:7px 0 0;background:var(--ok)}
 /* riquadri chiusi di base; quelli con qualcosa da sistemare hanno il richiamo arancione (Paolo, 20/10/2026) */
 .dph{overflow:hidden}.dph.need,.lph.need{border-left:4px solid var(--warn)!important;background:var(--warn-soft)}.dph.need>summary,.lph.need>summary{background:var(--warn-soft)}.dph.need[open],.lph.need[open]{background:var(--paper)}.dph.need .dph-tt b,.lph.need .lph-tt b{color:var(--warn)}
+/* gruppi di Cani › Ceduti e Proprietari: chiusi di base (Paolo, 20/10/2026: «voglio ordine, non casino») */
+.grp{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:0 0 8px;overflow:hidden}.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 16px}.grp>summary::-webkit-details-marker{display:none}.grp-tt{flex:1;min-width:0;display:flex;flex-direction:column}.grp-tt .og-t{font-family:var(--sans);font-weight:600;font-size:1rem}.grp-chev{color:var(--muted);transition:transform .2s}.grp[open] .grp-chev{transform:rotate(180deg)}.grp>.list{border-top:1px solid var(--line);margin:0}.grp.need{border-left:4px solid var(--warn)}.grp.need>summary{background:var(--warn-soft)}.grp.need .og-t{color:var(--warn)}.grp-n{color:var(--warn);font-size:.82rem;font-weight:600}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .sheet-bg.open{display:flex}
 .sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -1270,7 +1272,8 @@ function litterGroups(ids){const g={};
     const [s,dm]=key.startsWith("L:")?[D.litters[key.slice(2)].sire,D.litters[key.slice(2)].dam]:key==="Z"?["",""]:key.slice(2).split("|");const dt=gd(key);
     const t=key==="Z"?"Senza genitori inseriti":`${esc(dn(dm)||"madre ?")} × ${esc(dn(s)||"padre ?")}`;
     const sub=key==="Z"?`${L.length} ${L.length===1?"cane":"cani"}`:`${dt?(key.startsWith("L:")?"cucciolata del ":"nati il ")+fmt(dt):"data da inserire"} · ${L.length} ${L.length===1?"cane":"cani"}`;
-    return `<h2 class="og-h"><span class="og-t">${t}</span><span class="row-meta">${sub}</span></h2><div class="list">${rows(L)}</div>`}).join("")}
+    const nd=L.filter(k=>{const d=D.dogs[k];return typeof ppOn==="function"&&ppOn(k)&&(!ppDoc(d)||(d.ppSent&&!cesDoc(d)))}).length;
+    return `<details class="grp${nd?" need":""}"><summary><span class="grp-tt"><span class="og-t">${t}</span><span class="row-meta">${sub}${nd?` · <b class="grp-n">${nd} da sistemare</b>`:""}</span></span>${dIc("chev","grp-chev")}</summary><div class="list">${rows(L)}</div></details>`}).join("")}
 function dogList(){
   const f=[["miei","Miei"],["ceduto","Ceduti"],["prenotato","Prenotati"],["tutti","Tutti"],["fattrice","Fattrici"],["ext","Esterni"]];
   let ids=Object.keys(D.dogs).filter(id=>{const d=D.dogs[id];
@@ -4342,8 +4345,9 @@ function ownerList(){
     const dt=gdate(key);return `<span class="og-t">${esc(dn(d0)||"madre ?")} × ${esc(dn(s0)||"padre ?")}</span><span class="row-meta">${dt?(key.startsWith("L:")?"cucciolata del ":"nati il ")+fmt(dt):"data da inserire"} · ${groups[key].length} ${groups[key].length===1?"proprietario":"proprietari"}</span>`};
   const row=([id,k])=>{const o=D.owners[id],d=D.dogs[k];return `<div class="orow-w"><button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(o.name)}</span><span class="row-meta">${sexIco(d.sex)} ${esc(d.nick||d.name)}${d.nick?` · <span class="ofull">${esc(d.name)}</span>`:""}</span></span><span class="badge">${esc(o.country||"")}</span></button>${o.token?`<button class="btn ghost small cpy" data-a="copyLink" data-v="${id}">Copia link</button>`:`<span class="nolink">nessun link</span>`}</div>`};
   const body=keys.map(key=>{const rows=groups[key].sort((a,b)=>D.owners[a[0]].name.localeCompare(D.owners[b[0]].name)).map(row).join("");
-    return OWNV==="A"?`<h2 class="og-h">${head(key)}</h2><div class="list">${rows}</div>`
-      :`<details class="pups og" ${key===first?"open":""}><summary>${head(key)}</summary><div class="list">${rows}</div></details>`}).join("");
+    const nd=groups[key].filter(([id,k])=>{const c=typeof ctState==="function"?ctState(k):null;return(c&&c!=="done")||!D.owners[id].linkSent}).length;
+    return OWNV==="A"?`<details class="grp${nd?" need":""}"><summary><span class="grp-tt">${head(key)}${nd?`<b class="grp-n">${nd} da sistemare</b>`:""}</span>${dIc("chev","grp-chev")}</summary><div class="list">${rows}</div></details>`
+      :`<details class="pups og"><summary>${head(key)}</summary><div class="list">${rows}</div></details>`}).join("");
   const nd=nodog.length?`<h2 class="og-h"><span class="og-t">Senza cane collegato</span></h2><div class="list">${nodog.map(id=>`<button class="row orow" data-a="open" data-v="${id}"><span class="orow-l"><span class="row-name">${esc(D.owners[id].name)}</span><span class="row-meta">${esc(D.owners[id].notes||"")}</span></span><span class="badge">${esc(D.owners[id].country||"")}</span></button>`).join("")}</div>`:"";
   return `<h1>Proprietari</h1><p class="lead">Raggruppati per cucciolata (madre × padre), dalla più recente.</p>
   <div class="toolbar"><button class="btn" data-a="ownerForm">Aggiungi proprietario</button></div>${body}${nd}`;
