@@ -1362,3 +1362,9 @@ Accessi e copie
   (`DPH_OPEN`, aperti da soli se c'è da fare; Dati aperto in Modifica): Dati · Famiglia e documenti (o «Documenti per la famiglia»)
   · Crescita · Calori e cucciolate / Cucciolate e figli · Salute e documenti (scadenze in ritardo da `scEvents`) · Test, esposizioni
   e titoli · Pedigree e parenti · Note. Tolto «Cosa c'è» dalla scheda del cane (`ckDecorate` saltato se c'è `.dph`).
+- Pagina della famiglia (`ownerPreview`, blocco comune: vale per /p/<token> e per «Come la vede la famiglia») nello stesso stile:
+  allevamento in alto, «Ciao <nome>, ecco la pagina di <cane>», intestazione a documento (`.idc`: Nato il, Mantello, Microchip,
+  LOI, Genitori, Ultimo peso), poi contratto da firmare / novità / istruzioni (`ctTop`, `nvBox`, `ovImp`, invariati), poi riquadri
+  chiusi `OS(...)` (`details.dph`, `DPH_OPEN` con chiave «ov<id>|…»): Documenti · Salute e promemoria (prossimo da `calEvents`) ·
+  Crescita e foto · I genitori (pedigree, COI, test) · Esposizioni · I tuoi dati; in fondo «L'allevatore» (`.ov-brd`). Quanto mangia
+  e «Aggiungi tu» restano sotto, aggiunti dalla pagina del proprietario come prima.

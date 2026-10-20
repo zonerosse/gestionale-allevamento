@@ -276,6 +276,7 @@ details.dfold{background:var(--paper);border:1px solid var(--line);border-radius
 .dph-b{border-top:1px solid var(--line);padding:6px 16px 14px}.dph-l{margin:0 0 6px}.dph-r{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line);font-size:.93rem}.dph-r:last-child{border-bottom:0}
 .dph-k{flex:1}.dph-v{color:var(--muted);font-size:.86rem;text-align:right}.dph-m{width:8px;height:8px;border-radius:50%;flex:none;transform:translateY(-1px);background:var(--line)}.dph-m.ok{background:var(--ok)}.dph-m.todo{background:var(--warn)}
 .dph-b h2{font-family:var(--sans);font-size:1rem;font-weight:600;margin:16px 0 6px;color:var(--ink)}.dph-b h2.cz::before{display:none}.dph-b .cz-card{border-top:1px solid var(--line)!important;background-image:none!important}
+.ov-kennel{text-align:center;color:var(--muted);font-size:.85rem;margin:4px 0 10px}.ov-hello{font-family:var(--serif);font-size:1.15rem;margin:0 0 10px}.ov-brd{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0 8px}.ov-brd-t{font-size:.8rem;color:var(--muted);margin:0 0 2px}.owner-view .dph-b h2:first-child{margin-top:8px}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .sheet-bg.open{display:flex}
 .sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -1660,26 +1661,26 @@ function ownerPreview(id){
   const d=D.dogs[id];if(typeof ownerPreview.lang==="undefined")ownerPreview.lang={};
   const o=D.owners[d.owner]||{name:"",lang:ownerPreview.lang[id]||"it",_none:true};LANG=o.lang==="en"?"en":"it";
   const f2=(l,v)=>fact(l,v),col=LANG==="en"&&d.color_en?d.color_en:d.color,bd=born(d);
-  const html=`<div class="owner-view"><p class="ov-top">${o._none?T("Pagina privata del proprietario","Owner's private page"):T("Pagina privata per","Private page for")+" "+esc(o.name)}</p>
-  ${d.photo?`<img class="hero-photo" src="${d.photo}" alt="">`:""}<h1>${esc(d.name)}</h1>${d.nick?`<p class="nick-c">“${esc(d.nick)}”</p>`:""}<p class="nick">${T("Allevamento","Kennel")} ${esc(FM().name)}</p>${ctTop(id)}${nvBox(id)}${ovImp(id)}
-  <dl class="facts">${f2(T("Nascita","Date of birth"),bd)}${factH(T("Sesso","Sex"),sexH(d.sex))}${f2(T("Colore","Colour"),col)}${f2(T("Padre","Sire"),dn(d.sire))}${f2(T("Madre","Dam"),dn(d.dam))}${f2("Microchip",d.chip)}${f2(T("LOI","Pedigree no. (ENCI LOI)"),d.loi||(d.bred&&!d.ext?T("In attesa N. LOI","Pending – available after ENCI registration"):""))}</dl>
-  ${o._none?"":`<h2>${T("Proprietario","Owner")}</h2>`}<dl class="facts"${o._none?' style="display:none"':""}>${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>
-  <h2>Pedigree</h2>${ovParents(id)}
-  <h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
+  /* Pagina della famiglia più sobria (20/10/2026, anteprima approvata da Paolo): saluto, intestazione a documento (idc), la cosa da
+     fare (contratto, novità, istruzioni) e poi riquadri chiusi (dph) con icone a linea; in fondo l'allevatore. */
+  const OS=(k,ic,t,sub,body)=>body&&body.trim()?`<details class="dph" data-dph="ov${id}|${k}"${DPH_OPEN.get("ov"+id+"|"+k)?" open":""}><summary>${dIc(ic)}<span class="dph-tt"><b>${t}</b><span>${sub}</span></span>${dIc("chev","dph-chev")}</summary><div class="dph-b">${body}</div></details>`:"";
+  const W=wSeries(id),lastW=W.length?W[W.length-1]:null,chipF=String(d.chip||"").replace(/\D/g,"").replace(/(\d{3})(?=\d)/g,"$1 "),nxEv=(()=>{try{return calEvents(id)[0]}catch(e){return null}})();
+  const docsN=(d.docs||[]).filter(z=>!z.private).length,first=String(o.name||"").trim().split(/\s+/)[0];
+  const html=`<div class="owner-view"><p class="ov-top ov-kennel">${T("Allevamento","Kennel")} ${esc(FM().name)}</p>
+  ${o._none?`<p class="ov-hello">${T("Pagina privata del proprietario","Owner's private page")}</p>`:`<p class="ov-hello">${T("Ciao","Hi")} ${esc(first)}, ${T("ecco la pagina di","this is")} ${esc(d.nick||d.name)}${T(".","'s page.")}</p>`}
+  <div class="idc"><div class="idc-top">${d.photo?`<img class="idc-ph" src="${d.photo}" alt="">`:""}<div class="idc-n"><h1>${esc(d.name)}</h1>${d.nick&&d.nick!==d.name?`<p class="idc-call">${esc(d.nick)}</p>`:""}<p class="idc-line">${esc(FM().breed)}, ${d.sex==="F"?T("femmina","female"):T("maschio","male")}</p></div></div><div class="idc-rule"></div>
+  <dl class="idc-dl"><div><dt>${T("Nato il","Born")}</dt><dd>${fmt(d.birth)||"—"}</dd></div><div><dt>${T("Mantello","Colour")}</dt><dd>${esc(col||"—")}</dd></div><div><dt>Microchip</dt><dd>${chipF||"—"}</dd></div>
+  <div><dt>LOI</dt><dd>${d.loi?esc(d.loi):d.bred&&!d.ext?T("In attesa","Pending"):"—"}</dd></div><div><dt>${T("Genitori","Parents")}</dt><dd>${esc(dn(d.sire)?(D.dogs[d.sire].nick||dn(d.sire)):"?")} × ${esc(dn(d.dam)?(D.dogs[d.dam].nick||dn(d.dam)):"?")}</dd></div>${lastW?`<div><dt>${T("Ultimo peso","Last weight")}</dt><dd>${(lastW.g/1000).toFixed(1).replace(".",LANG==="en"?".":",")} kg</dd></div>`:""}</dl></div>
+  ${ctTop(id)}${nvBox(id)}${ovImp(id)}
+  ${OS("doc","doc",T("Documenti","Documents"),docsN?docsN+" "+T(docsN===1?"documento":"documenti",docsN===1?"document":"documents"):T("Certificati e documenti","Certificates and documents"),`${certHtml(id,true,true)}${(d.docs||[]).some(z=>!z.private&&!isCert(z))?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}${kitOwner(id)}${abroadOwner(id)}${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}`)}
+  ${!d.ext?OS("sal","cal",T("Salute e promemoria","Health and reminders"),nxEv?T("Prossimo","Next")+": "+esc(nxEv.t[LANG==="en"?1:0])+" "+T("il","on")+" "+fmt(nxEv.date):T("Vaccini, vermifughi, antiparassitari","Vaccines, worming, parasite control"),healthHtml(id,true)):""}
+  ${OS("cre","grow",T("Crescita e foto","Growth and photos"),T("Peso e foto settimana per settimana","Weight and week-by-week photos"),`${W.length>=3?`<h2>${T("Crescita","Growth")}</h2>${growthDog(id)}`:""}${ovPhotos(id)}`)}
+  ${OS("gen","tree",T("I genitori","The parents"),T("Pedigree, consanguineità e test","Pedigree, inbreeding and tests"),`${ovParents(id)}<h2>${T("Consanguineità","Inbreeding coefficient (COI)")}</h2>${litA(id)?coiScale(litA(id),false):(()=>{const cv=coverage(d.sire,d.dam),ok=d.coiSbt||cv.known>=cv.tot*.9,sep=LANG==="en"?".":",";
    return ok?`<div class="coi"><div class="coi-num">${d.coiSbt?String(d.coiSbt).replace(/[.,]/,sep):(F(id)*100).toFixed(2).replace(".",sep)}%</div><div class="coi-cov">${d.coiSbt?T("COI 8 generazioni (SBTpedigree)","8-generation COI (SBTpedigree)"):T("COI calcolato su 8 generazioni","COI calculated on 8 generations")}</div></div>`
-   :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}
-  ${d.tests?`<h2>${T("Test genetici","Genetic tests")}</h2><div class="note">${esc(LANG==="en"&&d.tests_en?d.tests_en:d.tests)}</div>`:""}
-  ${ovPhotos(id)}
-  ${wSeries(id).length>=3?`<h2>${T("Crescita","Growth")}</h2>${growthDog(id)}`:""}
-  ${!d.ext?`<h2>${T("Salute","Health")}</h2>${healthHtml(id,true)}`:""}
-  ${kitOwner(id)}
-  ${abroadOwner(id)}
-  ${showsOwner(id)}
-  ${certHtml(id,true,true)}
-  ${(d.docs||[]).some(z=>!z.private&&!isCert(z))?`<h2>${T("Referti e documenti","Reports and documents")}</h2>${docsHtml(id,true,true)}`:""}
-  ${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}
-  ${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}
-  <p class="row-meta">${d.sbt?sbtLink(d):""}</p>${d.contract&&d.contract.visible&&!d.ctSigned?"":ctOwnerBox(id)}<h2>${T("L'allevatore","The breeder")}</h2><div class="note brd"><p class="brd-n">${esc(FM().person)}</p><span class="row-meta">${esc(T(FM().kennel+" · "+FM().cityProv,FM().kennelEn+" · "+FM().cityProv+", Italy"))}</span>
+   :`<p class="empty">${T("Dato in arrivo.","Coming soon.")}</p>`})()}${d.tests?`<h2>${T("Test genetici","Genetic tests")}</h2><div class="note">${esc(LANG==="en"&&d.tests_en?d.tests_en:d.tests)}</div>`:""}${parentDocsHtml(id)?`<h2>${T("Test dei genitori","Parents' health tests")}</h2>${parentDocsHtml(id)}`:""}${d.dna?`<h2>${T("Profilo genetico (DNA)","DNA profile")}</h2>${dnaHtml(d)}`:""}<p class="row-meta">${d.sbt?sbtLink(d):""}</p>`)}
+  ${OS("exp","dna",T("Esposizioni","Dog shows"),T("Risultati condivisi dall'allevatore","Results shared by the breeder"),showsOwner(id))}
+  ${o._none?"":OS("me","id",T("I tuoi dati","Your details"),esc(o.name),`<dl class="facts">${f2(T("Nome","Name"),o.name)}${f2(T("Telefono","Phone"),o.phone)}${f2("Email",o.email)}${f2(T("Indirizzo","Address"),o.addr)}</dl>`)}
+  <div class="ov-brd"><p class="ov-brd-t">${T("L'allevatore","The breeder")}</p><p class="brd-n">${esc(FM().person)}</p><span class="row-meta">${esc(T(FM().kennel+", "+FM().cityProv,FM().kennelEn+", "+FM().cityProv+", Italy"))}</span>
   <div class="brd-l"><span>${T("Telefono e WhatsApp","Phone and WhatsApp")}: <a href="tel:+${FM().phoneDigits}">${esc(FM().phoneIntl)}</a></span><span>Email: <a href="mailto:${esc(FM().email)}">${esc(FM().email)}</a></span></div>
   <div class="brd-b"><a class="btn small" href="tel:+${FM().phoneDigits}">${T("Chiama","Call")}</a><a class="btn ghost small" href="https://wa.me/${FM().phoneDigits}" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost small" href="mailto:${esc(FM().email)}">Email</a></div></div></div>`;
   LANG="it";
