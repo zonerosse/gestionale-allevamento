@@ -1350,3 +1350,15 @@ Accessi e copie
   🗂️ Archivio (note, link SBT, drBox). Ognuno: stato «✓ fatto» / «⏳ N da fare» / spento, righe ✓ / pallino, poi i comandi di prima.
   Aperti da soli quelli con cose da fare; aperto/chiuso ricordato (`LPH_OPEN`). Tolti qui «Cosa c'è» (ckDecorate) e l'avviso grande
   del Modello B (mbBanners resta in Oggi/Cani/Scadenze). Per aggiungere una cosa alla scheda: metterla nel riquadro giusto di `litPhases`.
+
+## Stile più sobrio: scheda del cane (20/10/2026, Paolo: «più professionale… semplice», anteprima approvata)
+- NUOVA DIREZIONE GRAFICA (sostituisce «Colori ovunque»/colorize per le pagine rifatte): icone a linea grigie (`DIC`, `dIc(k)`),
+  un solo colore forte (rosso `--accent`) per tasti importanti e riga sotto il nome, stati scritti piccoli («N da fare» arancione,
+  «In regola» verde) con puntini, niente emoji colorate né colori diversi per sezione. Dentro `.dph-b` i titoli colorati di
+  `colorize` sono spenti dal CSS. Da applicare man mano alle altre pagine.
+- `dogDetail`: intestazione a documento (`.idc`: foto o «Aggiungi foto», nome, nome di chiamata, riga sesso/stato/famiglia, riga
+  rossa, griglia Nato il/Età/Mantello/Microchip/LOI/Genitori), 2–3 tasti (Modifica, Avvisa la famiglia, Come la vede…, Prova un
+  accoppiamento solo per i non cuccioli), riquadro «da fare» (`.dcta`, prima voce da fare, `dphGo`), riquadri `details.dph`
+  (`DPH_OPEN`, aperti da soli se c'è da fare; Dati aperto in Modifica): Dati · Famiglia e documenti (o «Documenti per la famiglia»)
+  · Crescita · Calori e cucciolate / Cucciolate e figli · Salute e documenti (scadenze in ritardo da `scEvents`) · Test, esposizioni
+  e titoli · Pedigree e parenti · Note. Tolto «Cosa c'è» dalla scheda del cane (`ckDecorate` saltato se c'è `.dph`).
