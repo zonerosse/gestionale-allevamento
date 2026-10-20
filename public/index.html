@@ -280,6 +280,11 @@ details.dfold{background:var(--paper);border:1px solid var(--line);border-radius
 .dph-k{flex:1}.dph-v{color:var(--muted);font-size:.86rem;text-align:right}.dph-m{width:8px;height:8px;border-radius:50%;flex:none;transform:translateY(-1px);background:var(--line)}.dph-m.ok{background:var(--ok)}.dph-m.todo{background:var(--warn)}
 .dph-b h2{font-family:var(--sans);font-size:1rem;font-weight:600;margin:16px 0 6px;color:var(--ink)}.dph-b h2.cz::before{display:none}.dph-b .cz-card{border-top:1px solid var(--line)!important;background-image:none!important}
 .ov-kennel{text-align:center;color:var(--muted);font-size:.85rem;margin:4px 0 10px}.ov-hello{font-family:var(--serif);font-size:1.15rem;margin:0 0 10px}.ov-brd{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0 8px}.ov-brd-t{font-size:.8rem;color:var(--muted);margin:0 0 2px}.owner-view .dph-b h2:first-child{margin-top:8px}
+.hs>summary{background:var(--paper)!important}.hs .ic{width:28px!important;height:28px!important;background:none!important;color:var(--muted)}.hs .tt b{color:var(--ink)!important;font-weight:600}.hs .n{background:none!important;color:var(--muted)!important;padding:0!important}.hs .ar{color:var(--muted)!important}.hs .body{border-top-color:var(--line)!important}.hs .hrow{border-left-color:var(--line)!important}
+details.hs{border:1px solid var(--line)!important;border-radius:12px!important;background:var(--paper)!important;box-shadow:none!important}
+.nv-box{background:var(--paper)!important;border:1px solid var(--line)!important;border-left:4px solid #2a6fb5!important;border-radius:10px!important}
+.lph-st{background:none!important;padding:0!important;font-weight:600}.lph-ic .dic{color:var(--muted)}.lph{border-radius:12px}.lph-next{background:var(--paper)!important;border:1px solid var(--line)!important;border-left:4px solid var(--warn)!important;border-radius:10px!important}.lph-next small{text-transform:none!important;letter-spacing:0!important;font-size:.8rem!important}.lph-done{background:var(--paper)!important;border:1px solid var(--line);border-left:4px solid var(--ok)}
+.lph-dot{width:8px!important;height:8px!important;border:0!important;background:var(--warn);margin-top:7px!important}.lph-i .ok-v{width:8px;height:8px;font-size:0;margin:7px 0 0;background:var(--ok)}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .sheet-bg.open{display:flex}
 .sheet{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -994,10 +999,15 @@ const CZ=[[["Dati"],"📋","z-dati"],[["Calori e monte"],"🌸","z-rep"],[["Nasc
   [["Consanguineità","Inbreeding"],"🧬","z-coi"],[["Salute","Health"],"🩺","z-sal"],[["Referti e documenti","Reports and documents"],"📎","z-doc"],[["Test dei genitori","Parents' tests","Parents’ tests"],"🧪","z-test"],
   [["Profilo genetico","Genetic profile"],"🔬","z-dna"],[["Test sanitari","Health tests"],"🩻","z-test"],[["Titoli","Titles"],"🏆","z-all"],[["Cucciolata di nascita","Litter"],"🐾","z-ped"],
   [["Fratelli","Siblings","Littermates"],"🐶","z-own"],[["Cucciolate","Litters"],"🐾","z-ped"],[["Note","Notes"],"📝","z-dati"],[["L'allevatore","The breeder"],"🏡","z-all"],[["Su chi cade","Antenati"],"🧬","z-coi"],[["Passaggio di proprietà","Transfer of ownership"],"🏛️","z-ct"],[["Consegna","Cosa ricevi","What you receive"],"📦","z-all"],[["Documenti d'identità"],"🪪","z-test"],[["Passaggi di proprietà"],"🏛️","z-ct"],[["Iscrizione all'anagrafe"],"📋","z-dna"],[["Certificati","Certificates"],"📜","z-all"],[["Spese per l'espatrio","Costs for taking"],"🌍","z-own"],[["Link ai proprietari"],"🔗","z-own"],[["Sul sito"],"🌐","z-own"],[["Esposizioni","Shows"],"🏅","z-all"]];
-function colorize(root){if(!root)return;root.querySelectorAll("h2").forEach(h=>{if(h.closest(".k-doc")||h.classList.contains("cz")||h.classList.contains("og-h"))return;const t=h.textContent.trim();
-  const m=CZ.find(x=>x[0].some(s=>t.startsWith(s)||t.endsWith(s)));if(!m)return;h.classList.add("cz",m[2]);h.dataset.ic=m[1];
-  let n=h.nextElementSibling;while(n&&n.tagName==="P")n=n.nextElementSibling;if(n&&n.tagName!=="H2"&&!n.classList.contains("hs")&&!n.matches("details,.cs,.alert-ct"))n.classList.add("cz-card",m[2])});
-  const f=root.querySelector(".facts");if(f&&!f.classList.contains("cz-card"))f.classList.add("cz-card","z-dati")}
+/* Stile sobrio su tutte le pagine (20/10/2026, Paolo: «il nuovo stile lo vorrei su tutte le pagine/schede»). colorize() non colora
+   più le sezioni (prima: emoji e colori diversi per titolo, tabella CZ): toglie l'emoji iniziale da titoli e tasti con testo
+   (soberText), mette le icone a linea nei riquadri della Salute (HS_IC) e lascia il resto come prima. */
+const EMO=/^\s*(?:[\p{Extended_Pictographic}\p{Regional_Indicator}][️‍⃣\p{Extended_Pictographic}\p{Regional_Indicator}]*\s*)+/u;
+function soberText(el){if(el.closest(".keep-emo"))return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){if(!n.nodeValue.trim())continue;const t=n.nodeValue.replace(EMO,"");if(t!==n.nodeValue){if(t.trim())n.nodeValue=t;else if(el.textContent.replace(EMO,"").trim())n.nodeValue=""}break}}
+const HS_IC={vacc:"syr",verm:"pill",feci:"flask",pz:"bug",lf:"shield",rep:"rep"};
+function colorize(root){if(!root)return;root.querySelectorAll("h1,h2,h3,.btn,.lph-tt b,.dph-tt b,.og h2,.tg,.chip,.og-hello,.og-p,.og-l li,.lph-st,.lph-next small,.enc-st,.stb,.po-tag,.tp-st,.navbtn,.plink,.lead,.cnt .tg,summary").forEach(soberText);
+  root.querySelectorAll("details.hs").forEach(dt=>{const ic=dt.querySelector(":scope>summary .ic");if(!ic||ic.dataset.sob)return;const m=[...dt.classList].find(c=>/^c-/.test(c)),k=m&&HS_IC[m.slice(2)];ic.innerHTML=dIc(k||"health");ic.dataset.sob=1})}
+
 let NAV_READY=false;
 function render(){resetCalc();try{acRules()}catch(e){}fmBrand();if(window.PERM&&typeof RO!=="undefined"){RO=window.PERM[tab]!==2;window.RO=RO;document.body.classList.toggle("ro",RO)}nav();document.body.setAttribute("data-tab",tab);if(NAV_READY){try{sessionStorage.setItem("gx_nav",JSON.stringify({tab,view,ms:mateS,md:mateD}))}catch(e){}}
   const m=$("#main");
@@ -1334,7 +1344,7 @@ const DIC={id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" c
   note:'<path d="M5 4h14v16H5z"/><path d="M8.5 9h7M8.5 13h7M8.5 17h4"/>',rep:'<circle cx="12" cy="9" r="5"/><path d="M12 14v7M9 18h6"/>',
   pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',msg:'<path d="M4 5h16v11H9l-5 4z"/>',alert:'<path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17h.01"/>',
   chev:'<path d="M6 9l6 6 6-6"/>',cal:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',book:'<path d="M4 5c3-1.4 5.5-1.4 8 0v14c-2.5-1.4-5-1.4-8 0zM12 5c2.5-1.4 5-1.4 8 0v14c-3-1.4-5.5-1.4-8 0z"/>',
-  bowl:'<path d="M3 11h18c0 4.4-4 8-9 8s-9-3.6-9-8z"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/>'};
+  bowl:'<path d="M3 11h18c0 4.4-4 8-9 8s-9-3.6-9-8z"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/>',syr:'<path d="M18 2l4 4M17 7l3-3M15 5l4 4-9.5 9.5H5.5v-4z"/><path d="M8 13l2 2M11 10l2 2M2 22l3.5-3.5"/>',pill:'<rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-35 12 12)"/><path d="M9.5 8.5l5 7"/>',flask:'<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/>',bug:'<ellipse cx="12" cy="13" rx="5" ry="6"/><path d="M12 7V4M9 4l1.5 2M15 4l-1.5 2M7 11H3M21 11h-4M7 15H3M21 15h-4M12 7v12"/>',shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',lit:'<circle cx="7" cy="8" r="2.2"/><circle cx="12" cy="5.5" r="2.2"/><circle cx="17" cy="8" r="2.2"/><path d="M7 19c0-3 2.2-6 5-6s5 3 5 6c0 1.4-1.6 2-5 2s-5-.6-5-2z"/>',web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 2.5 15.2 0 18M12 3c-2.5 2.8-2.5 15.2 0 18"/>',arc:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/>'};
 const dIc=(k,c)=>`<svg class="dic${c?" "+c:""}" viewBox="0 0 24 24" aria-hidden="true">${DIC[k]||""}</svg>`;
 const DPH_OPEN=new Map();
 document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.dataset&&t.dataset.dph)DPH_OPEN.set(t.dataset.dph,t.open)},true);
@@ -4211,14 +4221,14 @@ function litPhases(lid){const l=D.litters[lid],P=litPups(lid),td=todayS(),nata=l
   const dd=k=>D.dogs[k],nk=k=>esc(dd(k).nick||dd(k).name),cnt=(a,b)=>`${a} su ${b}`,miss=L=>L.length?" · manca "+L.slice(0,3).map(nk).join(", ")+(L.length>3?" e altri "+(L.length-3):""):"";
   // 1. Nascita e cuccioli
   const nw=P.reduce((a,k)=>a+((dd(k).weights||[]).length),0),nf=P.reduce((a,k)=>a+((dd(k).wphotos||[]).length),0)+((l.gphotos||[]).length);
-  ph.push({k:"nas",ic:"🐣",t:"Nascita e cuccioli",sub:nata?`${N} cuccioli · ${nw} pesate · ${nf} foto`:"cucciolata in programma",off:nata?"":"in programma",
+  ph.push({k:"nas",ic:"grow",t:"Nascita e cuccioli",sub:nata?`${N} cuccioli · ${nw} pesate · ${nf} foto`:"cucciolata in programma",off:nata?"":"in programma",
     items:nata?[{t:"Nascita del "+fmt(l.date)},{t:N?N+" cuccioli in archivio":"Nessun cucciolo in archivio",todo:!N,s:"Aggiungi i cuccioli dalla Nascita"}]:[],
     html:`${birthHtml(lid)}${gphotosHtml(lid)}${N?`<h2>Cuccioli</h2><div class="list">${rows(P)}</div>`:""}`});
   // 2. ENCI
   const it2=[];if(nata&&own){const dA=addD(l.date,25),dB=addD(l.date,90);
     it2.push(l.enciA?{t:"Modello A consegnato il "+fmt(l.enciA)}:{t:"Modello A da consegnare entro il "+fmt(dA),todo:true,s:dDiff(dA,td)<0?"scaduto da "+(-dDiff(dA,td))+" giorni":"mancano "+dDiff(dA,td)+" giorni"});
     it2.push(l.enciB?{t:"Modello B consegnato il "+fmt(l.enciB)}:{t:"Modello B da consegnare entro il "+fmt(dB),todo:true,s:dDiff(dB,td)<0?"scaduto da "+(-dDiff(dB,td))+" giorni":"mancano "+dDiff(dB,td)+" giorni"})}
-  ph.push({k:"enci",ic:"📄",t:"ENCI",sub:"Modello A · Modello B",off:nata&&own?"":nata?"non serve":"dopo la nascita",items:it2,html:`${maBox(lid)}${mbBox(lid)}`});
+  ph.push({k:"enci",ic:"doc",t:"ENCI",sub:"Modello A · Modello B",off:nata&&own?"":nata?"non serve":"dopo la nascita",items:it2,html:`${maBox(lid)}${mbBox(lid)}`});
   // 3. Anagrafe
   const it3=[];if(nata&&N){const chip=P.filter(k=>dd(k).chip),isc=chip.filter(k=>(dd(k).docs||[]).some(x=>x.isc)),noIsc=chip.filter(k=>!isc.includes(k));
     it3.push({t:"Certificati di iscrizione: "+cnt(isc.length,chip.length||N)+miss(noIsc),todo:!!noIsc.length||!chip.length,s:!chip.length?"I cuccioli non hanno ancora il microchip":""});
@@ -4226,17 +4236,17 @@ function litPhases(lid){const l=D.litters[lid],P=litPups(lid),td=todayS(),nata=l
       it3.push({t:"Passaggi firmati: "+cnt(sig.length,R.length)+miss(R.filter(r=>!r.doc).map(r=>r.k)),todo:sig.length<R.length});
       it3.push({t:"Passaggi mandati all'anagrafe: "+cnt(sent.length,sig.length||R.length)+miss(sig.filter(r=>!r.d.ppSent).map(r=>r.k)),todo:sent.length<sig.length});
       if(sent.length)it3.push({t:"Denunce del Comune firmate: "+cnt(ces.length,sent.length)+miss(sent.filter(r=>!cesDoc(r.d)).map(r=>r.k)),todo:ces.length<sent.length,s:"Il Comune le rimanda dopo l'invio: «📥 Prendi dalla mail del Comune»"})}}
-  ph.push({k:"ana",ic:"🪪",t:"Anagrafe",sub:"Iscrizioni · passaggi · denunce del Comune",off:nata&&N?"":"dopo la nascita",items:it3,html:`${iscBox(lid)}${ppLitBox(lid)}`});
+  ph.push({k:"ana",ic:"id",t:"Anagrafe",sub:"Iscrizioni · passaggi · denunce del Comune",off:nata&&N?"":"dopo la nascita",items:it3,html:`${iscBox(lid)}${ppLitBox(lid)}`});
   // 4. Famiglie
   const it4=[],F=P.filter(k=>dd(k).owner&&D.owners[dd(k).owner]);if(F.length){const ct=F.filter(k=>(dd(k).docs||[]).some(x=>x.ct)||(typeof CONTR!=="undefined"&&CONTR[k])),lk=F.filter(k=>D.owners[dd(k).owner].linkSent),rv=F.filter(k=>D.owners[dd(k).owner].revAsked);
     it4.push({t:"Contratti firmati: "+cnt(ct.length,F.length)+miss(F.filter(k=>!ct.includes(k))),todo:ct.length<F.length,s:"Il contratto si prepara nella scheda del cucciolo"});
     it4.push({t:"Link mandati alle famiglie: "+cnt(lk.length,F.length)+miss(F.filter(k=>!lk.includes(k))),todo:lk.length<F.length});
     it4.push({t:"Recensione chiesta: "+cnt(rv.length,F.length)})}
-  ph.push({k:"fam",ic:"👨‍👩‍👧",t:"Famiglie",sub:"Contratti · link · recensioni",off:F.length?"":"nessuna famiglia",items:it4,html:linkBox(lid)});
+  ph.push({k:"fam",ic:"fam",t:"Famiglie",sub:"Contratti · link · recensioni",off:F.length?"":"nessuna famiglia",items:it4,html:linkBox(lid)});
   // 5. Sito
-  const S=l.site||{},on=!!(l.web||S.home||S.prog||S.diar);ph.push({k:"sito",ic:"🌐",t:"Sito",sub:"Pagina Cuccioli · Programma · Diario · Novità in Home",off:on?"":"spento",items:[],html:cuBox(lid)});
+  const S=l.site||{},on=!!(l.web||S.home||S.prog||S.diar);ph.push({k:"sito",ic:"web",t:"Sito",sub:"Pagina Cuccioli · Programma · Diario · Novità in Home",off:on?"":"spento",items:[],html:cuBox(lid)});
   // 6. Archivio
-  ph.push({k:"arc",ic:"🗂️",t:"Archivio",sub:"Google Drive · link SBTpedigree · note",items:[],off:"",
+  ph.push({k:"arc",ic:"arc",t:"Archivio",sub:"Google Drive · link SBTpedigree · note",items:[],off:"",
     html:`${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small>${l.sbtUrl?' <span class="ok-v">✓</span>':""}</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="https://sbtpedigree.com/…" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn ghost small" data-a="litSbt" data-v="${lid}">Salva link</button>${l.sbtUrl?`<a class="btn ghost small" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener">Apri ↗</a>`:""}</div></div>${drBox(lid)}`});
   return ph}
@@ -4251,7 +4261,7 @@ function litterSheet(lid){CK_LIT=lid;const l=D.litters[lid];if(!l)return;const s
      spento) e dentro una riga per ogni cosa + gli stessi comandi di prima. Si apre da solo il riquadro con qualcosa da fare. */
   const PH=litPhases(lid),nx=PH.flatMap(p=>p.items.filter(i=>i.todo).map(i=>Object.assign({ph:p.k},i)))[0];
   const phH=p=>{const n=p.items.filter(i=>i.todo).length,st=p.off?'<span class="lph-st no">'+p.off+'</span>':n?`<span class="lph-st todo">⏳ ${n} da fare</span>`:'<span class="lph-st ok">✓ fatto</span>',k=lid+"|"+p.k,op=LPH_OPEN.has(k)?LPH_OPEN.get(k):!!n;
-    return `<details class="lph" data-lph="${k}" id="lph_${p.k}"${op?" open":""}><summary><span class="lph-ic">${p.ic}</span><span class="lph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${st}<span class="lph-ar">▾</span></summary><div class="lph-b">
+    return `<details class="lph" data-lph="${k}" id="lph_${p.k}"${op?" open":""}><summary><span class="lph-ic">${dIc(p.ic)}</span><span class="lph-tt"><b>${p.t}</b><span>${p.sub}</span></span>${st}<span class="lph-ar">▾</span></summary><div class="lph-b">
       ${p.items.length?`<div class="lph-l">${p.items.map(i=>`<div class="lph-i">${i.todo?'<span class="lph-dot"></span>':'<span class="ok-v">✓</span>'}<span>${i.todo?"<b>"+i.t+"</b>":i.t}</span></div>`).join("")}</div>`:""}${p.html}</div></details>`};
   sheet(`<p class="row-meta" style="margin:0 0 4px">Scheda della cucciolata</p>
   <h1 style="margin:0 0 4px">${dlink(dm)||"madre ?"} <span class="lx">×</span> ${dlink(s)||'<span class="empty">padre da inserire</span>'}</h1>

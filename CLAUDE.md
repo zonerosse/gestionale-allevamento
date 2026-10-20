@@ -1368,3 +1368,8 @@ Accessi e copie
   chiusi `OS(...)` (`details.dph`, `DPH_OPEN` con chiave «ov<id>|…»): Documenti · Salute e promemoria (prossimo da `calEvents`) ·
   Crescita e foto · I genitori (pedigree, COI, test) · Esposizioni · I tuoi dati; in fondo «L'allevatore» (`.ov-brd`). Quanto mangia
   e «Aggiungi tu» restano sotto, aggiunti dalla pagina del proprietario come prima.
+- (20/10/2026, Paolo: «il nuovo stile lo vorrei su tutte le pagine/schede») `colorize(root)` ora è il passaggio «sobrio» per tutte le
+  pagine, finestre e la pagina della famiglia: niente più colori/emoji per titolo (la tabella `CZ` non si usa più); `soberText` toglie
+  l'emoji iniziale da titoli, tasti con testo, etichette e stati (non dai tasti fatti solo di un'emoji, né dentro `.keep-emo`);
+  riquadri della Salute (`details.hs`) bianchi con icone a linea (`HS_IC`: syr, pill, flask, bug, shield); riquadri della cucciolata
+  con icone `dIc` e stati scritti senza pillole; riquadro Novità neutro con bordo blu a sinistra. Nuove pagine: usare `dIc`, niente emoji.
