@@ -1448,3 +1448,13 @@ Accessi e copie
 - "Importa modifiche" con `{controlloCuccioli:{dam,sire,date,pups:[{name,sex,chip,color,color_en}]}}` (`importCheck`, `ccShow`,
   `ccFill`): confronta un documento (es. certificato dei microchip) con le schede dei cuccioli della cucciolata (microchip, poi nome
   o soprannome): ✓ uguale, ＋ manca, ≠ diverso. «Completa i N dati mancanti» scrive SOLO i campi vuoti; le differenze non si cambiano.
+
+## Storico delle cucciolate dalla Lista denunce ENCI (21/10/2026, Paolo: «sono tutte le cucciolate fatte, aggiungi in ordine di tempo»)
+- "Importa modifiche" con `{cucciolateENCI:[{den,born,mating,dam:{name,loi},sire:{name,loi,owner},tot,isc}]}` (`importCucENCI`):
+  fattrice e stallone dal LOI, poi dal nome (anche parziale, almeno il 60% delle parole, senza pari merito); lo stallone che manca
+  entra come cane esterno con LOI e «Proprietario: …» nelle note. Cucciolata con la stessa madre nata entro 5 giorni → completa solo
+  i campi vuoti; se no la crea «nata». Campi nuovi della cucciolata: `mating`, `enciDen` (n. denuncia), `bornTot` (nati), `iscritti`.
+  Aggiunge anche la monta in «Calori e monte» delle fattrici attuali. Chiede conferma con l'elenco; non cancella niente.
+- Statistiche (`stLit`): senza schede dei cuccioli né bornM/bornF usa `bornTot` (colonna M/F «–»).
+- File del 21/10/2026: 11 denunce (2017–2026). Saltata la 3298354 (Bilquis × Little Thunder, 01/08/2026, 0 iscritti, anomalia S):
+  sembra un doppione della 3297699 (Bilquis × Black Jack).

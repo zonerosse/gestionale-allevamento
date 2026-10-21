@@ -2766,7 +2766,8 @@ function mbBanners(only){if(RO||typeof OWNER_MODE!=="undefined"||(typeof CONTI!=
    Per cucciolata, per fattrice, per stallone; titoli ed esposizioni dei cani allevati da Paolo. */
 function stLit(lid){const l=D.litters[lid],P=Object.values(D.dogs).filter(d=>d.litter===lid);
   if(P.length)return{n:P.length,m:P.filter(d=>d.sex==="M").length,f:P.filter(d=>d.sex==="F").length,man:false};
-  if(l.bornM!=null||l.bornF!=null){const m=+l.bornM||0,f=+l.bornF||0;return{n:m+f,m,f,man:true}}return null}
+  if(l.bornM!=null||l.bornF!=null){const m=+l.bornM||0,f=+l.bornF||0;return{n:m+f,m,f,man:true}}
+  if(l.bornTot!=null)return{n:+l.bornTot||0,m:0,f:0,man:true,tot:true};return null}
 function stPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(WS.sub==="sito")return wsPage();const _h=stAllevPage();return _h.replace("</h1>","</h1>"+stChips())}
 function stAllevPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"?";
   const L=Object.entries(D.litters).filter(([,l])=>l.state==="nata").sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||""));
@@ -2778,7 +2779,7 @@ function stAllevPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';con
   return `<h1 style="margin-bottom:4px">Statistiche</h1><p class="lead" style="margin-top:0">Le cucciolate nate e i cani che hai allevato, dai dati del gestionale.</p>
   <div class="st-kpi"><div><small>Cucciolate nate</small><b>${S.length}</b></div><div><small>Cuccioli</small><b>${N}</b>${K.length<S.length?`<small>${S.length-K.length} cucciolat${S.length-K.length===1?"a":"e"} da completare</small>`:""}</div><div><small>Media per cucciolata</small><b>${avg}</b></div><div><small>Maschi / femmine</small><b>${M} / ${F}</b></div></div>
   <h2>Cucciolate</h2><div class="st-t"><table><tr><th>Nata il</th><th>Madre × padre</th><th>Cuccioli</th><th>M / F</th></tr>
-  ${S.map(([k,l,s])=>row([fmt(l.date),esc(nk(l.dam))+" × "+esc(nk(l.sire)),s?s.n+(s.man?` <button class="plink" data-a="stBorn" data-v="${k}">✎</button>`:""):`<button class="btn ghost small" data-a="stBorn" data-v="${k}">Scrivi quanti</button>`,s?s.m+" / "+s.f:"–"])).join("")}</table></div>
+  ${S.map(([k,l,s])=>row([fmt(l.date),esc(nk(l.dam))+" × "+esc(nk(l.sire)),s?s.n+(s.man?` <button class="plink" data-a="stBorn" data-v="${k}">✎</button>`:""):`<button class="btn ghost small" data-a="stBorn" data-v="${k}">Scrivi quanti</button>`,s&&!s.tot?s.m+" / "+s.f:"–"])).join("")}</table></div>
   <h2>Per fattrice</h2><div class="st-t"><table><tr><th>Fattrice</th><th></th><th>Cucciolate</th><th>Cuccioli</th><th>Media</th></tr>${grp("dam").map(([k,g])=>row([esc(nk(k)),"",g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–"])).join("")}</table></div>
   <h2>Per stallone</h2><div class="st-t"><table><tr><th>Stallone</th><th></th><th>Cucciolate</th><th>Cuccioli</th><th>Media</th></tr>${grp("sire").map(([k,g])=>row([esc((D.dogs[k]||{}).name||"?"),"",g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–"])).join("")}</table></div>
   <h2>I cani che hai allevato: titoli ed esposizioni</h2>${bred.length?`<div class="cs" style="gap:0;padding:4px 14px">${bred.map(([k,d])=>{const sh=d.shows||[],c=t=>sh.filter(s=>(s.titles||[]).includes(t)).length;
@@ -4069,6 +4070,31 @@ function acExpSave(v){const [src,id]=v.split("|"),amt=acNum($("#acv").value);if(
 function acExpDel(v){if(!confirm("Eliminare questa spesa?"))return;const [src,id]=v.split("|"),L=acList2(src),i=L.findIndex(e=>e.id===id);if(i>=0)L.splice(i,1);closeSheet();render();typeof saveNow==="function"&&saveNow()}
 document.addEventListener("click",e=>{const n=document.getElementById("navBottom");if(n&&n.classList.contains("more-on")&&!e.target.closest("#navBottom"))n.classList.remove("more-on")});
 // "Importa modifiche" con {nascite:[{dog,name,bplace,bdate}]}: trova il proprietario dal nome del cane (o dal suo nome) e scrive dove e quando è nato
+/* Storico delle cucciolate dalla «Lista denunce» ENCI (21/10/2026, Paolo: "sono tutte le cucciolate fatte, aggiungi in ordine di tempo").
+   Per ogni denuncia: fattrice e stallone dal LOI o dal nome (lo stallone che manca entra come cane esterno), cucciolata già presente
+   (stessa madre, nascita entro 5 giorni) → completa solo i campi vuoti; altrimenti la crea "nata". Campi: date, mating, sire, enciDen,
+   bornTot, iscritti. Niente si cancella. */
+function importCucENCI(L){const nn=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(),loi=x=>String(x||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const find=(x)=>{const K=Object.keys(D.dogs);let k=x.loi&&K.find(k=>loi(D.dogs[k].loi)&&loi(D.dogs[k].loi)===loi(x.loi));if(k)return k;
+    const w=nn(x.name).split(" ").filter(t=>t.length>2);k=K.find(k=>nn(D.dogs[k].name)===nn(x.name));if(k)return k;
+    k=K.find(k=>{const t=nn(D.dogs[k].name);return w.length&&w.every(y=>t.includes(y))});if(k)return k;
+    let best=null,bs=0,tie=false;K.forEach(k=>{const t=nn((D.dogs[k].name||"")+" "+(D.dogs[k].nick||""));const sc=w.filter(y=>t.includes(y)).length/(w.length||1);if(sc>bs){bs=sc;best=k;tie=false}else if(sc===bs)tie=true});
+    return bs>=0.6&&!tie?best:null};
+  const plan=L.slice().sort((a,b)=>a.born.localeCompare(b.born)).map(x=>{const dam=find(x.dam),sire=find(x.sire);
+    const lid=dam&&Object.keys(D.litters).find(k=>{const l=D.litters[k];return l.dam===dam&&l.date&&Math.abs((new Date(l.date+"T12:00")-new Date(x.born+"T12:00"))/864e5)<=5});return{x,dam,sire,lid}});
+  const nd=plan.filter(p=>!p.dam);if(nd.length){alert("Non trovo queste fattrici nel gestionale:\n"+nd.map(p=>p.x.dam.name).join("\n")+"\n\nNon ho cambiato niente.");return}
+  const txt=plan.map(p=>(p.lid?"✓ c'è già, completo: ":"+ nuova: ")+fmt(p.x.born)+" · "+(D.dogs[p.dam].nick||D.dogs[p.dam].name)+" × "+(p.sire?(D.dogs[p.sire].nick||D.dogs[p.sire].name):p.x.sire.name+" (nuovo cane esterno)")+" · "+p.x.tot+" nati").join("\n");
+  if(!confirm("Cucciolate dalla lista ENCI ("+plan.length+"):\n\n"+txt+"\n\nProcedo?"))return;
+  let nNew=0,nUpd=0,nDog=0;
+  plan.forEach(p=>{const x=p.x;let s=p.sire||find(x.sire);
+    if(!s){s=newId("d");D.dogs[s]={name:x.sire.name,sex:"M",ext:true,loi:x.sire.loi||"",notes:x.sire.owner?"Proprietario: "+x.sire.owner:""};nDog++}
+    else if(x.sire.loi&&!D.dogs[s].loi)D.dogs[s].loi=x.sire.loi;
+    if(x.dam.loi&&!D.dogs[p.dam].loi)D.dogs[p.dam].loi=x.dam.loi;
+    let l;if(p.lid){l=D.litters[p.lid];nUpd++}else{const id=newId("l");l=D.litters[id]={dam:p.dam,sire:s,date:x.born,state:"nata",notes:""};nNew++}
+    if(!l.sire)l.sire=s;if(!l.date)l.date=x.born;l.state="nata";if(!l.mating&&x.mating)l.mating=x.mating;if(!l.enciDen)l.enciDen=x.den;
+    if(l.bornTot==null&&x.tot!=null)l.bornTot=x.tot;if(l.iscritti==null&&x.isc!=null)l.iscritti=x.isc;
+    const dm=D.dogs[p.dam];if(x.mating&&isFattrice(p.dam)){dm.repro=dm.repro||[];if(!dm.repro.some(r=>r.t==="mating"&&r.date===x.mating))dm.repro.push({t:"mating",date:x.mating,sire:s})}});
+  resetCalc();render();saveNow();alert("Fatto: "+nNew+" cucciolate nuove, "+nUpd+" completate"+(nDog?", "+nDog+" stalloni aggiunti come cani esterni":"")+". Le trovi in Cucciolate, in ordine di nascita.")}
 function importNascite(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/\s+/).filter(Boolean).sort().join(" ");
   const ok=[],miss=[];L.forEach(x=>{let oid=null;const dk=Object.keys(D.dogs).find(k=>nn(D.dogs[k].name)===nn(x.dog));if(dk&&D.dogs[dk].owner&&D.owners[D.dogs[dk].owner])oid=D.dogs[dk].owner;
     if(!oid)oid=Object.keys(D.owners).find(k=>nn(D.owners[k].name)===nn(x.name))||null;(oid?ok:miss).push([x,oid])});
@@ -6005,6 +6031,7 @@ document.addEventListener("change",e=>{if(e.target.id!=="impData")return;const f
   r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;
       if(o.analisiSbt){importSbt(o.analisiSbt);return}
       if(o.nascite){importNascite(o.nascite);return}
+      if(o.cucciolateENCI){importCucENCI(o.cucciolateENCI);return}
       if(o.documentiIdentita){importIds(o.documentiIdentita);return}
       if(o.certificatiIscrizione){importIsc(o.certificatiIscrizione);return}
       if(o.aggiungiAlCane){importAdd(o.aggiungiAlCane);return}
