@@ -4053,14 +4053,29 @@ let AC_Y=String(new Date().getFullYear()),AC_FILE=null;
 const eur=n=>{n=+n||0;const d=Number.isInteger(n)?0:2;return n.toLocaleString("it-IT",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d})};
 const acNum=s=>{s=String(s||"").trim().replace(/[€\s]/g,"");if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,"").replace(",",".");else s=s.replace(/[.,](?=\d{3}(\D|$))/g,"");return +s||0};
 function acL(lid){const l=D.litters[lid];l.acc=l.acc||{};l.acc.prices=l.acc.prices||{};l.acc.exp=l.acc.exp||[];return l.acc}
+/* Entrate «Altro» (21/10/2026, Paolo: «in Conti aggiungi in entrate "Altro" e dammi la possibilità di scrivere cosa»):
+   nella cucciolata l.acc.inc=[{id,date,amt,txt}]; fra le spese generali le voci con in:true in D.accGen (così il server le salva già). */
+const acGO=()=>(D.accGen||[]).filter(x=>!x.in),acGI=()=>(D.accGen||[]).filter(x=>x.in);
+function acInRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.map(x=>`<button class="ac-r" data-a="acInc" data-v="${src}|${x.id}"><span class="d">${fmt(x.date)||"—"}</span><span><span class="ac-tag">Altro</span>${esc(x.txt||"")}</span><span class="v">${eur(x.amt)}</span></button>`).join("")}
+function acIncList(src){if(src==="gen"){D.accGen=D.accGen||[];return null}return (acL(src).inc=acL(src).inc||[])}
+function acIncForm(v){const [src,id]=v.split("|"),L=src==="gen"?acGI():((D.litters[src].acc||{}).inc||[]),x=id?L.find(e=>e.id===id)||{}:{};
+  sheet(`<h2 style="margin-top:0">${id?"Entrata":"＋ Nuova entrata"} · ${src==="gen"?"Generali":acLitLab(src)}</h2><div class="form">
+  <label class="f">Data<input type="date" id="aid" value="${esc(x.date||todayS())}"></label><label class="f">Importo (€)<input id="aiv" inputmode="decimal" value="${x.amt!=null?esc(String(x.amt).replace(".",",")):""}" placeholder="es. 300"></label>
+  <label class="f full">Voce: Altro · cosa<input id="ait" value="${esc(x.txt||"")}" placeholder="es. monta del maschio, rimborso, vendita…"></label></div>
+  <p class="small" id="aierr" style="color:var(--accent)"></p>
+  <div class="actions"><button class="btn" data-a="acIncSave" data-v="${v}">Salva</button>${id?`<button class="btn ghost" data-a="acIncDel" data-v="${v}">Elimina</button>`:""}<button class="btn ghost" data-a="close">Annulla</button></div>`)}
+function acIncSave(v){const [src,id]=v.split("|"),amt=acNum($("#aiv").value),txt=$("#ait").value.trim();if(!amt){$("#aierr").textContent="Scrivi l'importo.";return}if(!txt){$("#aierr").textContent="Scrivi cosa è.";$("#ait").focus();return}
+  const L=src==="gen"?(D.accGen=D.accGen||[]):acIncList(src);let x=id?L.find(e=>e.id===id):null;if(!x){x={id:newId("i")};if(src==="gen")x.in=true;L.push(x)}
+  Object.assign(x,{date:$("#aid").value,amt,txt,cat:"Altro"});closeSheet();render();typeof saveNow==="function"&&saveNow()}
+function acIncDel(v){if(!confirm("Eliminare questa entrata?"))return;const [src,id]=v.split("|"),L=src==="gen"?(D.accGen||[]):((D.litters[src].acc||{}).inc||[]),i=L.findIndex(e=>e.id===id);if(i>=0)L.splice(i,1);closeSheet();render();typeof saveNow==="function"&&saveNow()}
 function acLits(){return Object.keys(D.litters).filter(k=>{const d=D.dogs[D.litters[k].dam];return d&&!d.ext}).sort((a,b)=>(acYearOf(b)+(D.litters[b].date||"9")).localeCompare(acYearOf(a)+(D.litters[a].date||"9")))}
 function acYearOf(lid){const l=D.litters[lid],e=((l.acc||{}).exp||[]).map(x=>x.date).filter(Boolean).sort();return String(l.date||e[0]||todayS()).slice(0,4)}
-function acIn(lid){const a=D.litters[lid].acc||{},P=a.prices||{};return litPups(lid).reduce((s,k)=>s+(+P[k]||0),0)}
+function acIn(lid){const a=D.litters[lid].acc||{},P=a.prices||{};return litPups(lid).reduce((s,k)=>s+(+P[k]||0),0)+acOut(a.inc)}
 function acOut(L){return (L||[]).reduce((s,x)=>s+(+x.amt||0),0)}
 function acLitLab(lid){const l=D.litters[lid];return `${esc(dn(l.dam))} × ${esc(dn(l.sire)||"da scegliere")}`}
 function contiPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(view)return view==="gen"?acGenDetail():D.litters[view]?acDetail(view):acList();return acList()}
-function acList(){const L=acLits(),G=D.accGen||[];const ys=[...new Set([...L.map(acYearOf),...G.map(x=>String(x.date||"").slice(0,4)).filter(Boolean),String(new Date().getFullYear())])].sort().reverse();if(!ys.includes(AC_Y))AC_Y=ys[0];
-  const LY=L.filter(k=>acYearOf(k)===AC_Y),GY=G.filter(x=>String(x.date||"").slice(0,4)===AC_Y),ti=LY.reduce((s,k)=>s+acIn(k),0),to=LY.reduce((s,k)=>s+acOut((D.litters[k].acc||{}).exp),0)+acOut(GY);
+function acList(){const L=acLits(),G=acGO(),GI=acGI();const ys=[...new Set([...L.map(acYearOf),...(D.accGen||[]).map(x=>String(x.date||"").slice(0,4)).filter(Boolean),String(new Date().getFullYear())])].sort().reverse();if(!ys.includes(AC_Y))AC_Y=ys[0];
+  const LY=L.filter(k=>acYearOf(k)===AC_Y),GY=G.filter(x=>String(x.date||"").slice(0,4)===AC_Y),GIY=GI.filter(x=>String(x.date||"").slice(0,4)===AC_Y),ti=LY.reduce((s,k)=>s+acIn(k),0)+acOut(GIY),to=LY.reduce((s,k)=>s+acOut((D.litters[k].acc||{}).exp),0)+acOut(GY);
   const miss=k=>{const P=(D.litters[k].acc||{}).prices||{};return litPups(k).filter(p=>P[p]==null||P[p]==="")},M=LY.map(k=>[k,miss(k)]).filter(x=>x[1].length);
   let h=PGH("Conti "+AC_Y,"Solo per te: entrate e spese di ogni cucciolata",ys.length>1?ys.map(y=>`<button class="chip" aria-pressed="${y===AC_Y}" data-a="acYear" data-v="${y}">${y}</button>`).join(""):"");
   h+=`<div class="ac-year"><div><small>Entrate</small><b class="ac-pos">${eur(ti)}</b></div><div><small>Spese</small><b class="ac-neg">${eur(to)}</b></div><div><small>Saldo</small><b class="${ti-to>=0?"ac-pos":"ac-neg"}">${eur(ti-to)}</b></div></div>`;
@@ -4068,7 +4083,7 @@ function acList(){const L=acLits(),G=D.accGen||[];const ys=[...new Set([...L.map
   h+=LY.map(k=>{const l=D.litters[k],i=acIn(k),u=acOut((l.acc||{}).exp),n=litPups(k).length,ms=miss(k).length;
     return PSEC("co-"+k,"lit",acLitLab(k),`${l.state==="pianificata"?"pianificata":"nata il "+fmt(l.date)}${n?` · ${n} cuccioli`:""} · saldo ${eur(i-u)}`,ms,
       PROW("no","Entrate",`<b class="ac-pos">${eur(i)}</b>`)+PROW("no","Spese",`<b class="ac-neg">${eur(u)}</b>`)+PROW("no","Saldo",`<b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b>`)+(ms?PROW("todo","Prezzi da scrivere",ms+""):"")+`<div style="margin-top:8px"><button class="btn small ghost" data-a="acOpen" data-v="${k}">Apri i conti della cucciolata ›</button></div>`,n&&!ms?true:"")}).join("")||`<p class="empty">Nessuna cucciolata nel ${AC_Y}.</p>`;
-  h+=PSEC("co-gen","arc","Spese generali",`non legate a una cucciolata · ${eur(acOut(GY))}`,0,[...GY].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,6).map(x=>PROW("no",esc(x.cat||"Altro")+(x.txt?" · "+esc(x.txt):""),eur(x.amt)+" · "+(fmt(x.date)||"—"))).join("")+`<div style="margin-top:8px"><button class="btn small ghost" data-a="acOpen" data-v="gen">Apri le spese generali ›</button></div>`,GY.length?GY.length+"":"");
+  h+=PSEC("co-gen","arc","Spese generali",`non legate a una cucciolata · ${eur(acOut(GY))}${GIY.length?" · entrate "+eur(acOut(GIY)):""}`,0,[...GIY.map(x=>Object.assign({},x,{cat:"Entrata · Altro"})),...GY].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,6).map(x=>PROW("no",esc(x.cat||"Altro")+(x.txt?" · "+esc(x.txt):""),eur(x.amt)+" · "+(fmt(x.date)||"—"))).join("")+`<div style="margin-top:8px"><button class="btn small ghost" data-a="acOpen" data-v="gen">Apri le spese generali ›</button></div>`,GY.length?GY.length+"":"");
   return h}
 function acRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.length?S.map(x=>`<button class="ac-r" data-a="acExp" data-v="${src}|${x.id}"><span class="d">${fmt(x.date)||"—"}</span><span><span class="ac-tag">${esc(x.cat||"Altro")}</span>${esc(x.txt||"")}${x.file?" · 📎":""}</span><span class="v">${eur(x.amt)}</span></button>`).join(""):'<div class="ac-r e"><span></span><span>Nessuna spesa.</span><span></span></div>'}
 function acBars(L){const by={};(L||[]).forEach(x=>by[x.cat||"Altro"]=(by[x.cat||"Altro"]||0)+(+x.amt||0));const E=Object.entries(by).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);if(!E.length)return"";const mx=E[0][1];
@@ -4077,10 +4092,12 @@ function acDetail(lid){const l=D.litters[lid],a=l.acc||{},P=a.prices||{},pups=li
   return `<button class="back" data-a="back">‹ Conti</button><h1>${acLitLab(lid)}</h1><p class="nick">${l.state==="pianificata"?"Cucciolata pianificata":"Nata il "+fmt(l.date)}</p>
   <div class="ac-bal"><div><small>Entrate</small><b class="ac-pos">${eur(i)}</b></div><div><small>Spese</small><b class="ac-neg">${eur(u)}</b></div><div><small>Saldo</small><b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b></div></div>
   <div class="ac-sec in"><h3>Entrate</h3>${pups.length?pups.map(k=>{const d=D.dogs[k];return `<button class="ac-r" data-a="acPrice" data-v="${lid}|${k}"><span class="d">🐶</span><span>${esc(d.name)}${d.owner&&D.owners[d.owner]?` <span class="row-meta">· ${esc(D.owners[d.owner].name)}</span>`:""}</span><span class="v">${P[k]!=null&&P[k]!==""?eur(P[k]):'<span class="btn ghost small">Scrivi prezzo</span>'}</span></button>`}).join(""):'<div class="ac-r e"><span></span><span>I cuccioli compaiono quando la cucciolata è nata.</span><span></span></div>'}
+  ${acInRows(a.inc,lid)}<div style="margin:6px 0"><button class="btn ghost small" data-a="acInc" data-v="${lid}|">＋ Altra entrata (Altro)</button></div>
   <div class="ac-tot"><span>Totale entrate</span><span class="ac-pos">${eur(i)}</span></div></div>
   <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="${lid}|">＋ Aggiungi spesa</button></h3>${acRows(a.exp,lid)}<div class="ac-tot"><span>Totale spese</span><span class="ac-neg">${eur(u)}</span></div></div>
   ${acBars(a.exp)}`}
-function acGenDetail(){const G=D.accGen||[];return `<button class="back" data-a="back">‹ Conti</button><h1>Spese generali</h1><p class="nick">Non legate a una cucciolata</p>
+function acGenDetail(){const G=acGO(),GI=acGI();return `<button class="back" data-a="back">‹ Conti</button><h1>Spese generali</h1><p class="nick">Non legate a una cucciolata</p>
+  <div class="ac-sec in"><h3>Entrate <button class="btn ghost small" data-a="acInc" data-v="gen|">＋ Altra entrata (Altro)</button></h3>${acInRows(GI,"gen")||'<div class="ac-r e"><span></span><span>Nessuna entrata.</span><span></span></div>'}<div class="ac-tot"><span>Totale entrate</span><span class="ac-pos">${eur(acOut(GI))}</span></div></div>
   <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="gen|">＋ Aggiungi spesa</button></h3>${acRows(G,"gen")}<div class="ac-tot"><span>Totale</span><span class="ac-neg">${eur(acOut(G))}</span></div></div>${acBars(G)}`}
 function acPriceForm(v){const [lid,k]=v.split("|"),P=(D.litters[lid].acc||{}).prices||{},d=D.dogs[k];
   sheet(`<h2 style="margin-top:0">💶 Prezzo di ${esc(d.nick||d.name)}</h2><div class="form"><label class="f full">Prezzo (€)<input id="acp" inputmode="decimal" value="${P[k]!=null?esc(String(P[k]).replace(".",",")):""}" placeholder="es. 1.400"></label></div>
@@ -4740,7 +4757,7 @@ document.addEventListener("click",e=>{
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
     case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;
-    case "acExp":acExpForm(v);break;case "acExpSave":acExpSave(v);break;case "acExpDel":acExpDel(v);break;
+    case "acExp":acExpForm(v);break;case "acExpSave":acExpSave(v);break;case "acExpDel":acExpDel(v);break;case "acInc":acIncForm(v);break;case "acIncSave":acIncSave(v);break;case "acIncDel":acIncDel(v);break;
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;
     case "wlSt":{const [id,k]=v.split("|"),x=D.waitlist.find(w=>w.id===id);x.status=k;typeof saveNow==="function"&&saveNow();wlForm(id);render();break}

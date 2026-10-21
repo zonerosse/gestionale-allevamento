@@ -1461,3 +1461,20 @@ Accessi e copie
 - Statistiche (`stLit`): senza schede dei cuccioli né bornM/bornF usa `bornTot` (colonna M/F «–»).
 - File del 21/10/2026: 11 denunce (2017–2026). La 3298354 (Bilquis × Little Thunder, 01/08/2026, 0 iscritti, anomalia S) non è una
   cucciolata a sé: è salvata in `other` della cucciolata Billy × Black Jack.
+- (21/10/2026) Statistiche: gestazione (monta → nascita: `l.mating` o `l.enci.mating`, se no l'ultima monta di «Calori e monte» entro
+  75 giorni) media/min/max, per cucciolata, per fattrice e per stallone; LOI sotto il nome di fattrici e stalloni; nati/iscritti;
+  maschi/femmine con le percentuali (solo cucciolate con il sesso noto).
+
+## Deposito biologico DNA (21/10/2026, regola di Paolo)
+- Stallone estero → deposito biologico DNA obbligatorio (sangue o tampone buccale, da chiedere al proprietario del maschio);
+  cucciolo che va all'estero → deposito prima della partenza. Scritto anche in ⚙️ Account → Regole di allevamento.
+- `d.dnaDep={date,type:"sangue"|"buccale"}` (Modifica → Colore, LOI e microchip, o `dnaForm`); `d.foreign` true/false = libro
+  genealogico estero/italiano, se manca decide il LOI (`dogForeign`: non inizia per LO/ROI/RSR/LIR). Famiglia straniera = `ownForeign`
+  (lang en o paese non Italia).
+- Allarmi: Accoppiamenti (avviso rosso + riga «bad» in `enciCheck`), `dnaWarn` dopo Salva del cane e dopo «Assegna un cucciolo» se è
+  prenotato da una famiglia straniera, Scadenze `src:"dna"` (nascita + 55, «Segna il deposito fatto», Sposta, Non serve → `scSkip.dna`).
+- Modello A: senza scelta la casella barrata è «Non è Socio ENCI» (scelta B di Paolo, 21/10/2026).
+
+## Conti: entrate «Altro» (21/10/2026)
+- Cucciolata: `l.acc.inc=[{id,date,amt,txt,cat:"Altro"}]`, sommate in `acIn`; Spese generali: entrate in `D.accGen` con `in:true`
+  (`acGI`/`acGO`; il server salva già `accGen`, anche per Daniela). Tasto «＋ Altra entrata (Altro)», «cosa» obbligatorio.
