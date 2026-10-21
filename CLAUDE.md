@@ -1455,6 +1455,9 @@ Accessi e copie
   entra come cane esterno con LOI e «Proprietario: …» nelle note. Cucciolata con la stessa madre nata entro 5 giorni → completa solo
   i campi vuoti; se no la crea «nata». Campi nuovi della cucciolata: `mating`, `enciDen` (n. denuncia), `bornTot` (nati), `iscritti`.
   Aggiunge anche la monta in «Calori e monte» delle fattrici attuali. Chiede conferma con l'elenco; non cancella niente.
+- Tutta la riga ENCI resta in `l.enci` = {den,born,mating,breed,dam:{name,loi,owner,ripSel},sire:{…},tot,isc,anom,other:[…]} e si legge
+  nella Scheda della cucciolata → Archivio → «Denuncia ENCI n. …» (`enciDenHtml`). `other` = altre denunce per la stessa nascita.
+  Se il LOI di un cane nel gestionale è diverso da quello ENCI, la conferma lo dice (non lo cambia).
 - Statistiche (`stLit`): senza schede dei cuccioli né bornM/bornF usa `bornTot` (colonna M/F «–»).
-- File del 21/10/2026: 11 denunce (2017–2026). Saltata la 3298354 (Bilquis × Little Thunder, 01/08/2026, 0 iscritti, anomalia S):
-  sembra un doppione della 3297699 (Bilquis × Black Jack).
+- File del 21/10/2026: 11 denunce (2017–2026). La 3298354 (Bilquis × Little Thunder, 01/08/2026, 0 iscritti, anomalia S) non è una
+  cucciolata a sé: è salvata in `other` della cucciolata Billy × Black Jack.

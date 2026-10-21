@@ -4083,8 +4083,9 @@ function importCucENCI(L){const nn=x=>String(x||"").toLowerCase().normalize("NFD
   const plan=L.slice().sort((a,b)=>a.born.localeCompare(b.born)).map(x=>{const dam=find(x.dam),sire=find(x.sire);
     const lid=dam&&Object.keys(D.litters).find(k=>{const l=D.litters[k];return l.dam===dam&&l.date&&Math.abs((new Date(l.date+"T12:00")-new Date(x.born+"T12:00"))/864e5)<=5});return{x,dam,sire,lid}});
   const nd=plan.filter(p=>!p.dam);if(nd.length){alert("Non trovo queste fattrici nel gestionale:\n"+nd.map(p=>p.x.dam.name).join("\n")+"\n\nNon ho cambiato niente.");return}
+  const lw=[];plan.forEach(p=>{[["dam",p.dam],["sire",p.sire]].forEach(([r,k])=>{const v=p.x[r].loi,o=k&&D.dogs[k].loi;if(v&&o&&loi(v)!==loi(o)&&!lw.some(z=>z.includes(D.dogs[k].name)))lw.push("⚠️ "+D.dogs[k].name+": nel gestionale LOI "+o+", per l'ENCI "+v+" (non lo cambio)")})});
   const txt=plan.map(p=>(p.lid?"✓ c'è già, completo: ":"+ nuova: ")+fmt(p.x.born)+" · "+(D.dogs[p.dam].nick||D.dogs[p.dam].name)+" × "+(p.sire?(D.dogs[p.sire].nick||D.dogs[p.sire].name):p.x.sire.name+" (nuovo cane esterno)")+" · "+p.x.tot+" nati").join("\n");
-  if(!confirm("Cucciolate dalla lista ENCI ("+plan.length+"):\n\n"+txt+"\n\nProcedo?"))return;
+  if(!confirm("Cucciolate dalla lista ENCI ("+plan.length+"):\n\n"+txt+(lw.length?"\n\n"+lw.join("\n"):"")+"\n\nProcedo?"))return;
   let nNew=0,nUpd=0,nDog=0;
   plan.forEach(p=>{const x=p.x;let s=p.sire||find(x.sire);
     if(!s){s=newId("d");D.dogs[s]={name:x.sire.name,sex:"M",ext:true,loi:x.sire.loi||"",notes:x.sire.owner?"Proprietario: "+x.sire.owner:""};nDog++}
@@ -4093,6 +4094,7 @@ function importCucENCI(L){const nn=x=>String(x||"").toLowerCase().normalize("NFD
     let l;if(p.lid){l=D.litters[p.lid];nUpd++}else{const id=newId("l");l=D.litters[id]={dam:p.dam,sire:s,date:x.born,state:"nata",notes:""};nNew++}
     if(!l.sire)l.sire=s;if(!l.date)l.date=x.born;l.state="nata";if(!l.mating&&x.mating)l.mating=x.mating;if(!l.enciDen)l.enciDen=x.den;
     if(l.bornTot==null&&x.tot!=null)l.bornTot=x.tot;if(l.iscritti==null&&x.isc!=null)l.iscritti=x.isc;
+    l.enci=Object.assign({},x,l.enci||{});if(x.other&&x.other.length){const o=l.enci.other||[];x.other.forEach(y=>{if(!o.some(z=>z.den===y.den))o.push(y)});l.enci.other=o}
     const dm=D.dogs[p.dam];if(x.mating&&isFattrice(p.dam)){dm.repro=dm.repro||[];if(!dm.repro.some(r=>r.t==="mating"&&r.date===x.mating))dm.repro.push({t:"mating",date:x.mating,sire:s})}});
   resetCalc();render();saveNow();alert("Fatto: "+nNew+" cucciolate nuove, "+nUpd+" completate"+(nDog?", "+nDog+" stalloni aggiunti come cani esterni":"")+". Le trovi in Cucciolate, in ordine di nascita.")}
 function importNascite(L){const nn=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/\s+/).filter(Boolean).sort().join(" ");
@@ -4437,9 +4439,17 @@ function litPhases(lid){const l=D.litters[lid],P=litPups(lid),td=todayS(),nata=l
   const S=l.site||{},on=!!(l.web||S.home||S.prog||S.diar);ph.push({k:"sito",ic:"web",t:"Sito",sub:"Pagina Cuccioli · Programma · Diario · Novità in Home",off:on?"":"spento",items:[],html:cuBox(lid)});
   // 6. Archivio
   ph.push({k:"arc",ic:"arc",t:"Archivio",sub:"Documenti della cucciolata · Google Drive · link SBTpedigree · note",items:(l.docs||[]).length?[{t:"Documenti della cucciolata: "+l.docs.length,todo:false}]:[],off:"",
-    html:`${ldHtml(lid)}${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small>${l.sbtUrl?' <span class="ok-v">✓</span>':""}</label>
+    html:`${enciDenHtml(lid)}${ldHtml(lid)}${l.notes?`<div class="note" style="margin:0 0 8px">${esc(l.notes)}</div>`:""}<div class="sbtrow"><label class="row-meta" for="litSbt">Link della cucciolata su SBTpedigree <small>(compare nella pagina dei proprietari)</small>${l.sbtUrl?' <span class="ok-v">✓</span>':""}</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="litSbt" value="${esc(l.sbtUrl||"")}" placeholder="https://sbtpedigree.com/…" style="flex:1;min-width:200px;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px"><button class="btn ghost small" data-a="litSbt" data-v="${lid}">Salva link</button>${l.sbtUrl?`<a class="btn ghost small" href="${esc(l.sbtUrl)}" target="_blank" rel="noopener">Apri ↗</a>`:""}</div></div>${drBox(lid)}`});
   return ph}
+/* Dati della «Lista denunce» ENCI salvati con importCucENCI (21/10/2026): tutto quello che c'è scritto, da leggere. */
+function enciDenHtml(lid){const l=D.litters[lid],e=l&&l.enci;if(!e)return"";const sn=v=>v==="S"?"Sì":v==="N"?"No":(v||"–");
+  const r=(t,v)=>`<div style="display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);gap:8px;padding:4px 0;border-top:1px solid var(--line);font-size:14px"><span class="row-meta">${t}</span><b style="overflow-wrap:anywhere">${esc(String(v==null||v===""?"–":v))}</b></div>`;
+  const dg=(t,x)=>x?`<div style="margin:6px 0 2px;font-weight:600">${t}</div>${r("Nome",x.name)}${r("LOI",x.loi)}${x.owner?r("Proprietario",x.owner):""}${r("Riproduttore selezionato",sn(x.ripSel))}`:"";
+  return`<div class="card" style="padding:10px 12px;margin:0 0 10px"><div style="font-weight:700;margin-bottom:4px">Denuncia ENCI${e.den?" n. "+esc(e.den):""}</div>
+  ${r("Data di nascita",fmt(e.born))}${r("Data della monta",fmt(e.mating))}${r("Razza",e.breed)}${dg("Fattrice",e.dam)}${dg("Stallone",e.sire)}
+  ${r("Totale nati",e.tot)}${r("Totale iscritti",e.isc)}${r("Anomalie",sn(e.anom))}
+  ${(e.other||[]).map(o=>`<div class="note" style="margin-top:8px">Nella lista ENCI c'è anche la denuncia n. ${esc(o.den)} per questa nascita: stallone ${esc(o.sire.name)} (${esc(o.sire.loi||"")}, prop. ${esc(o.sire.owner||"")}), monta ${fmt(o.mating)}, nati ${o.tot}, iscritti ${o.isc}, anomalie ${sn(o.anom)}. Non è stata registrata come cucciolata.</div>`).join("")}</div>`}
 function litterSheet(lid){CK_LIT=lid;const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
   const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).sort((x,y)=>D.dogs[x].name.localeCompare(D.dogs[y].name));
   const w=s&&dm?coi8(s,dm)*100:NaN,cov=s&&dm?coverage(s,dm):{known:0,tot:0};
