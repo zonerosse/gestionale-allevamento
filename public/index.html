@@ -4147,7 +4147,7 @@ function importCucENCI(L){const nn=x=>String(x||"").toLowerCase().normalize("NFD
     if(x.dam.loi&&!D.dogs[p.dam].loi)D.dogs[p.dam].loi=x.dam.loi;
     let l;if(p.lid){l=D.litters[p.lid];nUpd++}else{const id=newId("l");l=D.litters[id]={dam:p.dam,sire:s,date:x.born,state:"nata",notes:""};nNew++}
     if(!l.sire)l.sire=s;if(!l.date)l.date=x.born;l.state="nata";if(!l.mating&&x.mating)l.mating=x.mating;if(!l.enciDen)l.enciDen=x.den;
-    if(l.bornTot==null&&x.tot!=null)l.bornTot=x.tot;if(l.iscritti==null&&x.isc!=null)l.iscritti=x.isc;
+    if(l.bornTot==null&&x.tot!=null)l.bornTot=x.tot;if(l.bornM==null&&l.bornF==null&&x.m!=null&&x.f!=null){l.bornM=x.m;l.bornF=x.f}if(l.iscritti==null&&x.isc!=null)l.iscritti=x.isc;
     l.enci=Object.assign({},x,l.enci||{});if(x.other&&x.other.length){const o=l.enci.other||[];x.other.forEach(y=>{if(!o.some(z=>z.den===y.den))o.push(y)});l.enci.other=o}
     const dm=D.dogs[p.dam];if(x.mating&&isFattrice(p.dam)){dm.repro=dm.repro||[];if(!dm.repro.some(r=>r.t==="mating"&&r.date===x.mating))dm.repro.push({t:"mating",date:x.mating,sire:s})}});
   resetCalc();render();saveNow();alert("Fatto: "+nNew+" cucciolate nuove, "+nUpd+" completate"+(nDog?", "+nDog+" stalloni aggiunti come cani esterni":"")+". Le trovi in Cucciolate, in ordine di nascita.")}
