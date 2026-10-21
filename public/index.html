@@ -1679,6 +1679,23 @@ function reproHtml(id){const d=D.dogs[id];if(!isFattrice(d))return"";const s=rep
 let EN_AGE=18,EN_GAP=180;   /* si possono cambiare in ⚙️ Account (settings.rules, acRules) */
 const addM=(s,m)=>{const x=new Date(s+"T12:00:00");x.setMonth(x.getMonth()+m);return x.toISOString().slice(0,10)};
 function enciLits(dam,before){return Object.values(D.litters).filter(l=>l.dam===dam&&l.state==="nata"&&l.date&&(!before||l.date<before)).map(l=>l.date).sort()}
+/* Deposito biologico DNA all'ENCI (21/10/2026, regola di Paolo): obbligatorio se lo stallone è estero (campione di sangue o tampone
+   buccale da chiedere al proprietario del maschio) e per ogni cucciolo che va all'estero. d.dnaDep={date,type:"sangue"|"buccale"}.
+   Cane estero: d.foreign===true, oppure (se non è segnato «italiano», foreign===false) LOI che non inizia per LO/ROI/RSR. */
+function dogForeign(k){const d=D.dogs[k];if(!d)return false;if(d.foreign===true)return true;if(d.foreign===false)return false;const l=String(d.loi||"").toUpperCase().replace(/[^A-Z0-9]/g,"");return !!l&&!/^(LO|ROI|RSR|LIR)/.test(l)}
+function ownForeign(o){return !!o&&(o.lang==="en"||(!!o.country&&!/^ital/i.test(String(o.country).trim())))}
+function dnaOk(k){const d=D.dogs[k];return !!(d&&d.dnaDep&&d.dnaDep.date)}
+function pupAbroad(k){const d=D.dogs[k];return !!(d&&!d.ext&&d.owner&&ownForeign(D.owners[d.owner])&&d.status!=="deceduto")}
+const DNA_TY={sangue:"campione di sangue",buccale:"tampone buccale"};
+function dnaForm(k){const d=D.dogs[k];if(!d)return;const x=d.dnaDep||{};
+  sheet(`<h2 style="margin-top:0">Deposito biologico DNA · ${esc(d.nick||d.name)}</h2><p class="row-meta">Il campione depositato all'ENCI (esame parentale). ${dogForeign(k)?"Stallone estero: va chiesto al suo proprietario.":pupAbroad(k)?"Il cucciolo va all'estero: serve prima della partenza.":""}</p>
+  <div class="form"><label class="f">Data del deposito<input type="date" id="dna_dt" value="${esc(x.date||"")}"></label><label class="f">Campione<select id="dna_ty"><option value="sangue"${x.type==="sangue"?" selected":""}>Sangue</option><option value="buccale"${x.type==="buccale"?" selected":""}>Tampone buccale</option></select></label></div>
+  <div class="actions"><button class="btn" data-a="dnaSave" data-v="${k}">Salva</button>${x.date?`<button class="btn ghost" data-a="dnaDel" data-v="${k}">Togli</button>`:""}<button class="btn ghost" data-a="close">Annulla</button></div>`)}
+function dnaSave(k){const d=D.dogs[k],dt=$("#dna_dt").value;if(!dt){$("#dna_dt").focus();return}d.dnaDep={date:dt,type:$("#dna_ty").value};closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Deposito biologico segnato.")}
+/* Allarme quando un cucciolo è prenotato da una famiglia straniera e non ha il deposito biologico. */
+function dnaWarn(k){const d=D.dogs[k];if(!d||d.status!=="prenotato"||!pupAbroad(k)||dnaOk(k))return;const o=D.owners[d.owner]||{};
+  sheet(`<div class="dcta red">${dIc("alert")}<div style="flex:1;min-width:0"><p class="dcta-t" style="margin:0">${esc(d.nick||d.name)} va all'estero: serve il deposito biologico DNA</p><p class="pcta-s">Prenotato da ${esc(o.name||"")}${o.country?" ("+esc(o.country)+")":""}. Per l'ENCI il cucciolo che va all'estero deve avere il deposito biologico (sangue o tampone buccale) prima della partenza.</p></div></div>
+  <div class="actions"><button class="btn" data-a="dnaForm" data-v="${k}">Segna il deposito fatto</button><button class="btn ghost" data-a="close">Ok, lo faccio</button></div>`)}
 function enciCheck(dam,sire,mate){const d=D.dogs[dam],s=sire&&D.dogs[sire],parto=addD(mate,63),R=[],add=(lvl,t,x)=>R.push({lvl,t,s:x||""});if(!d)return R;
   if(d.birth){const m16=addM(d.birth,16),m18=addM(d.birth,EN_AGE),y=dDiff(parto,d.birth)/365.25,mo=Math.floor(dDiff(parto,d.birth)/30.44);
     const age=mo<24?mo+" mesi":Math.floor(y)+" anni"+(mo%12?" e "+(mo%12)+" mesi":"");
@@ -1696,7 +1713,9 @@ function enciCheck(dam,sire,mate){const d=D.dogs[dam],s=sire&&D.dogs[sire],parto
   const n=L.length;if(n>=5)add("warn","Cucciolate fatte: "+n+" · questa sarebbe la "+(n+1)+"ª","serve il certificato veterinario di idoneità prima della monta; il codice etico ENCI consiglia al massimo 5 cucciolate nella vita");
   else if(L.length)add("ok","Cucciolate fatte: "+n+" · questa sarebbe la "+(n+1)+"ª","certificato veterinario dalla 6ª; il codice etico consiglia al massimo 5");
   if(s){const rel=enciRel(dam,sire);
-    if(rel)add("bad","Parentela vietata: "+rel,"dal 2023 i cuccioli non sono iscrivibili al Libro genealogico");else add("ok","Nessuna parentela vietata","non sono genitore/figlio, fratelli o mezzi fratelli")}
+    if(rel)add("bad","Parentela vietata: "+rel,"dal 2023 i cuccioli non sono iscrivibili al Libro genealogico");else add("ok","Nessuna parentela vietata","non sono genitore/figlio, fratelli o mezzi fratelli");
+    if(dogForeign(sire)){const x=s.dnaDep;if(x&&x.date)add("ok","Stallone estero: deposito biologico DNA fatto","il "+fmt(x.date)+(x.type?" · "+DNA_TY[x.type]:""));
+      else add("bad","Stallone estero: manca il deposito biologico DNA","obbligatorio: chiedi al proprietario dello stallone un campione di sangue o un tampone buccale per il deposito all'ENCI, prima della monta")}}
   const H=(d.repro||[]).filter(x=>x.t==="heat"&&x.date<=mate),eta=d.birth?dDiff(mate,d.birth):0;
   /* il consiglio del 2° calore vale solo per la prima cucciolata di una femmina giovane: se ha già figliato o ha almeno 2 anni
      alla monta, i due calori li ha già avuti di sicuro (correzione chiesta da Paolo, 04/10/2026) */
@@ -1927,6 +1946,8 @@ function dogFacts(d,id,st,own){
     ${L("Allevatore",sel("ef_bred",[["me","Io – "+BREEDER_ME_F()],["other","Un altro allevatore"]],d.bred?"me":"other")+`<input id="ef_breeder" placeholder="Nome dell'allevatore" value="${esc(d.breeder||"")}" style="margin-top:6px;${d.bred?"display:none":""}">`)}
     ${EG("id","Colore, LOI e microchip",[d.color,d.loi,d.chip].filter(Boolean).map(esc).join(" · ")||"da inserire")}
     ${L("Colore",`<input id="ef_color" value="${esc(d.color||"")}">`)}${L("LOI",`<input id="ef_loi" value="${esc(d.loi||"")}">`)}${L("Microchip",`<input id="ef_chip" inputmode="numeric" value="${esc(d.chip||"")}">`)}
+    ${L("Libro genealogico",sel("ef_foreign",[["","Dal LOI (automatico: "+((l=>l&&!/^(LO|ROI|RSR|LIR)/.test(l))(String(d.loi||"").toUpperCase().replace(/[^A-Z0-9]/g,""))?"estero":"italiano")+")"],["it","Italiano (ENCI)"],["est","Estero"]],d.foreign===true?"est":d.foreign===false?"it":""))}
+    ${L("Deposito biologico DNA (ENCI)",`<input type="date" id="ef_dna" value="${esc((d.dnaDep||{}).date||"")}">`+sel("ef_dnaty",[["sangue","Sangue"],["buccale","Tampone buccale"]],(d.dnaDep||{}).type||"sangue"))}
     ${EG("gen","Genitori e COI",(d.sire||d.dam)?esc(dn(d.sire)||"?")+" × "+esc(dn(d.dam)||"?"):"da inserire")}
     <div class="f"><span>Padre</span>${combo("ef_sire","M",d.sire)}</div><div class="f"><span>Madre</span>${combo("ef_dam","F",d.dam)}</div>
     ${L("COI 8 generazioni SBT (%)",`<input id="ef_coi" inputmode="decimal" placeholder="es. 6,924" value="${esc(d.coiSbt||"")}">`)}
@@ -1962,8 +1983,9 @@ function editSave(id){const d=D.dogs[id],v=k=>($("#"+k)||{value:""}).value.trim(
   Object.assign(d,{name,nick:v("ef_nick"),sex:v("ef_sex"),birth:v("ef_birth"),color:v("ef_color"),loi:v("ef_loi"),chip:v("ef_chip"),sire,dam,
     ext:stv==="ext",status:stv==="ext"?"":stv,bred:v("ef_bred")==="me",breeder:v("ef_bred")==="me"?"":v("ef_breeder"),owner:own,coiSbt:v("ef_coi").replace("%",""),
     sbt:((v("ef_sbt").match(/dogs_id=(\d+)/)||v("ef_sbt").match(/^(\d+)$/)||[])[1])||"",tests:v("ef_tests"),titles:v("ef_titles"),notes:v("ef_notes")});
+  {const fo=v("ef_foreign");if(fo==="est")d.foreign=true;else if(fo==="it")d.foreign=false;else delete d.foreign;const dn=v("ef_dna");if(dn)d.dnaDep={date:dn,type:v("ef_dnaty")||"sangue"};else delete d.dnaDep}
   if(EF_PHOTO!==null)d.photo=EF_PHOTO;EF_PHOTO=null;
-  EDIT=null;EDIRTY=false;resetCalc();render();toast("Dati salvati.")}
+  EDIT=null;EDIRTY=false;resetCalc();render();toast("Dati salvati.");dnaWarn(id)}
 
 /* ---------- Modifica diretta di un campo ---------- */
 const PEN='<svg class="pen" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
@@ -2494,7 +2516,7 @@ async function maBuild(lid){const L=await pdflib(),l=D.litters[lid],ma=Object.as
   const dd=l.date||"";put(0,p.ng,dd.slice(8,10));put(0,p.nm,dd.slice(5,7));put(0,p.na,dd.slice(2,4));
   if(P.length){put(0,p.tot,String(P.length+(+l.dead||0)));put(0,p.mv,String(P.filter(d=>d.sex==="M"&&d.status!=="deceduto").length));put(0,p.fv,String(P.filter(d=>d.sex==="F"&&d.status!=="deceduto").length));put(0,p.dec,String(P.filter(d=>d.status==="deceduto").length+(+l.dead||0)))}
   put(0,p.cp,PA.name);put(0,p.cpcf,PA.cf);put(0,p.cpcell,PA.cell);put(0,p.cpem,PA.em);put(0,p.cpvia,PA.via);put(0,p.cpn,PA.n);put(0,p.cpcap,PA.cap);put(0,p.cpcity,PA.city);put(0,p.deleg,ma.deleg||MA_TO.deleg);
-  if(mine){const st=["socio_enci","socio_gc","socio_ass_spec","socio_no"].indexOf(mb.status||"");if(st>=0)X(1,q.st[st]);X(1,q.c1[0]);X(1,q.c2[0]);X(1,q.c3[1]);put(1,q.data,fmt(ma.date||todayS()))}
+  if(mine){const st=["socio_enci","socio_gc","socio_ass_spec","socio_no"].indexOf(mb.status||"socio_no");if(st>=0)X(1,q.st[st]);X(1,q.c1[0]);X(1,q.c2[0]);X(1,q.c3[1]);put(1,q.data,fmt(ma.date||todayS()))}
   try{const sig=(D.settings||{}).sellerSig;if(sig&&mine){const u=await toDataURL(sig),img=u.startsWith("data:image/png")?await doc.embedPng(u):await doc.embedJpg(u),sc=img.scale(1);
     const at=(pg,x,y,w,h)=>{const k=Math.min(w/sc.width,h/sc.height);pages[pg].drawImage(img,{x,y,width:sc.width*k,height:sc.height*k})};at(0,90,45,150,22);at(1,330,483,150,13)}}catch(e){console.warn("firma",e)}
   return new Blob([await doc.save()],{type:"application/pdf"})}
@@ -2778,14 +2800,14 @@ function stAllevPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';con
   const gest=l=>{if(!l.date)return null;let m=l.mating||(l.enci&&l.enci.mating);if(!m){const R=((D.dogs[l.dam]||{}).repro||[]).filter(r=>r.t==="mating"&&r.date&&r.date<l.date).map(r=>r.date).sort();m=R.pop()}
     if(!m)return null;const g=Math.round((new Date(l.date+"T12:00")-new Date(m+"T12:00"))/864e5);return g>=50&&g<=75?{m,g}:null};
   const G=S.map(x=>gest(x[1])).filter(Boolean),gv=G.map(x=>x.g),gAvg=gv.length?(gv.reduce((a,b)=>a+b,0)/gv.length):null,f1=v=>v.toFixed(1).replace(".",",");
-  const MF=K.some(x=>!x[2].tot);
+  const KS=K.filter(x=>!x[2].tot&&(x[2].m+x[2].f)>0),MF=K.some(x=>!x[2].tot);
   const isc=l=>l.iscritti!=null?l.iscritti:(l.enci&&l.enci.isc!=null?l.enci.isc:null),loiOf=k=>(D.dogs[k]&&D.dogs[k].loi)||"–";
   const gStat=key=>{const R={};S.forEach(([k,l])=>{const x=gest(l);if(!x||!l[key])return;(R[l[key]]=R[l[key]]||[]).push(x.g)});return R};
   const grp=key=>{const G={};S.forEach(([k,l,s])=>{const g=l[key];if(!g)return;G[g]=G[g]||{c:0,n:0,known:0};G[g].c++;if(s){G[g].n+=s.n;G[g].known++}});return Object.entries(G).sort((a,b)=>b[1].c-a[1].c||nk(a[0]).localeCompare(nk(b[0])))};
   const row=(cells,cls)=>`<tr${cls?` class="${cls}"`:""}>${cells.map((c,i)=>`<td${i>1?' class="n"':""}>${c}</td>`).join("")}</tr>`;
   const bred=Object.entries(D.dogs).filter(([,d])=>d.bred&&!d.ext&&(d.titles||(d.shows||[]).length)).sort((a,b)=>(b[1].titles||"").length-(a[1].titles||"").length);
   return `<h1 style="margin-bottom:4px">Statistiche</h1><p class="lead" style="margin-top:0">Le cucciolate nate e i cani che hai allevato, dai dati del gestionale.</p>
-  <div class="st-kpi"><div><small>Cucciolate nate</small><b>${S.length}</b></div><div><small>Cuccioli</small><b>${N}</b>${K.length<S.length?`<small>${S.length-K.length} cucciolat${S.length-K.length===1?"a":"e"} da completare</small>`:""}</div><div><small>Media per cucciolata</small><b>${avg}</b></div><div><small>Maschi / femmine</small><b>${M} / ${F}</b></div><div><small>Gestazione media</small><b>${gAvg!=null?f1(gAvg)+" giorni":"–"}</b>${gv.length?`<small>da ${Math.min(...gv)} a ${Math.max(...gv)} giorni · ${gv.length} cucciolat${gv.length===1?"a":"e"}</small>`:""}</div></div>
+  <div class="st-kpi"><div><small>Cucciolate nate</small><b>${S.length}</b></div><div><small>Cuccioli</small><b>${N}</b>${K.length<S.length?`<small>${S.length-K.length} cucciolat${S.length-K.length===1?"a":"e"} da completare</small>`:""}</div><div><small>Media per cucciolata</small><b>${avg}</b></div><div><small>Maschi / femmine</small><b>${M} / ${F}</b>${M+F?`<small>${Math.round(M*100/(M+F))}% maschi · ${Math.round(F*100/(M+F))}% femmine · su ${KS.length} cucciolat${KS.length===1?"a":"e"} con il sesso</small>`:`<small>scrivi maschi e femmine nelle cucciolate</small>`}</div><div><small>Gestazione media</small><b>${gAvg!=null?f1(gAvg)+" giorni":"–"}</b>${gv.length?`<small>da ${Math.min(...gv)} a ${Math.max(...gv)} giorni · ${gv.length} cucciolat${gv.length===1?"a":"e"}</small>`:""}</div></div>
   <h2>Cucciolate</h2><div class="st-t"><table><tr><th>Nata il</th><th>Madre × padre</th><th>Nati / iscritti</th>${MF?"<th>M / F</th>":""}</tr>
   ${S.map(([k,l,s])=>{const x=gest(l),i=isc(l);return row([fmt(l.date)+(x?`<small class="st-sm">monta ${fmt(x.m)}<br>${x.g} giorni</small>`:""),esc(nk(l.dam))+" × "+esc(nk(l.sire)),(s?s.n+(s.man?` <button class="plink" data-a="stBorn" data-v="${k}">✎</button>`:""):`<button class="btn ghost small" data-a="stBorn" data-v="${k}">Scrivi quanti</button>`)+(i!=null?" / "+i:"")].concat(MF?[s&&!s.tot?s.m+" / "+s.f:"–"]:[]))}).join("")}</table></div>
   ${(()=>{const GD=gStat("dam"),GS=gStat("sire"),ga=v=>v&&v.length?f1(v.reduce((a,b)=>a+b,0)/v.length):"–";
@@ -3549,6 +3571,7 @@ function scEvents(){const ev=[],td=todayS(),add=(e)=>ev.push(e);
         why+=" ("+fmt(last.date)+(last.prod?" · "+last.prod.split(" (")[0].split(" –")[0]:"")+")";
         if(MV[sk+"s"]&&MV[sk+"s"].from===due){due=MV[sk+"s"].date;why+=" · spostata"}
         if(!scDone(LL,due))add({id:id+sk.replace(":","_")+"s",src:"sug",k,sk,kind:kd,days:n,dog:id,nm,cat:"h",ico:SC_K[k][0],date:due,t,s:why,sug:true,last})}}}
+    if(!SK.dna&&d.bred&&pupAbroad(id)&&!dnaOk(id)&&d.birth&&dDiff(td,d.birth)<730){const o=D.owners[d.owner]||{};add({id:id+"dna",src:"dna",dog:id,nm,cat:"p",ico:"🧬",date:MV.dna&&MV.dna.date?MV.dna.date:addD(d.birth,55),t:"Deposito biologico DNA (va all'estero)",s:"famiglia "+(o.name||"")+(o.country?" · "+o.country:"")+" · sangue o tampone buccale, prima della partenza"})}
     if(pup&&!SK.m3){let m3=addD(d.birth,91);const V=(h.vacc||[]);if(MV.m3&&MV.m3.date)m3=MV.m3.date;if(!V.some(v=>v.date&&dDiff(v.date,d.birth)>=70))add({id:id+"m3",src:"pup",k:"vacc",dog:id,nm,cat:"p",ico:"🐶",date:m3,t:"Richiamo del vaccino (3 mesi)",s:"cucciolo ancora da te"})}
     (d.todo||[]).forEach(x=>add({id:id+"td"+x.id,src:x.k==="memo"?"memo":"todo",k:x.k,ref:x.id,dog:id,nm,cat:x.k==="memo"?"m":"h",ico:x.k==="memo"?"📝":SC_K[x.k][0],date:x.date,t:x.k==="memo"?(x.text||"Promemoria"):SC_K[x.k][1],s:x.k==="memo"?"promemoria":(x.text||"in programma"),memo:x.k==="memo"}));
     if(isFattrice(d)){const s=reproState(id);
@@ -3579,11 +3602,12 @@ function scAct(id){const e=scFind(id);if(!e)return;const health=e.k&&SC_K[e.k],o
   ${e.src==="memo"?B("scDel","✔ Fatto (lo toglie)","sc-ok"):""}
   ${e.src==="enci"&&e.f==="enciB"?`<button class="btn mb-go2" data-a="mbForm" data-v="${e.ref}">📄 Prepara il Modello B</button>`:""}
   ${e.src==="enci"?B("scEnci","✔ Fatto: consegnato oggi","sc-ok"):""}
+  ${e.src==="dna"?`<button class="btn sc-ok" data-a="dnaForm" data-v="${e.dog}">🧬 Segna il deposito fatto</button>`:""}
   ${e.src==="bk"?`<button class="btn sc-ok" data-a="bkNow">✔ Fatto: scaricala adesso</button>`:""}
   ${e.src==="rev"?`<button class="btn sc-ok" data-a="litterSheet" data-v="${e.ref}">⭐ Apri la Scheda della cucciolata (Link ai proprietari)</button>`+B("scRevDone","✔ Fatto: le ho già chieste"):""}
   ${e.src==="show"?`<button class="btn sc-ok" data-a="shForm" data-v="${e.dog}|${e.ref}">🏅 Inserisci il risultato</button>`:""}
   ${e.src!=="repro"&&e.src!=="enci"&&e.src!=="bk"&&e.src!=="rev"?B("scMoveF","📅 Sposta la data"):""}
-  ${e.src==="sug"?B("scSkip","✕ Non serve (non la suggerisce più per "+esc(e.nm)+")","sc-r"):e.src==="pup"?B("scSkip","✕ Non serve","sc-r"):["fut","next","todo","memo","show"].includes(e.src)?B("scDel","🗑 Elimina","sc-r"):""}
+  ${e.src==="sug"?B("scSkip","✕ Non serve (non la suggerisce più per "+esc(e.nm)+")","sc-r"):e.src==="pup"||e.src==="dna"?B("scSkip","✕ Non serve","sc-r"):["fut","next","todo","memo","show"].includes(e.src)?B("scDel","🗑 Elimina","sc-r"):""}
   ${e.src==="repro"?`<p class="small">Il calore e il parto previsti si calcolano dal riquadro "Calori e monte": cambiali da lì.</p>`:""}
   ${one?`<button class="btn ghost" data-a="open" data-v="${e.dog}">Apri la scheda di ${esc(e.nm)}</button>`:""}
   <button class="btn ghost" data-a="close">Annulla</button></div>`)}
@@ -3598,10 +3622,11 @@ function scMove(id){const e=scFind(id),nd=$("#scmd").value;if(!e||!nd)return;
     if(e.src==="fut")d.health[e.k][m.ref].date=nd;else if(e.src==="next")d.health[e.k][m.ref].next=nd;
     else if(e.src==="sug"){d.scMove=d.scMove||{};d.scMove[e.sk+"s"]={from:addD(e.last.date,e.days),date:nd}}
     else if(e.src==="pup"){d.scMove=d.scMove||{};d.scMove.m3={date:nd}}
+    else if(e.src==="dna"){d.scMove=d.scMove||{};d.scMove.dna={date:nd}}
     else if(e.src==="show"){const s=(d.shows||[]).find(x=>x.id===m.ref);if(s){s.date=nd;s.inSite=false}}
     else if(e.src==="todo"||e.src==="memo"){const L=d?d.todo:D.settings.todo;const x=(L||[]).find(x=>x.id===m.ref);if(x)x.date=nd}});
   closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Data spostata.")}
-function scSkip(id){const e=scFind(id);if(!e)return;e.members.forEach(m=>{const d=D.dogs[m.dog];d.scSkip=d.scSkip||{};d.scSkip[e.src==="pup"?"m3":e.sk]=true});closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Non la suggerisco più.")}
+function scSkip(id){const e=scFind(id);if(!e)return;e.members.forEach(m=>{const d=D.dogs[m.dog];d.scSkip=d.scSkip||{};d.scSkip[e.src==="pup"?"m3":e.src==="dna"?"dna":e.sk]=true});closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Non la suggerisco più.")}
 function scDel(id){const e=scFind(id);if(!e)return;if(e.src!=="memo"&&!confirm("Eliminare questa scadenza?"))return;
   e.members.forEach(m=>{const d=m.dog?D.dogs[m.dog]:null;
     if(e.src==="fut")d.health[e.k].splice(m.ref,1);else if(e.src==="next")d.health[e.k][m.ref].next="";
@@ -4325,7 +4350,7 @@ function wlAssign(id){const x=(D.waitlist||[]).find(w=>w.id===id);const lits=x.l
 function wlAssignDo(v){const [id,k]=v.split("|"),x=(D.waitlist||[]).find(w=>w.id===id),d=D.dogs[k];if(!x||!d)return;
   const a=new Uint8Array(18);crypto.getRandomValues(a);const tok=btoa(String.fromCharCode(...a)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   const oid=newId("o");D.owners[oid]={name:x.name,phone:x.phone||"",email:x.email||"",addr:x.city||"",country:x.country||"Italia",lang:x.lang||"it",notes:x.note||"",token:tok};
-  d.owner=oid;if(!d.status||d.status==="casa")d.status="prenotato";x.status="assigned";x.dog=k;closeSheet();typeof saveNow==="function"&&saveNow();toast(`${esc(x.name)} ora è il proprietario di ${esc(d.nick||d.name)}.`);tab="cani";view=k;render()}
+  d.owner=oid;if(!d.status||d.status==="casa")d.status="prenotato";x.status="assigned";x.dog=k;closeSheet();typeof saveNow==="function"&&saveNow();toast(`${esc(x.name)} ora è il proprietario di ${esc(d.nick||d.name)}.`);tab="cani";view=k;render();dnaWarn(k)}
 /* ---------- Scheda della cucciolata (solo allevatore) ---------- */
 /* ---------- Nascita e peso dei cuccioli ---------- */
 // litter.birth={start,type,note}; cucciolo: birthOrder, birthTime, collar, birthWeight, weights:[{date,g}]
@@ -4667,6 +4692,7 @@ function calcMate(){
    ${p.src==="sbt"?`<p class="row-meta" style="margin:6px 0 0">Calcolo del gestionale: ${pf(w)}% · antenati inseriti ${cov.known} di ${cov.tot}</p>`:""}
    <p class="row-meta" style="margin:8px 0 0"><label class="sbt-in">COI SBT del test mating: <input id="mateSbt" inputmode="decimal" placeholder="es. 6,17" value="${esc(m.coiSbt||"")}">%</label> </p><div id="tmRes"></div>
    ${RO?"":`<div class="row2" style="margin-top:10px"><button class="btn ghost" data-a="mateShare">Link da condividere${m.share?" · attivo":""}</button></div>`}${MATE_GRAPH?mateGraph(p,m,w):""}
+   ${dogForeign(mateS)&&!dnaOk(mateS)?PCTA("Stallone estero: serve il deposito biologico DNA","Chiedi al proprietario di "+esc(ds.name)+" un campione di sangue o un tampone buccale per il deposito all'ENCI, prima della monta.",RO?"":`<button class="btn small" data-a="dnaForm" data-v="${mateS}">Segna il deposito fatto</button>`,true):""}
    ${(()=>{const nb=ER.filter(r=>r.lvl==="bad").length,nw=ER.filter(r=>r.lvl==="warn").length;
      return PSEC("mt-enci","book","Regole ENCI",nb||nw?[nb?nb+(nb===1?" non rispettata":" non rispettate"):"",nw?nw+(nw===1?" da controllare":" da controllare"):""].filter(Boolean).join(" · ")+" · parto previsto "+fmt(addD(mdt,63)):"rispettate · parto previsto "+fmt(addD(mdt,63)),nb+nw,enciBox,!(nb+nw))})()}
    ${PSEC("mt-cade","tree","Su chi cade la consanguineità",m.sbtRead&&m.sbtRead.blood?"dal test mating di SBT":"dal pedigree del gestionale",0,sbtWeight(mateS,mateD)||ancWeight(mateS,mateD,mateSbt(mateS,mateD)),"")}
@@ -4749,7 +4775,7 @@ document.addEventListener("click",e=>{
     case "qhSave":qhSave();break;
     case "edf":edf(v);break;
     case "editOn":editOn(v);break;
-    case "editSave":editSave(v);break;
+    case "editSave":editSave(v);break;case "dnaForm":dnaForm(v);break;case "dnaSave":dnaSave(v);break;case "dnaDel":{const d=D.dogs[v];if(d){delete d.dnaDep;closeSheet();render();typeof saveNow==="function"&&saveNow()}break}
     case "editCancel":EF_PHOTO=null;EDIT=null;EDIRTY=false;render();toast("Modifiche annullate: nulla è stato cambiato.");break;
     case "ownEdit":EDIT="own:"+v;EDIRTY=false;render();setTimeout(()=>{const b=document.querySelector(".editbox");b&&b.scrollIntoView({block:"start",behavior:"smooth"})},50);break;
     case "ownSave":ownSave(v);break;
@@ -5901,8 +5927,8 @@ function acPageRaw(){const X=AC.x,S=D.settings||{};if(!X&&!AC.load)setTimeout(ac
   h+=`<section class="ac-c"><h2>📮 Enti e destinatari</h2>${acRow("Delegazione ENCI",esc(E.deleg)+" · "+esc(E.email))}${acRow("WhatsApp delegazione",esc(E.who)+" · "+esc(E.wa))}${acRow("Anagrafe canina (Comune)",esc(ppAddr()))}
     <div class="ac-a"><button class="btn small" data-a="acEd" data-v="enti">✏️ Modifica</button></div></section>`;
   // Regole
-  h+=`<section class="ac-c"><h2>🧬 Regole di allevamento</h2>${acRow("Età minima della madre al parto",EN_AGE+` mesi <span class="ac-fx">ENCI 16</span>`)}${acRow("Giorni minimi tra due parti",EN_GAP+` <span class="ac-fx">ENCI 170</span>`)}${acRow("Fascia di COI ideale","6–9%")}
-    <div class="ac-a"><button class="btn small" data-a="acEd" data-v="rules">✏️ Modifica</button></div><p class="ac-n">La fascia di COI per ora è fissa nel programma.</p></section>`;
+  h+=`<section class="ac-c"><h2>🧬 Regole di allevamento</h2>${acRow("Età minima della madre al parto",EN_AGE+` mesi <span class="ac-fx">ENCI 16</span>`)}${acRow("Giorni minimi tra due parti",EN_GAP+` <span class="ac-fx">ENCI 170</span>`)}${acRow("Fascia di COI ideale","6–9%")}${acRow("Stallone estero","deposito DNA obbligatorio")}${acRow("Cucciolo all'estero","deposito DNA obbligatorio")}
+    <div class="ac-a"><button class="btn small" data-a="acEd" data-v="rules">✏️ Modifica</button></div><p class="ac-n">La fascia di COI per ora è fissa nel programma.</p><p class="ac-n">Deposito biologico DNA all'ENCI (sangue o tampone buccale): con uno stallone estero va chiesto al proprietario del maschio prima della monta; un cucciolo che va all'estero deve averlo prima della partenza. Il gestionale avvisa in Accoppiamenti, quando prenoti un cucciolo a una famiglia straniera e in Scadenze.</p></section>`;
   if(AC.ed)h=h.replace(/(<section class="ac-c"><h2>(🏠|👤|📮|🧬)[\s\S]*?)<\/section>/g,(m,a,ic)=>((ic==="🏠"&&AC.ed==="farm")||(ic==="👤"&&AC.ed==="hold")||(ic==="📮"&&AC.ed==="enti")||(ic==="🧬"&&AC.ed==="rules"))?a+acForm()+"</section>":m);
   // Collegamenti
   let c="";if(!X)c=`<p class="ac-n">⏳ Controllo i collegamenti…</p>`;else if(X.err)c=`<p class="fnote">Non riesco a leggere lo stato: ${esc(X.err)}</p>`;else{const g=X.google||{},k=X.keys||{};
