@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Del Piccolo Diavolo · Cucciolata</title>
+<style>
+:root{--bg:#25354c;--bg2:#2c3f57;--card:#354a63;--ink:#d6dde6;--gold:#f0cc86;--w:#fff;--m:#8fbce6;--f:#f2a7c3}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1f2d42;flex-wrap:wrap}header .lo{width:40px;height:40px;border-radius:50%;background:var(--gold);color:#1f2d42;display:grid;place-items:center;font-weight:800}
+header b{font-family:Georgia,serif;color:var(--w);font-size:17px}.lg{margin-left:auto;display:flex;gap:6px}.lg a{color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:3px 9px;font-size:13px;text-decoration:none;font-weight:700}.lg a.on{background:var(--gold);color:#1f2d42}
+main{max-width:900px;margin:0 auto;padding:22px 16px 40px}
+.lab{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}h1{font-family:Georgia,serif;color:var(--w);font-size:clamp(24px,5vw,34px);line-height:1.2;margin:6px 0 8px}
+.when{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}.when span{border:1px solid rgba(240,204,134,.5);color:var(--gold);border-radius:999px;padding:3px 12px;font-size:14px}
+h2{font-family:Georgia,serif;color:var(--w);font-size:22px;margin:30px 0 12px;padding-bottom:6px;border-bottom:1px solid rgba(240,204,134,.35)}
+.par{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px}
+.dog,.gp{background:var(--card);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.06)}
+.ph{background:var(--bg2);border-radius:10px;display:grid;place-items:center;color:#8aa0bb;text-align:center;font-size:13px}.ph svg{width:60%;color:#8aa0bb}.ph.big{aspect-ratio:4/5;margin-bottom:12px}.ph.sm{width:96px;height:120px;flex:none}.ph.sm svg{width:70%}
+.role{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}.m{color:var(--m)}.f{color:var(--f)}
+h3{color:var(--w);font-size:20px;line-height:1.25;margin:2px 0 8px}h4{color:var(--w);font-size:16px;line-height:1.3;margin:2px 0 4px}
+.kv{display:grid;grid-template-columns:7em 1fr;gap:8px;padding:4px 0;border-top:1px solid rgba(255,255,255,.08);font-size:15px}.kv span{color:#a9b6c6}.kv b{color:var(--w);font-weight:600}
+.tg{margin-top:10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#a9b6c6}.tt{font-size:15px;color:var(--ink)}.te{color:#c9e3c3}
+.gps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:12px}.gp{display:flex;gap:12px;align-items:flex-start}.gp>div{min-width:0}
+.ped{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:14px}.ped>div{display:grid;gap:6px}.c1{grid-template-rows:repeat(2,1fr)}.c2{grid-template-rows:repeat(4,1fr)}.c3{grid-template-rows:repeat(8,1fr)}
+.p{background:var(--card);border-radius:8px;padding:6px 8px;display:flex;align-items:center;color:var(--w);border-left:3px solid;overflow-wrap:anywhere;line-height:1.25}.p.m{border-color:var(--m)}.p.f{border-color:var(--f)}
+.sbt{margin-top:10px;font-size:15px}a{color:var(--gold)}
+.ct{background:var(--card);border-radius:14px;padding:16px;display:grid;gap:10px}.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;background:#fff;color:#1f3a5f;font-weight:700;border-radius:10px;padding:12px 16px;text-decoration:none}
+.ft{text-align:center;font-size:13px;color:#8aa0bb;margin-top:28px}
+@media(max-width:560px){.ped{font-size:12px}.p{padding:5px 6px}}
+.ph img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}.ph.big img{object-fit:contain;background:#1f2d42}.empty{padding:80px 16px;text-align:center;color:#a9b6c6}header .lo img{width:40px;height:40px;border-radius:50%;object-fit:cover;display:block}.lo{overflow:hidden}</style></head><body>
+<!-- Pagina «pubblicità» di una cucciolata (22/10/2026, anteprima 01 approvata da Paolo: «OK, falla con le foto»).
+     Link segreto da Scheda della cucciolata → Sito → Link pubblicità. Dati da /api/public/cucciolata/<link>. Lingue ?l=en / ?l=de. -->
+<header><span class="lo"><img src="/icon-192.png" alt=""></span><b id="fn">Del Piccolo Diavolo</b><nav class="lg" id="lg"></nav></header>
+<main id="m"><p class="empty">…</p></main>
+<script>
+const tok=location.pathname.split("/").filter(Boolean).pop(),L=(new URLSearchParams(location.search).get("l")||"it").toLowerCase(),lang=["en","de"].includes(L)?L:"it";
+document.documentElement.lang=lang;
+const T={it:{plan:"Cucciolata in programma",due:"Cucciolata in arrivo",born:"Sono nati",dueOn:"Nascita prevista",bornOn:"Nati il",par:"I genitori",gp:"I nonni",ped:"Pedigree",sbt:"Pedigree completo su SBTpedigree",ct:"Contatti",ctT:"Per informazioni su questa cucciolata scrivici.",fa:"Padre",ma:"Madre",ss:"Padre del padre",sd:"Madre del padre",ds:"Padre della madre",dd:"Madre della madre",bm:"Nato il",bf:"Nata il",col:"Mantello",tit:"Titoli",tes:"Test",bad:"Questo link non è più attivo.",wa:"Ciao, ho visto la cucciolata ",ph:"Foto non disponibile"},
+ en:{plan:"Planned litter",due:"Litter on the way",born:"The puppies are born",dueOn:"Expected birth",bornOn:"Born on",par:"The parents",gp:"The grandparents",ped:"Pedigree",sbt:"Full pedigree on SBTpedigree",ct:"Contact",ctT:"For information about this litter, write to us.",fa:"Sire",ma:"Dam",ss:"Sire's sire",sd:"Sire's dam",ds:"Dam's sire",dd:"Dam's dam",bm:"Born",bf:"Born",col:"Colour",tit:"Titles",tes:"Health tests",bad:"This link is no longer active.",wa:"Hello, I saw the litter ",ph:"No photo"},
+ de:{plan:"Geplanter Wurf",due:"Wurf erwartet",born:"Die Welpen sind da",dueOn:"Erwartete Geburt",bornOn:"Geboren am",par:"Die Eltern",gp:"Die Großeltern",ped:"Ahnentafel",sbt:"Vollständige Ahnentafel auf SBTpedigree",ct:"Kontakt",ctT:"Für Informationen zu diesem Wurf schreiben Sie uns.",fa:"Vater",ma:"Mutter",ss:"Vater des Vaters",sd:"Mutter des Vaters",ds:"Vater der Mutter",dd:"Mutter der Mutter",bm:"Geboren am",bf:"Geboren am",col:"Farbe",tit:"Titel",tes:"Gesundheitstests",bad:"Dieser Link ist nicht mehr aktiv.",wa:"Hallo, ich habe den Wurf gesehen: ",ph:"Kein Foto"}}[lang];
+const E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+const mon=d=>{if(!d)return"";const x=new Date(d+"T12:00:00");return x.toLocaleDateString(lang==="it"?"it-IT":lang==="de"?"de-DE":"en-GB",{month:"long",year:"numeric"})};
+const tr=(x,k)=>lang==="it"?x[k]:(x[k+"_"+lang]||x[k]);
+const col=x=>lang==="it"?x.color:(x.color_en||x.color);
+document.getElementById("lg").innerHTML=[["it","IT"],["en","EN"],["de","DE"]].map(([k,t])=>`<a href="?l=${k}"${k===lang?' class="on"':""}>${t}</a>`).join("");
+const ph=(who,x,cls)=>x&&x.photo?`<div class="ph ${cls}"><img src="/api/public/cucciolata/${encodeURIComponent(tok)}/f/${who}" alt="${E(x.name)}" loading="lazy"></div>`:`<div class="ph ${cls}"><svg viewBox="0 0 64 48" aria-hidden="true"><path d="M14 34c0-8 6-14 14-14h8c4 0 7-3 9-6l3 2-1 6c3 2 5 5 5 9v5H44l-2-5H22l-2 5h-6z" fill="currentColor" opacity=".35"/></svg><span>${T.ph}</span></div>`;
+const kv=(t,v)=>v?`<div class="kv"><span>${t}</span><b>${E(v)}</b></div>`:"";
+const sx=x=>x&&x.sex==="F"?'<span class="f">♀</span>':x&&x.sex==="M"?'<span class="m">♂</span>':"";
+function par(who,x,role){if(!x)return"";const ti=tr(x,"titles"),te=tr(x,"tests");
+  return `<article class="dog">${ph(who,x,"big")}<p class="role">${role} ${sx(x)}</p><h3>${E(x.name)}</h3>${kv(x.sex==="F"?T.bf:T.bm,fmt(x.birth))}${kv(T.col,col(x))}${kv("LOI",x.loi)}
+  ${ti?`<p class="tg">${T.tit}</p><p class="tt">${E(ti)}</p>`:""}${te?`<p class="tg">${T.tes}</p><p class="tt">${E(te)}</p>`:""}</article>`}
+function gp(who,x){if(!x)return"";const ti=tr(x,"titles"),te=tr(x,"tests");
+  return `<article class="gp">${ph(who,x,"sm")}<div><p class="role">${T[who]}</p><h4>${E(x.name)}</h4>${ti?`<p class="tt">${E(ti)}</p>`:""}${te?`<p class="tt te">${T.tes}: ${E(te)}</p>`:""}</div></article>`}
+fetch("/api/public/cucciolata/"+encodeURIComponent(tok)).then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+  const F=j.farm||{},s=j.sire,d=j.dam,G=j.gp||{},B=j.great||[];document.getElementById("fn").textContent="Allevamento "+(F.name||"Del Piccolo Diavolo");
+  const pair=(d?d.name:"?")+" × "+(s?s.name:"?");document.title=pair+" · "+(F.name||"");
+  const st=j.state==="born"?T.born:j.state==="due"?T.due:T.plan,when=j.state==="born"?T.bornOn+" "+fmt(j.date):j.state==="due"?T.dueOn+": "+mon(j.due):"";
+  const p=(c,n)=>`<div class="p ${c}">${E(n||"–")}</div>`;
+  const gk=["ss","sd","ds","dd"];
+  const ped=`<div class="ped"><div class="c1">${p("m",s&&s.name)}${p("f",d&&d.name)}</div><div class="c2">${gk.map((k,i)=>p(i%2?"f":"m",G[k]&&G[k].name)).join("")}</div><div class="c3">${gk.map((k,i)=>p("m",(B[i]||[])[0])+p("f",(B[i]||[])[1])).join("")}</div></div>`;
+  const wa=`https://wa.me/${F.phone}?text=${encodeURIComponent(T.wa+pair+" "+location.href)}`;
+  document.getElementById("m").innerHTML=`<p class="lab">${st} · ${E(F.breed||"Staffordshire Bull Terrier")}</p><h1>${E(pair)}</h1>
+  <div class="when">${when?`<span>${E(when)}</span>`:""}<span>${E(F.cityProv||"")}</span></div>
+  <h2>${T.par}</h2><div class="par">${par("s",s,T.fa)}${par("d",d,T.ma)}</div>
+  ${gk.some(k=>G[k])?`<h2>${T.gp}</h2><div class="gps">${gk.map(k=>gp(k,G[k])).join("")}</div>`:""}
+  <h2>${T.ped}</h2>${ped}${j.sbtUrl?`<p class="sbt"><a href="${E(j.sbtUrl)}" target="_blank" rel="noopener">${T.sbt}</a></p>`:""}
+  <h2>${T.ct}</h2><div class="ct"><p>${T.ctT}</p>${F.phone?`<a class="btn" href="${E(wa)}" target="_blank" rel="noopener">WhatsApp ${E(F.phoneIntl||"")}</a>`:""}${F.site?`<a href="https://${E(F.site)}" target="_blank" rel="noopener" style="text-align:center">${E(F.site)}</a>`:""}</div>
+  <p class="ft">Allevamento ${E(F.name||"")} · ${E(F.cityProv||"")}</p>`;
+}).catch(()=>{document.getElementById("m").innerHTML=`<p class="empty">${T.bad}</p>`});
+</script></body></html>

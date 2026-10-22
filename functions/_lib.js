@@ -152,7 +152,7 @@ export async function loadData(env) {
 
 // Solo i dati che il proprietario può vedere: i suoi cani, i loro antenati, i test dei genitori.
 // Campi della cucciolata che il proprietario non deve mai ricevere (il Modello B contiene i dati di tutti gli acquirenti)
-const LIT_PRIV = ["acc", "docs", "notes", "mbFile", "mbSaved", "modA", "modB", "enciA", "enciB", "gpost", "site", "revDone", "homeSince", "inSite"];
+const LIT_PRIV = ["acc", "ad", "docs", "notes", "mbFile", "mbSaved", "modA", "modB", "enciA", "enciB", "gpost", "site", "revDone", "homeSince", "inSite"];
 export function ownerSubset(data, token) {
   if (!/^[A-Za-z0-9_-]{16,}$/.test(token || "")) return null;
   const oid = Object.keys(data.owners || {}).find(k => data.owners[k].token === token);
@@ -307,4 +307,15 @@ export function mergeLimited(cur, body, P) {
   if (mm(["cani", "proprietari"])) put(["kitExtra"]);
   if (m("cucciolate")) put(["drive", "sitePub"]);
   return out;
+}
+
+// Pagina «pubblicità» di una cucciolata (22/10/2026): trova la cucciolata dal link segreto e chi è chi (s, d, ss, sd, ds, dd).
+export function adFind(D, tok) {
+  return D && tok && Object.entries(D.litters || {}).find(([, l]) => l && l.ad && l.ad.on && l.ad.tok === tok);
+}
+// chi è chi: s=padre, d=madre, ss/sd=genitori del padre, ds/dd=genitori della madre
+export function adWho(D, l, who) {
+  const g = id => (D.dogs || {})[id] || {};
+  const m = { s: l.sire, d: l.dam, ss: g(l.sire).sire, sd: g(l.sire).dam, ds: g(l.dam).sire, dd: g(l.dam).dam };
+  return m[who] || null;
 }

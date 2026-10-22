@@ -1478,3 +1478,12 @@ Accessi e copie
 ## Conti: entrate «Altro» (21/10/2026)
 - Cucciolata: `l.acc.inc=[{id,date,amt,txt,cat:"Altro"}]`, sommate in `acIn`; Spese generali: entrate in `D.accGen` con `in:true`
   (`acGI`/`acGO`; il server salva già `accGen`, anche per Daniela). Tasto «＋ Altra entrata (Altro)», «cosa» obbligatorio.
+
+## Link «pubblicità» della cucciolata (22/10/2026, anteprima 01 approvata da Paolo: «OK, falla con le foto»)
+- Scheda della cucciolata → «Sito e pubblicità» → «Link pubblicità» (`adBox`, `adAct`): `l.ad={tok,on}`; Crea / WhatsApp
+  italiano-inglese-tedesco / Copia / Apri / Disattiva (il link resta lo stesso se si riaccende).
+- Pagina `public/cucciolata.html` servita da `functions/p/cucciolata/[token].js` (/p è fuori da Access); dati da
+  `GET /api/public/cucciolata/<tok>` (stato: in programma / in arrivo con nascita prevista = monta dopo l'ultimo calore + 63 /
+  nati il; genitori e nonni con nome, sesso, nascita, mantello, LOI, titoli e test in IT/EN/DE; bisnonni solo nomi; `l.sbtUrl`;
+  contatti dell'allevamento); foto da `…/<tok>/f/<s|d|ss|sd|ds|dd>`. `adFind`/`adWho` in _lib.js. Mai COI, note, prezzi,
+  proprietari, cuccioli singoli. `ownerSubset` toglie `ad` (LIT_PRIV). Colori del sito (blu notte, bianco, oro).
