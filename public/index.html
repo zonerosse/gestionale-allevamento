@@ -2257,7 +2257,7 @@ function owBfMount(el,id,lang){const d=D.dogs[id];if(!d)return;
     try{window.barfInit(el,{lang:lang,S:S})}catch(x){console.warn(x)}
     const pr=el.parentNode.querySelector("details.bf-prima");if(pr&&!pr.dataset.t){pr.dataset.t=1;pr.addEventListener("toggle",()=>{if(pr.open)pr.classList.add("letto")})}};
   if(window.barfInit)return go();
-  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261023-2300";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261024-0200";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   BF_LOAD.then(go,()=>{el.innerHTML=`<p class="lead">${T("Il calcolatore non si è caricato: riprova più tardi oppure aprilo sul sito.","The calculator did not load: try later or open it on the website.")}</p>`})}
 function owFdHtml(id){const d=D.dogs[id];if(!d||!d.ownFeed)return"";const nm=esc(d.nick||d.name||"");
   return owBfWrap(id,`<div class="owfd"><h2>${T("🍖 Quanto mangia","🍖 How much to feed")} ${nm}</h2><p class="lead" style="margin:0 0 4px">${T("Grammi di crocchette al giorno. Età, sesso, ultima pesata e un peso da adulto tipico dello Staffy sono già inseriti: scegli le crocchette e correggi se serve.","Grams of kibble per day. Age, sex, the last weighing and a typical Staffy adult weight are already filled in: choose the kibble and adjust if needed.")}</p><div class="owfd-box" data-dog="${id}"></div>
