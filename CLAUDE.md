@@ -1500,5 +1500,7 @@ Accessi e copie
 - Pagina: `spSync(ms)` (blocco comune) parte da sola all'apertura di Google → Post (`gpLoad`), dopo «Elimina da Google» e dopo una
   pubblicazione (30 s e 3 minuti dopo: Google mette online il post con un po' di ritardo). Nessun tasto, nessun errore a schermo;
   se il sito cambia: avviso «Pagina Notizie del sito aggiornata».
+- Home del sito (23/10/2026, Paolo): se «Novità in Home» di una cucciolata è accesa si vede quella; spenta, al suo posto
+  l'ultimo post di Google (lo decide il sito leggendo data/novita.json e data/postgoogle.json: il gestionale non fa altro).
 - Sul sito: pagine `notizie` / `news` / `neuigkeiten`, partial `post-google.html` (vedi CLAUDE.md del sito). Mai modificare a mano
   `data/postgoogle.json`.
