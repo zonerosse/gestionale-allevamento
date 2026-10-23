@@ -4075,8 +4075,9 @@ function gpState(p){return p.state==="LIVE"?`<span class="badge ok">✓ Online s
 /* Modifica il testo di un post pubblicato (23/10/2026, Paolo 1A, «entrambe, a mia scelta»): a mano o «Fallo sistemare a Claude».
    gpFlags = cose che sul sito non si scrivono più (stesse regole di verifica.py del sito: commercio, parole vuote, numero di cuccioli). */
 const GP_NUM="(?:\\d+|due|tre|quattro|cinque|sei|sette|otto|nove|dieci|undici|dodici)";
-function gpFlags(t){const R=[new RegExp("\\b(?:prenot\\w*(?:\\s+apert\\w*)?|list[ae]\\s+d['’]attesa|caparr[ae]|accont[oi]|client[ei]|acquirent[ei]|passione|amore per la razza|esperienza pluriennale|professionalit[aà]|anni di esperienza)\\b","gi"),
-  new RegExp("\\b"+GP_NUM+"\\s+(?:\\w+\\s+){0,2}?(?:cuccioli|cucciole|maschi|femmine|maschietti|femminucce)\\b","gi")];
+/* confini di parola che valgono anche per le lettere accentate (23/10/2026: con \\b «professionalità» non veniva segnata) */
+function gpFlags(t){const B="(?<![\\p{L}\\d])",A="(?![\\p{L}\\d])",R=[new RegExp(B+"(?:prenot\\p{L}*(?:\\s+apert\\p{L}*)?|list[ae]\\s+d['’]attesa|caparr[ae]|accont[oi]|client[ei]|acquirent[ei]|passione|amore per la razza|esperienza pluriennale|professionalit[aà]|anni di esperienza)"+A,"giu"),
+  new RegExp(B+GP_NUM+"\\s+(?:(?!settiman|giorn|mes[ei]|ann[oi]|or[ae])[\\p{L}']+\\s+){0,2}?(?:cuccioli|cucciole|maschi|femmine|maschietti|femminucce)"+A,"giu")];
   const out=[];for(const r of R)for(const m of String(t||"").matchAll(r)){const w=m[0].trim();if(!out.some(x=>x.toLowerCase()===w.toLowerCase()))out.push(w)}return out}
 function gpFlagBox(t){const F=gpFlags(t);return F.length?`<div class="gp-flag"><b>Da sistemare per il sito:</b> ${F.map(x=>"«"+esc(x)+"»").join(", ")}. Sul sito queste cose non le scriviamo più.</div>`:""}
 function gpEdit(i,txt){const p=(GP.list||[])[+i];if(!p)return;const t=txt==null?p.text:txt;

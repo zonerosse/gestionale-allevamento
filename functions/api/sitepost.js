@@ -74,7 +74,10 @@ export async function onRequestPost({ request, env }) {
     const tree = [], blob = async b64 => (await gh("/git/blobs", "POST", { content: b64, encoding: "base64" })).sha, items = [];
     let fatti = 0, more = false;
     for (const p of posts) {
-      const name = p.id + ".jpg", bk = "sitepost:blob:" + p.id;
+      const name = p.id + ".jpg", bk = "sitepost:blob:" + p.id, nk = "sitepost:nofoto:" + p.id;
+      // foto che Google non dà (23/10/2026, controllo): si riprova solo dopo 7 giorni, così un post senza foto scaricabile
+      // non tiene il gestionale a girare in tondo con «more» e il sito si aggiorna lo stesso
+      if (p.gimg && !there.has(name) && KV.get(nk) && KV.get(nk) > new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)) p.gimg = "";
       const tk2 = "sitepost:tr:" + p.id + ":" + await hash(p.it + (p.gimg ? "|f" : ""));
       let tr = null; try { tr = JSON.parse(KV.get(tk2) || "null"); } catch (e) {}
       let bsha = p.gimg && !there.has(name) ? (KV.get(bk) || null) : null;
@@ -90,6 +93,7 @@ export async function onRequestPost({ request, env }) {
         if (!r || !r.ok) r = await fetch(p.gimg).catch(() => null);
         if (r && r.ok) { const u = new Uint8Array(await r.arrayBuffer()); foto = { b64: u8b64(u), type: (r.headers.get("content-type") || "image/jpeg").split(";")[0] };
           bsha = await blob(foto.b64); await kset(bk, bsha); }
+        else await kset(nk, new Date().toISOString().slice(0, 10));
       }
       if (!tr) { tr = await tradu(env, p.it, foto); await kset(tk2, JSON.stringify(tr)); }
       if (bsha && !there.has(name)) { tree.push({ path: DIR + "/" + name, mode: "100644", type: "blob", sha: bsha }); there.add(name); }
