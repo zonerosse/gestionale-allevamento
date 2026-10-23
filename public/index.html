@@ -4961,7 +4961,7 @@ async function gpDel(i,b){const p=(GP.list||[])[+i];if(!p)return;aiBusy(b,1,"Eli
 let SP_T=null,SP_RUN=false;
 function spSync(ms){if(RO||typeof OWNER_MODE!=="undefined")return;clearTimeout(SP_T);SP_T=setTimeout(async()=>{if(SP_RUN)return;SP_RUN=true;
   try{const j=await (await fetch("/api/sitepost",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"})).json();
-    if(j.ok&&j.commit&&!j.more)toast("Pagina Novità del sito aggiornata: tra 2-3 minuti è online.");if(j.ok&&j.more){SP_RUN=false;spSync(1000);return}else if(!j.ok&&j.error)console.warn("Novità sul sito:",j.error)}catch(x){}SP_RUN=false},ms||0)}
+    if(j.ok&&j.commit&&!j.more)toast("Pagina Notizie del sito aggiornata: tra 2-3 minuti è online.");if(j.ok&&j.more){SP_RUN=false;spSync(1000);return}else if(!j.ok&&j.error)console.warn("Novità sul sito:",j.error)}catch(x){}SP_RUN=false},ms||0)}
 async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok){GP.list=j.posts;spSync(1500)}else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
 function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa, oppure lo scrivi tu; lo pubblichi sempre tu, con il tasto.</p>`+(GP.free?gpFreeHtml():`<p style="margin:0 0 6px"><button class="btn rv-go" data-a="gpFree">✍️ Scrivi un post</button></p>`)+`<h2>Da proporre (${E.length})</h2>`;
   if(!E.length)h+=`<p class="empty">Niente di nuovo da raccontare per ora.</p>`;

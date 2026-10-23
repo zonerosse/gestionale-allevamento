@@ -1488,7 +1488,7 @@ Accessi e copie
   contatti dell'allevamento); foto da `…/<tok>/f/<s|d|ss|sd|ds|dd>`. `adFind`/`adWho` in _lib.js. Mai COI, note, prezzi,
   proprietari, cuccioli singoli. `ownerSubset` toglie `ad` (LIT_PRIV). Colori del sito (blu notte, bianco, oro).
 
-## 📣 Post di Google anche sul sito: pagina «Novità» (23/10/2026, scelte di Paolo: 1A pagina visibile a Google, 2A voce nel menu dopo «Diario»)
+## 📣 Post di Google anche sul sito: pagina «Notizie» (23/10/2026, scelte di Paolo: 1A pagina visibile a Google, 2A voce nel menu dopo «Diario», 1B nome «Notizie»)
 - `POST /api/sitepost` (functions/api/sitepost.js, permesso Google = 2): legge i post LIVE del profilo, e se qualcosa è cambiato
   (impronta in gbp "sitepost:sig") fa UN commit sul sito: `data/postgoogle.json` ({updated, items:[{id,date,it,en,de,img,alt,url}]})
   e le foto in `static/images/novita-google/<id>.jpg` (scaricate da Google a 1000 px). Post tolto da Google → tolto dal sito con la
@@ -1499,6 +1499,6 @@ Accessi e copie
   risposta `{more:true}`, la pagina richiama da sola; il commit parte una volta sola quando sono pronti tutti.
 - Pagina: `spSync(ms)` (blocco comune) parte da sola all'apertura di Google → Post (`gpLoad`), dopo «Elimina da Google» e dopo una
   pubblicazione (30 s e 3 minuti dopo: Google mette online il post con un po' di ritardo). Nessun tasto, nessun errore a schermo;
-  se il sito cambia: avviso «Pagina Novità del sito aggiornata».
-- Sul sito: pagine `novita` / `news` / `neuigkeiten`, partial `post-google.html` (vedi CLAUDE.md del sito). Mai modificare a mano
+  se il sito cambia: avviso «Pagina Notizie del sito aggiornata».
+- Sul sito: pagine `notizie` / `news` / `neuigkeiten`, partial `post-google.html` (vedi CLAUDE.md del sito). Mai modificare a mano
   `data/postgoogle.json`.
