@@ -22,6 +22,7 @@ Riporta SOLO quello che è scritto sull'etichetta, senza inventare:
 - "ca","ph": calcio e fosforo in % (1,2% = 1.2; 12 g/kg = 1.2), null se non scritti;
 - "add": additivi nutrizionali PER KG, null quelli non scritti: "va" vitamina A UI/kg, "vd" vitamina D3 UI/kg, "ve" vitamina E mg/kg (se in UI/kg stesso numero),
   "zn" zinco, "cu" rame, "io" iodio, "fe" ferro, "se" selenio, "mn" manganese in mg/kg (somma le forme dello stesso elemento; 1 g/kg = 1000 mg/kg);
+  CONVERTI i minerali in ELEMENTO se il sacco scrive il composto: zinco solfato monoidrato 35,5%, ossido 78%, chelato dell'analogo idrossilato della metionina 16%, chelato di glicina/amminoacidi idrato 15%; rame solfato pentaidrato 25%, chelati 16% (HMTBa) o 15%, ossido 80%; manganese solfato monoidrato 32%, ossido manganoso 77%, chelato HMTBa 13%, chelato di glicina 15%, chelato di amminoacidi 10%; ferro solfato ferroso monoidrato 30%, chelato di glicina 15%, chelato di amminoacidi 9%, carbonato 38%; iodio iodato di calcio anidro 65%, ioduro di potassio 76%; selenio selenito di sodio 45,6%, lievito al selenio e selenometionina già come selenio. Se è scritto l'elemento (es. «Zn 150 mg»), usa quello.
 - "url": la pagina da cui li hai presi; "found": true solo se hai trovato il prodotto giusto con almeno calcio/fosforo o un additivo.
 Rispondi SOLO con un oggetto JSON: {"found":false,"ca":null,"ph":null,"add":{"va":null,"vd":null,"ve":null,"zn":null,"cu":null,"io":null,"fe":null,"se":null,"mn":null},"url":""}`,
       messages: [{ role: "user", content: [{ type: "text", text }] }] }) });
