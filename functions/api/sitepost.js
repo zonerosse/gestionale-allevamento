@@ -1,5 +1,5 @@
 import { json, can, deny } from "../_lib.js";
-import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
+import { gbpGet, gbpSet, gbpToken, gget, gbpTable } from "../_gbp.js";
 /* Pagina «Novità» del sito (23/10/2026, Paolo: scelte 1A pagina visibile a Google, 2A voce nel menu).
    I post del profilo Google, quando sono online (LIVE), vanno anche sul sito delpiccolodiavolo.it, da soli:
    - data/postgoogle.json  { updated, items:[{ id, date, it, en, de, img, alt:{it,en,de}, url }] }
@@ -11,7 +11,7 @@ import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
    POST {} → { ok, unchanged } | { ok, commit, n, more } | { ok:false, error }
    Solo i post dell'ultimo anno (scelta B); al massimo LOTTO post nuovi per chiamata: con more:true il gestionale richiama. */
 const REPO = "zonerosse/delpiccolodiavolo-hugo", BRANCH = "main", API = "https://api.github.com/repos/" + REPO;
-const LOTTO = 6, DIR = "static/images/novita-google", DATA = "data/postgoogle.json", MODEL = "claude-sonnet-5-5";
+const LOTTO = 4, DIR = "static/images/novita-google", DATA = "data/postgoogle.json", MODEL = "claude-sonnet-5-5";
 const hash = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
 const u8b64 = u => { let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 const b64txt = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
@@ -66,14 +66,18 @@ export async function onRequestPost({ request, env }) {
       if (!r.ok) throw new Error("GitHub " + r.status + ": " + (j.message || t).slice(0, 200));
       return j;
     };
+    // tutte le traduzioni e le foto già preparate, con una sola lettura del database
+    await gbpTable(env);
+    const KV = new Map(((await env.DB.prepare("SELECT k,v FROM gbp WHERE k LIKE 'sitepost:%'").all()).results || []).map(r => [r.k, r.v]));
+    const kset = async (k, v) => { KV.set(k, v); await env.DB.prepare("INSERT INTO gbp (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(k, v).run(); };
     const there = new Set(((await gh("/contents/" + DIR + "?ref=" + BRANCH, "GET", null, true)) || []).map(f => f.name));
     const tree = [], blob = async b64 => (await gh("/git/blobs", "POST", { content: b64, encoding: "base64" })).sha, items = [];
     let fatti = 0, more = false;
     for (const p of posts) {
       const name = p.id + ".jpg", bk = "sitepost:blob:" + p.id;
       const tk2 = "sitepost:tr:" + p.id + ":" + await hash(p.it + (p.gimg ? "|f" : ""));
-      let tr = null; try { tr = JSON.parse(await gbpGet(env, tk2) || "null"); } catch (e) {}
-      let bsha = p.gimg && !there.has(name) ? await gbpGet(env, bk) : null;
+      let tr = null; try { tr = JSON.parse(KV.get(tk2) || "null"); } catch (e) {}
+      let bsha = p.gimg && !there.has(name) ? (KV.get(bk) || null) : null;
       const todo = !tr || (p.gimg && !there.has(name) && !bsha);
       // Cloudflare limita le chiamate esterne per richiesta: i post nuovi si preparano a gruppi (foto già caricata su GitHub
       // come blob, traduzione salvata), il gestionale richiama da solo e il commit parte una volta sola, alla fine
@@ -85,9 +89,9 @@ export async function onRequestPost({ request, env }) {
         let r = await fetch(p.gimg.replace(/=[^/=]*$/, "") + "=w1000-h1000").catch(() => null);
         if (!r || !r.ok) r = await fetch(p.gimg).catch(() => null);
         if (r && r.ok) { const u = new Uint8Array(await r.arrayBuffer()); foto = { b64: u8b64(u), type: (r.headers.get("content-type") || "image/jpeg").split(";")[0] };
-          bsha = await blob(foto.b64); await gbpSet(env, bk, bsha); }
+          bsha = await blob(foto.b64); await kset(bk, bsha); }
       }
-      if (!tr) { tr = await tradu(env, p.it, foto); await gbpSet(env, tk2, JSON.stringify(tr)); }
+      if (!tr) { tr = await tradu(env, p.it, foto); await kset(tk2, JSON.stringify(tr)); }
       if (bsha && !there.has(name)) { tree.push({ path: DIR + "/" + name, mode: "100644", type: "blob", sha: bsha }); there.add(name); }
       const it = { id: p.id, date: p.date, it: p.it, en: tr.en, de: tr.de };
       if (there.has(name)) { it.img = "/images/novita-google/" + name; if (tr.alt && tr.alt.it) it.alt = { it: tr.alt.it, en: tr.alt.en || "", de: tr.alt.de || "" }; }
