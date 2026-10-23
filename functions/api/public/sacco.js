@@ -44,12 +44,16 @@ export async function onRequestPost({ request, env }) {
 - "kcal": energia metabolizzabile in kcal per 100 g SOLO se è scritta (converti: 3850 kcal/kg = 385; 16,1 MJ/kg = 385). null se non è scritta.
 - "p","f","fi","a","u": proteina grezza, grassi, fibra grezza, ceneri grezze, umidità in %. null se non scritti.
 - "ca","ph": calcio e fosforo in % SOLO se scritti (spesso tra i componenti o gli additivi; 1,2% = 1.2; 12 g/kg = 1.2). null se non scritti.
+- "add": gli additivi nutrizionali scritti sul sacco, PER KG, solo quelli scritti (null gli altri): "va" vitamina A in UI/kg, "vd" vitamina D3 in UI/kg,
+  "ve" vitamina E in mg/kg (se è in UI/kg usa lo stesso numero), "zn" zinco in mg/kg, "cu" rame in mg/kg, "io" iodio in mg/kg, "fe" ferro in mg/kg,
+  "se" selenio in mg/kg, "mn" manganese in mg/kg. Somma le forme dello stesso elemento (es. solfato di zinco + chelato di zinco). Converti le unità (1 g/kg = 1000 mg/kg; 1 µg/kg = 0,001 mg/kg).
 Se la foto non è un sacco di cibo per cani: tutto vuoto o null.
-Formato: {"brand":"","name":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null,"ca":null,"ph":null}`,
-      [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 500);
+Formato: {"brand":"","name":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null,"ca":null,"ph":null,"add":{"va":null,"vd":null,"ve":null,"zn":null,"cu":null,"io":null,"fe":null,"se":null,"mn":null}}`,
+      [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 900);
     const r = { ok: true, brand: String(x.brand || "").slice(0, 80), name: String(x.name || "").slice(0, 120), kcal: null, how: "" };
     for (const q of ["p", "f", "fi", "a", "u"]) r[q] = n(x[q]);
     for (const q of ["ca", "ph"]) { const v = n(x[q]); r[q] = v != null && v > 0 && v < 5 ? v : null; } // controllo dei nutrienti del sito (23/10/2026)
+    { const A = {}; let k = 0; for (const q of ["va", "vd", "ve", "zn", "cu", "io", "fe", "se", "mn"]) { const v = n(x.add && x.add[q]); if (v != null && v > 0 && v < 1e6) { A[q] = v; k++; } } r.add = k ? A : null; } // additivi per kg (squilibri, 23/10/2026)
     let k = n(x.kcal); if (k && k > 1000) k = k / 10;
     if (k && k > 200 && k < 700) { r.kcal = Math.round(k); r.how = "sacco"; }
     else if (n(x.p) != null && n(x.f) != null && n(x.a) != null) {

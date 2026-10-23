@@ -15,9 +15,11 @@ export async function onRequestOptions({ request }) { return new Response(null, 
 export async function ensureCrocchette(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS crocchette (id TEXT PRIMARY KEY, k TEXT, brand TEXT, name TEXT, name_en TEXT, kcal INTEGER, status TEXT, reason TEXT, url TEXT, src TEXT, sent TEXT, origin TEXT, created TEXT)").run();
   try { await env.DB.prepare("ALTER TABLE crocchette ADD COLUMN comp TEXT").run(); } catch (e) {} // componenti analitici [p,f,fi,a,u]
+  try { await env.DB.prepare("ALTER TABLE crocchette ADD COLUMN addv TEXT").run(); } catch (e) {} // additivi per kg e Ca/P in % (23/10/2026)
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS crocch_lim (day TEXT, who TEXT, n INTEGER, PRIMARY KEY (day, who))").run();
 }
 export const croKey = (b, n) => (String(b || "") + " " + String(n || "")).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, " ").trim();
+const aj = t => { try { const a = JSON.parse(t || "null"); return a && typeof a === "object" && !Array.isArray(a) ? a : null; } catch (e) { return null; } };
 const cj = t => { try { const c = JSON.parse(t || "null"); return Array.isArray(c) ? c : null; } catch (e) { return null; } };
 const num = v => (v === null || v === undefined || v === "" || isNaN(+v)) ? null : +v;
 
@@ -33,12 +35,13 @@ async function claude(env, system, content, max, tools) {
   return {};
 }
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request, env, waitUntil }) {
   const H = Object.assign(cors(request.headers.get("origin") || ""), { "cache-control": "public, max-age=60" });
   await ensureCrocchette(env);
-  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp, status FROM crocchette WHERE status IN ('ok','nc') ORDER BY brand, name LIMIT 1000").all();
+  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp, status, addv FROM crocchette WHERE status IN ('ok','nc') ORDER BY brand, name LIMIT 1000").all();
+  try { if (waitUntil) waitUntil(retryOne(env).catch(() => {})); } catch (e) {}
   // 23/10/2026 (Paolo, 1B): anche le crocchette che Claude non ha potuto confermare ma che hanno numeri sensati ("nc", src "n")
-  const items = (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: x.status === "nc" ? "n" : "u", c: cj(x.comp) }));
+  const items = (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: x.status === "nc" ? "n" : "u", c: cj(x.comp), a: aj(x.addv) }));
   // catalogo preparato da Claude dai siti dei produttori (public/crocchette-catalogo.json, 19/10/2026): va prima delle aggiunte
   let cat = [];
   try { const a = await env.ASSETS.fetch(new URL("/crocchette-catalogo.json", request.url)); if (a.ok) cat = (await a.json()).items || []; } catch (e) {}
@@ -112,8 +115,25 @@ export async function onRequestPost({ request, env }) {
   if (old && old.status === "del") return json({ ok: true, status: "no", reason: "tolta" }, 200, H);
   const no = await env.DB.prepare("SELECT reason FROM crocchette WHERE k = ? AND status = 'no' AND kcal = ? ORDER BY created DESC").bind(k, kcal).first();
   if (no) return json({ ok: true, status: "no", reason: no.reason || "" }, 200, H); // già scartata con gli stessi dati: niente nuovo controllo
-  if (!env.ANTHROPIC_API_KEY) return json({ ok: true, status: "wait" }, 200, H);
-  if (await overLimit(request, env)) return json({ ok: true, status: "limit" }, 200, H);
+  const pend = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status = 'attesa'").bind(k).first();
+  if (pend) return json({ ok: true, status: "wait", item: pendItem(pend.id, brand, name, kcal, comp, addOf(b.add)) }, 200, H); // già in attesa del controllo
+  // 23/10/2026 (Paolo: «il sacco che ho aggiunto ora non lo trovo da Pc»): la proposta si salva SUBITO come "attesa" con tutti i dati;
+  // se Claude non risponde o il limite del giorno è finito resta in attesa e la ricontrolla da sola una GET successiva (retryOne).
+  const add = addOf(b.add);
+  const rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  await env.DB.prepare("INSERT INTO crocchette (id, k, brand, name, name_en, kcal, status, reason, url, src, sent, origin, created, comp, addv) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+    .bind(rid, k, brand, name, "", kcal, "attesa", "", "", how, JSON.stringify({ brand, name, kcal, comp, add }), o.includes("gestionale") ? "gestionale" : "sito", new Date().toISOString(),
+      comp.p != null && comp.f != null ? JSON.stringify([comp.p, comp.f, comp.fi, comp.a, comp.u]) : null, add ? JSON.stringify(add) : null).run();
+  if (!env.ANTHROPIC_API_KEY || await overLimit(request, env)) return json({ ok: true, status: "wait", item: pendItem(rid, brand, name, kcal, comp, add) }, 200, H);
+  const v = await verify(env, rid, brand, name, kcal, how, comp, add);
+  if (v.status === "wait") return json({ ok: true, status: "wait", item: pendItem(rid, brand, name, kcal, comp, add) }, 200, H);
+  return json(v, 200, H);
+}
+const pendItem = (id, brand, name, kcal, comp, add) => ({ id: "u_" + id, brand, name, en: "", kcal, src: "n", c: comp.p != null && comp.f != null ? [comp.p, comp.f, comp.fi, comp.a, comp.u] : null, a: add || null });
+// additivi nutrizionali per kg letti dal sacco (vitamine A, D3, E; zinco, rame, iodio, ferro, selenio, manganese) + calcio e fosforo in %
+const ADDK = ["va", "vd", "ve", "zn", "cu", "io", "fe", "se", "mn", "ca", "ph"];
+function addOf(a) { if (!a || typeof a !== "object") return null; const r = {}; let n = 0; for (const q of ADDK) { const v = num(a[q]); if (v != null && v >= 0 && v < 1e6) { r[q] = v; n++ } } return n ? r : null; }
+async function verify(env, rid, brand, name, kcal, how, comp, add) {
   let x;
   try {
     x = await claude(env, `Controlli una crocchetta (cibo secco per cani) che un utente vuole aggiungere a un elenco pubblico di un calcolatore delle razioni.
@@ -130,24 +150,38 @@ Dati dell'utente: marca, nome, kcal per 100 g, come le ha avute (m = scritte a m
 Formato: {"verdict":"ok|nc|no","brand":"","name":"","name_en":"","kcal":0,"p":null,"f":null,"fi":null,"a":null,"u":null,"url":"","reason":"una frase breve in italiano"}`,
       [{ type: "text", text: JSON.stringify({ marca: brand, nome: name, kcal, come: how, componenti: comp }) }], 1500,
       [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }]);
-  } catch (e) { return json({ ok: true, status: "wait" }, 200, H); }
+  } catch (e) { return { status: "wait" }; }
+
   const okv = x && x.verdict === "ok" && num(x.kcal) >= 250 && num(x.kcal) <= 600;
   // "nc": controllo anche qui, con i numeri dell'utente (Paolo: «devi controllarlo anche tu prima di inserirlo»)
   const atw = comp.p != null && comp.f != null && comp.a != null ? 3.5 * comp.p + 8.5 * comp.f + 3.5 * Math.max(0, 100 - comp.p - comp.f - (comp.fi || 0) - comp.a - (comp.u == null ? 10 : comp.u)) : null;
   const ncv = !okv && x && x.verdict === "nc" && kcal >= 300 && kcal <= 480 && (atw == null || Math.abs(atw - kcal) / kcal <= 0.10);
-  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const id = rid;
   const B = String(((okv || ncv) && x.brand) || brand).slice(0, 80), N = String(((okv || ncv) && x.name) || name).slice(0, 120);
   const K = okv ? Math.round(num(x.kcal)) : kcal;
   const k2 = croKey(B, N);
   if (okv || ncv) {
     const dup = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status IN ('ok','nc')").bind(k2).first();
-    if (dup) return json({ ok: true, status: dup.status, dup: true, item: { id: "u_" + dup.id, brand: dup.brand, name: dup.name, en: dup.name_en || "", kcal: dup.kcal, src: dup.status === "nc" ? "n" : "u", c: cj(dup.comp) } }, 200, H);
+    if (dup) { await env.DB.prepare("UPDATE crocchette SET status = 'dup' WHERE id = ?").bind(rid).run(); return { ok: true, status: dup.status, dup: true, item: { id: "u_" + dup.id, brand: dup.brand, name: dup.name, en: dup.name_en || "", kcal: dup.kcal, src: dup.status === "nc" ? "n" : "u", c: cj(dup.comp), a: aj(dup.addv) } }; }
   }
   const CC = okv && num(x.p) != null && num(x.f) != null ? [num(x.p), num(x.f), num(x.fi), num(x.a), num(x.u)] : (comp.p != null && comp.f != null ? [comp.p, comp.f, comp.fi, comp.a, comp.u] : null);
-  await env.DB.prepare("INSERT INTO crocchette (id, k, brand, name, name_en, kcal, status, reason, url, src, sent, origin, created, comp) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-    .bind(id, okv || ncv ? k2 : k, B, N, String((x && x.name_en) || "").slice(0, 120), K, okv ? "ok" : ncv ? "nc" : "no", String((x && x.reason) || "").slice(0, 300),
-      String((x && x.url) || "").slice(0, 300), how, JSON.stringify({ brand, name, kcal, comp }), o.includes("gestionale") ? "gestionale" : "sito", new Date().toISOString(), CC ? JSON.stringify(CC) : null).run();
-  if (ncv) return json({ ok: true, status: "nc", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "n", c: CC } }, 200, H);
-  return json(okv ? { ok: true, status: "ok", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "u", c: CC } }
-    : { ok: true, status: "no", reason: String((x && x.reason) || "") }, 200, H);
+  await env.DB.prepare("UPDATE crocchette SET k = ?, brand = ?, name = ?, name_en = ?, kcal = ?, status = ?, reason = ?, url = ?, comp = ? WHERE id = ?")
+    .bind(okv || ncv ? k2 : croKey(brand, name), B, N, String((x && x.name_en) || "").slice(0, 120), K, okv ? "ok" : ncv ? "nc" : "no", String((x && x.reason) || "").slice(0, 300),
+      String((x && x.url) || "").slice(0, 300), CC ? JSON.stringify(CC) : null, id).run();
+  if (ncv) return { ok: true, status: "nc", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "n", c: CC, a: add } };
+  return okv ? { ok: true, status: "ok", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "u", c: CC, a: add } }
+    : { ok: true, status: "no", reason: String((x && x.reason) || "") };
+}
+// una proposta rimasta "attesa" (Claude non ha risposto o limite finito) si ricontrolla da sola alla prima GET dopo 10 minuti
+export async function retryOne(env) {
+  if (!env.ANTHROPIC_API_KEY) return;
+  const day = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+  const all = ((await env.DB.prepare("SELECT n FROM crocch_lim WHERE day = ? AND who = '*'").bind(day).first()) || { n: 0 }).n;
+  if (all >= LIMITE_GIORNO) return;
+  const r = await env.DB.prepare("SELECT * FROM crocchette WHERE status = 'attesa' AND created < ? ORDER BY created LIMIT 1").bind(new Date(Date.now() - 6e5).toISOString()).first();
+  if (!r) return;
+  await env.DB.prepare("INSERT INTO crocch_lim (day, who, n) VALUES (?, '*', 1) ON CONFLICT(day, who) DO UPDATE SET n = n + 1").bind(day).run();
+  let s = {}; try { s = JSON.parse(r.sent || "{}"); } catch (e) {}
+  const comp = s.comp || {};
+  await verify(env, r.id, r.brand, r.name, r.kcal, r.src, { p: num(comp.p), f: num(comp.f), fi: num(comp.fi), a: num(comp.a), u: num(comp.u) }, aj(r.addv));
 }
