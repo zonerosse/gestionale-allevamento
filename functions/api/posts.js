@@ -34,6 +34,19 @@ export async function onRequestPost({ request, env }) {
       await gget("https://mybusiness.googleapis.com/v4/" + name, await gbpToken(env), "DELETE");
       return json({ ok: true });
     }
+    if (p.task === "media") {
+      // 23/10/2026 (Paolo, anteprima 07 approvata): il video va nella sezione «Foto e video» della scheda (non in un post: Google
+      // non accetta video nei post fatti dai programmi). Google lo scarica da /api/public/gpost/<chiave> (aperto 2 giorni).
+      const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
+      const k = String(p.video || "");
+      if (!/^[\w\-./]+$/.test(k) || k.includes("..") || !/\.(mp4|webm|mov)$/i.test(k)) return json({ ok: false, error: "Video non valido." });
+      await gbpSet(env, "media:" + k, String(Date.now() + 2 * 86400e3));
+      const src = new URL(request.url).origin + "/api/public/gpost/" + k.split("/").map(encodeURIComponent).join("/");
+      try {
+        const j = await gget("https://mybusiness.googleapis.com/v4/" + loc + "/media", await gbpToken(env), "POST", { mediaFormat: "VIDEO", locationAssociation: { category: "ADDITIONAL" }, sourceUrl: src });
+        return json({ ok: true, name: j.name || "", url: j.googleUrl || "" });
+      } catch (e) { if (e.connect) throw e; return json({ ok: false, error: String(e.message || e) }); }
+    }
     if (!text || text.length > 1500) return json({ ok: false, error: "Il testo deve avere fra 1 e 1.500 caratteri." });
     if (PHONE.test(text)) return json({ ok: false, error: "Nel testo c'è un numero di telefono: Google non lo accetta." });
     if (p.task === "edit") {

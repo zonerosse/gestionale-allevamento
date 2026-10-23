@@ -1538,3 +1538,12 @@ Accessi e copie
 - Risposte salvate in D1 `alimenti` (chiave gruppo + nome normalizzato): uno stesso alimento non costa una seconda lettura.
   Limiti: 40 letture nuove al giorno per tutti, 6 per visitatore (`alimenti_lim`, hash IP+giorno). Origini: sito, gestionale e "null"
   (anteprime HTML aperte dal disco).
+
+## Google → Video: post completo e video nel profilo (23/10/2026, anteprima 07 approvata da Paolo: «sì»)
+- `vdPage` (dopo «Usa questo video»): 1 video · 2 il post: Titolo (facoltativo, prima riga del post), Spunto per Claude, Testo,
+  Bottone (`gpLinks`, di base il Diario più recente, `vsCtaDef`), spunta «Metti il video anche nei video del profilo» (`VS.prof`) ·
+  3 anteprima con il fotogramma e «Pubblica su Google» (`vsPub`).
+- `vsPub`: post normale con `POST /api/posts {text: titolo+testo (vsFull), url, file: fotogramma}`; poi, con la spunta, il video su R2
+  e `POST /api/posts {task:"media", video}` → v4 `<loc>/media` {mediaFormat:"VIDEO", category ADDITIONAL, sourceUrl
+  /api/public/gpost/<chiave>} = sezione «Foto e video» della scheda. Google NON accetta video nei post via API: nel post va il
+  fotogramma. Esito in `VS.pub` (riga verde, o il motivo se il video non va). Dopo la pubblicazione il tasto diventa «Pubblicato».
