@@ -4954,9 +4954,15 @@ function gpView(i,conf){const p=(GP.list||[])[+i];if(!p)return;
   if(conf)setTimeout(()=>{const c=document.getElementById("gp_conf");if(c){c.scrollIntoView({block:"center",behavior:"smooth"});const y=c.querySelector(".gp-del2");y&&y.focus({preventScroll:true})}},30)}
 async function gpDel(i,b){const p=(GP.list||[])[+i];if(!p)return;aiBusy(b,1,"Elimino…");
   try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"del",name:p.name})}),j=await r.json();if(!j.ok)throw new Error(j.error||"errore");
-    GP.list.splice(+i,1);closeSheet();render();toast("Post eliminato da Google.")}
+    GP.list.splice(+i,1);closeSheet();render();toast("Post eliminato da Google.");spSync(3000)}
   catch(x){aiBusy(b,0);alert("Post non eliminato.\n\n"+x.message)}}
-async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok)GP.list=j.posts;else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
+/* Pagina «Novità» del sito (23/10/2026): i post online su Google vanno anche sul sito, da soli (functions/api/sitepost.js).
+   spSync(ms): dopo ms millisecondi chiede al server di allineare il sito; se non è cambiato niente non succede nulla. Mai errori a schermo. */
+let SP_T=null,SP_RUN=false;
+function spSync(ms){if(RO||typeof OWNER_MODE!=="undefined")return;clearTimeout(SP_T);SP_T=setTimeout(async()=>{if(SP_RUN)return;SP_RUN=true;
+  try{const j=await (await fetch("/api/sitepost",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"})).json();
+    if(j.ok&&j.commit)toast("Pagina Novità del sito aggiornata: tra 2-3 minuti è online.");else if(!j.ok&&j.error)console.warn("Novità sul sito:",j.error)}catch(x){}SP_RUN=false},ms||0)}
+async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok){GP.list=j.posts;spSync(1500)}else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
 function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa, oppure lo scrivi tu; lo pubblichi sempre tu, con il tasto.</p>`+(GP.free?gpFreeHtml():`<p style="margin:0 0 6px"><button class="btn rv-go" data-a="gpFree">✍️ Scrivi un post</button></p>`)+`<h2>Da proporre (${E.length})</h2>`;
   if(!E.length)h+=`<p class="empty">Niente di nuovo da raccontare per ora.</p>`;
   for(const e of E){if(GP.ed!==e.k){h+=`<div class="gp-ev"><span class="ic" aria-hidden="true">${e.ic}</span><p class="t">${esc(e.t)}</p><span class="b"><button class="btn small" data-a="gpOpen" data-v="${esc(e.k)}">Prepara il post</button> <button class="plink" data-a="gpSkip" data-v="${esc(e.k)}">Non serve</button></span><p class="s">${esc(e.s)}</p></div>`;continue}
@@ -5039,7 +5045,7 @@ async function gpFreeAct(a,v,b){const F=GP.free;
       let j=await send(V?{video:k(V.url)}:{file:p?k(p.f):""}),vid=!!V;
       if(!j.ok&&V&&j.video){if(!confirm("Google non ha accettato il video mandato dal gestionale.\n("+(j.error||"")+")\n\nPubblico il post con un fotogramma del video come foto?\nIl video lo puoi aggiungere tu dal profilo Google: prima premi «Salva il video».")){aiBusy(b,0);return}
         j=await send({file:k(V.frame)});vid=false}
-      if(!j.ok)throw new Error(j.error||"errore");GP.free=null;GP.text="";GP.list=null;if(V)GP.vid=null;render();toast(vid?"Post con il video mandato a Google: lo controllano e poi è online (il video può metterci qualche minuto).":"Post mandato a Google: lo controllano e poi è online.")}
+      if(!j.ok)throw new Error(j.error||"errore");GP.free=null;GP.text="";GP.list=null;if(V)GP.vid=null;render();toast(vid?"Post con il video mandato a Google: lo controllano e poi è online (il video può metterci qualche minuto).":"Post mandato a Google: lo controllano e poi è online.");spSync(30000);setTimeout(()=>spSync(0),180000)}
     catch(x){aiBusy(b,0);alert("Post non pubblicato.\n\n"+x.message)}}}
 document.addEventListener("input",e=>{const t=e.target;if(t&&t.id==="gp_idea"&&GP.free)GP.free.idea=t.value});
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="gp_lnk"&&GP.free){GP.free.link=+t.value;render()}});
@@ -5225,7 +5231,7 @@ async function gpAct(a,v,b){
   if(a==="gpRedo"){const e=gpFind(v);if(e)gpWrite(e,b);return}
   if(a==="gpPub"){const e=gpFind(v);if(!e)return;const f=GP.up[GP.photo]||"";aiBusy(b,1,"Pubblico…");
     try{const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:GP.text,url:GP.btn?e.url:"",file:f?f.replace(/^\/files\//,""):""})}),j=await r.json();
-      if(!j.ok)throw new Error(j.error||"errore");gpMark(v,e.newest);GP.ed=null;GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.")}
+      if(!j.ok)throw new Error(j.error||"errore");gpMark(v,e.newest);GP.ed=null;GP.list=null;render();toast("Post mandato a Google: lo controllano e poi è online.");spSync(30000);setTimeout(()=>spSync(0),180000)}
     catch(x){aiBusy(b,0);alert("Post non pubblicato.\n\n"+x.message)}}}
 document.addEventListener("input",e=>{const t=e.target;if(!t)return;
   if(t.id==="gp_tx"){GP.text=t.value;const g=document.getElementById("gp_gt");if(g)g.textContent=t.value;const c=document.getElementById("gp_ck");if(c)c.innerHTML=gpChecksHtml(t.value);
