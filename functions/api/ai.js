@@ -230,10 +230,15 @@ Formato: {"title":"","title_en":"","date":"","lab":"","chip":"","loi":"","tests"
 - "stage": "puppy" se è per cuccioli/junior, "adult" se per adulti, "senior", oppure "" se non si capisce.
 - "kcal": energia metabolizzabile in kcal per 100 g SOLO se è scritta sul sacco (converti: 3850 kcal/kg = 385; 16,1 MJ/kg = 385; 385 kcal/100 g = 385). null se non è scritta.
 - "p","f","fi","a","u": percentuali dei componenti analitici: proteina grezza, grassi (oli e grassi grezzi), fibra grezza, ceneri grezze, umidità. Numeri (es. 25.5). null se un valore non è scritto.
-Formato: {"brand":"","name":"","stage":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null}`,
-        [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 600);
+- "ca","ph": calcio e fosforo in % SOLO se scritti (1,2% = 1.2; 12 g/kg = 1.2). null se non scritti.
+- "add": additivi nutrizionali PER KG, solo quelli scritti (null gli altri): "va" vitamina A UI/kg, "vd" vitamina D3 UI/kg, "ve" vitamina E mg/kg
+  (se in UI/kg stesso numero), "zn" zinco, "cu" rame, "io" iodio, "fe" ferro, "se" selenio, "mn" manganese in mg/kg (somma le forme dello stesso elemento).
+Formato: {"brand":"","name":"","stage":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null,"ca":null,"ph":null,"add":{"va":null,"vd":null,"ve":null,"zn":null,"cu":null,"io":null,"fe":null,"se":null,"mn":null}}`,
+        [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 900);
       const n = v => (v === null || v === undefined || v === "" || isNaN(+v)) ? null : +v;
       const r = { brand: String(o.brand || ""), name: String(o.name || ""), stage: String(o.stage || ""), p: n(o.p), f: n(o.f), fi: n(o.fi), a: n(o.a), u: n(o.u) };
+      for (const q of ["ca", "ph"]) { const v = n(o[q]); r[q] = v != null && v > 0 && v < 5 ? v : null; } // 23/10/2026: nutrienti e additivi (squilibri)
+      { const A = {}; let c = 0; for (const q of ["va", "vd", "ve", "zn", "cu", "io", "fe", "se", "mn"]) { const v = n(o.add && o.add[q]); if (v != null && v > 0 && v < 1e6) { A[q] = v; c++; } } r.add = c ? A : null; }
       let k = n(o.kcal); if (k && k > 1000) k = k / 10; // kcal/kg scritte per sbaglio
       r.kcalRead = !!(k && k > 200 && k < 700);
       if (r.kcalRead) r.kcal = Math.round(k);

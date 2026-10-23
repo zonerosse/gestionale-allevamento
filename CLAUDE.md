@@ -1550,3 +1550,16 @@ Accessi e copie
 - (23/10/2026, Paolo 1A) «Prepara su Google» accanto a «Pubblica su Google» (`vsPrep`): Google non lascia precompilare la sua finestra
   dei post, quindi il gestionale copia titolo+testo, salva il video (`vdSave`: Condividi → Salva video sul telefono, Download sul
   computer) e mostra i passi con «Apri Google» (ricerca del nome della scheda) e «Copia il link del bottone» (`vsLink`).
+
+## Calcolatore BARF nella pagina della famiglia e vitamine/minerali dal sacco (23/10/2026, anteprime 14 e 15 approvate da Paolo)
+- Pagina della famiglia (blocco comune `owBfHtml`/`owBfMount`, dopo «Quanto mangia», stesso interruttore `d.ownFeed`): «Calcolatore BARF per <cane>»
+  con «Prima di cominciare» che lampeggia finché non si apre, il calcolatore e l'esonero di responsabilità. Lo script è quello del sito
+  (`https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=…`, `window.barfInit(el,{lang,S})`): una sola fonte; se cambia `?v=` sul sito,
+  cambiarlo anche qui. Dati del cane già inseriti (età, sesso, sterilizzata, ultima pesata, adulto 16/14 kg). Stile `.bf*` nel `<style>` comune.
+- «Quanto mangia» (gestionale `fdProt`/`fdAddHtml`, famiglia `protHtml`/`addHtml`): tabella dei nutrienti come sul sito; calcio e fosforo
+  e gli additivi per kg (vitamine A, D3, E; zinco, rame, iodio, ferro, selenio, manganese → `f.a`) letti dalla foto del sacco
+  (`/api/ai` compito `sacco` e `/api/public/sacco`): «coperto» / «più le materie prime» / «troppo» (sopra il massimo UE per kg).
+- Elenco comune delle crocchette: la proposta si salva subito come `attesa` (colonna `addv` = additivi); se Claude non risponde o il limite è
+  finito, una GET successiva la ricontrolla da sola dopo 10 minuti (`retryOne`). Stati nuovi in «Crocchette aggiunte dagli utenti»: attesa, dup.
+- ATTENZIONE: il CSS nuovo va PRIMA di `</style>` (il 23/10/2026 una riga finita dopo `</style>` compariva come testo in cima alle pagine).
+- Il blocco «Quanto mangia» della famiglia (`owFdMount`) era diverso fra i due file (quello di index.html più vecchio): il 23/10/2026 riallineato.
