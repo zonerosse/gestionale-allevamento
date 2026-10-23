@@ -53,9 +53,12 @@ export async function onRequestPost({ request, env }) {
       id: String(p.name || "").split("/").pop().replace(/[^\w-]/g, ""), date: (p.createTime || "").slice(0, 10), it: String(p.summary).trim(),
       gimg: (p.media && p.media[0] && p.media[0].mediaFormat === "PHOTO" && p.media[0].googleUrl) || "",
       url: (p.callToAction && /^https:\/\/delpiccolodiavolo\.it\//.test(p.callToAction.url || "") && p.callToAction.url) || "" }))
-      .filter(p => p.id && /^\d{4}-\d{2}-\d{2}$/.test(p.date) && p.date >= DAL).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 120);
+      // 23/10/2026 (Paolo): «meglio che non si veda del tutto il post che un post senza foto»: sul sito solo i post con la foto
+      .filter(p => p.id && p.gimg && /^\d{4}-\d{2}-\d{2}$/.test(p.date) && p.date >= DAL).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 120);
     const sig = await hash(JSON.stringify(posts.map(p => [p.id, p.it, !!p.gimg, p.url])));
-    if (sig === await gbpGet(env, "sitepost:sig")) return json({ ok: true, unchanged: true });
+    const today0 = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" }), sig0 = await gbpGet(env, "sitepost:sig");
+    // con post saltati (foto non scaricata) l'impronta porta la data: il giorno dopo si riprova da solo
+    if (sig0 === sig || sig0 === sig + "|" + today0) return json({ ok: true, unchanged: true });
 
     const gh = async (path, method = "GET", body, soft404) => {
       const r = await fetch(API + path, { method, headers: { Authorization: "Bearer " + env.GITHUB_TOKEN, Accept: "application/vnd.github+json",
@@ -72,12 +75,12 @@ export async function onRequestPost({ request, env }) {
     const kset = async (k, v) => { KV.set(k, v); await env.DB.prepare("INSERT INTO gbp (k,v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(k, v).run(); };
     const there = new Set(((await gh("/contents/" + DIR + "?ref=" + BRANCH, "GET", null, true)) || []).map(f => f.name));
     const tree = [], blob = async b64 => (await gh("/git/blobs", "POST", { content: b64, encoding: "base64" })).sha, items = [];
-    let fatti = 0, more = false;
+    let fatti = 0, more = false, skipped = 0;
     for (const p of posts) {
       const name = p.id + ".jpg", bk = "sitepost:blob:" + p.id, nk = "sitepost:nofoto:" + p.id;
-      // foto che Google non dà (23/10/2026, controllo): si riprova solo dopo 7 giorni, così un post senza foto scaricabile
-      // non tiene il gestionale a girare in tondo con «more» e il sito si aggiorna lo stesso
-      if (p.gimg && !there.has(name) && KV.get(nk) && KV.get(nk) > new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10)) p.gimg = "";
+      // foto che Google non dà: il post NON va sul sito (scelta di Paolo) e la foto si riprova il giorno dopo; così il gestionale
+      // non gira in tondo con «more» e gli altri post si aggiornano lo stesso
+      if (!there.has(name) && !KV.get(bk) && KV.get(nk) === today0) { skipped++; continue; }
       const tk2 = "sitepost:tr:" + p.id + ":" + await hash(p.it + (p.gimg ? "|f" : ""));
       let tr = null; try { tr = JSON.parse(KV.get(tk2) || "null"); } catch (e) {}
       let bsha = p.gimg && !there.has(name) ? (KV.get(bk) || null) : null;
@@ -93,7 +96,7 @@ export async function onRequestPost({ request, env }) {
         if (!r || !r.ok) r = await fetch(p.gimg).catch(() => null);
         if (r && r.ok) { const u = new Uint8Array(await r.arrayBuffer()); foto = { b64: u8b64(u), type: (r.headers.get("content-type") || "image/jpeg").split(";")[0] };
           bsha = await blob(foto.b64); await kset(bk, bsha); }
-        else await kset(nk, new Date().toISOString().slice(0, 10));
+        else { await kset(nk, today0); skipped++; continue; }
       }
       if (!tr) { tr = await tradu(env, p.it, foto); await kset(tk2, JSON.stringify(tr)); }
       if (bsha && !there.has(name)) { tree.push({ path: DIR + "/" + name, mode: "100644", type: "blob", sha: bsha }); there.add(name); }
@@ -111,13 +114,13 @@ export async function onRequestPost({ request, env }) {
     let oldItems = null; try { oldItems = JSON.stringify((JSON.parse(b64txt(old.content)) || {}).items); } catch (e) {}
     const changed = oldItems !== JSON.stringify(items);
     if (changed) tree.push({ path: DATA, mode: "100644", type: "blob", sha: await blob(u8b64(new TextEncoder().encode(JSON.stringify({ updated: today, items }, null, 1) + "\n"))) });
-    if (!tree.length) { await gbpSet(env, "sitepost:sig", sig); return json({ ok: true, unchanged: true }); }
+    if (!tree.length) { await gbpSet(env, "sitepost:sig", skipped ? sig + "|" + today0 : sig); return json({ ok: true, unchanged: true }); }
     const ref = await gh("/git/ref/heads/" + BRANCH), head = ref.object.sha, base = (await gh("/git/commits/" + head)).tree.sha;
     const nt = await gh("/git/trees", "POST", { base_tree: base, tree });
-    if (nt.sha === base) { await gbpSet(env, "sitepost:sig", sig); return json({ ok: true, unchanged: true }); }
+    if (nt.sha === base) { await gbpSet(env, "sitepost:sig", skipped ? sig + "|" + today0 : sig); return json({ ok: true, unchanged: true }); }
     const c = await gh("/git/commits", "POST", { message: "Novità: post del profilo Google (dal gestionale)", tree: nt.sha, parents: [head] });
     await gh("/git/refs/heads/" + BRANCH, "PATCH", { sha: c.sha });
-    await gbpSet(env, "sitepost:sig", sig);
-    return json({ ok: true, commit: c.sha.slice(0, 7), n: items.length });
+    await gbpSet(env, "sitepost:sig", skipped ? sig + "|" + today0 : sig);
+    return json({ ok: true, commit: c.sha.slice(0, 7), n: items.length, skipped });
   } catch (e) { return json({ ok: false, connect: !!e.connect, error: String(e.message || e) }); }
 }

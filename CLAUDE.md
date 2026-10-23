@@ -1525,3 +1525,6 @@ Accessi e copie
   se ci sono proteina/grassi/ceneri, calcolo Atwater entro il 10%. Stato `nc` nella tabella `crocchette`; il GET le dà a tutti con
   `src:"n"` → scritta «dati scritti da un utente, non controllati» (sito, pagina della famiglia, gestionale `FD_U`). In Quanto mangia →
   Crocchette aggiunte dagli utenti: «Nell'elenco per tutti, non controllata», con 🗑 Togli.
+- (23/10/2026, Paolo: «meglio che non si veda del tutto il post che un post senza foto») Sulla pagina Notizie del sito vanno SOLO
+  i post con la foto: i post senza foto su Google restano fuori; se la foto di un post non si scarica, quel post resta fuori e la
+  foto si riprova il giorno dopo (gbp "sitepost:nofoto:<id>" = giorno; "sitepost:sig" porta «|giorno» quando c'è un post saltato).
