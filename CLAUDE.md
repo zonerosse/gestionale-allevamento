@@ -1547,3 +1547,6 @@ Accessi e copie
   e `POST /api/posts {task:"media", video}` → v4 `<loc>/media` {mediaFormat:"VIDEO", category ADDITIONAL, sourceUrl
   /api/public/gpost/<chiave>} = sezione «Foto e video» della scheda. Google NON accetta video nei post via API: nel post va il
   fotogramma. Esito in `VS.pub` (riga verde, o il motivo se il video non va). Dopo la pubblicazione il tasto diventa «Pubblicato».
+- (23/10/2026, Paolo 1A) «Prepara su Google» accanto a «Pubblica su Google» (`vsPrep`): Google non lascia precompilare la sua finestra
+  dei post, quindi il gestionale copia titolo+testo, salva il video (`vdSave`: Condividi → Salva video sul telefono, Download sul
+  computer) e mostra i passi con «Apri Google» (ricerca del nome della scheda) e «Copia il link del bottone» (`vsLink`).
