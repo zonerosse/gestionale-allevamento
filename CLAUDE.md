@@ -1494,6 +1494,9 @@ Accessi e copie
   e le foto in `static/images/novita-google/<id>.jpg` (scaricate da Google a 1000 px). Post tolto da Google → tolto dal sito con la
   sua foto (si cancella solo in quella cartella). Inglese, tedesco e descrizione della foto li scrive Claude una volta per post
   (cache gbp "sitepost:tr:<id>:<impronta>"). «Scopri di più» va sul sito solo se punta a delpiccolodiavolo.it.
+- Solo i post dell'ultimo anno (scelta B di Paolo, 23/10/2026): quelli più vecchi escono da soli dal sito. Al massimo 6 post
+  nuovi per chiamata (limite di Cloudflare sulle chiamate esterne): foto caricate come blob su GitHub (gbp "sitepost:blob:<id>"),
+  risposta `{more:true}`, la pagina richiama da sola; il commit parte una volta sola quando sono pronti tutti.
 - Pagina: `spSync(ms)` (blocco comune) parte da sola all'apertura di Google → Post (`gpLoad`), dopo «Elimina da Google» e dopo una
   pubblicazione (30 s e 3 minuti dopo: Google mette online il post con un po' di ritardo). Nessun tasto, nessun errore a schermo;
   se il sito cambia: avviso «Pagina Novità del sito aggiornata».

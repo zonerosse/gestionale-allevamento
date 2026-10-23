@@ -8,9 +8,10 @@ import { gbpGet, gbpSet, gbpToken, gget } from "../_gbp.js";
    della foto li scrive Claude una volta sola per post (tabella gbp, "sitepost:tr:<id>:<impronta del testo>").
    Il gestionale la chiama quando apre i post, dopo una pubblicazione e dopo un'eliminazione: se da Google non è cambiato
    niente (impronta in "sitepost:sig") non fa nulla e non tocca GitHub.
-   POST {} → { ok, unchanged } | { ok, commit, n } | { ok:false, error } */
+   POST {} → { ok, unchanged } | { ok, commit, n, more } | { ok:false, error }
+   Solo i post dell'ultimo anno (scelta B); al massimo LOTTO post nuovi per chiamata: con more:true il gestionale richiama. */
 const REPO = "zonerosse/delpiccolodiavolo-hugo", BRANCH = "main", API = "https://api.github.com/repos/" + REPO;
-const DIR = "static/images/novita-google", DATA = "data/postgoogle.json", MODEL = "claude-sonnet-5-5";
+const LOTTO = 6, DIR = "static/images/novita-google", DATA = "data/postgoogle.json", MODEL = "claude-sonnet-5-5";
 const hash = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].slice(0, 8).map(b => b.toString(16).padStart(2, "0")).join("");
 const u8b64 = u => { let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 const b64txt = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), c => c.charCodeAt(0)));
@@ -41,6 +42,8 @@ export async function onRequestPost({ request, env }) {
   try {
     if (!env.GITHUB_TOKEN) return json({ ok: false, error: "Manca la chiave GITHUB_TOKEN in Cloudflare." });
     const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
+    // scelta B di Paolo (23/10/2026): sul sito solo i post dell'ultimo anno; quelli più vecchi escono da soli
+    const DAL = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
     const tk = await gbpToken(env), L = []; let tok = "";
     for (let pg = 0; pg < 3; pg++) {
       const j = await gget("https://mybusiness.googleapis.com/v4/" + loc + "/localPosts?pageSize=100" + (tok ? "&pageToken=" + encodeURIComponent(tok) : ""), tk);
@@ -50,7 +53,7 @@ export async function onRequestPost({ request, env }) {
       id: String(p.name || "").split("/").pop().replace(/[^\w-]/g, ""), date: (p.createTime || "").slice(0, 10), it: String(p.summary).trim(),
       gimg: (p.media && p.media[0] && p.media[0].mediaFormat === "PHOTO" && p.media[0].googleUrl) || "",
       url: (p.callToAction && /^https:\/\/delpiccolodiavolo\.it\//.test(p.callToAction.url || "") && p.callToAction.url) || "" }))
-      .filter(p => p.id && /^\d{4}-\d{2}-\d{2}$/.test(p.date)).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
+      .filter(p => p.id && /^\d{4}-\d{2}-\d{2}$/.test(p.date) && p.date >= DAL).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 120);
     const sig = await hash(JSON.stringify(posts.map(p => [p.id, p.it, !!p.gimg, p.url])));
     if (sig === await gbpGet(env, "sitepost:sig")) return json({ ok: true, unchanged: true });
 
@@ -65,23 +68,33 @@ export async function onRequestPost({ request, env }) {
     };
     const there = new Set(((await gh("/contents/" + DIR + "?ref=" + BRANCH, "GET", null, true)) || []).map(f => f.name));
     const tree = [], blob = async b64 => (await gh("/git/blobs", "POST", { content: b64, encoding: "base64" })).sha, items = [];
+    let fatti = 0, more = false;
     for (const p of posts) {
-      const name = p.id + ".jpg";
+      const name = p.id + ".jpg", bk = "sitepost:blob:" + p.id;
+      const tk2 = "sitepost:tr:" + p.id + ":" + await hash(p.it + (p.gimg ? "|f" : ""));
+      let tr = null; try { tr = JSON.parse(await gbpGet(env, tk2) || "null"); } catch (e) {}
+      let bsha = p.gimg && !there.has(name) ? await gbpGet(env, bk) : null;
+      const todo = !tr || (p.gimg && !there.has(name) && !bsha);
+      // Cloudflare limita le chiamate esterne per richiesta: i post nuovi si preparano a gruppi (foto già caricata su GitHub
+      // come blob, traduzione salvata), il gestionale richiama da solo e il commit parte una volta sola, alla fine
+      if (todo && fatti >= LOTTO) { more = true; continue; }
+      if (todo) fatti++;
       let foto = null;
-      if (p.gimg && !there.has(name)) {
+      if (p.gimg && !there.has(name) && !bsha) {
         // la foto del post, al massimo 1000 px di lato (Google accetta il ritaglio nell'indirizzo)
         let r = await fetch(p.gimg.replace(/=[^/=]*$/, "") + "=w1000-h1000").catch(() => null);
         if (!r || !r.ok) r = await fetch(p.gimg).catch(() => null);
-        if (r && r.ok) { const u = new Uint8Array(await r.arrayBuffer()); foto = { b64: u8b64(u), type: (r.headers.get("content-type") || "image/jpeg").split(";")[0] }; tree.push({ path: DIR + "/" + name, mode: "100644", type: "blob", sha: await blob(foto.b64) }); there.add(name); }
+        if (r && r.ok) { const u = new Uint8Array(await r.arrayBuffer()); foto = { b64: u8b64(u), type: (r.headers.get("content-type") || "image/jpeg").split(";")[0] };
+          bsha = await blob(foto.b64); await gbpSet(env, bk, bsha); }
       }
-      const tk2 = "sitepost:tr:" + p.id + ":" + await hash(p.it + (p.gimg ? "|f" : ""));
-      let tr = null; try { tr = JSON.parse(await gbpGet(env, tk2) || "null"); } catch (e) {}
       if (!tr) { tr = await tradu(env, p.it, foto); await gbpSet(env, tk2, JSON.stringify(tr)); }
+      if (bsha && !there.has(name)) { tree.push({ path: DIR + "/" + name, mode: "100644", type: "blob", sha: bsha }); there.add(name); }
       const it = { id: p.id, date: p.date, it: p.it, en: tr.en, de: tr.de };
       if (there.has(name)) { it.img = "/images/novita-google/" + name; if (tr.alt && tr.alt.it) it.alt = { it: tr.alt.it, en: tr.alt.en || "", de: tr.alt.de || "" }; }
       if (p.url) it.url = p.url;
       items.push(it);
     }
+    if (more) return json({ ok: true, more: true, done: items.length, total: posts.length });
     // foto di post eliminati da Google: via anche dal sito (solo in questa cartella)
     const keep = new Set(items.filter(i => i.img).map(i => i.id + ".jpg"));
     for (const n of there) if (/^[\w-]+\.jpg$/.test(n) && !keep.has(n)) tree.push({ path: DIR + "/" + n, mode: "100644", type: "blob", sha: null });
