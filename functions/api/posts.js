@@ -36,6 +36,14 @@ export async function onRequestPost({ request, env }) {
     }
     if (!text || text.length > 1500) return json({ ok: false, error: "Il testo deve avere fra 1 e 1.500 caratteri." });
     if (PHONE.test(text)) return json({ ok: false, error: "Nel testo c'è un numero di telefono: Google non lo accetta." });
+    if (p.task === "edit") {
+      // 23/10/2026 (Paolo, 1A): cambia solo il testo di un post già pubblicato; foto e «Scopri di più» restano
+      const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
+      const name = String(p.name || "");
+      if (!name.startsWith(loc + "/localPosts/") || !/^[\w\-\/]+$/.test(name)) return json({ ok: false, error: "Post non valido." });
+      const j = await gget("https://mybusiness.googleapis.com/v4/" + name + "?updateMask=summary", await gbpToken(env), "PATCH", { summary: text });
+      return json({ ok: true, text: j.summary || text, state: j.state || "" });
+    }
     const loc = await gbpGet(env, "loc"); if (!loc) return json({ ok: false, connect: true, error: "Il gestionale non è ancora collegato al profilo Google." });
     const body = { languageCode: "it", summary: text, topicType: "STANDARD" };
     if (p.url && /^https:\/\/delpiccolodiavolo\.it\//.test(p.url)) body.callToAction = { actionType: "LEARN_MORE", url: p.url };

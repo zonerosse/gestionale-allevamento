@@ -1510,3 +1510,11 @@ Accessi e copie
   ogni 5 minuti e quando si torna sulla pagina la richiede. Se è cambiata, `NEWVER` → nella riga in alto accanto a «Salvato alle…»
   compare «· Versione nuova pronta · Aggiorna» (`.sb-nv`). `nvReload` salva e ricarica; con una modifica in corso o un riquadro
   aperto chiede prima di finire. Solo nel gestionale di Paolo, non nella pagina della famiglia.
+
+## Modifica del testo di un post pubblicato (23/10/2026, Paolo: 1A «entrambe, a mia scelta», anteprima-03)
+- Google → Post → post pubblicato (`gpView`): avviso `gpFlagBox` con le cose che sul sito non si scrivono più (`gpFlags`: prenotazioni,
+  lista d'attesa, caparra, acconto, clienti, acquirenti, parole vuote, numero di cuccioli/maschi/femmine: stesse regole di verifica.py
+  del sito) e tasto «Modifica il testo» (`gpEdit`): testo modificabile con avviso aggiornato mentre si scrive, «Fallo sistemare a
+  Claude» (`gpFix`, compito `pulisci` di /api/ai: toglie solo le cose segnate) e «Salva su Google» (`gpSave` → `POST /api/posts
+  {task:"edit",name,text}` → PATCH v4 `?updateMask=summary`; foto e «Scopri di più» restano). Dopo il salvataggio `spSync`: il sito
+  rifà la traduzione (cache per impronta del testo) e si aggiorna da solo.

@@ -66,7 +66,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -102,6 +102,16 @@ Descrivi in italiano, in una o due frasi brevi (massimo 35 parole), SOLO quello 
 Non inventare nomi, date o fatti.
 Formato: {"seen":"..."}`, [img, { type: "text", text: "Ecco la foto." }], 300);
       return json({ ok: true, seen: String(o.seen || "") });
+    }
+    if (task === "pulisci") {
+      // 23/10/2026 (Paolo): post vecchi del profilo Google con parole che sul sito non si usano più. Si tolgono SOLO quelle.
+      const flags = (Array.isArray(p.flags) ? p.flags : []).map(x => String(x).slice(0, 80)).slice(0, 12);
+      const o = await ask(env, `${voice(F)}
+Ti do il testo di un post già pubblicato sul profilo Google dell'allevamento. Correggilo togliendo SOLO queste cose, che sul sito dell'allevamento non si scrivono più: ${flags.map(x => "«" + x + "»").join(", ") || "nessuna"}.
+Regole: niente linguaggio da vendita (prenotazioni, lista d'attesa, caparra, acconto, clienti, acquirenti: chi prende un cucciolo è «una famiglia»); niente parole vuote come «passione», «professionalità», «esperienza pluriennale»; non dire mai quanti cuccioli sono nati né quanti maschi o femmine.
+Tutto il resto resta IDENTICO: stesse frasi, stesso ordine, stessi a capo, stesse emoji. Se una frase serviva solo a quello che togli, toglila intera; se resta una frase monca, sistemala con il minimo di parole. Non aggiungere fatti, inviti, numeri di telefono o hashtag.
+Formato: {"text":"testo corretto"}`, String(p.text || "").slice(0, 1600), 1500);
+      return json({ ok: true, text: String(o.text || "") });
     }
     if (task === "post") {
       // Post per la sezione "Aggiornamenti" del profilo Google: una notizia, non una vendita.
