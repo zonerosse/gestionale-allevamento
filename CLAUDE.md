@@ -1530,3 +1530,11 @@ Accessi e copie
   foto si riprova il giorno dopo (gbp "sitepost:nofoto:<id>" = giorno; "sitepost:sig" porta «|giorno» quando c'è un post saltato).
 - (23/10/2026, Paolo: scelta 1B) «Versione nuova pronta»: niente più controllo ogni 5 minuti (scaricava la pagina intera, ~3 MB
   all'ora sull'hotspot del telefono): `nvCheck` una volta all'apertura e poi solo tornando sul gestionale dopo almeno 2 minuti (`NV_HID`).
+
+## «Altro…» nel calcolatore BARF del sito (23/10/2026, Paolo: «ad ogni voce per alimento aggiungi altro, e in base a quanto scritto ricalcola»)
+- `POST /api/public/alimento` (functions/api/public/alimento.js) `{g: carne|trippa|fegato|organi|ossa|verdure|frutta, nome}`: Claude dà i
+  valori medi per 100 g crudi come USDA SR28 (kcal, p, f, ca mg, ph mg, zn, cu, va UI, vd UI, ve mg, io µg, o3 g) e il nome in it/en/de.
+  Rifiuta (campo `no` in tre lingue) maiale e cinghiale crudi (Aujeszky), cibi tossici, ossa cotte, cose fuori gruppo.
+- Risposte salvate in D1 `alimenti` (chiave gruppo + nome normalizzato): uno stesso alimento non costa una seconda lettura.
+  Limiti: 40 letture nuove al giorno per tutti, 6 per visitatore (`alimenti_lim`, hash IP+giorno). Origini: sito, gestionale e "null"
+  (anteprime HTML aperte dal disco).
