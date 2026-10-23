@@ -1528,3 +1528,5 @@ Accessi e copie
 - (23/10/2026, Paolo: «meglio che non si veda del tutto il post che un post senza foto») Sulla pagina Notizie del sito vanno SOLO
   i post con la foto: i post senza foto su Google restano fuori; se la foto di un post non si scarica, quel post resta fuori e la
   foto si riprova il giorno dopo (gbp "sitepost:nofoto:<id>" = giorno; "sitepost:sig" porta «|giorno» quando c'è un post saltato).
+- (23/10/2026, Paolo: scelta 1B) «Versione nuova pronta»: niente più controllo ogni 5 minuti (scaricava la pagina intera, ~3 MB
+  all'ora sull'hotspot del telefono): `nvCheck` una volta all'apertura e poi solo tornando sul gestionale dopo almeno 2 minuti (`NV_HID`).

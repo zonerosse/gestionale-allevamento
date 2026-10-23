@@ -6089,7 +6089,7 @@ function bannerHtml(){if(RO&&window.PERM)return `<div class="banner"><strong>Sol
   const tm=SAVE.at?String(SAVE.at).split(", "):[],sv=SAVE.err?esc(SAVE.err):SAVE.at?(tm.length>1&&tm[0]===fmt(todayS()).slice(0,5)?"Salvato alle "+tm[1]:"Salvato il "+SAVE.at):"Si salva da solo pochi secondi dopo ogni modifica";
   return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}${NEWVER?`<span class="sb-nv"> · Versione nuova pronta <button type="button" onclick="nvReload()">Aggiorna</button></span>`:""}</span><span class="sb-l"><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
 function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.outerHTML=bannerHtml()}
-/* Versione nuova del gestionale (23/10/2026, Paolo: scelta A, «un poco meno invasiva»): ogni 5 minuti e quando si torna sulla
+/* Versione nuova del gestionale (23/10/2026, Paolo: scelta A, «un poco meno invasiva»): all'apertura e quando si torna (dopo almeno 2 minuti) sulla
    pagina chiede la pagina al server (impronta = ETag, o il testo) e la confronta con quella di partenza. Se è cambiata, nella riga
    in alto compare «· Versione nuova pronta · Aggiorna». Aggiorna salva e ricarica; mai durante una modifica o con un riquadro aperto. */
 var NEWVER=false,VER0=null,VER1=null;
@@ -6104,7 +6104,9 @@ async function nvCheck(){if(NEWVER)return;try{const v=await nvSig();if(!v)return
   if(v===VER0){VER1=null;return}if(VER1===v){NEWVER=true;refreshBanner();return}VER1=v;setTimeout(nvCheck,60e3)}catch(e){}}
 function nvReload(){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(busy){toast("Prima finisci la modifica o chiudi la finestra, poi premi Aggiorna.");return}
   Promise.resolve(saveNow()).catch(()=>{}).then(()=>location.reload())}
-nvCheck();setInterval(nvCheck,5*60e3);document.addEventListener("visibilitychange",()=>{if(!document.hidden)nvCheck()});
+/* 23/10/2026, Paolo (1B): niente più controllo ogni 5 minuti (consumava dati sull'hotspot): una volta all'apertura e poi solo
+   quando si torna sul gestionale dopo averlo lasciato per almeno 2 minuti */
+let NV_HID=0;nvCheck();document.addEventListener("visibilitychange",()=>{if(document.hidden){NV_HID=Date.now();return}if(NV_HID&&Date.now()-NV_HID>=120e3)nvCheck()});
 /* ---------- Copie di sicurezza (punto 11): scarica adesso + copie automatiche giornaliere (90 giorni) con Scarica / Ripristina ---------- */
 function bkLab(day){const d=day.slice(0,10),rest=day.slice(11);return fmt(d)+(rest?" "+rest:"")}
 async function bkSheet(){const ld=(D.settings||{}).lastDl;sheet(`<h2 style="margin-top:0">💾 Copie di sicurezza</h2><button class="btn" data-a="bkNow">⬇️ Scarica una copia adesso</button>
