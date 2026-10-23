@@ -4,7 +4,7 @@ import { json } from "../../_lib.js";
    Claude legge le kcal (o i componenti analitici, o solo il nome e allora cerca in internet). Ogni lettura la paga la chiave
    di Paolo, quindi: al massimo LIMITE_GIORNO letture al giorno per tutti i visitatori insieme e LIMITE_VISITATORE per visitatore
    (impronta = hash di IP + giorno, l'IP non si salva). La foto non si salva. Solo da delpiccolodiavolo.it e dalla pagina del proprietario nel gestionale. */
-const SITI = ["https://delpiccolodiavolo.it", "https://www.delpiccolodiavolo.it", "https://gestionale.delpiccolodiavolo.it"]; // gestionale: pagina del proprietario («Quanto mangia», 18/10/2026)
+const SITI = ["https://delpiccolodiavolo.it", "https://www.delpiccolodiavolo.it", "https://gestionale.delpiccolodiavolo.it", "null"]; // "null" = anteprime HTML aperte dal disco (23/10/2026, i limiti valgono lo stesso); gestionale: pagina del proprietario («Quanto mangia», 18/10/2026)
 const LIMITE_GIORNO = 30, LIMITE_VISITATORE = 3, MODEL = "claude-sonnet-5-5";
 const cors = o => ({ "access-control-allow-origin": SITI.includes(o) ? o : SITI[0], "access-control-allow-methods": "POST, OPTIONS", "access-control-allow-headers": "content-type", "vary": "Origin", "x-robots-tag": "noindex" });
 export async function onRequestOptions({ request }) { return new Response(null, { status: 204, headers: cors(request.headers.get("origin") || "") }); }

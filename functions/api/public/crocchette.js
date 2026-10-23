@@ -7,7 +7,7 @@ import { json } from "../../_lib.js";
    Quanto mangia → «Crocchette aggiunte dagli utenti» (/api/crocchette).
    Limiti per i costi: LIMITE_GIORNO controlli di Claude al giorno per tutti, LIMITE_VISITATORE proposte per visitatore
    (impronta = hash di IP + giorno, l'IP non si salva). */
-const SITI = ["https://delpiccolodiavolo.it", "https://www.delpiccolodiavolo.it", "https://gestionale.delpiccolodiavolo.it"];
+const SITI = ["https://delpiccolodiavolo.it", "https://www.delpiccolodiavolo.it", "https://gestionale.delpiccolodiavolo.it", "null"]; // "null" = anteprime aperte dal disco (23/10/2026)
 const LIMITE_GIORNO = 20, LIMITE_VISITATORE = 5, MODEL = "claude-sonnet-5-5";
 const cors = o => ({ "access-control-allow-origin": SITI.includes(o) ? o : SITI[0], "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type", "vary": "Origin", "x-robots-tag": "noindex" });
 export async function onRequestOptions({ request }) { return new Response(null, { status: 204, headers: cors(request.headers.get("origin") || "") }); }
