@@ -1518,3 +1518,10 @@ Accessi e copie
   Claude» (`gpFix`, compito `pulisci` di /api/ai: toglie solo le cose segnate) e «Salva su Google» (`gpSave` → `POST /api/posts
   {task:"edit",name,text}` → PATCH v4 `?updateMask=summary`; foto e «Scopri di più» restano). Dopo il salvataggio `spSync`: il sito
   rifà la traduzione (cache per impronta del testo) e si aggiorna da solo.
+
+## Crocchette non controllate nell'elenco comune (23/10/2026, Paolo: 1B «ma devi controllarlo anche tu prima di inserirlo»)
+- `POST /api/public/crocchette`: oltre a "ok" (confermata dal produttore) e "no", Claude può dire "nc" = non trovata in internet
+  ma plausibile (vero cibo secco per cani, kcal 300-480, coerenti con i componenti). Il server ricontrolla da solo: kcal 300-480 e,
+  se ci sono proteina/grassi/ceneri, calcolo Atwater entro il 10%. Stato `nc` nella tabella `crocchette`; il GET le dà a tutti con
+  `src:"n"` → scritta «dati scritti da un utente, non controllati» (sito, pagina della famiglia, gestionale `FD_U`). In Quanto mangia →
+  Crocchette aggiunte dagli utenti: «Nell'elenco per tutti, non controllata», con 🗑 Togli.

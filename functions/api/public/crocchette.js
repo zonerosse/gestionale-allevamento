@@ -36,8 +36,9 @@ async function claude(env, system, content, max, tools) {
 export async function onRequestGet({ request, env }) {
   const H = Object.assign(cors(request.headers.get("origin") || ""), { "cache-control": "public, max-age=60" });
   await ensureCrocchette(env);
-  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp FROM crocchette WHERE status = 'ok' ORDER BY brand, name LIMIT 1000").all();
-  const items = (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: "u", c: cj(x.comp) }));
+  const r = await env.DB.prepare("SELECT id, brand, name, name_en, kcal, comp, status FROM crocchette WHERE status IN ('ok','nc') ORDER BY brand, name LIMIT 1000").all();
+  // 23/10/2026 (Paolo, 1B): anche le crocchette che Claude non ha potuto confermare ma che hanno numeri sensati ("nc", src "n")
+  const items = (r.results || []).map(x => ({ id: "u_" + x.id, brand: x.brand, name: x.name, en: x.name_en || "", kcal: x.kcal, src: x.status === "nc" ? "n" : "u", c: cj(x.comp) }));
   // catalogo preparato da Claude dai siti dei produttori (public/crocchette-catalogo.json, 19/10/2026): va prima delle aggiunte
   let cat = [];
   try { const a = await env.ASSETS.fetch(new URL("/crocchette-catalogo.json", request.url)); if (a.ok) cat = (await a.json()).items || []; } catch (e) {}
@@ -106,8 +107,8 @@ export async function onRequestPost({ request, env }) {
   if (!(kcal >= 250 && kcal <= 600)) return json({ ok: false, status: "no", reason: "kcal" }, 200, H);
   await ensureCrocchette(env);
   const k = croKey(brand, name);
-  const old = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status IN ('ok','del') ORDER BY created DESC").bind(k).first();
-  if (old && old.status === "ok") return json({ ok: true, status: "ok", dup: true, item: { id: "u_" + old.id, brand: old.brand, name: old.name, en: old.name_en || "", kcal: old.kcal, src: "u", c: cj(old.comp) } }, 200, H);
+  const old = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status IN ('ok','nc','del') ORDER BY created DESC").bind(k).first();
+  if (old && (old.status === "ok" || old.status === "nc")) return json({ ok: true, status: old.status, dup: true, item: { id: "u_" + old.id, brand: old.brand, name: old.name, en: old.name_en || "", kcal: old.kcal, src: old.status === "nc" ? "n" : "u", c: cj(old.comp) } }, 200, H);
   if (old && old.status === "del") return json({ ok: true, status: "no", reason: "tolta" }, 200, H);
   const no = await env.DB.prepare("SELECT reason FROM crocchette WHERE k = ? AND status = 'no' AND kcal = ? ORDER BY created DESC").bind(k, kcal).first();
   if (no) return json({ ok: true, status: "no", reason: no.reason || "" }, 200, H); // già scartata con gli stessi dati: niente nuovo controllo
@@ -122,26 +123,31 @@ Dati dell'utente: marca, nome, kcal per 100 g, come le ha avute (m = scritte a m
 3. Decidi:
    - "ok" se il prodotto esiste e le kcal dell'utente sono entro il 7% del valore trovato (usa il valore trovato, arrotondato);
    - "ok" anche se non trovi il valore ma il prodotto esiste e le kcal dell'utente tornano con i componenti che ti ha dato (entro il 7%) e sono fra 300 e 480;
-   - "no" se il prodotto non esiste, non è cibo secco per cani, il testo è uno scherzo o un insulto, le kcal sono sbagliate e non riesci a correggerle, oppure non riesci a verificare niente.
+   - "nc" (non controllata) se NON trovi il prodotto o i suoi valori in internet, ma tutto è plausibile: marca e nome sembrano un vero cibo secco per cani (non uno scherzo, non un insulto, non cibo umido o per gatti), le kcal sono fra 300 e 480 e, se l'utente ha dato i componenti, tornano con quelli (entro il 10%);
+   - "no" se il prodotto non esiste, non è cibo secco per cani, il testo è uno scherzo o un insulto, oppure le kcal sono sbagliate (fuori da 300-480, o non tornano con i componenti) e non riesci a correggerle.
 4. Riporta i componenti analitici pubblicati del prodotto (proteina, grassi, fibra, ceneri, umidità in %; null se non pubblicati); se non li trovi ma ok è deciso sui componenti dell'utente, usa quelli.
 5. Scrivi marca e nome come li scrive il produttore (maiuscole giuste, marca separata dal nome; gusto in italiano, es. "pollo e riso") e il nome in inglese (gusto in inglese).
-Formato: {"verdict":"ok","brand":"","name":"","name_en":"","kcal":0,"p":null,"f":null,"fi":null,"a":null,"u":null,"url":"","reason":"una frase breve in italiano"}`,
+Formato: {"verdict":"ok|nc|no","brand":"","name":"","name_en":"","kcal":0,"p":null,"f":null,"fi":null,"a":null,"u":null,"url":"","reason":"una frase breve in italiano"}`,
       [{ type: "text", text: JSON.stringify({ marca: brand, nome: name, kcal, come: how, componenti: comp }) }], 1500,
       [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }]);
   } catch (e) { return json({ ok: true, status: "wait" }, 200, H); }
   const okv = x && x.verdict === "ok" && num(x.kcal) >= 250 && num(x.kcal) <= 600;
+  // "nc": controllo anche qui, con i numeri dell'utente (Paolo: «devi controllarlo anche tu prima di inserirlo»)
+  const atw = comp.p != null && comp.f != null && comp.a != null ? 3.5 * comp.p + 8.5 * comp.f + 3.5 * Math.max(0, 100 - comp.p - comp.f - (comp.fi || 0) - comp.a - (comp.u == null ? 10 : comp.u)) : null;
+  const ncv = !okv && x && x.verdict === "nc" && kcal >= 300 && kcal <= 480 && (atw == null || Math.abs(atw - kcal) / kcal <= 0.10);
   const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  const B = String((okv && x.brand) || brand).slice(0, 80), N = String((okv && x.name) || name).slice(0, 120);
+  const B = String(((okv || ncv) && x.brand) || brand).slice(0, 80), N = String(((okv || ncv) && x.name) || name).slice(0, 120);
   const K = okv ? Math.round(num(x.kcal)) : kcal;
   const k2 = croKey(B, N);
-  if (okv) {
-    const dup = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status = 'ok'").bind(k2).first();
-    if (dup) return json({ ok: true, status: "ok", dup: true, item: { id: "u_" + dup.id, brand: dup.brand, name: dup.name, en: dup.name_en || "", kcal: dup.kcal, src: "u", c: cj(dup.comp) } }, 200, H);
+  if (okv || ncv) {
+    const dup = await env.DB.prepare("SELECT * FROM crocchette WHERE k = ? AND status IN ('ok','nc')").bind(k2).first();
+    if (dup) return json({ ok: true, status: dup.status, dup: true, item: { id: "u_" + dup.id, brand: dup.brand, name: dup.name, en: dup.name_en || "", kcal: dup.kcal, src: dup.status === "nc" ? "n" : "u", c: cj(dup.comp) } }, 200, H);
   }
   const CC = okv && num(x.p) != null && num(x.f) != null ? [num(x.p), num(x.f), num(x.fi), num(x.a), num(x.u)] : (comp.p != null && comp.f != null ? [comp.p, comp.f, comp.fi, comp.a, comp.u] : null);
   await env.DB.prepare("INSERT INTO crocchette (id, k, brand, name, name_en, kcal, status, reason, url, src, sent, origin, created, comp) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-    .bind(id, okv ? k2 : k, B, N, String((x && x.name_en) || "").slice(0, 120), K, okv ? "ok" : "no", String((x && x.reason) || "").slice(0, 300),
+    .bind(id, okv || ncv ? k2 : k, B, N, String((x && x.name_en) || "").slice(0, 120), K, okv ? "ok" : ncv ? "nc" : "no", String((x && x.reason) || "").slice(0, 300),
       String((x && x.url) || "").slice(0, 300), how, JSON.stringify({ brand, name, kcal, comp }), o.includes("gestionale") ? "gestionale" : "sito", new Date().toISOString(), CC ? JSON.stringify(CC) : null).run();
+  if (ncv) return json({ ok: true, status: "nc", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "n", c: CC } }, 200, H);
   return json(okv ? { ok: true, status: "ok", item: { id: "u_" + id, brand: B, name: N, en: String(x.name_en || ""), kcal: K, src: "u", c: CC } }
     : { ok: true, status: "no", reason: String((x && x.reason) || "") }, 200, H);
 }
