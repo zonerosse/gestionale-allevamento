@@ -1504,3 +1504,9 @@ Accessi e copie
   l'ultimo post di Google (lo decide il sito leggendo data/novita.json e data/postgoogle.json: il gestionale non fa altro).
 - Sul sito: pagine `notizie` / `news` / `neuigkeiten`, partial `post-google.html` (vedi CLAUDE.md del sito). Mai modificare a mano
   `data/postgoogle.json`.
+
+## Versione nuova del gestionale (23/10/2026, Paolo: scelta A «un poco meno invasiva»)
+- `nvCheck` (in fondo a index.html, vicino a `bannerHtml`): all'apertura prende l'impronta della pagina (ETag, o hash del testo), poi
+  ogni 5 minuti e quando si torna sulla pagina la richiede. Se è cambiata, `NEWVER` → nella riga in alto accanto a «Salvato alle…»
+  compare «· Versione nuova pronta · Aggiorna» (`.sb-nv`). `nvReload` salva e ricarica; con una modifica in corso o un riquadro
+  aperto chiede prima di finire. Solo nel gestionale di Paolo, non nella pagina della famiglia.

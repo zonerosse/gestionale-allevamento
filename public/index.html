@@ -308,7 +308,7 @@ nav.side .navbtn[aria-current="true"]{background:#EEF0F3;color:var(--ink);font-w
 .nsq{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex:none}nav.side .nsq svg{width:15px;height:15px}.nlb{flex:1;min-width:0}
 nav.side .navbtn .nb{background:#F3E3E1;color:var(--accent)}
 .banner.sbar{background:none;color:var(--muted);border-radius:0;border-bottom:1px solid var(--line);padding:0 0 10px;margin:0 0 18px;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;font-size:.82rem}
-.sb-s{display:flex;align-items:center;gap:7px}.sb-s i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;flex:none}.sbar.err .sb-s{color:var(--warn)}.sbar.err .sb-s i{background:var(--warn)}
+.sb-s{display:flex;align-items:center;gap:7px}.sb-s i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;flex:none}.sbar.err .sb-s{color:var(--warn)}.sb-nv{color:#8a5a12}.sb-nv button{background:none;border:0;padding:0;font:inherit;color:#8a5a12;font-weight:700;text-decoration:underline;cursor:pointer}.sbar.err .sb-s i{background:var(--warn)}
 .sb-l{display:flex;gap:16px}.sb-l>*{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}.sb-l>*:hover{color:var(--ink)}
 /* telefono: niente fuori schermo (20/10/2026) */
 .acx-r{min-width:0}.acx-r>*{min-width:0;overflow-wrap:anywhere}.ac-st{white-space:normal!important}.enc-btns>*{min-width:0;white-space:normal}.enc-btns{grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr))!important}.pp-r{flex-wrap:wrap}.pp-r .pp-m{min-width:0;flex:1 1 150px}
@@ -6061,8 +6061,17 @@ function bannerHtml(){if(RO&&window.PERM)return `<div class="banner"><strong>Sol
   if(CONTI)return `<div class="banner">${st}</div>`;
   /* riga sottile al posto della fascia beige (20/10/2026, Paolo: «troppo pacchiano») */
   const tm=SAVE.at?String(SAVE.at).split(", "):[],sv=SAVE.err?esc(SAVE.err):SAVE.at?(tm.length>1&&tm[0]===fmt(todayS()).slice(0,5)?"Salvato alle "+tm[1]:"Salvato il "+SAVE.at):"Si salva da solo pochi secondi dopo ogni modifica";
-  return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}</span><span class="sb-l"><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
+  return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}${NEWVER?`<span class="sb-nv"> · Versione nuova pronta <button type="button" onclick="nvReload()">Aggiorna</button></span>`:""}</span><span class="sb-l"><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label></span></div>`}
 function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.outerHTML=bannerHtml()}
+/* Versione nuova del gestionale (23/10/2026, Paolo: scelta A, «un poco meno invasiva»): ogni 5 minuti e quando si torna sulla
+   pagina chiede la pagina al server (impronta = ETag, o il testo) e la confronta con quella di partenza. Se è cambiata, nella riga
+   in alto compare «· Versione nuova pronta · Aggiorna». Aggiorna salva e ricarica; mai durante una modifica o con un riquadro aperto. */
+var NEWVER=false,VER0=null;
+async function nvSig(){const r=await fetch(location.pathname,{cache:"no-store",credentials:"same-origin"});if(!r.ok)return null;const e=r.headers.get("etag");if(e)return e;const t=await r.text();let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return "h"+h}
+async function nvCheck(){if(NEWVER)return;try{const v=await nvSig();if(!v)return;if(VER0===null){VER0=v;return}if(v!==VER0){NEWVER=true;refreshBanner()}}catch(e){}}
+function nvReload(){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(busy){toast("Prima finisci la modifica o chiudi la finestra, poi premi Aggiorna.");return}
+  Promise.resolve(saveNow()).catch(()=>{}).then(()=>location.reload())}
+nvCheck();setInterval(nvCheck,5*60e3);document.addEventListener("visibilitychange",()=>{if(!document.hidden)nvCheck()});
 /* ---------- Copie di sicurezza (punto 11): scarica adesso + copie automatiche giornaliere (90 giorni) con Scarica / Ripristina ---------- */
 function bkLab(day){const d=day.slice(0,10),rest=day.slice(11);return fmt(d)+(rest?" "+rest:"")}
 async function bkSheet(){const ld=(D.settings||{}).lastDl;sheet(`<h2 style="margin-top:0">💾 Copie di sicurezza</h2><button class="btn" data-a="bkNow">⬇️ Scarica una copia adesso</button>
