@@ -4085,12 +4085,19 @@ async function gpDel(i,b){const p=(GP.list||[])[+i];if(!p)return;aiBusy(b,1,"Eli
   catch(x){aiBusy(b,0);alert("Post non eliminato.\n\n"+x.message)}}
 /* Pagina «Novità» del sito (23/10/2026): i post online su Google vanno anche sul sito, da soli (functions/api/sitepost.js).
    spSync(ms): dopo ms millisecondi chiede al server di allineare il sito; se non è cambiato niente non succede nulla. Se qualcosa va storto lo dice in un avviso. */
-let SP_T=null,SP_RUN=false;
+let SP_T=null,SP_RUN=false,SP_MSG="";
+function spShow(t){SP_MSG=t;const el=document.getElementById("spMsg");if(el){el.textContent=t;el.hidden=!t}}
 function spSync(ms){if(RO||typeof OWNER_MODE!=="undefined")return;clearTimeout(SP_T);SP_T=setTimeout(async()=>{if(SP_RUN)return;SP_RUN=true;
-  try{const j=await (await fetch("/api/sitepost",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"})).json();
-    if(j.ok&&j.commit&&!j.more)toast("Pagina Notizie del sito aggiornata: tra 2-3 minuti è online.");if(j.ok&&j.more){SP_RUN=false;spSync(1000);return}else if(!j.ok&&j.error){console.warn("Notizie sul sito:",j.error);if(!j.connect)toast("Pagina Notizie del sito non aggiornata: "+j.error)}}catch(x){toast("Pagina Notizie del sito non aggiornata: "+x.message)}SP_RUN=false},ms||0)}
+  if(!/Preparo/.test(SP_MSG))spShow("Pagina Notizie del sito: controllo i post…");
+  try{const r=await fetch("/api/sitepost",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}),tx=await r.text();let j;try{j=JSON.parse(tx)}catch(e){throw new Error("il server ha risposto "+r.status+(tx?": "+tx.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,160):""))}
+    if(j.ok&&j.more){spShow("Pagina Notizie del sito: preparo i post, "+j.done+" di "+j.total+"… (lascia aperta la pagina)");SP_RUN=false;spSync(1000);return}
+    const ora=new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+    if(j.ok&&j.commit){spShow("Pagina Notizie del sito aggiornata alle "+ora+" ("+j.n+" post): tra 2-3 minuti è online.");toast("Pagina Notizie del sito aggiornata: tra 2-3 minuti è online.")}
+    else if(j.ok)spShow("Pagina Notizie del sito: già in pari con Google (controllato alle "+ora+").");
+    else{spShow("Pagina Notizie del sito non aggiornata: "+(j.error||"errore"));console.warn("Notizie sul sito:",j.error)}}
+  catch(x){spShow("Pagina Notizie del sito non aggiornata: "+x.message)}SP_RUN=false},ms||0)}
 async function gpLoad(){GP.lerr="";try{const r=await fetch("/api/posts"),j=await r.json();if(j.ok){GP.list=j.posts;spSync(1500)}else{GP.list=[];GP.lerr=j.error||""}}catch(x){GP.list=[];GP.lerr=x.message}if(tab==="recensioni"&&RV.sub==="post")render()}
-function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa, oppure lo scrivi tu; lo pubblichi sempre tu, con il tasto.</p>`+(GP.free?gpFreeHtml():`<p style="margin:0 0 6px"><button class="btn rv-go" data-a="gpFree">✍️ Scrivi un post</button></p>`)+`<h2>Da proporre (${E.length})</h2>`;
+function gpPage(){const E=gpEvents();let h=`<p class="lead">Le notizie dell'allevamento nella sezione «Aggiornamenti» del profilo Google. Il gestionale ti propone il post quando succede qualcosa, oppure lo scrivi tu; lo pubblichi sempre tu, con il tasto.</p><p id="spMsg" class="row-meta"${SP_MSG?"":" hidden"}>${esc(SP_MSG)}</p>`+(GP.free?gpFreeHtml():`<p style="margin:0 0 6px"><button class="btn rv-go" data-a="gpFree">✍️ Scrivi un post</button></p>`)+`<h2>Da proporre (${E.length})</h2>`;
   if(!E.length)h+=`<p class="empty">Niente di nuovo da raccontare per ora.</p>`;
   for(const e of E){if(GP.ed!==e.k){h+=`<div class="gp-ev"><span class="ic" aria-hidden="true">${e.ic}</span><p class="t">${esc(e.t)}</p><span class="b"><button class="btn small" data-a="gpOpen" data-v="${esc(e.k)}">Prepara il post</button> <button class="plink" data-a="gpSkip" data-v="${esc(e.k)}">Non serve</button></span><p class="s">${esc(e.s)}</p></div>`;continue}
     const ph=GP.up,sel=ph[GP.photo]||"",ok=gpChecks(GP.text).every(x=>x[0]);
