@@ -6073,9 +6073,16 @@ function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.
 /* Versione nuova del gestionale (23/10/2026, Paolo: scelta A, «un poco meno invasiva»): ogni 5 minuti e quando si torna sulla
    pagina chiede la pagina al server (impronta = ETag, o il testo) e la confronta con quella di partenza. Se è cambiata, nella riga
    in alto compare «· Versione nuova pronta · Aggiorna». Aggiorna salva e ricarica; mai durante una modifica o con un riquadro aperto. */
-var NEWVER=false,VER0=null;
-async function nvSig(){const r=await fetch(location.pathname,{cache:"no-store",credentials:"same-origin"});if(!r.ok)return null;const e=r.headers.get("etag");if(e)return e;const t=await r.text();let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return "h"+h}
-async function nvCheck(){if(NEWVER)return;try{const v=await nvSig();if(!v)return;if(VER0===null){VER0=v;return}if(v!==VER0){NEWVER=true;refreshBanner()}}catch(e){}}
+var NEWVER=false,VER0=null,VER1=null;
+/* impronta del codice vero della pagina: niente ETag (cambia da un server all'altro), via ciò che Cloudflare aggiunge da solo
+   (beacon, nonce, token), e solo se la risposta è la pagina del gestionale (non il login di Access) */
+async function nvSig(){const r=await fetch(location.pathname,{cache:"no-store",credentials:"same-origin"});if(!r.ok||r.redirected||new URL(r.url).origin!==location.origin)return null;
+  let t=await r.text();if(!/Salvataggio online/.test(t))return null;
+  t=t.replace(/<script[^>]*cloudflareinsights[^>]*>\s*<\/script>/gi,"").replace(/\s(nonce|data-cf-[\w-]+|integrity)="[^"]*"/gi,"").replace(/\/cdn-cgi\/[^"'\s)]+/g,"").replace(/\s+/g," ");
+  let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return "h"+h}
+/* serve la stessa impronta nuova due volte di fila (a 1 minuto) prima di dire che c'è una versione nuova */
+async function nvCheck(){if(NEWVER)return;try{const v=await nvSig();if(!v)return;if(VER0===null){VER0=v;return}
+  if(v===VER0){VER1=null;return}if(VER1===v){NEWVER=true;refreshBanner();return}VER1=v;setTimeout(nvCheck,60e3)}catch(e){}}
 function nvReload(){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(busy){toast("Prima finisci la modifica o chiudi la finestra, poi premi Aggiorna.");return}
   Promise.resolve(saveNow()).catch(()=>{}).then(()=>location.reload())}
 nvCheck();setInterval(nvCheck,5*60e3);document.addEventListener("visibilitychange",()=>{if(!document.hidden)nvCheck()});

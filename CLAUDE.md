@@ -1506,7 +1506,7 @@ Accessi e copie
   `data/postgoogle.json`.
 
 ## Versione nuova del gestionale (23/10/2026, Paolo: scelta A «un poco meno invasiva»)
-- `nvCheck` (in fondo a index.html, vicino a `bannerHtml`): all'apertura prende l'impronta della pagina (ETag, o hash del testo), poi
+- `nvCheck` (in fondo a index.html, vicino a `bannerHtml`): all'apertura prende l'impronta del testo della pagina (senza ETag e senza ciò che aggiunge Cloudflare; serve la stessa impronta nuova due volte a 1 minuto), poi
   ogni 5 minuti e quando si torna sulla pagina la richiede. Se è cambiata, `NEWVER` → nella riga in alto accanto a «Salvato alle…»
   compare «· Versione nuova pronta · Aggiorna» (`.sb-nv`). `nvReload` salva e ricarica; con una modifica in corso o un riquadro
   aperto chiede prima di finire. Solo nel gestionale di Paolo, non nella pagina della famiglia.
