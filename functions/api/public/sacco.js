@@ -43,11 +43,13 @@ export async function onRequestPost({ request, env }) {
 - "brand": marca; "name": nome del prodotto (linea, taglia, età, gusto), come scritto.
 - "kcal": energia metabolizzabile in kcal per 100 g SOLO se è scritta (converti: 3850 kcal/kg = 385; 16,1 MJ/kg = 385). null se non è scritta.
 - "p","f","fi","a","u": proteina grezza, grassi, fibra grezza, ceneri grezze, umidità in %. null se non scritti.
+- "ca","ph": calcio e fosforo in % SOLO se scritti (spesso tra i componenti o gli additivi; 1,2% = 1.2; 12 g/kg = 1.2). null se non scritti.
 Se la foto non è un sacco di cibo per cani: tutto vuoto o null.
-Formato: {"brand":"","name":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null}`,
+Formato: {"brand":"","name":"","kcal":null,"p":null,"f":null,"fi":null,"a":null,"u":null,"ca":null,"ph":null}`,
       [...parts.map(d => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d } })), { type: "text", text: "Foto del sacco." }], 500);
     const r = { ok: true, brand: String(x.brand || "").slice(0, 80), name: String(x.name || "").slice(0, 120), kcal: null, how: "" };
     for (const q of ["p", "f", "fi", "a", "u"]) r[q] = n(x[q]);
+    for (const q of ["ca", "ph"]) { const v = n(x[q]); r[q] = v != null && v > 0 && v < 5 ? v : null; } // controllo dei nutrienti del sito (23/10/2026)
     let k = n(x.kcal); if (k && k > 1000) k = k / 10;
     if (k && k > 200 && k < 700) { r.kcal = Math.round(k); r.how = "sacco"; }
     else if (n(x.p) != null && n(x.f) != null && n(x.a) != null) {
