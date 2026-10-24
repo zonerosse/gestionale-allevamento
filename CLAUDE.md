@@ -1563,3 +1563,19 @@ Accessi e copie
   finito, una GET successiva la ricontrolla da sola dopo 10 minuti (`retryOne`). Stati nuovi in «Crocchette aggiunte dagli utenti»: attesa, dup.
 - ATTENZIONE: il CSS nuovo va PRIMA di `</style>` (il 23/10/2026 una riga finita dopo `</style>` compariva come testo in cima alle pagine).
 - Il blocco «Quanto mangia» della famiglia (`owFdMount`) era diverso fra i due file (quello di index.html più vecchio): il 23/10/2026 riallineato.
+
+## Alimentazione, costo del sacco e costo di ogni cucciolo (24/10/2026, anteprime 06, 07 e 08 approvate da Paolo)
+- La voce di menu `pappa` si chiama **«Alimentazione»** (nome scelto da Paolo, C). Pagina `fdPage`: intestazione PGH e due tendine chiuse
+  (PSEC `al-cr` «Crocchette» = il calcolatore di prima, uguale; PSEC `al-barf` «BARF» = lo script del sito come nella pagina delle famiglie,
+  `alBfMount`: con un cane usa `owBfMount`, con «Nessun cane» uno Staffy adulto tipico, maschio 16 kg). Scelta del cane BARF in `BF_PICK`
+  (sessionStorage `bfPick`). Il BARF si monta quando si apre la tendina (`alBfAuto` dopo il render).
+- **Costo del sacco**: `D.settings.foodCost[<id crocchetta>]={eur,kg}` (solo Paolo, campo nuovo, vuoto di default). Sotto il calcolatore
+  `alCost(id)`: prezzo e peso del sacco, costo al giorno, al mese e quanto dura un sacco. `fdDraw` lascia i grammi in `FD_GR[id]`.
+- **Conti della cucciolata**: riquadro «Quanto ti è costato ogni cucciolo» (`acCostHtml`), confronto affiancato **A · Stima** e
+  **B · Segnate** (scelta di Paolo: confronto, non una sola delle due). Spese senza la voce «Cibo» uguali nei due; A = cuccioli × giorni ×
+  grammi × prezzo al kg (`acStima`, impostazioni in `l.acc.feedEst={food,g,days,eur,kg}`, predefiniti 150 g e 35 giorni, «Cambia la stima»);
+  B = spese con la voce «Cibo». Avviso se la differenza supera il 10%. «Aggiungi una parte delle spese generali» (`AC_QG`, solo per la
+  sessione) = spese generali dell'anno ÷ cuccioli delle cucciolate dell'anno. Tabella guadagno A/B per cucciolo; nell'elenco dei Conti
+  «Costo di ogni cucciolo» (B, con la stima accanto) e «Guadagno medio per cucciolo».
+- Le funzioni `ac*` di `proprietario.html` erano già diverse da quelle di `index.html` (i Conti non si vedono mai nella pagina del proprietario):
+  queste novità sono solo in `index.html`.
