@@ -18,8 +18,8 @@ import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
                  Google → Pagine del sito: traduce in inglese e tedesco i campi cambiati da Paolo in italiano
    - "sacco":    { parts:[base64 jpeg] }   → { brand, name, stage, kcal, kcalRead, p, f, fi, a, u }  foto del sacco di crocchette (18/10/2026):
                  kcal per 100 g scritte sul sacco; se mancano, calcolate qui dai componenti analitici (Atwater modificato, NRC/FEDIAF)
-   - "fattura":  { parts:[jpeg] | data(pdf), media } → { shop, date, total, lines:[{desc,brand,name,qty,kg,unit,total}] }  fattura o scontrino
-                 delle crocchette (24/10/2026): prezzo di UN sacco IVA compresa, per la stima del cibo nei Conti
+   - "fattura":  { parts:[jpeg] | data(pdf), media } → { shop, date, total, lines:[{desc,cat,puppy,brand,name,qty,kg,unit,total}] }  fattura o
+                 scontrino (24/10/2026): ogni riga con la voce delle Spese generali; prezzo di UN sacco IVA compresa (Puppy = stima del cibo)
    - "kcalnome": { brand, name }           → { kcal, src, url }  kcal per 100 g cercate in internet dal nome letto sul sacco (18/10/2026)
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
@@ -254,17 +254,20 @@ Formato: {"brand":"","name":"","stage":"","kcal":null,"p":null,"f":null,"fi":nul
       if (p.data) docs = [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: String(p.data).replace(/^data:[^,]*,/, "") } }];
       else docs = (Array.isArray(p.parts) ? p.parts : []).filter(Boolean).slice(0, 4).map(x => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: String(x).replace(/^data:[^,]*,/, "") } }));
       if (!docs.length) return json({ ok: false, error: "Manca la fattura." });
-      const o = await ask(env, `Leggi una fattura, ricevuta o scontrino di un negozio di animali (anche online: Zooplus, Amazon, Arcaplanet…). Estrai SOLO quello che è scritto, senza inventare.
-- "shop": nome del negozio o venditore; "date": data del documento AAAA-MM-GG o ""; "total": totale pagato in euro (numero) o null.
-- "lines": SOLO le righe di crocchette (cibo secco) per cani; ignora snack, umido in scatola, accessori, spedizione. Per ogni riga:
-  "desc": la descrizione com'è scritta; "brand": marca; "name": nome del prodotto senza peso e quantità;
-  "qty": quanti sacchi (numero, 1 se non scritto); "kg": peso di UN sacco in kg (es. "12 kg" = 12, "2 x 12 kg" = 12 e qty 2, "800 g" = 0.8), null se non scritto;
-  "unit": prezzo di UN sacco in euro IVA COMPRESA e dopo gli sconti della riga (se la fattura mostra imponibile e IVA a parte, aggiungi l'IVA indicata; se c'è solo il totale della riga, dividi per qty);
+      const o = await ask(env, `Leggi una fattura, ricevuta o scontrino di spese per cani (negozio di animali anche online come Zooplus, Amazon, Arcaplanet; veterinario; farmacia). Estrai SOLO quello che è scritto, senza inventare.
+- "shop": nome del negozio, veterinario o venditore; "date": data del documento AAAA-MM-GG o ""; "total": totale pagato in euro (numero) o null.
+- "lines": TUTTE le righe con un importo, una per prodotto o prestazione (anche spedizione). Per ogni riga:
+  "desc": la descrizione com'è scritta; "cat" fra "Crocchette" (cibo secco per cani), "Vaccini", "Visite" (visite, esami, ecografie, prestazioni del veterinario),
+  "Terapie" (farmaci, antiparassitari, integratori), "Altro" (snack, umido, accessori, spedizione, tutto il resto);
+  "puppy": true SOLO se sono crocchette per cuccioli (puppy, junior, starter), altrimenti false;
+  "brand": marca e "name": nome del prodotto senza peso e quantità (solo per le crocchette, se no "");
+  "qty": quante confezioni (numero, 1 se non scritto); "kg": peso di UN sacco in kg per le crocchette (es. "12 kg" = 12, "2 x 12 kg" = 12 e qty 2, "800 g" = 0.8), null se non scritto o non è cibo;
+  "unit": prezzo di UNA confezione in euro IVA COMPRESA e dopo gli sconti della riga (se la fattura mostra imponibile e IVA a parte, aggiungi l'IVA indicata; se c'è solo il totale della riga, dividi per qty);
   "total": totale della riga IVA compresa.
-Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","brand":"","name":"","qty":1,"kg":null,"unit":null,"total":null}]}`,
-        [...docs, { type: "text", text: "Fattura delle crocchette." }], 1500);
+Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":false,"brand":"","name":"","qty":1,"kg":null,"unit":null,"total":null}]}`,
+        [...docs, { type: "text", text: "Fattura o scontrino." }], 2500);
       const n = v => (v === null || v === undefined || v === "" || isNaN(+String(v).replace(",", "."))) ? null : +String(v).replace(",", ".");
-      const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 12).map(x => ({ desc: String(x.desc || ""), brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
+      const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 30).map(x => ({ desc: String(x.desc || ""), cat: ["Crocchette", "Vaccini", "Visite", "Terapie", "Altro"].includes(x.cat) ? x.cat : "Altro", puppy: !!x.puppy, brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
       return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
     if (task === "kcalnome") {

@@ -836,6 +836,9 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .ae-inv{border:1px dashed #b9c3ce;border-radius:10px;padding:12px;margin:0 0 10px;background:#F7F9FB}.ae-inv.on{border-style:solid}
 .ae-ok{color:var(--ok);font-size:12px;font-weight:600}.ae-r{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:14px}.ae-r>span:last-child{font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
 .ae-ln{border-top:1px solid var(--line);margin-top:6px;padding-top:6px}.ae-ln .btn{margin-top:6px}.ae-h{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 0;border-top:1px solid var(--line);padding-top:10px}
+.gv-q>p,.gv-q>.ae-calc{margin-left:14px!important;margin-right:14px}.gv-q>p:last-child{margin-bottom:12px}
+.gv{margin:10px 0}.gv .tx{font-size:14px;overflow-wrap:anywhere}.gv-m{display:flex;gap:8px;align-items:center;margin-top:5px}.gv-m select{width:auto;font-size:13px;padding:5px 8px}.gv-m b{margin-left:auto;white-space:nowrap}.gv-pup{margin-top:6px;font-size:12.5px;color:#3a5a78;background:#EEF3F8;border-radius:7px;padding:6px 8px}.gv-pup select{margin-top:5px;width:100%;font-size:13px}
+.ae-r.sub{font-size:12.5px;color:var(--muted);padding-left:10px}.ae-r.sub>span:last-child{font-weight:500}.ae-calc .ae-r>span:last-child{white-space:nowrap}
 .ae-calc{margin-top:14px;background:#F3F6F9;border-radius:10px;padding:12px}.ae-calc .tot{border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-size:15px}
 </style>
 </head>
@@ -4207,12 +4210,14 @@ function acLitLab(lid){const l=D.litters[lid];return `${esc(dn(l.dam))} × ${esc
 let AC_QG=false;
 const acExpL=lid=>((D.litters[lid].acc||{}).exp||[]);
 const acCiboSeg=lid=>acOut(acExpL(lid).filter(x=>x.cat==="Cibo")),acSenzaCibo=lid=>acOut(acExpL(lid).filter(x=>x.cat!=="Cibo"));
-function acEstCfg(lid){const e=(D.litters[lid].acc||{}).feedEst||{},FC=((D.settings||{}).foodCost)||{},fid=e.food||Object.keys(FC).filter(k=>FC[k].eur>0&&FC[k].kg>0).pop()||"";
+function acEstCfg(lid){const e=(D.litters[lid].acc||{}).feedEst||{},FC=((D.settings||{}).foodCost)||{},pf=(D.settings||{}).puppyFood,fid=e.food||(pf&&FC[pf]&&FC[pf].eur>0?pf:"")||Object.keys(FC).filter(k=>FC[k].eur>0&&FC[k].kg>0).pop()||"";
   const c=FC[fid]&&FC[fid].eur>0&&FC[fid].kg>0?FC[fid]:(e.eur>0&&e.kg>0?{eur:e.eur,kg:e.kg}:null);return{food:fid,g:+e.g||150,days:+e.days||35,c,n:+e.n||0,inv:e.inv||null}}
 /* numero di cuccioli della stima (24/10/2026): dalle schede della cucciolata, o quello scritto a mano nella finestra (feedEst.n) */
 function acNPup(lid){const e=((D.litters[lid].acc||{}).feedEst)||{};return +e.n||litPups(lid).length}
 function acStima(lid){const n=acNPup(lid),E=acEstCfg(lid);if(!n||!E.c)return null;const kg=n*E.days*E.g/1000,ek=E.c.eur/E.c.kg;return{n,days:E.days,g:E.g,kg,ek,eur:Math.round(kg*ek),food:E.food}}
-function acQuota(lid){if(!AC_QG)return 0;const y=acYearOf(lid),L=acLits().filter(k=>acYearOf(k)===y),n=L.reduce((s,k)=>s+litPups(k).length,0);return n?Math.round(acOut(acGO().filter(x=>String(x.date||"").slice(0,4)===y))/n):0}
+/* parte delle spese generali (anteprima 11, 24/10/2026): spese generali dell'anno MENO il cibo dei cuccioli già nelle stime, diviso i cuccioli dell'anno */
+function acQuotaY(y){const L=acLits().filter(k=>acYearOf(k)===y),n=L.reduce((s,k)=>s+acNPup(k),0),g=acOut(acGO().filter(x=>String(x.date||"").slice(0,4)===y)),st=L.map(k=>[k,acStima(k)]).filter(x=>x[1]),c=st.reduce((s,x)=>s+x[1].eur,0),d=Math.max(0,g-c);return{L,n,g,st,c,d,q:n?Math.round(d/n):0}}
+function acQuota(lid){if(!AC_QG)return 0;return acQuotaY(acYearOf(lid)).q}
 function acCostoPup(lid,cibo){const n=acNPup(lid);return n?Math.round((acSenzaCibo(lid)+cibo)/n)+acQuota(lid):0}
 function acCostHtml(lid){const n=acNPup(lid);if(!n)return"";const P=(D.litters[lid].acc||{}).prices||{},S=acStima(lid),sg=acCiboSeg(lid),cs=acSenzaCibo(lid),q=acQuota(lid),cB=acCostoPup(lid,sg),cA=S?acCostoPup(lid,S.eur):null,dec=x=>String(x).replace(".",",");
   const fd=S&&S.food?fdFood(S.food):null,fn=fd?esc(fd.brand+" "+fd.name):"crocchette";
@@ -4252,13 +4257,13 @@ function acEstForm(lid){const E=acEstCfg(lid),np=litPups(lid).length,dec=x=>x==n
 function acInvBox(){const R=AE&&AE.read,I=AE&&AE.inv;
   if(R){const L=R.lines||[];return `<div class="ae-inv on"><b>Claude ha letto</b> <span class="ae-ok">✓ fattura allegata</span>
     ${R.shop||R.date?`<div class="ae-r"><span>Negozio</span><span>${esc(R.shop||"")}${R.date?" · "+fmt(R.date):""}</span></div>`:""}
-    ${L.length?L.map((x,i)=>`<div class="ae-ln"><div class="ae-r"><span>Crocchette</span><span>${esc(x.desc||((x.brand||"")+" "+(x.name||"")))}</span></div>
+    ${L.length?L.map((x,i)=>`<div class="ae-ln"><div class="ae-r"><span>Crocchette${x.puppy?" · Puppy":""}</span><span>${esc(x.desc||((x.brand||"")+" "+(x.name||"")))}</span></div>
       <div class="ae-r"><span>Sacchi</span><span>${x.qty||1} × ${x.kg?String(x.kg).replace(".",",")+" kg":"peso non scritto"}</span></div>
       <div class="ae-r"><span>Prezzo di un sacco</span><span>${x.unit?eur(x.unit):"—"}</span></div>
       ${x.fid?`<div class="small">Trovate nell'elenco: ${esc(fdFood(x.fid).brand+" "+fdFood(x.fid).name)}</div>`:`<div class="small">Non trovate nell'elenco: sceglile tu qui sotto.</div>`}
       <button class="btn small" data-a="aeUse" data-v="${i}">Usa questi dati</button></div>`).join(""):`<p class="small">Nella fattura non ho trovato crocchette per cani.</p>`}
     ${R.total?`<div class="ae-r"><span>Totale fattura</span><span>${eur(R.total)}</span></div>`:""}
-    ${R.total?`<p class="small" style="margin:4px 0 0">Salvando, il totale va nelle <b>Spese generali</b> dell'allevamento, voce Crocchette, con la fattura allegata.</p>`:""}
+    ${R.total?`<p class="small" style="margin:4px 0 0">Salvando, la fattura va nelle <b>Spese generali</b> dell'allevamento, voce per voce, con la fattura allegata.</p>`:""}
     <div style="margin-top:8px"><button class="btn small ghost" data-a="aeInv">Carica un'altra</button></div></div>`}
   return `<div class="ae-inv"><b>Fattura o scontrino delle crocchette</b>${I&&I.file?` <span class="ae-ok">✓ allegata${I.date?" ("+fmt(I.date)+")":""}</span> ${fBtns(I.file,I.fname)}`:""}
     <p class="small" style="margin:2px 0 8px">Carica una foto o un PDF: Claude legge crocchette, peso del sacco e prezzo, e compila qui sotto.</p>
@@ -4282,9 +4287,9 @@ async function aeInvRead(){const f=$("#aeInvF").files[0];if(!f||!AE)return;const
   try{const u=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),isImg=/^image\//.test(f.type);
     const j=isImg?await aiCall("fattura",{parts:(await aiImgParts(u)).slice(0,4)}):await aiCall("fattura",{data:u,media:"application/pdf"});
     if(!j.ok)throw new Error(j.error||"Claude non risponde.");
-    j.lines=(j.lines||[]).map(x=>Object.assign(x,{fid:aeMatch(x)}));
+    j.all=(j.lines||[]).map(x=>Object.assign(x,{fid:x.cat==="Crocchette"?aeMatch(x):""}));j.lines=j.all.filter(x=>x.cat==="Crocchette").sort((a,b)=>(b.puppy?1:0)-(a.puppy?1:0));
     let file=u,fname=f.name;if(isImg){try{const r=await shrink(f);if(r&&r.data){file=r.data;fname=fname.replace(/\.[^.]+$/,"")+".jpg"}}catch(x){}}
-    AE.read=j;AE.inv={file,fname,date:j.date||todayS(),shop:j.shop||""};$("#aeInvBox").innerHTML=acInvBox();if(j.lines.length===1)aeUse(0)}
+    AE.read=j;AE.inv={file,fname,date:j.date||todayS(),shop:j.shop||""};$("#aeInvBox").innerHTML=acInvBox();if(j.lines.length===1||(j.lines[0]&&j.lines[0].puppy))aeUse(0)}
   catch(e){aiBusy(b,0);alert("Non sono riuscito a leggere la fattura.\n\n"+e.message)}}
 function aeUse(i){const x=AE&&AE.read&&AE.read.lines[i];if(!x)return;const dec=v=>String(v).replace(".",",");if(x.fid){const sl=$("#aef");if(![...sl.options].some(o=>o.value===x.fid))sl.innerHTML=aeOpts(x.fid);sl.value=x.fid}if(x.unit)$("#aee").value=dec(x.unit);if(x.kg)$("#aek").value=dec(x.kg);acEstCalc();
   const b=document.querySelector(`[data-a="aeUse"][data-v="${i}"]`);if(b){b.textContent="✓ Inseriti";b.disabled=true}}
@@ -4293,8 +4298,7 @@ function acEstSave(lid){const a=acL(lid),fid=$("#aef").value,eu=fdNum($("#aee").
   if(n>0&&n!==np)a.feedEst.n=n;if(eu>0&&kg>0){a.feedEst.eur=eu;a.feedEst.kg=kg}if(AE&&AE.inv)a.feedEst.inv=AE.inv;
   if(fid&&eu>0&&kg>0&&!CONTI){const S=D.settings=D.settings||{};S.foodCost=S.foodCost||{};S.foodCost[fid]=Object.assign(S.foodCost[fid]||{},{eur:eu,kg});if(AE&&AE.inv&&AE.read)S.foodCost[fid].inv=AE.inv}
   /* il totale della fattura va nelle Spese generali (Paolo, 24/10/2026): poi si divide fra le cucciolate con «Aggiungi una parte delle spese generali» */
-  if(AE&&AE.read&&AE.read.total>0){const R=AE.read,G=D.accGen=D.accGen||[],dt=R.date||todayS();
-    if(!G.some(x=>!x.in&&x.date===dt&&+x.amt===+R.total&&x.cat==="Crocchette"))G.push({id:newId("e"),date:dt,amt:R.total,cat:"Crocchette",txt:("Fattura "+(R.shop||"")).trim()+((R.lines||[])[0]?" · "+(R.lines[0].brand+" "+R.lines[0].name).trim():""),file:AE.inv.file,fname:AE.inv.fname})}
+  if(AE&&AE.read)invSave(AE.read,AE.inv);
   AE=null;closeSheet();render();typeof saveNow==="function"&&saveNow()}
 function contiPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(view)return view==="gen"?acGenDetail():D.litters[view]?acDetail(view):acList();return acList()}
 function acList(){const L=acLits(),G=acGO(),GI=acGI();const ys=[...new Set([...L.map(acYearOf),...(D.accGen||[]).map(x=>String(x.date||"").slice(0,4)).filter(Boolean),String(new Date().getFullYear())])].sort().reverse();if(!ys.includes(AC_Y))AC_Y=ys[0];
@@ -4321,9 +4325,50 @@ function acDetail(lid){const l=D.litters[lid],a=l.acc||{},P=a.prices||{},pups=li
   <div class="ac-tot"><span>Totale entrate</span><span class="ac-pos">${eur(i)}</span></div></div>
   <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="${lid}|">＋ Aggiungi spesa</button></h3>${acRows(a.exp,lid)}<div class="ac-tot"><span>Totale spese</span><span class="ac-neg">${eur(u)}</span></div></div>
   ${acBars(a.exp)}`}
-function acGenDetail(){const G=acGO(),GI=acGI();return `<button class="back" data-a="back">‹ Conti</button><h1>Spese generali</h1><p class="nick">Non legate a una cucciolata</p>
+/* Fatture nelle Spese generali (anteprima 11 approvata da Paolo, 24/10/2026): Claude legge ogni riga (compito "fattura") e la mette nella sua voce
+   (AC_GEN); si salva una spesa per voce con la fattura allegata. Il sacco Puppy (puppy:true) dà il prezzo per la stima del cibo dei cuccioli
+   (settings.foodCost[id] + settings.puppyFood). La differenza fra totale e righe (spedizione…) va in Altro. */
+let GV=null;
+function invAmt(x){return x.total>0?+x.total:(x.unit>0?Math.round(x.unit*(x.qty||1)*100)/100:0)}
+function invSave(R,inv){const G=D.accGen=D.accGen||[],dt=R.date||todayS(),L=R.all||R.lines||[],by={};
+  L.forEach(x=>{const c=AC_GEN.includes(x.cat)?x.cat:"Altro",a=invAmt(x);if(!a)return;(by[c]=by[c]||{amt:0,t:[]}).amt+=a;by[c].t.push((x.cat==="Crocchette"&&(x.brand||x.name)?(x.brand+" "+x.name).trim():x.desc)+(x.qty>1?" ("+x.qty+(x.kg?" × "+String(x.kg).replace(".",",")+" kg":"")+")":""))});
+  const sum=Object.values(by).reduce((s,v)=>s+v.amt,0);if(R.total>0&&R.total-sum>0.5){(by.Altro=by.Altro||{amt:0,t:[]}).amt+=R.total-sum;by.Altro.t.push("spedizione e altro")}
+  if(!Object.keys(by).length&&R.total>0)by.Altro={amt:R.total,t:["fattura"]};
+  Object.keys(by).forEach(c=>{const v=by[c],amt=Math.round(v.amt*100)/100;if(G.some(x=>!x.in&&x.date===dt&&+x.amt===amt&&x.cat===c))return;
+    G.push({id:newId("e"),date:dt,amt,cat:c,txt:((R.shop?R.shop+" · ":"")+v.t.join(", ")).slice(0,240),file:inv&&inv.file,fname:inv&&inv.fname,inv:1})});
+  if(!CONTI)L.filter(x=>x.cat==="Crocchette"&&x.puppy&&x.fid&&x.unit>0&&x.kg>0).forEach(x=>{const S=D.settings=D.settings||{};S.foodCost=S.foodCost||{};S.foodCost[x.fid]=Object.assign(S.foodCost[x.fid]||{},{eur:x.unit,kg:x.kg,inv});S.puppyFood=x.fid})}
+function gvBox(){if(RO)return"";const R=GV&&GV.read;
+  if(!R)return `<div class="ae-inv gv"><b>Carica una fattura o uno scontrino</b><p class="small" style="margin:2px 0 8px">Foto o PDF. Claude legge ogni riga e la mette nella voce giusta. Il prezzo del sacco <b>Puppy</b> serve per la stima del cibo dei cuccioli.</p><button class="btn" data-a="gvInv" style="width:100%">Carica fattura (foto o PDF)</button></div>`;
+  const L=R.all||[];return `<div class="ae-inv on gv"><b>Claude ha letto</b> <span class="ae-ok">✓ fattura allegata</span><p class="small" style="margin:2px 0 6px">${esc(R.shop||"")}${R.date?" · "+fmt(R.date):""}${R.total?" · totale <b>"+eur(R.total)+"</b>":""}. Controlla le voci e salva.</p>
+  ${L.length?L.map((x,i)=>`<div class="ae-ln"><div class="tx">${esc(x.desc||"")}${x.qty>1?` · ${x.qty}${x.kg?" × "+String(x.kg).replace(".",",")+" kg":""}`:""}</div>
+    <div class="gv-m"><select data-gvc="${i}">${AC_GEN.map(c=>`<option${c===x.cat?" selected":""}>${c}</option>`).join("")}</select><b>${eur(invAmt(x))}</b></div>
+    ${x.cat==="Crocchette"&&x.puppy?`<div class="gv-pup">Puppy · ${x.unit?eur(x.unit):"—"} a sacco${x.kg?" da "+String(x.kg).replace(".",",")+" kg":""} → usato per la stima del cibo dei cuccioli
+      <select data-gvf="${i}">${aeOpts(x.fid)}</select>${x.fid?"":'<span class="small">Scegli quali crocchette sono.</span>'}</div>`:""}</div>`).join(""):'<p class="small">Non ho trovato righe con un importo.</p>'}
+  <div class="actions"><button class="btn" data-a="gvSave">Salva nelle spese generali</button><button class="btn ghost" data-a="gvNo">Annulla</button></div></div>`}
+function gvPick(){let i=$("#gvF");if(!i){i=document.createElement("input");i.type="file";i.id="gvF";i.accept="image/*,application/pdf";i.hidden=true;document.body.appendChild(i);i.addEventListener("change",gvRead)}i.value="";i.click()}
+async function gvRead(){const f=$("#gvF").files[0];if(!f)return;const b=document.querySelector('[data-a="gvInv"]');aiBusy(b,1,"Claude legge la fattura…");
+  if(!FD_CAT.length){try{FD_CAT=(await (await fetch("/crocchette-catalogo.json")).json()).items||[]}catch(x){}}
+  try{const u=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),isImg=/^image\//.test(f.type);
+    const j=isImg?await aiCall("fattura",{parts:(await aiImgParts(u)).slice(0,4)}):await aiCall("fattura",{data:u,media:"application/pdf"});
+    if(!j.ok)throw new Error(j.error||"Claude non risponde.");
+    j.all=(j.lines||[]).map(x=>Object.assign(x,{fid:x.cat==="Crocchette"?aeMatch(x):""}));
+    let file=u,fname=f.name;if(isImg){try{const r=await shrink(f);if(r&&r.data){file=r.data;fname=fname.replace(/\.[^.]+$/,"")+".jpg"}}catch(x){}}
+    GV={read:j,inv:{file,fname,date:j.date||todayS(),shop:j.shop||""}};render()}
+  catch(e){aiBusy(b,0);alert("Non sono riuscito a leggere la fattura.\n\n"+e.message)}}
+document.addEventListener("change",e=>{const t=e.target;if(!GV||!GV.read||!t.dataset)return;const L=GV.read.all;
+  if(t.dataset.gvc!=null){L[+t.dataset.gvc].cat=t.value;render()}else if(t.dataset.gvf!=null)L[+t.dataset.gvf].fid=t.value});
+function gvSave(){if(!GV||!GV.read)return;invSave(GV.read,GV.inv);GV=null;render();typeof saveNow==="function"&&saveNow()}
+function acGenSplit(){const y=AC_Y||String(new Date().getFullYear()),Q=acQuotaY(y);if(!Q.n)return"";const dec=x=>String(Math.round(x*100)/100).replace(".",",");
+  return `<div class="ac-sec gv-q"><h3>Come si dividono sulle cucciolate del ${y}</h3><p class="small" style="margin:0 0 8px">Le cucciolate sono l'unica entrata: le spese generali si dividono fra i cuccioli nati nell'anno. Il cibo dei cuccioli è già nella stima di ogni cucciolata, quindi si toglie, per non contarlo due volte.</p>
+  <div class="ae-calc" style="margin-top:0"><div class="ae-r"><span>Spese generali ${y}</span><span>${eur(Q.g)}</span></div>
+  <div class="ae-r"><span>− cibo dei cuccioli già nelle stime</span><span>− ${eur(Q.c)}</span></div>
+  ${Q.st.map(([k,S])=>`<div class="ae-r sub"><span>${acLitLab(k)}: ${S.n} cuccioli × ${S.g} g × ${S.days} giorni a ${eur(Math.round(S.ek*100)/100)}/kg</span><span>${eur(S.eur)}</span></div>`).join("")}
+  <div class="ae-r tot"><span>Da dividere</span><span>${eur(Q.d)}</span></div><div class="ae-r"><span>÷ cuccioli nati nel ${y}</span><span>${Q.n}</span></div>
+  <div class="ae-r tot"><span>Parte di ogni cucciolo</span><span>${eur(Q.q)}</span></div></div>
+  <p class="small" style="margin-top:8px">Nei Conti della cucciolata, con «Aggiungi una parte delle spese generali»: costo di ogni cucciolo = spese della cucciolata + cibo stimato + questa parte.</p></div>`}
+function acGenDetail(){const G=acGO(),GI=acGI();return `<button class="back" data-a="back">‹ Conti</button><h1>Spese generali</h1><p class="nick">Spese dell'allevamento: crocchette, vaccini, veterinario, farmaci e varie</p>${gvBox()}
   <div class="ac-sec in"><h3>Entrate <button class="btn ghost small" data-a="acInc" data-v="gen|">＋ Altra entrata (Altro)</button></h3>${acInRows(GI,"gen")||'<div class="ac-r e"><span></span><span>Nessuna entrata.</span><span></span></div>'}<div class="ac-tot"><span>Totale entrate</span><span class="ac-pos">${eur(acOut(GI))}</span></div></div>
-  <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="gen|">＋ Aggiungi spesa</button></h3>${acRows(G,"gen")}<div class="ac-tot"><span>Totale</span><span class="ac-neg">${eur(acOut(G))}</span></div></div>${acBars(G)}`}
+  <div class="ac-sec out"><h3>Spese <button class="btn ghost small" data-a="acExp" data-v="gen|">＋ Aggiungi spesa</button></h3>${acRows(G,"gen")}<div class="ac-tot"><span>Totale</span><span class="ac-neg">${eur(acOut(G))}</span></div></div>${acBars(G)}${acGenSplit()}`}
 function acPriceForm(v){const [lid,k]=v.split("|"),P=(D.litters[lid].acc||{}).prices||{},d=D.dogs[k];
   sheet(`<h2 style="margin-top:0">💶 Prezzo di ${esc(d.nick||d.name)}</h2><div class="form"><label class="f full">Prezzo (€)<input id="acp" inputmode="decimal" value="${P[k]!=null?esc(String(P[k]).replace(".",",")):""}" placeholder="es. 1.400"></label></div>
   <div class="actions"><button class="btn" data-a="acPriceSave" data-v="${v}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
@@ -4997,7 +5042,7 @@ document.addEventListener("click",e=>{
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
-    case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;case "acEst":acEstForm(v);break;case "acEstSave":acEstSave(v);break;case "aeInv":aeInvPick();break;case "aeUse":aeUse(+v);break;case "acQG":AC_QG=!AC_QG;render();break;
+    case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;case "acEst":acEstForm(v);break;case "acEstSave":acEstSave(v);break;case "aeInv":aeInvPick();break;case "gvInv":gvPick();break;case "gvSave":gvSave();break;case "gvNo":GV=null;render();break;case "aeUse":aeUse(+v);break;case "acQG":AC_QG=!AC_QG;render();break;
     case "acExp":acExpForm(v);break;case "acExpSave":acExpSave(v);break;case "acExpDel":acExpDel(v);break;case "acInc":acIncForm(v);break;case "acIncSave":acIncSave(v);break;case "acIncDel":acIncDel(v);break;
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;

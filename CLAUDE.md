@@ -1590,3 +1590,10 @@ Accessi e copie
   `aeMatch` trova le crocchette nell'elenco; «Usa questi dati» (`aeUse`) compila. Fattura in `feedEst.inv` (e `foodCost[id].inv`).
   Scelta di Paolo: il TOTALE della fattura va nelle **Spese generali** (voce Crocchette, con la fattura), non nelle spese della cucciolata;
   si divide fra le cucciolate con «Aggiungi una parte delle spese generali» (le cucciolate sono l'unica entrata). Niente doppioni (stessa data e importo).
+- (24/10/2026, anteprima 11 approvata da Paolo) **Fatture nelle Spese generali** (`acGenDetail` → `gvBox`, `gvPick`/`gvRead`/`gvSave`, stato `GV`):
+  tutte le fatture (crocchette, vaccini, veterinario, farmaci, varie) vanno nelle Spese generali. Compito `fattura` di /api/ai: OGNI riga con
+  `cat` (Crocchette/Vaccini/Visite/Terapie/Altro) e `puppy`; Paolo può cambiare la voce. `invSave`: una spesa per voce con la fattura allegata
+  (`inv:1`), differenza col totale (spedizione) in Altro, niente doppioni. Il sacco Puppy (scelta delle crocchette `data-gvf`) va in
+  `settings.foodCost[id]` e `settings.puppyFood` = crocchette di base della stima (`acEstCfg`). Anche la fattura caricata da «Cambia la stima»
+  passa da `invSave`. Parte delle spese generali (`acQuotaY`): spese generali dell'anno MENO il cibo stimato dei cuccioli (somma di `acStima`),
+  diviso i cuccioli dell'anno (`acNPup`); spiegata in fondo alle Spese generali (`acGenSplit`).
