@@ -833,6 +833,10 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .ac-b2{margin:10px 0}.ac-b2 .ac-bl{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;line-height:1.3}.ac-b2 .ac-bl span{min-width:0;overflow-wrap:anywhere}
 .ac-b2 .ac-bl b{white-space:nowrap;font-weight:600}.ac-b2 .ac-bl small{color:var(--muted);font-weight:400;margin-left:4px}
 .ac-b2 .ac-bt{height:8px;border-radius:4px;background:var(--bg);margin-top:5px;overflow:hidden}.ac-b2 .ac-bt i{display:block;height:100%;border-radius:4px;background:#5D7A99}
+.ae-inv{border:1px dashed #b9c3ce;border-radius:10px;padding:12px;margin:0 0 10px;background:#F7F9FB}.ae-inv.on{border-style:solid}
+.ae-ok{color:var(--ok);font-size:12px;font-weight:600}.ae-r{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:14px}.ae-r>span:last-child{font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
+.ae-ln{border-top:1px solid var(--line);margin-top:6px;padding-top:6px}.ae-ln .btn{margin-top:6px}.ae-h{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 0;border-top:1px solid var(--line);padding-top:10px}
+.ae-calc{margin-top:14px;background:#F3F6F9;border-radius:10px;padding:12px}.ae-calc .tot{border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-size:15px}
 </style>
 </head>
 <body>
@@ -4204,11 +4208,13 @@ let AC_QG=false;
 const acExpL=lid=>((D.litters[lid].acc||{}).exp||[]);
 const acCiboSeg=lid=>acOut(acExpL(lid).filter(x=>x.cat==="Cibo")),acSenzaCibo=lid=>acOut(acExpL(lid).filter(x=>x.cat!=="Cibo"));
 function acEstCfg(lid){const e=(D.litters[lid].acc||{}).feedEst||{},FC=((D.settings||{}).foodCost)||{},fid=e.food||Object.keys(FC).filter(k=>FC[k].eur>0&&FC[k].kg>0).pop()||"";
-  const c=FC[fid]&&FC[fid].eur>0&&FC[fid].kg>0?FC[fid]:(e.eur>0&&e.kg>0?{eur:e.eur,kg:e.kg}:null);return{food:fid,g:+e.g||150,days:+e.days||35,c}}
-function acStima(lid){const n=litPups(lid).length,E=acEstCfg(lid);if(!n||!E.c)return null;const kg=n*E.days*E.g/1000,ek=E.c.eur/E.c.kg;return{n,days:E.days,g:E.g,kg,ek,eur:Math.round(kg*ek),food:E.food}}
+  const c=FC[fid]&&FC[fid].eur>0&&FC[fid].kg>0?FC[fid]:(e.eur>0&&e.kg>0?{eur:e.eur,kg:e.kg}:null);return{food:fid,g:+e.g||150,days:+e.days||35,c,n:+e.n||0,inv:e.inv||null}}
+/* numero di cuccioli della stima (24/10/2026): dalle schede della cucciolata, o quello scritto a mano nella finestra (feedEst.n) */
+function acNPup(lid){const e=((D.litters[lid].acc||{}).feedEst)||{};return +e.n||litPups(lid).length}
+function acStima(lid){const n=acNPup(lid),E=acEstCfg(lid);if(!n||!E.c)return null;const kg=n*E.days*E.g/1000,ek=E.c.eur/E.c.kg;return{n,days:E.days,g:E.g,kg,ek,eur:Math.round(kg*ek),food:E.food}}
 function acQuota(lid){if(!AC_QG)return 0;const y=acYearOf(lid),L=acLits().filter(k=>acYearOf(k)===y),n=L.reduce((s,k)=>s+litPups(k).length,0);return n?Math.round(acOut(acGO().filter(x=>String(x.date||"").slice(0,4)===y))/n):0}
-function acCostoPup(lid,cibo){const n=litPups(lid).length;return n?Math.round((acSenzaCibo(lid)+cibo)/n)+acQuota(lid):0}
-function acCostHtml(lid){const n=litPups(lid).length;if(!n)return"";const P=(D.litters[lid].acc||{}).prices||{},S=acStima(lid),sg=acCiboSeg(lid),cs=acSenzaCibo(lid),q=acQuota(lid),cB=acCostoPup(lid,sg),cA=S?acCostoPup(lid,S.eur):null,dec=x=>String(x).replace(".",",");
+function acCostoPup(lid,cibo){const n=acNPup(lid);return n?Math.round((acSenzaCibo(lid)+cibo)/n)+acQuota(lid):0}
+function acCostHtml(lid){const n=acNPup(lid);if(!n)return"";const P=(D.litters[lid].acc||{}).prices||{},S=acStima(lid),sg=acCiboSeg(lid),cs=acSenzaCibo(lid),q=acQuota(lid),cB=acCostoPup(lid,sg),cA=S?acCostoPup(lid,S.eur):null,dec=x=>String(x).replace(".",",");
   const fd=S&&S.food?fdFood(S.food):null,fn=fd?esc(fd.brand+" "+fd.name):"crocchette";
   let d="";if(S){const df=sg-S.eur;d=sg?`<p class="ac-cfr ${Math.abs(df)<=S.eur*.1?"ok":"warn"}">${df>0?"Hai speso "+eur(df)+" più della stima":df<0?"Hai speso "+eur(-df)+" meno della stima":"Le spese sono uguali alla stima"}${Math.abs(df)>S.eur*.1?(df>0?": controlla se c'è cibo segnato due volte o usato per la mamma.":": forse manca qualche spesa di cibo, oppure i cuccioli hanno mangiato meno."):"."}</p>`:`<p class="ac-cfr warn">Non hai ancora segnato spese con la voce «Cibo»: B conta il cibo come zero.</p>`}
   return `<div class="ac-sec ac-cp"><h3>Quanto ti è costato ogni cucciolo</h3>
@@ -4217,16 +4223,79 @@ function acCostHtml(lid){const n=litPups(lid).length;if(!n)return"";const P=(D.l
   <tr><td>Cibo dei cuccioli</td><td>${S?eur(S.eur):"—"}</td><td>${eur(sg)}</td></tr>
   ${q?`<tr><td>Parte delle spese generali</td><td>${eur(q)}</td><td>${eur(q)}</td></tr>`:""}
   <tr class="tot"><td>Costo di ogni cucciolo</td><td>${cA!=null?eur(cA):"—"}</td><td>${eur(cB)}</td></tr></table>
-  <div class="ac-cpn">${S?`<p class="small"><b>A · Stima:</b> ${n} cuccioli × ${S.days} giorni × ${S.g} g = ${dec(Math.round(S.kg*10)/10)} kg di ${fn} a ${eur(Math.round(S.ek*100)/100)} al kg.</p>`:`<p class="small"><b>A · Stima:</b> per calcolarla scrivi prezzo e peso del sacco in Alimentazione › Crocchette.</p>`}
+  <div class="ac-cpn">${S?`<p class="small"><b>A · Stima:</b> ${n} cuccioli × ${S.days} giorni × ${S.g} g = ${dec(Math.round(S.kg*10)/10)} kg di ${fn} a ${eur(Math.round(S.ek*100)/100)} al kg.</p>`:`<p class="small"><b>A · Stima:</b> per calcolarla tocca «Cambia la stima» e scrivi il prezzo del sacco, o carica la fattura.</p>`}
   <p class="small"><b>B · Segnate:</b> le spese con la voce «Cibo» qui sotto.</p>${d}
-  <div class="ac-cpo">${CONTI&&!(D.settings||{}).foodCost?"":`<button class="btn small ghost" data-a="acEst" data-v="${lid}">Cambia la stima</button>`}<button class="btn small ghost" data-a="acQG">${AC_QG?"Togli":"Aggiungi"} una parte delle spese generali</button></div></div>
+  <div class="ac-cpo"><button class="btn small ghost" data-a="acEst" data-v="${lid}">Cambia la stima</button><button class="btn small ghost" data-a="acQG">${AC_QG?"Togli":"Aggiungi"} una parte delle spese generali</button></div></div>
   <table class="ac-cpt"><tr><th>Cucciolo</th><th>Prezzo</th><th>Guadagno A</th><th>Guadagno B</th></tr>${litPups(lid).map(k=>{const dg=D.dogs[k],pr=P[k]!=null&&P[k]!==""?+P[k]:null;return `<tr><td>${esc(dg.nick||dg.name)}</td><td>${pr!=null?eur(pr):'<span class="row-meta">senza prezzo</span>'}</td><td>${pr!=null&&cA!=null?`<b class="ac-pos">${eur(pr-cA)}</b>`:"—"}</td><td>${pr!=null?`<b class="ac-pos">${eur(pr-cB)}</b>`:"—"}</td></tr>`}).join("")}</table></div>`}
-function acEstForm(lid){const E=acEstCfg(lid),FC=((D.settings||{}).foodCost)||{},L=Object.keys(FC).filter(k=>FC[k].eur>0&&FC[k].kg>0&&fdFood(k));
-  sheet(`<h2 style="margin-top:0">Stima del cibo · ${acLitLab(lid)}</h2><div class="form">
-  <label class="f full">Crocchette dei cuccioli<select id="aef">${L.length?L.map(k=>{const f=fdFood(k);return `<option value="${esc(k)}"${k===E.food?" selected":""}>${esc(f.brand+" "+f.name)} · ${eur(Math.round(FC[k].eur/FC[k].kg*100)/100)} al kg</option>`}).join(""):'<option value="">Nessuna crocchetta con il prezzo: scrivilo in Alimentazione</option>'}</select></label>
-  <label class="f">Grammi al giorno per cucciolo<input id="aeg" inputmode="numeric" value="${E.g}"></label><label class="f">Giorni (dallo svezzamento alla consegna)<input id="aed" inputmode="numeric" value="${E.days}"></label></div>
-  <div class="actions"><button class="btn" data-a="acEstSave" data-v="${lid}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`)}
-function acEstSave(lid){const a=acL(lid),fid=$("#aef").value,c=(((D.settings||{}).foodCost)||{})[fid]||{};a.feedEst={food:fid,g:Math.max(1,Math.round(fdNum($("#aeg").value))||150),days:Math.max(1,Math.round(fdNum($("#aed").value))||35)};if(c.eur>0&&c.kg>0){a.feedEst.eur=c.eur;a.feedEst.kg=c.kg}closeSheet();render();typeof saveNow==="function"&&saveNow()}
+/* Stima del cibo (anteprima 10 approvata, 24/10/2026): tutte le crocchette, prezzo e peso del sacco scritti qui o letti da Claude
+   dalla fattura (foto o PDF, compito "fattura" di /api/ai); la fattura serve solo per il prezzo (scelta 1B di Paolo: non va nelle spese).
+   Il prezzo va anche in settings.foodCost (Alimentazione); fattura in feedEst.inv e foodCost[id].inv. */
+let AE=null;
+function aeOpts(cur){const FC=((D.settings||{}).foodCost)||{},opt=x=>`<option value="${esc(x.id)}"${x.id===cur?" selected":""}>${esc(x.brand)} ${esc(x.name)}</option>`,my=((D.settings||{}).foods)||[],wp=fdFoods().filter(x=>FC[x.id]&&FC[x.id].eur>0&&FC[x.id].kg>0);
+  const grp=(t,L)=>L.length?`<optgroup label="${esc(t)}">${L.map(opt).join("")}</optgroup>`:"",all=FD_DB.concat(FD_CAT);
+  return `<option value="">— scegli le crocchette —</option>${grp("Con il prezzo",wp)}${grp("Le mie crocchette",my)}${[...new Set(all.map(x=>x.brand))].map(b=>grp(b,all.filter(x=>x.brand===b))).join("")}${grp("Aggiunte dagli utenti",FD_U||[])}`}
+function acEstForm(lid){const E=acEstCfg(lid),np=litPups(lid).length,dec=x=>x==null||x===""?"":String(x).replace(".",",");
+  /* il catalogo delle crocchette arriva dopo: si rifà solo l'elenco, tenendo la scelta */
+  if(!FD_CAT.length)fetch("/crocchette-catalogo.json").then(r=>r.json()).then(j=>{FD_CAT=j.items||[];const x=$("#aef");if(x){const v=x.value;x.innerHTML=aeOpts(v);x.value=v}}).catch(()=>{});
+  AE={lid,inv:E.inv,read:null};const sel=aeOpts(E.food);
+  const c=E.c||{};
+  sheet(`<h2 style="margin-top:0">Stima del cibo · ${acLitLab(lid)}</h2><div id="aeInvBox">${acInvBox()}</div>
+  <div class="form"><label class="f full">Crocchette dei cuccioli<select id="aef">${sel}</select></label>
+  <label class="f">Prezzo del sacco (€)<input id="aee" inputmode="decimal" value="${esc(dec(c.eur))}" placeholder="es. 74,90"></label><label class="f">Peso del sacco (kg)<input id="aek" inputmode="decimal" value="${esc(dec(c.kg))}" placeholder="es. 12"></label></div>
+  <p class="small" style="margin:4px 0 0">Il prezzo resta salvato anche in Alimentazione per queste crocchette.</p>
+  <h3 class="ae-h">Quanto mangiano</h3><div class="form">
+  <label class="f">Grammi al giorno per cucciolo<input id="aeg" inputmode="numeric" value="${E.g}"></label><label class="f">Giorni (dallo svezzamento alla consegna)<input id="aed" inputmode="numeric" value="${E.days}"></label>
+  <label class="f full">Numero di cuccioli<input id="aen" inputmode="numeric" value="${E.n||np}"></label></div>
+  <p class="small" style="margin:4px 0 0">${np?`Preso dalle schede dei cuccioli della cucciolata (${np}).`:"La cucciolata non ha schede dei cuccioli: scrivi quanti sono."} Puoi cambiarlo se qualcuno non ha la scheda.</p>
+  <div class="ae-calc" id="aeCalc"></div>
+  <div class="actions"><button class="btn" data-a="acEstSave" data-v="${lid}">Salva</button><button class="btn ghost" data-a="close">Annulla</button></div>`);acEstCalc()}
+function acInvBox(){const R=AE&&AE.read,I=AE&&AE.inv;
+  if(R){const L=R.lines||[];return `<div class="ae-inv on"><b>Claude ha letto</b> <span class="ae-ok">✓ fattura allegata</span>
+    ${R.shop||R.date?`<div class="ae-r"><span>Negozio</span><span>${esc(R.shop||"")}${R.date?" · "+fmt(R.date):""}</span></div>`:""}
+    ${L.length?L.map((x,i)=>`<div class="ae-ln"><div class="ae-r"><span>Crocchette</span><span>${esc(x.desc||((x.brand||"")+" "+(x.name||"")))}</span></div>
+      <div class="ae-r"><span>Sacchi</span><span>${x.qty||1} × ${x.kg?String(x.kg).replace(".",",")+" kg":"peso non scritto"}</span></div>
+      <div class="ae-r"><span>Prezzo di un sacco</span><span>${x.unit?eur(x.unit):"—"}</span></div>
+      ${x.fid?`<div class="small">Trovate nell'elenco: ${esc(fdFood(x.fid).brand+" "+fdFood(x.fid).name)}</div>`:`<div class="small">Non trovate nell'elenco: sceglile tu qui sotto.</div>`}
+      <button class="btn small" data-a="aeUse" data-v="${i}">Usa questi dati</button></div>`).join(""):`<p class="small">Nella fattura non ho trovato crocchette per cani.</p>`}
+    ${R.total?`<div class="ae-r"><span>Totale fattura</span><span>${eur(R.total)}</span></div>`:""}
+    ${R.total?`<p class="small" style="margin:4px 0 0">Salvando, il totale va nelle <b>Spese generali</b> dell'allevamento, voce Crocchette, con la fattura allegata.</p>`:""}
+    <div style="margin-top:8px"><button class="btn small ghost" data-a="aeInv">Carica un'altra</button></div></div>`}
+  return `<div class="ae-inv"><b>Fattura o scontrino delle crocchette</b>${I&&I.file?` <span class="ae-ok">✓ allegata${I.date?" ("+fmt(I.date)+")":""}</span> ${fBtns(I.file,I.fname)}`:""}
+    <p class="small" style="margin:2px 0 8px">Carica una foto o un PDF: Claude legge crocchette, peso del sacco e prezzo, e compila qui sotto.</p>
+    <button class="btn" data-a="aeInv" style="width:100%">${I&&I.file?"Carica un'altra fattura (foto o PDF)":"Carica fattura (foto o PDF)"}</button></div>`}
+function acEstCalc(){const el=$("#aeCalc");if(!el)return;const g=fdNum($("#aeg").value)||0,d=fdNum($("#aed").value)||0,n=fdNum($("#aen").value)||0,e=fdNum($("#aee").value)||0,k=fdNum($("#aek").value)||0,
+    kp=g*d/1000,kt=kp*n,ek=k?e/k:0,dec=x=>(Math.round(x*10)/10).toString().replace(".",",");
+  el.innerHTML=`<b>Come lo calcola</b><div class="ae-r"><span>Un cucciolo: ${g} g × ${d} giorni</span><span>${dec(kp)} kg</span></div>
+  <div class="ae-r"><span>Tutti i cuccioli: × ${n}</span><span>${dec(kt)} kg</span></div>
+  <div class="ae-r"><span>Prezzo al kg</span><span>${ek?eur(Math.round(ek*100)/100):"—"}</span></div>
+  <div class="ae-r"><span>Sacchi che servono</span><span>${k?dec(kt/k)+" sacchi":"—"}</span></div>
+  <div class="ae-r tot"><span>Cibo della cucciolata (A · Stima)</span><span>${ek?eur(Math.round(kt*ek)):"—"}</span></div>
+  <div class="ae-r"><span>Per ogni cucciolo</span><span>${ek&&n?eur(Math.round(kp*ek)):"—"}</span></div>`}
+document.addEventListener("input",e=>{if(e.target.closest&&e.target.closest("#aeg,#aed,#aen,#aee,#aek"))acEstCalc()});
+document.addEventListener("change",e=>{if(!(e.target&&e.target.id==="aef"))return;const c=((((D.settings||{}).foodCost)||{})[e.target.value])||{},dec=x=>x==null?"":String(x).replace(".",",");if(c.eur>0&&c.kg>0){$("#aee").value=dec(c.eur);$("#aek").value=dec(c.kg)}acEstCalc()});
+function aeInvPick(){let i=$("#aeInvF");if(!i){i=document.createElement("input");i.type="file";i.id="aeInvF";i.accept="image/*,application/pdf";i.hidden=true;document.body.appendChild(i);i.addEventListener("change",aeInvRead)}i.value="";i.click()}
+function aeMatch(x){const w=t=>String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").split(" ").filter(z=>z.length>1),
+    q=new Set(w((x.brand||"")+" "+(x.name||"")).filter(z=>!/^\d|^kg$/.test(z))),br=w(x.brand||x.desc).slice(0,1)[0];let best=null,bs=0;
+  for(const f of fdFoods()){const fb=w(f.brand),fw=w(f.brand+" "+f.name);if(br&&!fb.some(z=>q.has(z)))continue;const hit=fw.filter(z=>q.has(z)).length,sc=hit/(fw.length+q.size-hit);if(sc>bs){bs=sc;best=f}}
+  return bs>=.4?best.id:""}
+async function aeInvRead(){const f=$("#aeInvF").files[0];if(!f||!AE)return;const b=document.querySelector('[data-a="aeInv"]');aiBusy(b,1,"Claude legge la fattura…");
+  try{const u=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)}),isImg=/^image\//.test(f.type);
+    const j=isImg?await aiCall("fattura",{parts:(await aiImgParts(u)).slice(0,4)}):await aiCall("fattura",{data:u,media:"application/pdf"});
+    if(!j.ok)throw new Error(j.error||"Claude non risponde.");
+    j.lines=(j.lines||[]).map(x=>Object.assign(x,{fid:aeMatch(x)}));
+    let file=u,fname=f.name;if(isImg){try{const r=await shrink(f);if(r&&r.data){file=r.data;fname=fname.replace(/\.[^.]+$/,"")+".jpg"}}catch(x){}}
+    AE.read=j;AE.inv={file,fname,date:j.date||todayS(),shop:j.shop||""};$("#aeInvBox").innerHTML=acInvBox();if(j.lines.length===1)aeUse(0)}
+  catch(e){aiBusy(b,0);alert("Non sono riuscito a leggere la fattura.\n\n"+e.message)}}
+function aeUse(i){const x=AE&&AE.read&&AE.read.lines[i];if(!x)return;const dec=v=>String(v).replace(".",",");if(x.fid){const sl=$("#aef");if(![...sl.options].some(o=>o.value===x.fid))sl.innerHTML=aeOpts(x.fid);sl.value=x.fid}if(x.unit)$("#aee").value=dec(x.unit);if(x.kg)$("#aek").value=dec(x.kg);acEstCalc();
+  const b=document.querySelector(`[data-a="aeUse"][data-v="${i}"]`);if(b){b.textContent="✓ Inseriti";b.disabled=true}}
+function acEstSave(lid){const a=acL(lid),fid=$("#aef").value,eu=fdNum($("#aee").value),kg=fdNum($("#aek").value),n=Math.round(fdNum($("#aen").value)||0),np=litPups(lid).length;
+  a.feedEst={food:fid,g:Math.max(1,Math.round(fdNum($("#aeg").value))||150),days:Math.max(1,Math.round(fdNum($("#aed").value))||35)};
+  if(n>0&&n!==np)a.feedEst.n=n;if(eu>0&&kg>0){a.feedEst.eur=eu;a.feedEst.kg=kg}if(AE&&AE.inv)a.feedEst.inv=AE.inv;
+  if(fid&&eu>0&&kg>0&&!CONTI){const S=D.settings=D.settings||{};S.foodCost=S.foodCost||{};S.foodCost[fid]=Object.assign(S.foodCost[fid]||{},{eur:eu,kg});if(AE&&AE.inv&&AE.read)S.foodCost[fid].inv=AE.inv}
+  /* il totale della fattura va nelle Spese generali (Paolo, 24/10/2026): poi si divide fra le cucciolate con «Aggiungi una parte delle spese generali» */
+  if(AE&&AE.read&&AE.read.total>0){const R=AE.read,G=D.accGen=D.accGen||[],dt=R.date||todayS();
+    if(!G.some(x=>!x.in&&x.date===dt&&+x.amt===+R.total&&x.cat==="Crocchette"))G.push({id:newId("e"),date:dt,amt:R.total,cat:"Crocchette",txt:("Fattura "+(R.shop||"")).trim()+((R.lines||[])[0]?" · "+(R.lines[0].brand+" "+R.lines[0].name).trim():""),file:AE.inv.file,fname:AE.inv.fname})}
+  AE=null;closeSheet();render();typeof saveNow==="function"&&saveNow()}
 function contiPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';if(view)return view==="gen"?acGenDetail():D.litters[view]?acDetail(view):acList();return acList()}
 function acList(){const L=acLits(),G=acGO(),GI=acGI();const ys=[...new Set([...L.map(acYearOf),...(D.accGen||[]).map(x=>String(x.date||"").slice(0,4)).filter(Boolean),String(new Date().getFullYear())])].sort().reverse();if(!ys.includes(AC_Y))AC_Y=ys[0];
   const LY=L.filter(k=>acYearOf(k)===AC_Y),GY=G.filter(x=>String(x.date||"").slice(0,4)===AC_Y),GIY=GI.filter(x=>String(x.date||"").slice(0,4)===AC_Y),ti=LY.reduce((s,k)=>s+acIn(k),0)+acOut(GIY),to=LY.reduce((s,k)=>s+acOut((D.litters[k].acc||{}).exp),0)+acOut(GY);
@@ -4928,7 +4997,7 @@ document.addEventListener("click",e=>{
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
     case "acOpen":view=v;render();scrollTo(0,0);break;case "acYear":AC_Y=v;render();break;
-    case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;case "acEst":acEstForm(v);break;case "acEstSave":acEstSave(v);break;case "acQG":AC_QG=!AC_QG;render();break;
+    case "acPrice":acPriceForm(v);break;case "acPriceSave":acPriceSave(v);break;case "acEst":acEstForm(v);break;case "acEstSave":acEstSave(v);break;case "aeInv":aeInvPick();break;case "aeUse":aeUse(+v);break;case "acQG":AC_QG=!AC_QG;render();break;
     case "acExp":acExpForm(v);break;case "acExpSave":acExpSave(v);break;case "acExpDel":acExpDel(v);break;case "acInc":acIncForm(v);break;case "acIncSave":acIncSave(v);break;case "acIncDel":acIncDel(v);break;
     case "wpAssign":wpAssign();break;case "wpEdit":wpEdit(v);break;case "wpSave":wpSave(v);break;case "wpDel":wpDel(v);break;
     case "wlOpen":wlForm(v);break;case "wlNew":wlForm(null);break;case "wlSave":wlSave(v);break;case "wlAssign":wlAssign(v);break;case "wlAssignDo":wlAssignDo(v);break;

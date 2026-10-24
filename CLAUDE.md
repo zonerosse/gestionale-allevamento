@@ -1583,3 +1583,10 @@ Accessi e copie
   alto voce e data, sotto la descrizione intera che va a capo (`overflow-wrap:anywhere`), importo a destra. «Dove vanno i soldi» (`acBars`,
   `.ac-bars2`/`.ac-b2`): voce, importo e percentuale su una riga, barra grigio-blu sotto. Intestazione «Spese» grigia (niente rosa).
   ATTENZIONE: la classe `.ac-bar` ha una seconda regola (`height:8px`) usata altrove: non riusarla. Fatto uguale nei due file.
+- (24/10/2026, anteprima 10 approvata da Paolo) «Cambia la stima» (`acEstForm`): tutte le crocchette (`aeOpts`, prima «Con il prezzo»),
+  prezzo e peso del sacco scritti lì (vanno anche in `settings.foodCost`, non per "conti"), numero di cuccioli dalle schede o scritto a mano
+  (`feedEst.n`, `acNPup`), riquadro «Come lo calcola» (`acEstCalc`). «Carica fattura (foto o PDF)» (`aeInvPick`/`aeInvRead`, compito
+  `fattura` di /api/ai, permesso conti 2): Claude legge negozio, data, totale e righe di crocchette (prezzo di UN sacco IVA compresa);
+  `aeMatch` trova le crocchette nell'elenco; «Usa questi dati» (`aeUse`) compila. Fattura in `feedEst.inv` (e `foodCost[id].inv`).
+  Scelta di Paolo: il TOTALE della fattura va nelle **Spese generali** (voce Crocchette, con la fattura), non nelle spese della cucciolata;
+  si divide fra le cucciolate con «Aggiungi una parte delle spese generali» (le cucciolate sono l'unica entrata). Niente doppioni (stessa data e importo).

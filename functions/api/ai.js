@@ -18,6 +18,8 @@ import { json, role, deny, loadData, farmOf, can } from "../_lib.js";
                  Google → Pagine del sito: traduce in inglese e tedesco i campi cambiati da Paolo in italiano
    - "sacco":    { parts:[base64 jpeg] }   → { brand, name, stage, kcal, kcalRead, p, f, fi, a, u }  foto del sacco di crocchette (18/10/2026):
                  kcal per 100 g scritte sul sacco; se mancano, calcolate qui dai componenti analitici (Atwater modificato, NRC/FEDIAF)
+   - "fattura":  { parts:[jpeg] | data(pdf), media } → { shop, date, total, lines:[{desc,brand,name,qty,kg,unit,total}] }  fattura o scontrino
+                 delle crocchette (24/10/2026): prezzo di UN sacco IVA compresa, per la stima del cibo nei Conti
    - "kcalnome": { brand, name }           → { kcal, src, url }  kcal per 100 g cercate in internet dal nome letto sul sacco (18/10/2026)
    Paolo non conosce inglese e tedesco: le traduzioni devono essere fedeli, naturali, senza aggiunte. */
 const MODEL = "claude-sonnet-5-5";
@@ -66,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -246,6 +248,24 @@ Formato: {"brand":"","name":"","stage":"","kcal":null,"p":null,"f":null,"fi":nul
       else if (r.p != null && r.f != null && r.a != null) { const u = r.u == null ? 10 : r.u, nfe = Math.max(0, 100 - r.p - r.f - (r.fi || 0) - r.a - u); r.kcal = Math.round(3.5 * r.p + 8.5 * r.f + 3.5 * nfe); r.uGuess = r.u == null; }
       else r.kcal = null;
       return json(Object.assign({ ok: true }, r));
+    }
+    if (task === "fattura") {
+      let docs = [];
+      if (p.data) docs = [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: String(p.data).replace(/^data:[^,]*,/, "") } }];
+      else docs = (Array.isArray(p.parts) ? p.parts : []).filter(Boolean).slice(0, 4).map(x => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: String(x).replace(/^data:[^,]*,/, "") } }));
+      if (!docs.length) return json({ ok: false, error: "Manca la fattura." });
+      const o = await ask(env, `Leggi una fattura, ricevuta o scontrino di un negozio di animali (anche online: Zooplus, Amazon, Arcaplanet…). Estrai SOLO quello che è scritto, senza inventare.
+- "shop": nome del negozio o venditore; "date": data del documento AAAA-MM-GG o ""; "total": totale pagato in euro (numero) o null.
+- "lines": SOLO le righe di crocchette (cibo secco) per cani; ignora snack, umido in scatola, accessori, spedizione. Per ogni riga:
+  "desc": la descrizione com'è scritta; "brand": marca; "name": nome del prodotto senza peso e quantità;
+  "qty": quanti sacchi (numero, 1 se non scritto); "kg": peso di UN sacco in kg (es. "12 kg" = 12, "2 x 12 kg" = 12 e qty 2, "800 g" = 0.8), null se non scritto;
+  "unit": prezzo di UN sacco in euro IVA COMPRESA e dopo gli sconti della riga (se la fattura mostra imponibile e IVA a parte, aggiungi l'IVA indicata; se c'è solo il totale della riga, dividi per qty);
+  "total": totale della riga IVA compresa.
+Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","brand":"","name":"","qty":1,"kg":null,"unit":null,"total":null}]}`,
+        [...docs, { type: "text", text: "Fattura delle crocchette." }], 1500);
+      const n = v => (v === null || v === undefined || v === "" || isNaN(+String(v).replace(",", "."))) ? null : +String(v).replace(",", ".");
+      const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 12).map(x => ({ desc: String(x.desc || ""), brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
+      return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
     if (task === "kcalnome") {
       const q = (String(p.brand || "") + " " + String(p.name || "")).trim().slice(0, 160);
