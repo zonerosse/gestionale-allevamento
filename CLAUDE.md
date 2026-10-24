@@ -1597,3 +1597,14 @@ Accessi e copie
   `settings.foodCost[id]` e `settings.puppyFood` = crocchette di base della stima (`acEstCfg`). Anche la fattura caricata da «Cambia la stima»
   passa da `invSave`. Parte delle spese generali (`acQuotaY`): spese generali dell'anno MENO il cibo stimato dei cuccioli (somma di `acStima`),
   diviso i cuccioli dell'anno (`acNPup`); spiegata in fondo alle Spese generali (`acGenSplit`).
+
+## Calcolatori: stesso motore del sito, gravidanza e allattamento (24/10/2026, Paolo: anteprime 19-21 del sito approvate)
+- Calorie come `calcolatore-cane.js` del sito: cucciolo NRC 2006 / FEDIAF luglio 2024 (130 × kg^0,75 × 3,2 × (e^(−0,87 p) − 0,1), p = peso / peso
+  da adulto, senza movimento), adulto 70 × kg^0,75 × 1,8/1,6 (8+ anni 1,4/1,3) × movimento. In «Quanto mangia» (`fdNeed`, `fdKPup`, `fdKAd`,
+  `fdKGr`, `fdKLat`) e nel calcolatore delle crocchette della pagina della famiglia (`grams`, blocco comune). Crescita oltre 15 kg: calcio minimo 2,5.
+- «Quanto mangia», femmina intera da 12 mesi: «Momento» Nessuno / Accoppiata / Allatta (`fdRepUI`, `d.feed.rep/repD/np`). Per le fattrici, se non
+  scelto a mano, lo trova da solo (`fdRep`): monta in corso da `reproState` (Calori e monte), oppure cucciolata nata da ≤ 63 giorni (cuccioli da
+  `litPups`). Tappe con le date in una tendina chiusa (`fdTlHtml`), tabella settimana per settimana.
+- BARF (Alimentazione e pagina della famiglia): script del sito `calcolatore-barf.js?v=20261024-1200`, che carica da solo `calcolatore-cane.js`.
+  Le regole CSS dei riquadri del cane (`.bf .pp-nuovo …`, copia da `notte.css`) sono prima di `</style>` nei due file. `owBfMount` passa data di
+  nascita, peso da adulto e peso di oggi nel formato nuovo (sex, ster, mode, birth, adult, kg).
