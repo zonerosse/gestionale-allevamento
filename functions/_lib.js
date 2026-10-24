@@ -53,7 +53,7 @@ export function accessReset() { ACC = null; }
 // Permessi per sezione (08/10/2026, scelta di Paolo): ogni persona ha, per ogni voce del menu, 0 = no, 1 = vede, 2 = modifica.
 // Nell'elenco "cfg:access" una persona è "admin" (tutto) oppure { cani:1, conti:2, … }; "conti" e "viewer" (vecchi ruoli)
 // valgono come { conti:2 } e { cani:1, cucciolate:1, coi:1, attesa:1 }. Oggi, Traduci e Statistiche: al massimo 1.
-export const SECT = ["oggi", "cani", "cucciolate", "proprietari", "coi", "agenda", "attesa", "recensioni", "anagrafe", "traduci", "conti", "scadenze", "statistiche"];
+export const SECT = ["oggi", "cani", "cucciolate", "proprietari", "coi", "agenda", "attesa", "recensioni", "anagrafe", "traduci", "conti", "scadenze", "statistiche", "esposizioni"];
 export const SECT_ONE = ["oggi", "traduci", "statistiche"];
 export function permNorm(r) {
   if (r === "admin") return null;
@@ -253,6 +253,7 @@ export function limitedData(data, P) {
   if (!v("conti")) { for (const l of Object.values(d.litters)) delete l.acc; d.accGen = []; }
   if (!v("attesa")) { delete d.waitlist; delete d.interested; delete d.wlGone; }
   if (!v("agenda")) delete d.agenda;
+  if (!v("esposizioni")) delete d.expo;
   if (!v("anagrafe")) for (const x of Object.values(d.dogs)) delete x.anag; // pratica dell'anagrafe: documenti e firma dell'intestatario
   const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
   cp(["rules", "enti"]);
@@ -272,6 +273,7 @@ export function mergeLimited(cur, body, P) {
   if (m("coi")) take("matings");
   if (m("attesa")) { take("waitlist"); take("interested"); take("wlGone"); }
   if (m("agenda")) take("agenda");
+  if (m("esposizioni")) take("expo");
   if (m("conti")) out.accGen = Array.isArray(B.accGen) ? B.accGen : (out.accGen || []);
   // cucciolate
   const L = out.litters = out.litters || {}, BL = B.litters || {};
@@ -281,7 +283,7 @@ export function mergeLimited(cur, body, P) {
       if (!v("proprietari")) for (const f of ["mbFile", "modA", "modB", "docs"]) { if (old[f] !== undefined) L[k][f] = old[f]; else delete L[k][f]; } } // parti che non ha visto: restano quelle vere
   } else if (m("conti")) for (const [k, l] of Object.entries(BL)) if (L[k]) { if (l.acc) L[k].acc = l.acc; else delete L[k].acc; }
   // cani: campo per campo, secondo la sezione a cui appartiene
-  const G = f => ["health", "todo", "scMove", "scSkip"].includes(f) ? ["cani", "scadenze"] : f === "anag" ? ["cani", "anagrafe"]
+  const G = f => ["health", "todo", "scMove", "scSkip"].includes(f) ? ["cani", "scadenze"] : f === "shows" ? ["cani", "esposizioni"] : f === "anag" ? ["cani", "anagrafe"]
     : ["contract", "dep", "pp", "owner", "nvSent", "nvPrev"].includes(f) ? ["proprietari"] : ["kit", "kitx"].includes(f) ? ["cani", "proprietari"]
     : ["litter", "birthOrder", "birthTime", "collar", "birthWeight", "weights", "wphotos"].includes(f) ? ["cani", "cucciolate"] : ["cani"];
   const DG = out.dogs = out.dogs || {}, BD = B.dogs || {}, docsOk = mm(["cani", "proprietari", "cucciolate", "anagrafe"]);

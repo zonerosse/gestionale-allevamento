@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -270,6 +270,92 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
       const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 30).map(x => ({ desc: String(x.desc || ""), cat: ["Crocchette", "Vaccini", "Visite", "Terapie", "Altro"].includes(x.cat) ? x.cat : "Altro", puppy: !!x.puppy, brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
       return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
+    if (task === "expo") {
+   const content = [];
+   if (p.url) {
+    let u;
+    try {
+     u = new URL(String(p.url));
+    } catch (e) {}
+    if (!u || !/^https?:$/.test(u.protocol)) return json({
+     ok: false,
+     error: "Il link non \xe8 valido."
+    });
+    const r = await fetch(u.toString(), {
+     headers: {
+      "user-agent": "Mozilla/5.0 (gestionale-allevamento)",
+      accept: "text/html,*/*"
+     },
+     redirect: "follow"
+    }).catch(() => null);
+    if (!r || !r.ok) return json({
+     ok: false,
+     error: "Non riesco ad aprire la pagina" + (r ? " (" + r.status + ")" : "") + ". Prova con uno screenshot."
+    });
+    const html = (await r.text()).slice(0, 4e5);
+    const txt = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d)>/gi, "\n").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 3e4);
+    if (txt.length < 40) return json({
+     ok: false,
+     error: "La pagina non ha testo da leggere. Prova con uno screenshot."
+    });
+    content.push({
+     type: "text",
+     text: "Pagina " + u.toString() + ":\n" + txt
+    });
+   } else if (p.data) {
+    const data = String(p.data).replace(/^data:[^,]*,/, ""), media = p.media || "image/jpeg";
+    content.push(media === "application/pdf" ? {
+     type: "document",
+     source: {
+      type: "base64",
+      media_type: "application/pdf",
+      data: data
+     }
+    } : {
+     type: "image",
+     source: {
+      type: "base64",
+      media_type: /^image\/(jpeg|png|gif|webp)$/.test(media) ? media : "image/jpeg",
+      data: data
+     }
+    });
+   } else if (p.text) content.push({
+    type: "text",
+    text: String(p.text).slice(0, 2e4)
+   }); else return json({
+    ok: false,
+    error: "Manca il volantino o il link."
+   });
+   content.push({
+    type: "text",
+    text: `Oggi \xe8 il ${(new Date).toISOString().slice(0, 10)}. Razza dell'allevamento: ${F.breed || "non indicata"}.`
+   });
+   const o = await ask(env, `Leggi il volantino, la locandina o la pagina di una o pi\xf9 esposizioni canine (Italia o estero, in qualsiasi lingua). Estrai SOLO quello che c'\xe8 scritto, senza inventare: se un dato manca lascialo vuoto.\nRispondi con {"shows":[...]} dove ogni esposizione ha:\n- "name": nome in italiano (es. "Esposizione internazionale", "Esposizione nazionale", "Raduno", "Speciale di razza")\n- "city": citt\xe0\n- "country": codice di 2 lettere della nazione (IT, SI, HR, AT, DE, FR, CH, ES, ...)\n- "date", "date2": giorno di inizio e di fine in formato AAAA-MM-GG (date2 vuoto se dura un giorno)\n- "type": uno fra "Internazionale (CACIB)", "Nazionale (CAC)", "Raduno", "Speciale", "Club Show", "Altro"\n- "close1": prima chiusura delle iscrizioni (AAAA-MM-GG) se ce ne sono due, altrimenti vuoto\n- "close": ultima chiusura delle iscrizioni (AAAA-MM-GG)\n- "fee": quota d'iscrizione per il primo cane, con valuta, breve (es. "45 € (1\xaa chiusura 40 €)")\n- "judge": giudice della razza dell'allevamento, se indicato; altrimenti vuoto\n- "link": indirizzo per iscriversi, se scritto\n- "notes": una riga con altre informazioni utili (orari, luogo esatto), facoltativa\nSe un weekend ha due esposizioni diverse, sono due elementi. Se gli anni non sono scritti, usa il prossimo anno in cui la data cade dopo oggi.`, content, 2500);
+   const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
+   const TP = [ "Internazionale (CACIB)", "Nazionale (CAC)", "Raduno", "Speciale", "Club Show", "Altro" ];
+   const shows = (Array.isArray(o.shows) ? o.shows : []).slice(0, 8).map(x => ({
+    name: String(x.name || "").slice(0, 120),
+    city: String(x.city || "").slice(0, 80),
+    country: /^[A-Z]{2}$/.test(String(x.country || "").toUpperCase()) ? String(x.country).toUpperCase() : "IT",
+    date: D8(x.date),
+    date2: D8(x.date2),
+    type: TP.includes(x.type) ? x.type : "Altro",
+    close1: D8(x.close1),
+    close: D8(x.close),
+    fee: String(x.fee || "").slice(0, 80),
+    judge: String(x.judge || "").slice(0, 120),
+    link: String(x.link || p.url || "").slice(0, 300),
+    notes: String(x.notes || "").slice(0, 300)
+   })).filter(x => x.date || x.name);
+   if (!shows.length) return json({
+    ok: false,
+    error: "Non trovo un'esposizione da leggere. Prova con una foto pi\xf9 nitida o scrivila tu."
+   });
+   return json({
+    ok: true,
+    shows: shows
+   });
+  }
     if (task === "kcalnome") {
       const q = (String(p.brand || "") + " " + String(p.name || "")).trim().slice(0, 160);
       if (!q) return json({ ok: false, error: "Manca il nome delle crocchette." });

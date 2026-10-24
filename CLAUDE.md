@@ -76,6 +76,9 @@ prima di salvare carica su R2 ogni `data:...;base64,` (foto/PDF nuovi) e lo sost
     Si mostra con la grafica "Scala" (`coiScale`): nella scheda di Paolo con la fascia 6–9% e il calcolo Wright,
     nella pagina del proprietario solo numeri.
 - `D.matings["sire|dam"]`: `{coiSbt}`
+- `D.expo[id]`: esposizioni in calendario `{name, city, country, date, date2, type, close1, close, fee, judge, link, notes, dogs[], st (da/iscr/pag/no)}`.
+  `exSync()` crea/aggiorna la voce in `D.dogs[k].shows` (con `expo:id`) per ogni cane scelto: lì si scrivono i risultati.
+  Le chiusure delle iscrizioni sono in `scEvents()` (src `expo`). Lettura di volantini e link: `/api/ai` task `expo`. Permesso: sezione `esposizioni`.
 
 ### COI
 **Analisi SBT a ogni cucciolata:** Paolo manda a Claude il PDF della simulazione (test mating) di SBTpedigree;
