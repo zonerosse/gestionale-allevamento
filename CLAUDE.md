@@ -1609,3 +1609,8 @@ Accessi e copie
 - «Rimedia» del BARF (24/10/2026, anteprima-35): la finestra dal basso (`.bf-sh`, `.bf-op`…) ha lo stile copiato in index.html e proprietario.html dopo `.owbf{…}.bf{…}`; se cambia nel `notte.css` del sito, ricopiarlo.
   Le regole CSS dei riquadri del cane (`.bf .pp-nuovo …`, copia da `notte.css`) sono prima di `</style>` nei due file. `owBfMount` passa data di
   nascita, peso da adulto e peso di oggi nel formato nuovo (sex, ster, mode, birth, adult, kg).
+
+## Parole cliccabili nelle schede per il sito (24/10/2026, Paolo)
+- Le schede delle cucciolate scritte sul sito (`siDog`, `siCard`) non usano più testi generici: «Pedigree di <cane> su SBTPedigree»,
+  «Pedigree della cucciolata su SBTPedigree», «diario della cucciolata <madre> × <padre>» (IT/EN/DE). Il sito ha il controllo
+  `link_generico` in `tools/controlli/verifica.py` (ERRORE): niente link che cominciano con Vedi/Leggi/Scopri/See/Read/Mehr/Hier…
