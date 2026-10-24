@@ -1579,3 +1579,7 @@ Accessi e copie
   «Costo di ogni cucciolo» (B, con la stima accanto) e «Guadagno medio per cucciolo».
 - Le funzioni `ac*` di `proprietario.html` erano già diverse da quelle di `index.html` (i Conti non si vedono mai nella pagina del proprietario):
   queste novità sono solo in `index.html`.
+- (24/10/2026, anteprima 09 approvata da Paolo) Conti, righe delle spese e delle entrate «Altro» (`acRows`, `acInRows`, classe `.ac-r2`): in
+  alto voce e data, sotto la descrizione intera che va a capo (`overflow-wrap:anywhere`), importo a destra. «Dove vanno i soldi» (`acBars`,
+  `.ac-bars2`/`.ac-b2`): voce, importo e percentuale su una riga, barra grigio-blu sotto. Intestazione «Spese» grigia (niente rosa).
+  ATTENZIONE: la classe `.ac-bar` ha una seconda regola (`height:8px`) usata altrove: non riusarla. Fatto uguale nei due file.

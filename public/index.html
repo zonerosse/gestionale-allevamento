@@ -825,6 +825,14 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .ac-cpn{padding:8px 14px;border-top:1px solid var(--line)}.ac-cpn .small{margin:0 0 6px}.ac-cpo{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .ac-cfr{margin:6px 0;padding:8px 10px;border-radius:8px;font-size:.88rem}.ac-cfr.ok{background:var(--ok-soft);color:var(--ok)}.ac-cfr.warn{background:var(--warn-soft);color:var(--warn)}
 .al-cost .form{max-width:520px}
+.ac-sec.out h3{background:#EEF1F5;color:var(--ink)}
+.ac-r2{grid-template-columns:minmax(0,1fr) auto!important;align-items:start}.ac-r2 .ac-m{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ac-r2 .ac-l1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ac-r2 .ac-l1 .d{min-width:0;font-size:.78rem}.ac-r2 .ac-tag{margin:0;white-space:nowrap}
+.ac-r2 .ac-tx{overflow-wrap:anywhere;line-height:1.35}.ac-r2 .v{padding-top:2px}
+.ac-bars2{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}.ac-bars2 h3{margin:0 0 6px;font-family:var(--serif);font-weight:400;font-size:1.05rem}
+.ac-b2{margin:10px 0}.ac-b2 .ac-bl{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;line-height:1.3}.ac-b2 .ac-bl span{min-width:0;overflow-wrap:anywhere}
+.ac-b2 .ac-bl b{white-space:nowrap;font-weight:600}.ac-b2 .ac-bl small{color:var(--muted);font-weight:400;margin-left:4px}
+.ac-b2 .ac-bt{height:8px;border-radius:4px;background:var(--bg);margin-top:5px;overflow:hidden}.ac-b2 .ac-bt i{display:block;height:100%;border-radius:4px;background:#5D7A99}
 </style>
 </head>
 <body>
@@ -4171,7 +4179,7 @@ function acL(lid){const l=D.litters[lid];l.acc=l.acc||{};l.acc.prices=l.acc.pric
 /* Entrate «Altro» (21/10/2026, Paolo: «in Conti aggiungi in entrate "Altro" e dammi la possibilità di scrivere cosa»):
    nella cucciolata l.acc.inc=[{id,date,amt,txt}]; fra le spese generali le voci con in:true in D.accGen (così il server le salva già). */
 const acGO=()=>(D.accGen||[]).filter(x=>!x.in),acGI=()=>(D.accGen||[]).filter(x=>x.in);
-function acInRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.map(x=>`<button class="ac-r" data-a="acInc" data-v="${src}|${x.id}"><span class="d">${fmt(x.date)||"—"}</span><span><span class="ac-tag">Altro</span>${esc(x.txt||"")}</span><span class="v">${eur(x.amt)}</span></button>`).join("")}
+function acInRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.map(x=>`<button class="ac-r ac-r2" data-a="acInc" data-v="${src}|${x.id}"><span class="ac-m"><span class="ac-l1"><span class="ac-tag">Altro</span><span class="d">${fmt(x.date)||"—"}</span></span>${x.txt?`<span class="ac-tx">${esc(x.txt)}</span>`:""}</span><span class="v">${eur(x.amt)}</span></button>`).join("")}
 function acIncList(src){if(src==="gen"){D.accGen=D.accGen||[];return null}return (acL(src).inc=acL(src).inc||[])}
 function acIncForm(v){const [src,id]=v.split("|"),L=src==="gen"?acGI():((D.litters[src].acc||{}).inc||[]),x=id?L.find(e=>e.id===id)||{}:{};
   sheet(`<h2 style="margin-top:0">${id?"Entrata":"＋ Nuova entrata"} · ${src==="gen"?"Generali":acLitLab(src)}</h2><div class="form">
@@ -4231,9 +4239,10 @@ function acList(){const L=acLits(),G=acGO(),GI=acGI();const ys=[...new Set([...L
       PROW("no","Entrate",`<b class="ac-pos">${eur(i)}</b>`)+PROW("no","Spese",`<b class="ac-neg">${eur(u)}</b>`)+PROW("no","Saldo",`<b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b>`)+(n?(()=>{const S=acStima(k),cB=acCostoPup(k,acCiboSeg(k)),pr=litPups(k).map(p=>+((l.acc||{}).prices||{})[p]).filter(x=>x>0),m=pr.length?Math.round(pr.reduce((a,b)=>a+b,0)/pr.length):0;return PROW("ok","Costo di ogni cucciolo",`<b>${eur(cB)}</b>${S?` <span class="row-meta">· stima ${eur(acCostoPup(k,S.eur))}</span>`:""}`)+(m?PROW("ok","Guadagno medio per cucciolo",`<b class="ac-pos">${eur(m-cB)}</b>`):"")})():"")+(ms?PROW("todo","Prezzi da scrivere",ms+""):"")+`<div style="margin-top:8px"><button class="btn small ghost" data-a="acOpen" data-v="${k}">Apri i conti della cucciolata ›</button></div>`,n&&!ms?true:"")}).join("")||`<p class="empty">Nessuna cucciolata nel ${AC_Y}.</p>`;
   h+=PSEC("co-gen","arc","Spese generali",`non legate a una cucciolata · ${eur(acOut(GY))}${GIY.length?" · entrate "+eur(acOut(GIY)):""}`,0,[...GIY.map(x=>Object.assign({},x,{cat:"Entrata · Altro"})),...GY].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,6).map(x=>PROW("no",esc(x.cat||"Altro")+(x.txt?" · "+esc(x.txt):""),eur(x.amt)+" · "+(fmt(x.date)||"—"))).join("")+`<div style="margin-top:8px"><button class="btn small ghost" data-a="acOpen" data-v="gen">Apri le spese generali ›</button></div>`,GY.length?GY.length+"":"");
   return h}
-function acRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.length?S.map(x=>`<button class="ac-r" data-a="acExp" data-v="${src}|${x.id}"><span class="d">${fmt(x.date)||"—"}</span><span><span class="ac-tag">${esc(x.cat||"Altro")}</span>${esc(x.txt||"")}${x.file?" · 📎":""}</span><span class="v">${eur(x.amt)}</span></button>`).join(""):'<div class="ac-r e"><span></span><span>Nessuna spesa.</span><span></span></div>'}
-function acBars(L){const by={};(L||[]).forEach(x=>by[x.cat||"Altro"]=(by[x.cat||"Altro"]||0)+(+x.amt||0));const E=Object.entries(by).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);if(!E.length)return"";const mx=E[0][1];
-  return `<div class="ac-bars"><b style="font-family:var(--serif);font-weight:400">Dove vanno i soldi</b>${E.map(([c,v])=>`<div class="ac-bar"><span>${esc(c)}</span><i style="width:${Math.max(2,v/mx*100)}%"></i><span style="text-align:right">${eur(v)}</span></div>`).join("")}</div>`}
+function acRows(L,src){const S=[...(L||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));return S.length?S.map(x=>`<button class="ac-r ac-r2" data-a="acExp" data-v="${src}|${x.id}"><span class="ac-m"><span class="ac-l1"><span class="ac-tag">${esc(x.cat||"Altro")}</span><span class="d">${fmt(x.date)||"—"}</span>${x.file?'<span class="d">· ricevuta</span>':""}</span>${x.txt?`<span class="ac-tx">${esc(x.txt)}</span>`:""}</span><span class="v">${eur(x.amt)}</span></button>`).join(""):'<div class="ac-r e"><span></span><span>Nessuna spesa.</span><span></span></div>'}
+function acBars(L){const by={};(L||[]).forEach(x=>by[x.cat||"Altro"]=(by[x.cat||"Altro"]||0)+(+x.amt||0));const E=Object.entries(by).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);if(!E.length)return"";const mx=E[0][1],tot=E.reduce((s,e)=>s+e[1],0);
+  /* 24/10/2026, anteprima 09 approvata da Paolo: voce e importo su una riga, barra sotto a tutta larghezza, grigio-blu (prima le righe si sovrapponevano sul telefono) */
+  return `<div class="ac-bars2"><h3>Dove vanno i soldi</h3>${E.map(([c,v])=>`<div class="ac-b2"><div class="ac-bl"><span>${esc(c)}</span><b>${eur(v)} <small>${Math.round(v/tot*100)}%</small></b></div><div class="ac-bt"><i style="width:${Math.max(2,v/mx*100)}%"></i></div></div>`).join("")}</div>`}
 function acDetail(lid){const l=D.litters[lid],a=l.acc||{},P=a.prices||{},pups=litPups(lid),i=acIn(lid),u=acOut(a.exp);
   return `<button class="back" data-a="back">‹ Conti</button><h1>${acLitLab(lid)}</h1><p class="nick">${l.state==="pianificata"?"Cucciolata pianificata":"Nata il "+fmt(l.date)}</p>
   <div class="ac-bal"><div><small>Entrate</small><b class="ac-pos">${eur(i)}</b></div><div><small>Spese</small><b class="ac-neg">${eur(u)}</b></div><div><small>Saldo</small><b class="${i-u>=0?"ac-pos":"ac-neg"}">${eur(i-u)}</b></div></div>
