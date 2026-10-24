@@ -4211,7 +4211,7 @@ let AC_QG=false;
 const acExpL=lid=>((D.litters[lid].acc||{}).exp||[]);
 const acCiboSeg=lid=>acOut(acExpL(lid).filter(x=>x.cat==="Cibo")),acSenzaCibo=lid=>acOut(acExpL(lid).filter(x=>x.cat!=="Cibo"));
 function acEstCfg(lid){const e=(D.litters[lid].acc||{}).feedEst||{},FC=((D.settings||{}).foodCost)||{},pf=(D.settings||{}).puppyFood,fid=e.food||(pf&&FC[pf]&&FC[pf].eur>0?pf:"")||Object.keys(FC).filter(k=>FC[k].eur>0&&FC[k].kg>0).pop()||"";
-  const c=FC[fid]&&FC[fid].eur>0&&FC[fid].kg>0?FC[fid]:(e.eur>0&&e.kg>0?{eur:e.eur,kg:e.kg}:null);return{food:fid,g:+e.g||150,days:+e.days||35,c,n:+e.n||0,inv:e.inv||null}}
+  const c=FC[fid]&&FC[fid].eur>0&&FC[fid].kg>0?FC[fid]:(e.eur>0&&e.kg>0?{eur:e.eur,kg:e.kg}:null);return{food:fid,g:+e.g||125,days:+e.days||40,c,n:+e.n||0,inv:e.inv||null}}
 /* numero di cuccioli della stima (24/10/2026): dalle schede della cucciolata, o quello scritto a mano nella finestra (feedEst.n) */
 function acNPup(lid){const e=((D.litters[lid].acc||{}).feedEst)||{};return +e.n||litPups(lid).length}
 function acStima(lid){const n=acNPup(lid),E=acEstCfg(lid);if(!n||!E.c)return null;const kg=n*E.days*E.g/1000,ek=E.c.eur/E.c.kg;return{n,days:E.days,g:E.g,kg,ek,eur:Math.round(kg*ek),food:E.food}}
@@ -4294,7 +4294,7 @@ async function aeInvRead(){const f=$("#aeInvF").files[0];if(!f||!AE)return;const
 function aeUse(i){const x=AE&&AE.read&&AE.read.lines[i];if(!x)return;const dec=v=>String(v).replace(".",",");if(x.fid){const sl=$("#aef");if(![...sl.options].some(o=>o.value===x.fid))sl.innerHTML=aeOpts(x.fid);sl.value=x.fid}if(x.unit)$("#aee").value=dec(x.unit);if(x.kg)$("#aek").value=dec(x.kg);acEstCalc();
   const b=document.querySelector(`[data-a="aeUse"][data-v="${i}"]`);if(b){b.textContent="✓ Inseriti";b.disabled=true}}
 function acEstSave(lid){const a=acL(lid),fid=$("#aef").value,eu=fdNum($("#aee").value),kg=fdNum($("#aek").value),n=Math.round(fdNum($("#aen").value)||0),np=litPups(lid).length;
-  a.feedEst={food:fid,g:Math.max(1,Math.round(fdNum($("#aeg").value))||150),days:Math.max(1,Math.round(fdNum($("#aed").value))||35)};
+  a.feedEst={food:fid,g:Math.max(1,Math.round(fdNum($("#aeg").value))||125),days:Math.max(1,Math.round(fdNum($("#aed").value))||40)};
   if(n>0&&n!==np)a.feedEst.n=n;if(eu>0&&kg>0){a.feedEst.eur=eu;a.feedEst.kg=kg}if(AE&&AE.inv)a.feedEst.inv=AE.inv;
   if(fid&&eu>0&&kg>0&&!CONTI){const S=D.settings=D.settings||{};S.foodCost=S.foodCost||{};S.foodCost[fid]=Object.assign(S.foodCost[fid]||{},{eur:eu,kg});if(AE&&AE.inv&&AE.read)S.foodCost[fid].inv=AE.inv}
   /* il totale della fattura va nelle Spese generali (Paolo, 24/10/2026): poi si divide fra le cucciolate con «Aggiungi una parte delle spese generali» */

@@ -1573,7 +1573,7 @@ Accessi e copie
   `alCost(id)`: prezzo e peso del sacco, costo al giorno, al mese e quanto dura un sacco. `fdDraw` lascia i grammi in `FD_GR[id]`.
 - **Conti della cucciolata**: riquadro «Quanto ti è costato ogni cucciolo» (`acCostHtml`), confronto affiancato **A · Stima** e
   **B · Segnate** (scelta di Paolo: confronto, non una sola delle due). Spese senza la voce «Cibo» uguali nei due; A = cuccioli × giorni ×
-  grammi × prezzo al kg (`acStima`, impostazioni in `l.acc.feedEst={food,g,days,eur,kg}`, predefiniti 150 g e 35 giorni, «Cambia la stima»);
+  grammi × prezzo al kg (`acStima`, impostazioni in `l.acc.feedEst={food,g,days,eur,kg}`, predefiniti 125 g e 40 giorni (dal 30° al 70° giorno, peso 2,2 → 5 kg, 24/10/2026), «Cambia la stima»);
   B = spese con la voce «Cibo». Avviso se la differenza supera il 10%. «Aggiungi una parte delle spese generali» (`AC_QG`, solo per la
   sessione) = spese generali dell'anno ÷ cuccioli delle cucciolate dell'anno. Tabella guadagno A/B per cucciolo; nell'elenco dei Conti
   «Costo di ogni cucciolo» (B, con la stima accanto) e «Guadagno medio per cucciolo».
