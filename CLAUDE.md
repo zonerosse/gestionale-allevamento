@@ -1605,6 +1605,7 @@ Accessi e copie
 - «Quanto mangia», femmina intera da 12 mesi: «Momento» Nessuno / Accoppiata / Allatta (`fdRepUI`, `d.feed.rep/repD/np`). Per le fattrici, se non
   scelto a mano, lo trova da solo (`fdRep`): monta in corso da `reproState` (Calori e monte), oppure cucciolata nata da ≤ 63 giorni (cuccioli da
   `litPups`). Tappe con le date in una tendina chiusa (`fdTlHtml`), tabella settimana per settimana.
-- BARF (Alimentazione e pagina della famiglia): script del sito `calcolatore-barf.js?v=20261024-1200`, che carica da solo `calcolatore-cane.js`.
+- BARF (Alimentazione e pagina della famiglia): script del sito `calcolatore-barf.js?v=20261024-1800`, che carica da solo `calcolatore-cane.js`.
+- «Rimedia» del BARF (24/10/2026, anteprima-35): la finestra dal basso (`.bf-sh`, `.bf-op`…) ha lo stile copiato in index.html e proprietario.html dopo `.owbf{…}.bf{…}`; se cambia nel `notte.css` del sito, ricopiarlo.
   Le regole CSS dei riquadri del cane (`.bf .pp-nuovo …`, copia da `notte.css`) sono prima di `</style>` nei due file. `owBfMount` passa data di
   nascita, peso da adulto e peso di oggi nel formato nuovo (sex, ster, mode, birth, adult, kg).
