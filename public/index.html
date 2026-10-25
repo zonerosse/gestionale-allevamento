@@ -1262,7 +1262,7 @@ function fdTlHtml(id,s){const R=fdRep(id,s);if(R.rep==="no"||!R.repD)return"";co
   let li,now,nx,note;
   if(R.rep==="acc"){li=FD_GR_T.map(g=>`<li class="${d>g[1]?"fatto":d>=g[0]?"ora":""}"><b>${dt(g[0])}${g[1]>g[0]?" – "+dt(g[1]):""}</b> ${g[2]}</li>`).join("");const n=FD_GR_T.find(g=>g[0]>d);now="Giorno "+d;nx=n?FD_GR_S[FD_GR_T.indexOf(n)]+" ("+dt(n[0])+(n[1]>n[0]?" – "+dt(n[1]):"")+")":"";note=(d<35?"Fino al giorno 34 la razione resta quella di prima: ingrassare adesso rende il parto più difficile. ":"")+"Niente integratori di calcio in gravidanza, se non li prescrive il veterinario."+(d>70?" <b>Il parto previsto è passato: se non ha partorito, senti il veterinario.</b>":"")}
   else{const w=Math.floor(d/7)+1;li=FD_LAT_T.map(g=>`<li class="${w>g[1]?"fatto":w>=g[0]?"ora":""}"><b>${dt((g[0]-1)*7)}</b> ${g[2]}</li>`).join("");const n=FD_LAT_T.find(g=>g[0]>w);now=w+"ª settimana";nx=n?FD_LAT_S[FD_LAT_T.indexOf(n)]+" (dal "+dt((n[0]-1)*7)+")":"";note="Dalla 5ª settimana i numeri sono una stima: le linee guida danno la formula solo per le prime 4 settimane."}
-  return `<details class="fd-tld"${FD_TLO?" open":""} ontoggle="FD_TLO=this.open"><summary><b>${R.rep==="acc"?"Tappe della gravidanza":"Tappe dell'allattamento"}</b><span>${now}${nx?" · prossima: "+nx:""}</span></summary><ol>${li}</ol><p class="fd-ok">${note}</p></details>`}
+  return (R.rep==="lat"&&d>=56?`<p class="fd-ok" style="color:#a12a22"><b>Parto di ${Math.floor(d/7)} settimane fa: i cuccioli sono svezzati, conta la razione da adulta.</b></p>`:"")+`<details class="fd-tld"${FD_TLO?" open":""} ontoggle="FD_TLO=this.open"><summary><b>${R.rep==="acc"?"Tappe della gravidanza":"Tappe dell'allattamento"}</b><span>${now}${nx?" · prossima: "+nx:""}</span></summary><ol>${li}</ol><p class="fd-ok">${note}</p></details>`}
 let FD_TLO=false;
 function fdRepUI(id,s,ro){const R=fdRep(id,s);if(s.sex!=="f"||+s.F.ster===1||s.m==null||s.m<12)return"";const r=R.rep,F=s.F;
   return `<div class="fd-rep"><span class="fd-l">Momento</span><div class="fd-ch">${[["no","Nessuno"],["acc","Accoppiata"],["lat","Allatta"]].map(([v,t])=>`<button class="fd-c${r===v?" on":""}" data-a="fdSet" data-v="${id}|rep|${v}"${ro}>${t}</button>`).join("")}</div>
@@ -1295,7 +1295,7 @@ function fdAgeTxt(m){if(m==null)return"data di nascita da inserire";if(m<4)retur
    del sito calcolatore-cane.js (come il BARF), 5 Crocchette e risultato a destra come su delpiccolodiavolo.it. Dati del cane presi dalla scheda;
    le scelte fatte qui si salvano in d.feed (solo i campi toccati). */
 const FD_C={};let FD_CL=null;
-function fdCaneLoad(){return FD_CL=FD_CL||(window.DPDCane?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://delpiccolodiavolo.it/js/calcolatore-cane.js?v=20261025-2110";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)}))}
+function fdCaneLoad(){return FD_CL=FD_CL||(window.DPDCane?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://delpiccolodiavolo.it/js/calcolatore-cane.js?v=20261025-2205";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)}))}
 function fdCaneS(id){const d=fdObj(id),s=fdState(id),F=s.F,S={sex:s.sex,ster:+F.ster||0,bcs:+F.bcs||0,act:+F.act||1,np:6,rep:"no",repD:""};
   if(d.free){["mode","age","birth","adult","kg"].forEach(k=>{if(F[k]!=null)S[k]=F[k]});S.mode=S.mode||"age"}
   else{const bd=d.birth||(D.litters[d.litter]||{}).date||"";S.mode=bd?"date":"age";S.birth=bd;S.age=bd?"":"24";S.adult=s.adult?String(Math.round(s.adult*10)/10):"";S.kg=s.pup&&s.last?String(Math.round(s.last.g/100)/10):"";
@@ -1389,7 +1389,7 @@ function alBfMount(){const el=document.getElementById("albf");if(!el||el.dataset
   if(BF_PICK!=="_free"&&D.dogs[BF_PICK])return owBfMount(el,BF_PICK,"it");
   const go=()=>{try{window.barfInit(el,{lang:"it",S:{sx:"m",st:0,ad:16,eta:"ad",kg:16}})}catch(x){console.warn(x)}};
   if(window.barfInit)return go();
-  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2110";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2205";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   BF_LOAD.then(go,()=>{el.innerHTML='<p class="lead">Il calcolatore non si è caricato: riprova più tardi oppure aprilo sul sito.</p>'})}
 function alBfAuto(){const d=document.querySelector('details[data-dph="pg|al-barf"]');if(d&&d.open)alBfMount()}
 document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.dataset&&t.dataset.dph==="pg|al-barf"&&t.open)alBfMount()},true);
@@ -2439,7 +2439,7 @@ function owBfMount(el,id,lang){const d=D.dogs[id];if(!d)return;
     try{window.barfInit(el,{lang:lang,S:S})}catch(x){console.warn(x)}
     const pr=el.parentNode.querySelector("details.bf-prima");if(pr&&!pr.dataset.t){pr.dataset.t=1;pr.addEventListener("toggle",()=>{if(pr.open)pr.classList.add("letto")})}};
   if(window.barfInit)return go();
-  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2110";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2205";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   BF_LOAD.then(go,()=>{el.innerHTML=`<p class="lead">${T("Il calcolatore non si è caricato: riprova più tardi oppure aprilo sul sito.","The calculator did not load: try later or open it on the website.")}</p>`})}
 function owFdHtml(id){const d=D.dogs[id];if(!d||!d.ownFeed)return"";const nm=esc(d.nick||d.name||"");
   return owBfWrap(id,`<div class="owfd"><h2>${T("🍖 Quanto mangia","🍖 How much to feed")} ${nm}</h2><p class="lead" style="margin:0 0 4px">${T("Grammi di crocchette al giorno. Età, sesso, ultima pesata e un peso da adulto tipico dello Staffy sono già inseriti: scegli le crocchette e correggi se serve.","Grams of kibble per day. Age, sex, the last weighing and a typical Staffy adult weight are already filled in: choose the kibble and adjust if needed.")}</p><div class="owfd-box" data-dog="${id}"></div>
