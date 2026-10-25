@@ -9751,7 +9751,7 @@ function bannerHtml(){if(RO&&window.PERM)return `<div class="banner"><strong>Sol
   if(CONTI)return `<div class="banner">${st}</div>`;
   /* riga sottile al posto della fascia beige (20/10/2026, Paolo: «troppo pacchiano») */
   const tm=SAVE.at?String(SAVE.at).split(", "):[],sv=SAVE.err?esc(SAVE.err):SAVE.at?(tm.length>1&&tm[0]===fmt(todayS()).slice(0,5)?"Salvato alle "+tm[1]:"Salvato il "+SAVE.at):"Si salva da solo pochi secondi dopo ogni modifica";
-  return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}${NEWVER?`<span class="sb-nv"> · Versione nuova pronta <button type="button" onclick="nvReload()">Aggiorna</button></span>`:""}</span><span class="sb-l"><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label><button type="button" class="gsw${gdOn()?" on":""}" data-a="gdToggle">Guida <small>${gdOn()?"accesa":"spenta"}</small><span class="tr"></span></button></span></div>`}
+  return `<div class="banner sbar${SAVE.err?" err":""}"><span class="sb-s"><i></i>${sv}${NEWVER?`<span class="sb-nv"> · Versione nuova pronta <button type="button" onclick="nvReload()">Aggiorna</button></span>`:""}</span><span class="sb-l"><button type="button" onclick="nvReload()" title="Ricarica il gestionale con l'ultima versione">Aggiorna</button><button type="button" data-a="exportData">Copia di sicurezza</button><label style="cursor:pointer">Importa modifiche<input type="file" id="impData" accept="application/json,.json" hidden></label><button type="button" class="gsw${gdOn()?" on":""}" data-a="gdToggle">Guida <small>${gdOn()?"accesa":"spenta"}</small><span class="tr"></span></button></span></div>`}
 function refreshBanner(){const b=document.querySelector("#main .banner");if(b)b.outerHTML=bannerHtml()}
 /* Versione nuova del gestionale (23/10/2026, Paolo: scelta A, «un poco meno invasiva»): all'apertura e quando si torna (dopo almeno 2 minuti) sulla
    pagina chiede la pagina al server (impronta = ETag, o il testo) e la confronta con quella di partenza. Se è cambiata, nella riga
@@ -9766,7 +9766,7 @@ async function nvSig(){const r=await fetch(location.pathname,{cache:"no-store",c
 /* serve la stessa impronta nuova due volte di fila (a 1 minuto) prima di dire che c'è una versione nuova */
 async function nvCheck(){if(NEWVER)return;try{const v=await nvSig();if(!v)return;if(VER0===null){VER0=v;return}
   if(v===VER0){VER1=null;return}if(VER1===v){NEWVER=true;refreshBanner();return}VER1=v;setTimeout(nvCheck,60e3)}catch(e){}}
-function nvReload(){const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(busy){toast("Prima finisci la modifica o chiudi la finestra, poi premi Aggiorna.");return}
+function nvReload(){if(typeof BB!=="undefined"&&BB.job){toast("Aspetta che la Biblioteca finisca di leggere, poi premi Aggiorna.");return}const busy=(typeof EDIT!=="undefined"&&EDIT)||(typeof EDIRTY!=="undefined"&&EDIRTY)||document.querySelector("#sheet.on,.sheet.on,#lbx");if(busy){toast("Prima finisci la modifica o chiudi la finestra, poi premi Aggiorna.");return}
   Promise.resolve(saveNow()).catch(()=>{}).then(()=>location.reload())}
 /* 23/10/2026, Paolo (1B): niente più controllo ogni 5 minuti (consumava dati sull'hotspot): una volta all'apertura e poi solo
    quando si torna sul gestionale dopo averlo lasciato per almeno 2 minuti */

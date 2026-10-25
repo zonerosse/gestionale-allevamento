@@ -1652,3 +1652,4 @@ Accessi e copie
 - Le schede delle cucciolate scritte sul sito (`siDog`, `siCard`) non usano più testi generici: «Pedigree di <cane> su SBTPedigree»,
   «Pedigree della cucciolata su SBTPedigree», «diario della cucciolata <madre> × <padre>» (IT/EN/DE). Il sito ha il controllo
   `link_generico` in `tools/controlli/verifica.py` (ERRORE): niente link che cominciano con Vedi/Leggi/Scopri/See/Read/Mehr/Hier…
+- Tasto «Aggiorna» fisso nella fascia in alto (25/10/2026, Paolo: nell'app dal desktop F5 non funziona): `nvReload()`; non ricarica durante una modifica, con una finestra aperta o mentre la Biblioteca legge.
