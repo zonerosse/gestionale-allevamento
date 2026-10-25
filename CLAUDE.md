@@ -566,6 +566,9 @@ Sito delpiccolodiavolo.it
   Risposte: strumento «risposta» con `tool_choice: auto` (Sonnet 5.5 rifiuta «tool»/«any» forzati: errore 400), se no il JSON dal testo.
   Coda (anteprima 28): mentre legge «Foto»/«File» restano; i nuovi file vanno in `BB.W`/`BB.qu` «in coda», la × (`data-bbx`) toglie quelli in coda.
   Anche «Riprendi» (`bbResume` → voce `{r:doc}` nella stessa coda, `bbResumeDoc`): mentre riprende si possono aggiungere file.
+  Domande (anteprima 29): un solo campo `#bbq` + «Chiedi» (`bbAsk`, anche Invio ed esempi `data-bbk`): op `ask` (Sonnet, fino a 24 pagine) risponde
+  `{brief,bsrc,sec:[{t,pts:[{x,src}]}],missing}` con documento e pagina per ogni punto (`.bb-pill`, `data-bbpg` → scheda Documento con «Apri il PDF a pagina N»);
+  sotto, in `details.bb-used` chiuso, le pagine dell'op `search`; × (`data-bb="clr"`) chiude la risposta.
 - Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
   ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
   media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è

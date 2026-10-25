@@ -106,15 +106,22 @@ export async function onRequest({ request, env }) {
     return json({ ok: true, res: R.map(r => ({ doc: r.doc, title: r.title, n: r.n, s: snip(r, p.q) })) });
   }
   if (op === "ask") {
+    // 25/10/2026 (anteprima 29): risposta articolata, divisa per argomenti, con documento e pagina per ogni punto
     if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." });
-    const R = await findPages(env, p.q, 12);
-    if (!R.length) return json({ ok: true, a: "Nei documenti della Biblioteca non trovo niente su questo. Prova con altre parole o carica un documento che ne parla.", src: [] });
-    const content = [{ type: "text", text: R.map(r => `[[${r.title} | p. ${r.n}]]\n${r.text.slice(0, 6000)}`).join("\n\n") + "\n\nDomanda dell'allevatore: " + S(p.q, 500) }];
-    const o = await ask(env, `Sei l'assistente della biblioteca di un allevamento di cani. Rispondi in italiano, semplice e chiaro, SOLO con quello che c'è nelle pagine date (non aggiungere conoscenze tue). Se le pagine non bastano dillo. Niente diagnosi: per le decisioni conta il veterinario.
-Rispondi con {"a":"risposta (al massimo 8 frasi)","src":[{"title":"titolo del documento","p":numero di pagina}]} citando solo le pagine usate.`, content, 1500);
-    const D = new Map(R.map(r => [r.title + "|" + r.n, r.doc]));
-    const src = (Array.isArray(o.src) ? o.src : []).map(x => ({ title: S(x.title, 200), p: parseInt(x.p, 10) || 0 })).filter(x => x.p).slice(0, 8).map(x => Object.assign(x, { doc: D.get(x.title + "|" + x.p) || (R.find(r => r.title === x.title) || {}).doc || "" }));
-    return json({ ok: true, a: S(o.a, 3000), src });
+    const R0 = await findPages(env, p.q, 24);
+    if (!R0.length) return json({ ok: true, none: true, brief: "Nei documenti della Biblioteca non trovo niente su questo. Prova con altre parole o carica un documento che ne parla.", a: "", sec: [], src: [] });
+    let tot = 0; const R = [];
+    for (const r of R0) { const t = r.text.slice(0, 7000); if (R.length && tot + t.length > 150000) break; tot += t.length; R.push(Object.assign({}, r, { t })); }
+    const content = [{ type: "text", text: R.map(r => `[[${r.title} | p. ${r.n}]]\n${r.t}`).join("\n\n") + "\n\nDomanda dell'allevatore: " + S(p.q, 600) }];
+    const o = await ask(env, `Sei l'assistente della biblioteca di un allevamento di cani. Rispondi in italiano chiaro, completo e ordinato, SOLO con quello che c'è nelle pagine date (non aggiungere conoscenze tue). Riporta valori, numeri, tempi e nomi come sono scritti. Se due documenti dicono cose diverse, dillo. Se la domanda è una sola parola, spiega cosa dicono i documenti su quell'argomento.
+Struttura: "brief" = la risposta diretta in 2-4 frasi; "sec" = 2-6 argomenti in ordine logico, ognuno con 2-8 punti; ogni punto con le sue fonti (titolo esattamente come tra [[ ]] e numero di pagina). "missing" = cosa la domanda chiede e le pagine non dicono (oppure ""). Niente diagnosi: per le decisioni conta il veterinario.
+Rispondi con {"brief":"...","bsrc":[{"title":"...","p":numero}],"sec":[{"t":"argomento","pts":[{"x":"punto","src":[{"title":"...","p":numero}]}]}],"missing":"..."}`, content, 5000);
+    const docOf = t => (R.find(r => r.title === t) || R.find(r => r.title && t && (r.title.includes(t) || t.includes(r.title))) || {}).doc || "";
+    const SRC = v => (Array.isArray(v) ? v : []).map(x => ({ title: S(x && x.title, 200), p: parseInt(x && x.p, 10) || 0 })).filter(x => x.p).slice(0, 6).map(x => Object.assign(x, { doc: docOf(x.title) }));
+    const sec = (Array.isArray(o.sec) ? o.sec : []).slice(0, 8).map(s => ({ t: S(s.t, 140), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 12).map(x => ({ x: S(x.x, 900), src: SRC(x.src) })) })).filter(s => s.pts.length);
+    const brief = S(o.brief || o.a, 1500), bsrc = SRC(o.bsrc || o.src);
+    const all = new Map(); [...bsrc, ...sec.flatMap(s => s.pts.flatMap(x => x.src))].forEach(x => all.set(x.title + "|" + x.p, x));
+    return json({ ok: true, brief, bsrc, sec, missing: S(o.missing, 800), a: brief, src: [...all.values()].slice(0, 12) });
   }
   if (op === "refs") {
     // Valori di riferimento (25/10/2026): soglie del progesterone, finestra della monta, prelievi, gestazione, presi SOLO dai documenti
