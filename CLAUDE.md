@@ -1598,6 +1598,7 @@ Accessi e copie
   (`https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=…`, `window.barfInit(el,{lang,S})`): una sola fonte; se cambia `?v=` sul sito,
   cambiarlo anche qui. Dati del cane già inseriti (età, sesso, sterilizzata, ultima pesata, adulto 16/14 kg). Stile `.bf*` nel `<style>` comune.
 - «Quanto mangia» (gestionale `fdProt`/`fdAddHtml`, famiglia `protHtml`/`addHtml`): tabella dei nutrienti come sul sito; calcio e fosforo
+- 25/10/2026 (Paolo, anteprime 42-44): sotto la tabella dei nutrienti, con la femmina gravida o in allattamento, il riquadro «Gravidanza e allattamento» (`fdRipro`, stessi testi di `riproHtml` in `calcolatore-crocchette.js` del sito): crocchette a disposizione dalla 2ª settimana, almeno 400 kcal/100 g, grassi circa 20% della sostanza secca, olio di salmone per gli omega-3.
   e gli additivi per kg (vitamine A, D3, E; zinco, rame, iodio, ferro, selenio, manganese → `f.a`) letti dalla foto del sacco
   (`/api/ai` compito `sacco` e `/api/public/sacco`): «coperto» / «più le materie prime» / «troppo» (sopra il massimo UE per kg).
 - Elenco comune delle crocchette: la proposta si salva subito come `attesa` (colonna `addv` = additivi); se Claude non risponde o il limite è

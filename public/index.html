@@ -1344,7 +1344,7 @@ function fdDraw(id){const el=document.getElementById("fd_"+id);if(!el)return;fdS
   rv.innerHTML=`<div class="pp-big">${G5} g<small> al giorno</small></div><div class="pp-ps">${ml} ${ml===1?"pasto":"pasti"} da circa ${Math.round(gr/ml)} g</div>
    <div class="pp-riep"><span>${esc(N.lab)}</span><span>${dec(N.W.toFixed(1))} kg${N.est?" (stimati)":""}</span>${rf?"":`<span>${["Magro","Peso giusto","Sovrappeso"][N.bcs+1]}</span><span>${AL}</span>`}<span>${esc(f.brand+" "+f.name)}</span></div>
    <p class="pp-vuoto">Energia al giorno: ${Math.round(N.kc/10)*10} kcal · ${N.note}</p>`;
-  FD_GR[id]=gr;alCost(id);pe.innerHTML=fdProt(f,gr,N.m,N.pup,N.ster,N.act,N.ad,N.std);
+  FD_GR[id]=gr;alCost(id);pe.innerHTML=fdProt(f,gr,N.m,N.pup,N.ster,N.act,N.ad,N.std)+fdRipro(f,N);
   const RR=C.rows();tw.hidden=!RR;if(!RR)return;const wk=RR.h==="w";$("#fdtbh_"+id).textContent=wk?"Settimana per settimana":"Come cambia crescendo";
   $("#fdth_"+id).innerHTML=`<tr><th>${wk?"Settimana":"Età"}</th><th>${wk?"Dal":"Peso circa"}</th><th class="n">Grammi al giorno</th><th class="n">Pasti</th></tr>`;
   $("#fdtb_"+id).innerHTML=RR.r.map(r=>`<tr${r.now?' class="now"':""}><td>${r.lab}</td><td>${wk?r.sub:dec(r.W.toFixed(1))+" kg"}</td><td class="n">${Math.round(r.kc/(f.kcal/100)/5)*5} g</td><td class="n">${r.sug}</td></tr>`).join("")}
@@ -1436,6 +1436,13 @@ function fdProt(f,g,m,pup,ster,act,ad,sd){if(!f||!f.kcal)return"";const dd=(x,d)
   const low2=rows.some(x=>x[1]<x[3]);
   return '<div class="po-nut"><b>Nutrienti ogni 1000 kcal</b><div class="po-ntw"><table><thead><tr><th></th><th class="po-n">nelle crocchette</th><th class="po-n">minimo</th><th class="po-n"></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+x[0]+'</td><td class="po-n">'+(x[1]>=10?dd(x[1],1):dd(x[1],2))+(x[2]?" "+x[2]:"")+'</td><td class="po-n">'+dd(x[3])+'</td><td class="po-n">'+st(x[1],x[3],x[4])+'</td></tr>').join("")+'</tbody></table></div>'+
    '<span>Proteine al giorno: '+Math.round(g*f.c[0]/100)+' g</span>'+(low2?'<span class="po-low">Sotto il minimo: scegli crocchette più adatte all\'età.</span>':'')+(ca==null||ph==null?'<span>Calcio e fosforo: si controllano solo se sono scritti sul sacco (foto del sacco).</span>':'')+fdAddHtml(f,eg||pup,low)+'</div>'}
+/* gravidanza e allattamento: stesso riquadro del calcolatore delle crocchette del sito (anteprima-42, 25/10/2026) */
+function fdRipro(f,N){const r=N.rep;if(r!=="gr"&&r!=="lat")return"";const o=[],d=x=>String(x).replace(".",",");
+  if(r==="lat")o.push('<span>Dalla 2ª settimana lascia le crocchette sempre a disposizione: i grammi sono il minimo, non il massimo. Fa eccezione la cagna con un solo cucciolo o che tende a ingrassare: lì restano i grammi.</span>');
+  if(f.kcal<400)o.push('<span class="po-low">Troppo poco energetiche per questo momento: servono almeno 400 kcal ogni 100 g. Meglio crocchette da cucciolo o per la riproduzione.</span>');
+  if(r==="lat"){const fp=f.c&&f.c[1]!=null?f.c[1]/(1-((f.c[4]!=null?f.c[4]:10)/100)):null;o.push('<span'+(fp!=null&&fp<18?' class="po-low"':'')+'>Grassi in allattamento: consigliato circa il 20% della sostanza secca, fa salire i grassi nel latte.'+(fp!=null?' Queste crocchette ne hanno il '+d(Math.round(fp*10)/10)+'%.':'')+'</span>')}
+  o.push('<span>Omega-3: se il sacco non indica EPA e DHA, aggiungi circa '+d(Math.max(.5,Math.round(.13*1.05*N.kc/1000/.3125*10)/10))+' g di olio di salmone al giorno. Servono alla retina e al cervello dei cuccioli.</span>');
+  return '<div class="po-nut"><b>Gravidanza e allattamento</b>'+o.join("")+'</div>'}
 /* vitamine e minerali aggiunti (additivi del sacco per kg): stessa tabella del sito e della pagina della famiglia (23/10/2026) */
 function fdAddHtml(f,gr,low){const A=f.a||{},K=["va","vd","ve","zn","cu","io","fe","se","mn"].filter(q=>A[q]!=null);if(!K.length)return '<span>Vitamine e minerali: il sacco non elenca gli additivi, oppure la foto non li ha letti. Per un alimento «completo» li garantisce il produttore.</span>';
   const N={va:"Vitamina A",vd:"Vitamina D3",ve:"Vitamina E",zn:"Zinco",cu:"Rame",io:"Iodio",fe:"Ferro",se:"Selenio",mn:"Manganese"},U={va:"UI",vd:"UI"},m=low?1.157:1;
