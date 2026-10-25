@@ -3,6 +3,12 @@ import { json, isAdmin, deny, loadData, who, dailyCopy, limitedData, mergeLimite
 export async function onRequestGet({ request, env }) {
   const w = await who(request, env), r = w.role;
   if (!r) return deny();
+  // ?ver=1: solo il numero di versione, per la sincronizzazione fra dispositivi (26/10/2026): ogni dispositivo aperto lo chiede
+  // ogni 10 secondi e scarica i dati solo se sono cambiati
+  if (new URL(request.url).searchParams.get("ver")) {
+    const v = await env.DB.prepare("SELECT version, updated FROM store WHERE id = 'main'").first();
+    return json({ version: v ? v.version : 0, updated: v ? v.updated : null });
+  }
   const cur = await loadData(env);
   // permessi per sezione (08/10/2026): la persona riceve solo quello che può vedere, e il suo elenco di permessi
   if (r === "limited") return json(cur ? { version: cur.version, updated: cur.updated, data: limitedData(cur.data, w.perm), role: r, perm: w.perm } : { version: 0, data: null, role: r, perm: w.perm });

@@ -895,6 +895,12 @@ Accessi e copie
   `#gsres` divisi in Cani, Famiglie, Cucciolate, Lista d'attesa, Documenti (`gsFind`, `gsShow`, `gsGo`; solo sezioni visibili per i
   permessi). `refreshBanner` cambia solo «Salvato alle…» quando c'è il campo, così la ricerca non si perde. Blocco comune nei due file.
 
+- Sincronizzazione fra dispositivi (26/10/2026, scelta A di Paolo): `syncTick` ogni 10 s (e al ritorno sulla pagina) chiede
+  `GET /api/data?ver=1` (solo il numero di versione); se è più nuovo e qui non c'è lavoro in corso (`syncIdle`: niente modifiche non
+  salvate, Modifica, finestre, campi attivi, Biblioteca) scarica i dati e ridisegna nello stesso punto. Al 409 del salvataggio
+  `syncMerge` unisce da solo (`merge3`, fino a 3 livelli: per cane/famiglia/cucciolata e per campo vale il lato che ha cambiato);
+  se tutti e due hanno cambiato lo stesso campo resta l'avviso di conflitto di sempre. Il controllo di versione del server non cambia.
+
 ## Schede che non si aprono (ottobre 2026)
 - `dogDetail` è chiamata tramite `dogDetailSafe`: se la scheda va in errore, al posto del nulla compare un riquadro con il
   messaggio d'errore da mandare a Claude. Ogni sezione della scheda passa da `safe(()=>…,"nome")`: una sezione rotta

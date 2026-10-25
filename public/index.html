@@ -9925,12 +9925,41 @@ async function externalize(o){for(const k of Object.keys(o)){const v=o[k];
 async function saveNow(){if((RO&&!(window.PERM&&Object.values(window.PERM).includes(2)))||BUSY||EMPTY||SAVE.err==="conflict")return;try{if(!CONTI)scSync()}catch(e){console.error(e)}const j=JSON.stringify(D);if(j===lastJ)return;BUSY=true;
   try{if(j.includes('"data:'))await externalize(D);
     const r=await api("/api/data",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({version:VERSION,data:D})});
-    if(r.status===409){SAVE.err="conflict"}
+    if(r.status===409){if(await syncMerge()){BUSY=false;setTimeout(saveNow,50);return}SAVE.err="conflict"}
     else if(r.ok){const x=await r.json();VERSION=x.version;lastJ=JSON.stringify(D);SAVE.at=nowS();SAVE.err=""}
     else SAVE.err="Salvataggio non riuscito ("+r.status+"): riprovo tra poco."}
   catch(e){if(e.message!=="403")SAVE.err="Connessione assente: le modifiche restano qui e vengono salvate appena torna la rete."}
   BUSY=false;refreshBanner()}
 setInterval(saveNow,3000);
+/* Unione automatica dopo un conflitto (26/10/2026): se il salvataggio trova sul server una versione più nuova (un altro dispositivo
+   ha salvato), si uniscono le due: per ogni cane, famiglia, cucciolata… e per ogni campo, vale il lato che l'ha cambiato. Se tutti e
+   due hanno cambiato LO STESSO campo in modo diverso non si unisce niente e resta l'avviso di sempre («ricarica la pagina»): così
+   nessun dato si perde. Il controllo di versione del server resta com'è. `settings.scad` (calendario rifatto da solo) vale il locale. */
+const SM_SAME=(a,b)=>JSON.stringify(a)===JSON.stringify(b),SM_OBJ=x=>x&&typeof x==="object"&&!Array.isArray(x);
+function merge3(b,l,r,depth,path){if(SM_SAME(l,b))return{v:r};if(SM_SAME(r,b)||SM_SAME(l,r))return{v:l};if(path==="settings.scad")return{v:l};
+  if(depth<3&&SM_OBJ(l)&&SM_OBJ(r)){const B=SM_OBJ(b)?b:{},o={};for(const k of new Set([...Object.keys(l),...Object.keys(r),...Object.keys(B)])){const m=merge3(B[k],l[k],r[k],depth+1,path?path+"."+k:k);if(m.c)return m;if(m.v!==undefined)o[k]=m.v}return{v:o}}
+  return{c:path||"dati"}}
+async function syncMerge(){try{const r=await fetch("/api/data",{cache:"no-store"});if(!r.ok)return false;const j=await r.json();if(!j.data)return false;
+    const base=JSON.parse(lastJ||"{}"),m=merge3(base,JSON.parse(JSON.stringify(D)),j.data,0,"");if(m.c){console.warn("conflitto su",m.c);return false}
+    Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,m.v);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(j.data);
+    if(syncIdleUi()){const y=scrollY;if(view&&!D.dogs[view]&&!D.owners[view])view=null;render();scrollTo(0,y)}return true}catch(e){return false}}
+function syncIdleUi(){if(EDIT||EDIRTY||SH_DIRTY||sheetOpen())return false;const a=document.activeElement;return!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))}
+/* Sincronizzazione fra dispositivi in tempo reale (26/10/2026, scelta A di Paolo): ogni 10 secondi, se la pagina è in vista,
+   si chiede al server solo il numero di versione (/api/data?ver=1); se è cambiato e qui non c'è niente in sospeso (nessuna modifica
+   non salvata, nessuna Modifica aperta, nessuna finestra, nessun campo in cui si sta scrivendo, Biblioteca ferma) si scaricano i
+   dati nuovi e si ridisegna la pagina nello stesso punto. Se qui si sta lavorando, si aspetta e si riprova al giro dopo. */
+let SYNC_BUSY=false;
+function syncIdle(){if(BUSY||EMPTY||SAVE.err==="conflict"||EDIT||EDIRTY||SH_DIRTY)return false;if(JSON.stringify(D)!==lastJ)return false;
+  if(sheetOpen())return false;
+  if(typeof BB!=="undefined"&&BB.job)return false;return syncIdleUi()}
+async function syncTick(force){if(SYNC_BUSY||document.hidden)return;SYNC_BUSY=true;
+  try{const r=await fetch("/api/data?ver=1",{cache:"no-store"});if(!r.ok)return;const v=await r.json();if(!v||!(v.version>VERSION)||!syncIdle())return;
+    const r2=await fetch("/api/data",{cache:"no-store"});if(!r2.ok)return;const j=await r2.json();if(!j.data||!(j.version>VERSION)||!syncIdle())return;
+    const y=scrollY;Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,j.data);D.matings=D.matings||{};VERSION=j.version;lastJ=JSON.stringify(D);
+    SAVE.at=j.updated?new Date(j.updated).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):SAVE.at;
+    if(view&&!D.dogs[view]&&!D.owners[view])view=null;render();scrollTo(0,y);toast("Aggiornato con le modifiche fatte da un altro dispositivo.")}
+  catch(e){}finally{SYNC_BUSY=false}}
+setInterval(syncTick,10000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(syncTick,500)});
 addEventListener("beforeunload",e=>{if(JSON.stringify(D)!==lastJ&&!EMPTY){saveNow();e.preventDefault();e.returnValue=""}});
 function download(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 const stamp=()=>new Date().toISOString().slice(0,16).replace("T","_").replace(":","-");
