@@ -5190,7 +5190,10 @@ async function bbApi(op, body) {
   const again = long && k < 5 && (net || !r.ok || j.retry);
   if (!again) throw new Error(net ? "Connessione persa." : j.error || "errore " + r.status);
   const t = BB.job && BB.job.t;
-  if (BB.job) bbSet((net ? "Connessione persa" : "Claude \xe8 occupato") + ": riprovo tra " + 5 * (k + 1) + " secondi…", BB.job.p);
+  const why = net ? "Connessione persa" : j.error || "errore " + r.status;
+  // limite al minuto di Anthropic: da qui in poi meno chiamate insieme
+  if (/limite al minuto|429|sovraccarico|529/.test(why)) BB.par = Math.max(1, (BB.par || 4) - 1);
+  if (BB.job) bbSet(why + ". Riprovo tra " + 5 * (k + 1) + " secondi" + (BB.par && BB.par < 4 ? ", " + BB.par + (BB.par === 1 ? " chiamata" : " chiamate") + " alla volta" : "") + "…", BB.job.p);
   await new Promise(z => setTimeout(z, 5000 * (k + 1)));
   if (BB.job && t && /riprovo tra/.test(BB.job.t)) bbSet(t, BB.job.p);
  }
@@ -5565,12 +5568,12 @@ async function bbRun(o, resume) {
 // Al massimo n lavori insieme
 async function bbPool(J, n) {
  let k = 0;
- const run = async () => {
-  while (k < J.length) await J[k++]();
+ const run = async w => {
+  while (k < J.length && w < (BB.par || n || 4)) await J[k++]();
  };
  await Promise.all(Array.from({
   length: Math.min(n || 4, J.length)
- }, run));
+ }, (_, w) => run(w)));
 }
 
 // Claude studia il documento a pezzi di 10 pagine, 4 pezzi insieme; poi titolo, riassunto e mappa

@@ -21,8 +21,10 @@ async function ask(env, system, content, max) {
     if (!r.ok) {
       const m = (j.error && j.error.message) || "errore";
       if (/credit|balance/i.test(m)) throw new Error("Credito di Claude finito: ricarica in console.anthropic.com → Billing.");
-      if ((r.status === 0 || r.status === 429 || r.status >= 500) && busy < 4) { busy++; i--; await wait(4000 * busy); continue; }
-      throw new Error("Claude " + r.status + ": " + m);
+      // 429 = limite al minuto del tuo account Anthropic: si aspetta quanto dice Anthropic (retry-after)
+      if (r.status === 429 && busy < 6) { busy++; i--; const ra = parseFloat((r.headers && r.headers.get && r.headers.get("retry-after")) || "") || 10 * busy; await wait(Math.min(60, Math.max(3, ra)) * 1000); continue; }
+      if ((r.status === 0 || r.status >= 500) && busy < 4) { busy++; i--; await wait(4000 * busy); continue; }
+      throw new Error(r.status === 429 ? "limite al minuto dell'account Anthropic raggiunto (rate limit)" : r.status === 529 ? "Claude sovraccarico (529)" : r.status === 0 ? "Claude non raggiungibile" : "Claude " + r.status + ": " + m);
     }
     const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim(), a = t.indexOf("{"), z = t.lastIndexOf("}");
     try { if (a >= 0 && z > a) return JSON.parse(t.slice(a, z + 1)); } catch (e) {}
