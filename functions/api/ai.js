@@ -279,6 +279,7 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
     rp: ["un referto di progesterone, una visita o un foglio scritto a mano su calore o monta", { date: "data", value: "valore del progesterone in ng/ml (numero) o \"\"", note: "nota breve con quello che c'è scritto" }],
     litter: ["un Modello A, una denuncia di monta e nascita o un foglio sulla cucciolata", { dam: "nome della madre", sire: "nome del padre", birth: "data di nascita dei cuccioli", pups: "numero dei cuccioli nati (numero) o \"\"", note: "maschi/femmine e altre informazioni utili" }],
     w: ["un foglio (anche scritto a mano) con le pesate dei cuccioli", { date: "data della pesata", pups: "elenco [{\"name\":\"nome o colore del collarino\",\"g\":peso in grammi}]" }],
+    nasc: ["un foglio (anche scritto a mano) sul parto e la nascita dei cuccioli", { type: "tipo di parto: \"naturale\", \"cesareo\" o \"naturale con aiuto\" o \"\"", start: "ora di inizio del parto HH:MM o \"\"", note: "note sul parto", pups: "elenco dei cuccioli in ordine di nascita [{\"time\":\"HH:MM\",\"collar\":\"colore del collarino in italiano\",\"sex\":\"M o F\",\"g\":peso in grammi}]" }],
     famiglia: ["una carta d'identità, una patente, una tessera sanitaria o un biglietto con i dati di una persona", { name: "nome e cognome", country: "paese (Italia se italiano)", phone: "telefono", email: "email", addr: "indirizzo di residenza completo", bplace: "luogo di nascita (con la sigla della provincia)", bdate: "data di nascita", cf: "codice fiscale" }],
     ppb: ["un documento d'identità o la tessera sanitaria dell'acquirente", { bplace: "luogo di nascita", bdate: "data di nascita", cf: "codice fiscale", res: "residenza: CAP, città, via", cell: "cellulare", mail: "email" }],
     inc: ["una ricevuta di bonifico, uno screenshot di un pagamento o una ricevuta", { date: "data del pagamento", amount: "importo in euro (numero)", txt: "chi ha pagato e la causale" }],
@@ -308,6 +309,7 @@ ${Object.entries(K[1]).map(([k, d]) => `- "${k}": ${d}`).join("\n")}
    for (const k of Object.keys(K[1])) {
     const v = F[k];
     if (k === "tree") out.tree = tree(v, 0) || {};
+    else if (k === "pups" && p.kind === "nasc") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ time: /^\d{1,2}[:.]\d{2}$/.test(String(x && x.time || "")) ? String(x.time).replace(".", ":").padStart(5, "0") : "", collar: S(x && x.collar, 30), sex: /^[MF]$/.test(String(x && x.sex || "")) ? x.sex : "", g: +String(x && x.g || "").replace(",", ".") || 0 }));
     else if (k === "pups" && p.kind === "w") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ name: S(x && x.name, 40), g: +String(x && x.g || "").replace(",", ".") || 0 })).filter(x => x.name && x.g > 0);
     else if (k === "titles" && p.kind === "sh") out.titles = (Array.isArray(v) ? v : String(v || "").split(/[,;]/)).map(x => S(x, 30)).filter(Boolean).slice(0, 12);
     else if (/^(birth|bdate|date)$/.test(k)) out[k] = D8(v);

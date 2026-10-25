@@ -549,7 +549,8 @@ Sito delpiccolodiavolo.it
   esposizione, calori, cucciolata, pesate, famiglia, acquirente, entrate, cane acquisito, anagrafe, allevamento, enti);
   `/api/ai` task `compila` con `kind`; `CF_FILL[kind]` riempie i campi (classe `cf-ai`, in verde). Una foto vale come un PDF.
 - Guide interattive (`GUIDES`, `gdStart`…, tasto Guida in alto `gdToggle`): stesso blocco della copia vergine kennel-manager;
-  se si cambia una guida, cambiarla in tutti e due. Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).
+  se si cambia una guida, cambiarla in tutti e due. Elenco per pagina in `GD_SEC` (un solo «Guidami» per pagina,
+  `gdMenu`, indice `gdAll`); passi `nx` con «Avanti»; `gdCF(kind)` = passo «compila da foto». Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).

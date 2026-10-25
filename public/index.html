@@ -882,6 +882,9 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .cf-wait{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px}.cf-spin{width:17px;height:17px;flex:none;border:2.5px solid var(--line);border-top-color:#3E5C76;border-radius:50%;animation:cfs 1s linear infinite}@keyframes cfs{to{transform:rotate(360deg)}}
 .cf-msg:empty{display:none}.cf-ok{background:#E1EEE4;color:#2F6B3F;border-radius:10px;padding:8px 10px;font-size:13.5px;margin:0 0 10px}.cf-err{background:#F6EAD8;color:#7A4A0E;border-radius:10px;padding:8px 10px;font-size:13.5px;margin:0 0 10px}
 input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-color:#9CC3A5!important}label.cf-ai{color:#2F6B3F;font-weight:600}
+.gd-list,.gd-sec{margin:0 0 10px}.gd-sec h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
+.gd-li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.gd-li>span:first-child{flex:1;min-width:0}.gd-li b{display:block;font-size:14.5px;font-weight:600}.gd-li small{color:var(--muted);font-size:12.5px}
+.gd-dn{color:var(--ok);font-weight:600;font-size:12.5px;white-space:nowrap}.gd-bb{display:flex;gap:10px;align-items:center}
 </style>
 </head>
 <body>
@@ -4431,6 +4434,7 @@ function gdStart(k) {
  GD.g = k;
  GD.i = -2;
  GD.clk = new Set;
+ GD.nx = new Set;
  GD.base = {
   v: G.base(),
   owners: Object.keys(D.owners || {}).length
@@ -4462,19 +4466,27 @@ function gdStop() {
 function gdTick() {
  const G = GUIDES[GD.g];
  if (!G) return gdStop();
- const fin = G.done(GD.base.v);
- let i = fin ? G.S.length : G.S.findIndex(s => !s.ok());
- if (i < 0) i = G.S.length - 1;
+ let i = G.done(GD.base.v) ? G.S.length : G.S.findIndex((s, j) => {
+  const key = GD.g + ":" + j;
+  GD.nx = GD.nx || new Set;
+  if (GD.nx.has(key)) return false;
+  const ok = s.nx ? s.ok && s.ok() || s.opt && !s.el() : s.ok && s.ok();
+  if (ok) GD.nx.add(key);
+  return !ok;
+ });
+ if (i < 0) i = G.S[G.S.length - 1].nx ? G.S.length : G.S.length - 1;
+ const fin = i >= G.S.length;
  const s = G.S[i], el = s ? s.el() : null, h = document.getElementById("gdHole"), t = document.getElementById("gdTip");
  if (!h || !t) return;
  const N = G.S.length;
  if (el) for (let d = el.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) if (!d.open) d.open = true;
  if (i !== GD.i) {
   GD.i = i;
+  if (fin) gdMarkDone(GD.g);
   const dots = Array.from({
    length: N
   }, (_, j) => `<span class="${j <= i ? "on" : ""}"></span>`).join("");
-  t.innerHTML = fin ? `<div class="gd-n">Fatto</div><b>${esc(G.n)}</b><p class="gd-end">${G.end}</p><div class="gd-bar"><span></span><button class="btn small" data-a="gdStop">Chiudi</button></div>` : `<div class="gd-n">Passo ${i + 1} di ${N} \xb7 ${esc(G.n)}</div><b>${s.t}</b><p>${s.p}</p>${s.w ? `<div class="gd-why"><b>Perch\xe9:</b> ${s.w}</div>` : ""}<div class="gd-bar"><span class="gd-dots">${dots}</span><button class="gd-x" data-a="gdStop">Esci dalla guida</button></div>`;
+  t.innerHTML = fin ? `<div class="gd-n">Fatto</div><b>${esc(G.n)}</b><p class="gd-end">${G.end}</p><div class="gd-bar"><span></span><button class="btn small" data-a="gdStop">Chiudi</button></div>` : `<div class="gd-n">Passo ${i + 1} di ${N} \xb7 ${esc(G.n)}</div><b>${s.t}</b><p>${s.p}</p>${s.w ? `<div class="gd-why"><b>Perch\xe9:</b> ${s.w}</div>` : ""}<div class="gd-bar"><span class="gd-dots">${dots}</span><span class="gd-bb"><button class="gd-x" data-a="gdStop">Esci</button>${s.nx ? `<button class="btn small gd" data-gdn="${GD.g}:${i}">Avanti</button>` : ""}</span></div>`;
   if (el) try {
    el.scrollIntoView({
     block: "center",
@@ -4515,6 +4527,587 @@ function gdTick() {
 }
 
 
+// Tutte le guide (25/10/2026): una guida per ogni funzione, fino all'ultimo passo. In ogni pagina un solo tasto «Guidami»
+// che apre le guide di quella pagina; «Tutte le guide» apre l'indice. I passi «nx» si superano con «Avanti».
+const gdK = (a, v) => `[data-a="${a}"]${v ? `[data-v^="${v}"]` : ""}`;
+
+const gdNavS = (k, lab, w) => ({
+ t: "Apri " + lab,
+ p: "Tocca \xab" + lab + "\xbb nel menu (sul telefono, se non lo vedi in basso, tocca prima \xabAltro\xbb).",
+ w: w,
+ el: () => gdNav(k),
+ ok: () => tab === k
+});
+
+const gdB = (a, v, t, p, w, ok) => ({
+ t: t,
+ p: p,
+ w: w,
+ el: () => gdVis("#sheet " + gdK(a, v)) || gdVis(gdK(a, v)),
+ ok: ok || (() => GD.clk.has(a))
+});
+
+const gdF = (sel, t, p, w, need) => ({
+ t: t,
+ p: p,
+ w: w,
+ el: () => gdVis(sel),
+ ok: need ? () => {
+  const e = document.querySelector(sel);
+  return !!(e && String(e.value || "").trim());
+ } : null,
+ nx: !need
+});
+
+const gdI = (sel, t, p, w) => ({
+ t: t,
+ p: p,
+ w: w,
+ el: () => typeof sel === "function" ? sel() : gdVis(sel),
+ nx: 1
+});
+
+const gdCb = (fid, t, p, w) => ({
+ t: t,
+ p: p,
+ w: w,
+ el: () => gdVis(`.cb[data-for="${fid}"] .cbi`) || gdVis(`.cb[data-for="${fid}"]`),
+ ok: () => !!(document.getElementById(fid) || {}).value
+});
+
+const gdO = s => Object.assign(s, {
+ opt: 1
+});
+
+const gdCF = k => ({
+ t: "Se hai il documento: \xabFoto\xbb",
+ p: "Nella riga \xabCompila da foto o documento\xbb tocca \xabFoto\xbb (o \xabFile\xbb per un PDF): Claude compila da solo i campi, che diventano verdi. Se non ce l'hai, tocca \xabAvanti\xbb e scrivi tu.",
+ w: "Una foto vale come un documento: si fa prima e si sbaglia meno a ricopiare.",
+ el: () => gdVis(`.cf-bar[data-cfk="${k}"]`),
+ nx: 1
+});
+
+const gdSave = (a, t, p, w) => ({
+ t: t || "Tocca \xabSalva\xbb",
+ p: p || "\xc8 in fondo.",
+ w: w || "Finch\xe9 non salvi non cambia niente: puoi sempre annullare.",
+ el: () => gdVis("#sheet " + gdK(a)) || gdVis(gdK(a)),
+ ok: () => false
+});
+
+const gdSec = k => () => gdVis(`[data-dph="pg|${k}"]`);
+
+const gdDogS = (filt, lab) => ({
+ t: "Apri " + (lab || "il cane"),
+ p: "Tocca " + (lab || "il cane") + " nell'elenco.",
+ w: "Ogni cosa che riguarda un cane si fa dalla sua scheda.",
+ el: () => gdVis('#main .row[data-a="open"]'),
+ ok: () => !!gdDog() && (!filt || filt(D.dogs[view]))
+});
+
+const gdLit = {
+ t: "Apri la scheda della cucciolata",
+ p: "Tocca \xabApri la scheda\xbb (o \xabScheda della cucciolata\xbb) della cucciolata giusta.",
+ w: "Nella scheda della cucciolata c'\xe8 tutto: nascita, pesate, moduli ENCI, famiglie, pubblicit\xe0.",
+ el: () => gdVis('#main [data-a="litterSheet"]'),
+ ok: () => sheetOpen() && /Scheda della cucciolata|lph|bForm|maGo/.test(document.getElementById("sheet").innerHTML)
+};
+
+const gdCnt = f => () => {
+ try {
+  return f();
+ } catch (e) {
+  return 0;
+ }
+};
+
+const gdW = (h, p, uses, tm) => ({
+ h: h,
+ p: p,
+ uses: uses,
+ tm: tm
+});
+
+const gdDone1 = (...A) => () => A.some(a => GD.clk.has(a));
+
+Object.assign(GUIDES, {
+ oggi: {
+  n: "Leggere la pagina Oggi",
+  base: () => 0,
+  done: () => false,
+  why: gdW("La pagina Oggi", "Appena apri il gestionale vedi solo quello che conta adesso: cosa fare oggi, cosa \xe8 in ritardo, chi ha scritto, chi aspetta notizie. Non devi girare tra le pagine.", [ "Scadenze dei prossimi 7 giorni e quelle in ritardo", "Appuntamenti di oggi e domani", "Richieste nuove dal sito e da WhatsApp", "Famiglie da avvisare, fattrici in calore o vicine al parto" ], "Un minuto per capire come si legge."),
+  end: "Ora sai leggere Oggi: ogni riquadro con \xabda fare\xbb ha un tasto che ti porta dritto dove serve.",
+  S: [ gdNavS("oggi", "Oggi", "\xc8 la prima pagina: il riassunto della giornata."), gdI(() => gdVis("#main .dcta") || gdVis("#main .pgh"), "La riga in alto", "Se c'\xe8 qualcosa di urgente (una scadenza in ritardo, una fattrice con la temperatura scesa) compare qui, con il tasto per sistemarla.", "Le cose urgenti stanno sempre in cima: non le perdi."), gdI(gdSec("og-sc"), "Scadenze", "Vaccini, vermifughi, moduli ENCI e promemoria dei prossimi 7 giorni. In rosso quelle in ritardo.", "Toccando \xabApri le Scadenze\xbb le vedi tutte e le segni fatte."), gdI(gdSec("og-ag"), "Agenda", "Chi viene oggi e domani: visite e ritiri dei cuccioli.", "Cos\xec sai chi aspettare e a che ora."), gdI(gdSec("og-rq"), "Richieste nuove", "Le persone che hanno scritto dal sito o da WhatsApp e aspettano risposta.", "Rispondere presto \xe8 il modo migliore per non perdere una famiglia."), gdI(gdSec("og-fm"), "Famiglie da avvisare", "Le famiglie che hanno novit\xe0 da sapere (foto, pesate, vaccini del loro cucciolo).", "Un tocco su \xabAvvisa\xbb apre WhatsApp con il messaggio gi\xe0 scritto."), gdI(gdSec("og-ft"), "Fattrici", "Calori previsti e parti in arrivo nelle prossime 3 settimane.", "Il gestionale li calcola dai calori e dalle monte che segni nella scheda della fattrice.") ]
+ },
+ agApp: {
+  n: "Un appuntamento",
+  base: () => 0,
+  done: gdDone1("agSave"),
+  why: gdW("Un appuntamento in Agenda", "Segni chi viene a vedere i cuccioli o a ritirarne uno, con giorno e ora: lo ritrovi in Oggi e, se vuoi, nel calendario del telefono.", [ "Pagina Oggi: chi viene oggi e domani", "Calendario del telefono", "Dopo la visita: con un tocco la persona va in lista d'attesa" ], "Un minuto."),
+  end: "Fatto: l'appuntamento \xe8 in Agenda e lo vedi in Oggi il giorno prima e il giorno stesso.",
+  S: [ gdNavS("agenda", "Agenda", "Qui ci sono visite e ritiri, passati e in programma."), gdB("agNewV", "", "Tocca \xabNuova visita\xbb", "\xc8 in alto.", "Per un ritiro c'\xe8 il tasto \xabFissa\xbb accanto al cucciolo prenotato.", () => !!document.getElementById("ag_who") || GD.clk.has("agNewV")), gdF("#ag_who", "Chi viene", "Nome e cognome (o come lo chiami tu).", "Lo vedi in Oggi: \xabviene Mario\xbb.", 1), gdF("#ag_date", "Il giorno", "Scegli la data della visita.", "Il giorno prima te lo ricorda in Oggi.", 1), gdF("#ag_time", "L'ora", "Se l'avete gi\xe0 decisa.", "Cos\xec sai a che ora aspettarli."), gdF("#ag_tel", "Il telefono", "Per scrivergli su WhatsApp con un tocco.", "Utile se devi spostare l'appuntamento."), gdF("#ag_want", "Cosa cerca", "Maschio o femmina, colore, quando lo vorrebbe.", "Dopo la visita lo ritrovi in lista d'attesa con le sue preferenze."), gdSave("agSave") ]
+ },
+ agMsg: {
+  n: "Appuntamento da un messaggio",
+  base: () => 0,
+  done: gdDone1("agSave", "agApply"),
+  why: gdW("Un messaggio diventa un appuntamento", "Copi il messaggio di WhatsApp (\xabveniamo sabato alle 15\xbb) e lo incolli: Claude capisce se \xe8 una visita o un ritiro, il giorno e l'ora, e prepara l'appuntamento.", [ "Agenda e pagina Oggi", "Ritiri collegati al cucciolo giusto", "Niente date sbagliate ricopiando" ], "Trenta secondi."),
+  end: "Fatto: l'appuntamento \xe8 in Agenda, preso dal messaggio.",
+  S: [ gdNavS("agenda", "Agenda", "Qui si incollano i messaggi."), gdI(gdSec("ag-wa"), "Il riquadro \xabLeggi un messaggio di WhatsApp\xbb", "\xc8 in fondo alla pagina: aprilo.", "Su iPhone c'\xe8 anche il comando rapido \xabAgenda allevamento\xbb dal tasto Condividi di WhatsApp."), gdF("#ag_txt", "Incolla il messaggio", "In WhatsApp tieni premuto il messaggio, \xabCopia\xbb, poi incollalo qui.", "Claude legge tutto il messaggio, anche se \xe8 scritto di fretta.", 1), gdB("agRead", "", "Tocca \xabLeggi il messaggio\xbb", "Claude lo legge in qualche secondo.", "Capisce chi viene, quando e per cosa."), gdI(() => gdVis(".ag-found") || gdVis(gdK("agSave")) || gdVis(gdK("agApply")), "Controlla e conferma", "Guarda giorno e ora che ha capito; se va bene conferma e salva.", "Se manca qualcosa (l'ora, per esempio) lo aggiungi tu prima di salvare.") ]
+ },
+ agTel: {
+  n: "Scadenze nel calendario del telefono",
+  base: () => 0,
+  done: gdDone1("scCopy"),
+  why: gdW("Le scadenze sul telefono", "Colleghi una volta il calendario del telefono al gestionale: vaccini, parti, moduli ENCI e appuntamenti compaiono da soli nel calendario, con gli avvisi del telefono.", [ "Calendario dell'iPhone o di Google", "Avvisi anche quando il gestionale \xe8 chiuso" ], "Due minuti, una volta sola."),
+  end: "Fatto: incolla il link nel calendario del telefono (Impostazioni → Calendario → Account → Aggiungi account → Altro → Calendario sottoscritto).",
+  S: [ gdNavS("scadenze", "Scadenze", "Da qui si collega il calendario."), gdB("scPhone", "", "Tocca \xabSul telefono\xbb", "\xc8 in alto.", "Si apre il link privato del tuo calendario."), gdB("scCopy", "", "Tocca \xabCopia il link\xbb", "Il link \xe8 copiato.", "\xc8 privato: non darlo ad altri."), gdI(() => gdVis("#sheet h2"), "Sul telefono", "iPhone: Impostazioni → Calendario → Account → Aggiungi account → Altro → Aggiungi calendario sottoscritto, e incolli il link. Android: Google Calendar dal computer → Altri calendari → Da URL.", "Si fa una volta: poi si aggiorna da solo.") ]
+ },
+ scUse: {
+  n: "Fatto, sposta, non serve",
+  base: () => 0,
+  done: gdDone1("scMove", "scSkip", "hSave", "scDel", "scEnci"),
+  why: gdW("Le scadenze", "Ogni scadenza si chiude con un tocco: \xabFatto\xbb (e il gestionale calcola la prossima), \xabSposta la data\xbb oppure \xabNon serve\xbb.", [ "Vaccini e trattamenti: il richiamo successivo arriva da solo", "Moduli ENCI, recensioni, copie di sicurezza", "La pagina Oggi resta pulita" ], "Un minuto."),
+  end: "Fatto: la scadenza \xe8 sistemata. Le prossime le trovi sempre qui e in Oggi.",
+  S: [ gdNavS("scadenze", "Scadenze", "Qui c'\xe8 tutto quello che va fatto, in ordine di data."), gdI(() => gdVis(gdK("scF")), "I filtri", "Salute, Calori e parti, Cuccioli, Esposizioni, Promemoria: per vedere solo una parte.", "Con tante scadenze, il filtro ti aiuta a non perderti."), gdB("scAct", "", "Tocca una scadenza", "Una qualsiasi dell'elenco.", "Si apre la scheda con le cose che puoi fare.", () => sheetOpen() && !!document.querySelector('#sheet [data-a="scMoveF"],#sheet [data-a="scDone"],#sheet [data-a="scEnci"]')), gdI(() => gdVis('#sheet [data-a="scDone"]') || gdVis('#sheet .sc-acts'), "\xabFatto\xbb", "Apre la Salute del cane gi\xe0 compilata: controlli e salvi.", "Dopo il \xabFatto\xbb il gestionale calcola la prossima scadenza con il Piano sanitario."), gdI(() => gdVis('#sheet [data-a="scMoveF"]'), "\xabSposta la data\xbb", "Se la fai un altro giorno.", "La scadenza si sposta solo questa volta."), gdI(() => gdVis('#sheet [data-a="scSkip"]') || gdVis('#sheet .sc-acts'), "\xabNon serve\xbb", "Se per quel cane non va fatta.", "Non te la suggerisce pi\xf9 per quel cane.") ]
+ },
+ scPro: {
+  n: "Un promemoria",
+  base: () => 0,
+  done: gdDone1("scAdd"),
+  why: gdW("Un promemoria", "Qualsiasi cosa da ricordare in un giorno preciso: comprare il cibo, chiamare il veterinario, rinnovare un'assicurazione.", [ "Scadenze e pagina Oggi", "Calendario del telefono, se l'hai collegato" ], "Trenta secondi."),
+  end: "Fatto: il promemoria arriva in Oggi quel giorno.",
+  S: [ gdNavS("scadenze", "Scadenze", ""), gdB("scAddF", "", "Tocca \xabAggiungi\xbb", "\xc8 in alto.", "Si apre la nuova scadenza.", () => !!document.getElementById("sca_d")), gdF("#sca_d", "Il giorno", "Quando te lo deve ricordare.", "Lo vedi in Oggi quel giorno.", 1), gdF("#sca_k", "Il tipo", "Promemoria, o una cosa di salute di un cane.", "Se \xe8 di salute, scegli anche il cane: finisce nella sua scheda."), gdF("#sca_t", "Cosa", "Scrivi cosa devi fare.", "Due parole bastano: \xabchiamare il veterinario\xbb."), gdSave("scAdd") ]
+ },
+ scBell: {
+  n: "Avvisi sul telefono",
+  base: () => 0,
+  done: gdDone1("scBellGo"),
+  why: gdW("Un avviso sul telefono", "Per le scadenze importanti (il Modello B, un richiamo) puoi farti suonare il telefono qualche giorno prima, anche pi\xf9 volte.", [ "Promemoria del telefono", "Avvisi ripetuti fino alla scadenza" ], "Trenta secondi."),
+  end: "Fatto: l'avviso \xe8 nel telefono.",
+  S: [ gdNavS("scadenze", "Scadenze", ""), gdB("scBell", "", "Tocca la campanella", "\xc8 a destra di ogni scadenza.", "Ogni scadenza pu\xf2 avere il suo avviso.", () => !!document.querySelector('#sheet [data-a="scBellGo"]')), gdI(() => gdVis('#sheet [data-a="alSet"]'), "Quando e quante volte", "Scegli quanti giorni prima e se ripeterlo.", "Per i moduli ENCI conviene ripeterlo: non te lo scordi."), gdSave("scBellGo", "Tocca \xabAggiungi al telefono\xbb", "Il telefono ti chiede di confermare.", "L'avviso resta nel telefono anche senza internet.") ]
+ },
+ foto: {
+  n: "Foto del cane",
+  base: () => 0,
+  done: () => !!gdDog() && !!D.dogs[view].photo && GD.clk.has("qPh"),
+  why: gdW("La foto del cane", "Una foto per cane: la vedi negli elenchi, nella pagina della famiglia, negli accoppiamenti e nella pubblicit\xe0 della cucciolata.", [ "Elenchi e schede", "Pagina privata della famiglia", "Pubblicit\xe0 e sito" ], "Trenta secondi."),
+  end: "Fatto: la foto \xe8 nella scheda del cane.",
+  S: [ gdCani, gdOpenDog, gdB("qPh", "", "Tocca \xabAggiungi foto\xbb", "\xc8 il riquadro della foto, in alto a sinistra nella scheda.", "Dal telefono puoi scattarla subito."), gdI(() => gdVis("#main .idc") || gdVis("#main h1"), "Scegli la foto", "Si salva da sola, ridotta per non occupare spazio.", "Meglio una foto di profilo, in piedi, con luce naturale.") ]
+ },
+ pedi: {
+  n: "Pedigree e antenati",
+  base: gdCnt(() => Object.keys(D.dogs).length),
+  done: b => GD.clk.has("pedDone") || Object.keys(D.dogs).length > b + 2,
+  why: gdW("Il pedigree", "Gli antenati servono per calcolare la consanguineit\xe0 (COI) e scegliere gli accoppiamenti. Si scrivono una volta, anche da una foto del pedigree.", [ "COI e accoppiamenti", "Modelli ENCI", "Pedigree dei cuccioli" ], "Cinque minuti a mano, uno con la foto."),
+  end: "Fatto: gli antenati sono in archivio e il COI \xe8 calcolato.",
+  S: [ gdNavS("coi", "Accoppiamenti", "Il pedigree si completa da qui, scegliendo il cane."), gdCb("md", "Scegli la femmina", "Nel primo campo: scrivi il nome e sceglilo.", "Il gestionale conta quanti antenati mancano."), gdCb("ms", "Scegli il maschio", "Anche un maschio esterno.", "Anche il suo pedigree serve per il COI."), gdB("pedForm", "", "Tocca \xabCompleta il pedigree di…\xbb", "Compare se mancano antenati.", "Si apre l'albero da riempire.", () => !!document.querySelector("#sheet .pedf")), gdCF("ped"), gdI(() => gdVis("#sheet .ped-wrap"), "Oppure scrivi casella per casella", "Scrivi il nome: se \xe8 gi\xe0 in archivio lo scegli, se no \xabAggiungi\xbb lo crea.", "Ogni antenato aggiunto apre le caselle della generazione dopo."), gdSave("pedDone", "Tocca \xabFatto\xbb", "In fondo.", "Il COI si ricalcola subito.") ]
+ },
+ calori: {
+  n: "Calori e monte",
+  base: gdCnt(() => Object.values(D.dogs).reduce((s, d) => s + (d.repro || []).length, 0)),
+  done: b => Object.values(D.dogs).reduce((s, d) => s + (d.repro || []).length, 0) > b,
+  why: gdW("Calori e monte", "Segni l'inizio del calore, il progesterone e la monta: il gestionale calcola il prossimo calore, il parto e le scadenze della gravidanza.", [ "Calore previsto in Oggi e in Scadenze", "Parto previsto, ecografia, radiografia, cassa parto", "Vermifugo in gravidanza (Piano sanitario)", "Regole ENCI sull'et\xe0 e sui parti" ], "Trenta secondi a voce."),
+  end: "Fatto: calore e monta sono segnati e il gestionale calcola il resto.",
+  S: [ gdCani, gdDogS(d => d.sex === "F", "la fattrice"), gdI(() => gdVis(gdK("rpForm")), "Il riquadro \xabCalori e monte\xbb", "Quattro tasti: Inizio calore, Progesterone, Monta, Ecografia / visita.", "Ogni tasto segna una cosa sola, con la sua data."), gdB("rpForm", "", "Tocca quello che vuoi segnare", "Per esempio \xabInizio calore\xbb.", "Si apre il modulo con la data di oggi.", () => !!document.getElementById("rpd")), gdCF("rp"), gdF("#rpd", "La data", "Lascia oggi o cambiala.", "Dalla data parte il calcolo.", 1), gdO(gdF("#rpv", "Il valore (solo per il progesterone)", "In ng/ml, come sul referto.", "Il gestionale ti mostra l'andamento.")), gdO(gdF("#rps", "Il maschio (solo per la monta)", "Scegli lo stallone.", "Serve per la cucciolata e i moduli ENCI.")), gdSave("rpSave") ]
+ },
+ tempe: {
+  n: "Temperatura prima del parto",
+  base: () => 0,
+  done: gdDone1("tpAdd"),
+  why: gdW("La temperatura prima del parto", "Negli ultimi giorni di gravidanza misuri la temperatura due volte al giorno: quando scende sotto la sua media, il parto arriva di solito entro 12–24 ore e il gestionale te lo segnala in rosso in Oggi.", [ "Avviso in Oggi quando scende", "Media della fattrice calcolata da sola" ], "Dieci secondi a misurazione."),
+  end: "Fatto: la temperatura \xe8 segnata. Se scende, lo vedi in cima a Oggi.",
+  S: [ gdCani, gdDogS(d => isFattrice(d), "la fattrice gravida"), gdF('[id^="tpv_"]', "Scrivi la temperatura", "Nel riquadro della temperatura, es. 37,8.", "Il riquadro compare negli ultimi giorni di gravidanza.", 1), gdF('[id^="tpt_"]', "Giorno e ora", "\xc8 gi\xe0 adesso: cambiala solo se l'hai misurata prima.", "Serve per vedere la discesa nel tempo."), gdSave("tpAdd") ]
+ },
+ dna: {
+  n: "Deposito DNA",
+  base: () => 0,
+  done: gdDone1("dnaSave"),
+  why: gdW("Il deposito biologico DNA", "L'ENCI chiede il deposito del DNA (sangue o tampone buccale) per gli stalloni esteri e per i cuccioli che vanno all'estero. Il gestionale te lo ricorda e qui lo segni fatto.", [ "Accoppiamenti con stalloni esteri", "Cuccioli venduti all'estero", "Scadenze" ], "Trenta secondi."),
+  end: "Fatto: il deposito \xe8 segnato e la scadenza sparisce.",
+  S: [ gdNavS("scadenze", "Scadenze", "Il deposito da fare compare qui."), gdB("scAct", "", "Tocca \xabDeposito biologico DNA\xbb", "Compare solo se serve.", "Si apre la scheda della scadenza.", () => !!document.querySelector('#sheet [data-a="dnaForm"]') || !!document.querySelector("#sheet #dna_d")), gdB("dnaForm", "", "Tocca \xabSegna il deposito fatto\xbb", "", "Si apre il modulo.", () => !!document.querySelector('#sheet [data-a="dnaSave"]')), gdSave("dnaSave") ]
+ },
+ expoRes: {
+  n: "Risultati in esposizione",
+  base: () => 0,
+  done: gdDone1("shSave"),
+  why: gdW("I risultati in esposizione", "Dopo l'esposizione scrivi qualifica, classifica e titoli nella scheda del cane: si costruisce il suo palmar\xe8s.", [ "Scheda del cane e palmar\xe8s", "Titoli e campionati", "Pagina della famiglia, se lo scegli" ], "Un minuto, meno con la foto della scheda del giudice."),
+  end: "Fatto: il risultato \xe8 nella scheda del cane.",
+  S: [ gdCani, gdOpenDog, gdB("shForm", "", "Tocca \xabAggiungi esposizione\xbb", "\xc8 nel riquadro Test, esposizioni e titoli.", "Ogni esposizione \xe8 una riga del palmar\xe8s.", () => !!document.getElementById("sh_n")), gdCF("sh"), gdF("#sh_d", "La data", "Il giorno dell'esposizione.", "", 1), gdF("#sh_n", "Nome e luogo", "Es. Esposizione Internazionale di Verona.", "", 1), gdF("#sh_j", "Il giudice", "Nome e nazione.", "Utile per scegliere le prossime esposizioni."), gdF("#sh_q", "Qualifica e classifica", "Eccellente, Molto Buono… e il posto in classe.", "Sono quello che conta per i campionati."), gdI(() => gdVis(".sh-tt"), "I titoli", "Spunta CAC, CACIB, BOB e gli altri presi.", "I titoli d'oro si vedono subito nella scheda."), gdF("#sh_g", "Il giudizio", "Copialo o lascia che lo scriva Claude dalla foto.", "Resta nella scheda per sempre."), gdSave("shSave") ]
+ },
+ test: {
+  n: "Test genetici e sanitari",
+  base: () => 0,
+  done: gdDone1("gtSave", "docSave"),
+  why: gdW("I test del cane", "Carichi lo screenshot o il PDF del laboratorio: Claude legge test ed esiti e li mette nella scheda, pronti per gli accoppiamenti.", [ "Scheda del cane", "Accoppiamenti: rischi genetici della coppia", "Pagina della famiglia e pubblicit\xe0" ], "Un minuto."),
+  end: "Fatto: i test sono nella scheda del cane.",
+  S: [ gdCani, gdOpenDog, gdB("gtPick", "", "Tocca \xabCarica test genetici\xbb", "Nel riquadro Test, esposizioni e titoli.", "Va bene uno screenshot del sito del laboratorio o il PDF."), gdI(() => gdVis("#sheet .actions") || gdVis("#sheet"), "Controlla e salva", "Claude mostra i test letti: controlla gli esiti e salva.", "Gli esiti finiscono anche negli accoppiamenti.") ]
+ },
+ nascita: {
+  n: "La nascita e i cuccioli",
+  base: () => 0,
+  done: gdDone1("bSave"),
+  why: gdW("La nascita", "Il giorno del parto segni l'ora, quanti sono, maschi e femmine, collarino e peso di ognuno: il gestionale crea i cuccioli, calcola i moduli ENCI e parte con pesate e vaccini.", [ "Cuccioli in archivio con i genitori", "Modello A e Modello B", "Pesate, vaccini e vermifughi dei cuccioli", "Pubblicit\xe0 e pagina delle famiglie" ], "Cinque minuti."),
+  end: "Fatto: i cuccioli sono in archivio e il gestionale prepara moduli e scadenze.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdB("bForm", "", "Tocca \xabInserisci la nascita\xbb", "Nella scheda della cucciolata.", "Si apre il foglio della nascita.", () => !!document.getElementById("bt")), gdCF("nasc"), gdI(() => gdVis("#bt") || gdVis("#sheet .form"), "Data, ora e numero", "Scrivi giorno e ora del parto e quanti cuccioli.", "Il numero crea le righe dei cuccioli."), gdI(() => gdVis('[id^="bc_"]') || gdVis("#sheet .form"), "Collarino, sesso, peso", "Per ogni cucciolo: il colore del collarino, il sesso e il peso alla nascita.", "Il collarino \xe8 il modo per riconoscerli fino al microchip."), gdSave("bSave") ]
+ },
+ pesate: {
+  n: "Pesate dei cuccioli",
+  base: () => 0,
+  done: gdDone1("wSave"),
+  why: gdW("Le pesate", "Pesi i cuccioli ogni giorno o due: il gestionale segna in rosso chi cala e le famiglie vedono la crescita nella loro pagina.", [ "Allarme se un cucciolo cala", "Grafico della crescita", "Pagina della famiglia" ], "Un minuto per pesata."),
+  end: "Fatto: la pesata \xe8 salvata.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdB("wForm", "", "Tocca \xabPesata\xbb", "Nella scheda della cucciolata.", "Si apre la tabella dei cuccioli.", () => !!document.getElementById("wd")), gdCF("w"), gdF("#wd", "Il giorno", "Di solito oggi.", ""), gdI(() => gdVis(".wgrid"), "I pesi in grammi", "Uno per cucciolo. Se una riga diventa rossa, quel cucciolo \xe8 calato.", "Accorgersene subito \xe8 la cosa pi\xf9 importante dei primi giorni."), gdSave("wSave", "Tocca \xabSalva la pesata\xbb") ]
+ },
+ modA: {
+  n: "Modello A (monta e nascita)",
+  base: () => 0,
+  done: gdDone1("maGo"),
+  why: gdW("Il Modello A", "La denuncia di monta e nascita all'ENCI, entro 25 giorni dalla nascita. Il gestionale lo compila con i dati che hai gi\xe0 e la tua firma.", [ "Delegazione ENCI", "Scadenza in Scadenze e in Oggi" ], "Due minuti."),
+  end: "Fatto: il Modello A \xe8 pronto o mandato. Segnalo consegnato con la spunta.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdI(() => gdVis('#sheet [data-a="maGo"]'), "Il riquadro Modello A", "Vedi, Scarica, Email o WhatsApp alla delegazione.", "Il destinatario \xe8 quello di Account → Enti e destinatari."), gdB("maGo", "", "Tocca \xabVedi\xbb per controllarlo", "Poi \xabEmail\xbb o \xabWhatsApp\xbb per mandarlo.", "\xc8 gi\xe0 firmato con la tua firma salvata."), gdI(() => gdVis('#sheet [data-a="maGo"][data-v$="|done"]') || gdVis('#sheet [data-a="maGo"]'), "Segnalo consegnato", "Tocca la spunta quando l'hai mandato.", "Cos\xec la scadenza sparisce.") ]
+ },
+ modB: {
+  n: "Modello B (iscrizione)",
+  base: () => 0,
+  done: gdDone1("mbGo"),
+  why: gdW("Il Modello B", "L'iscrizione dei cuccioli al libro genealogico, entro 90 giorni. Il gestionale lo prepara con microchip, nomi e proprietari.", [ "Delegazione ENCI", "Pedigree dei cuccioli", "Conto alla rovescia sul telefono" ], "Cinque minuti."),
+  end: "Fatto: il Modello B \xe8 pronto o mandato.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdB("mbForm", "", "Tocca \xabCorreggi i dati\xbb (o \xabPrepara il Modello B\xbb)", "Nel riquadro Modello B.", "Qui controlli i dati prima di mandarlo.", () => !!document.getElementById("mb_st")), gdI(() => gdVis("#mb_st") || gdVis("#sheet .form"), "Controlla i dati", "Stato, data, email e WhatsApp della delegazione.", "Microchip e nomi dei cuccioli li prende dalle loro schede."), gdB("mbGo", "", "Vedi, poi Email o WhatsApp", "", "\xc8 gi\xe0 firmato con la tua firma salvata."), gdI(() => gdVis('#sheet [data-a="mbGo"][data-v$="|done"]'), "Segnalo consegnato", "Con la spunta.", "La scadenza e il conto alla rovescia si fermano.") ]
+ },
+ adv: {
+  n: "Pubblicit\xe0 della cucciolata",
+  base: () => 0,
+  done: gdDone1("adOn", "adCopy"),
+  why: gdW("La pubblicit\xe0 della cucciolata", "Un link con una bella pagina della cucciolata (genitori, foto, test, date) da mandare a chi chiede o da mettere sui social.", [ "WhatsApp, Facebook, Instagram", "In italiano, inglese e tedesco" ], "Un minuto."),
+  end: "Fatto: il link della pubblicit\xe0 \xe8 pronto da copiare e mandare.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdB("adOn", "", "Tocca \xabCrea il link pubblicit\xe0\xbb", "Nella scheda della cucciolata.", "Il link \xe8 segreto: lo vede solo chi lo riceve."), gdI(() => gdVis('#sheet [data-a="adCopy"]') || gdVis('#sheet [data-a="adOn"]'), "Copia e manda", "Copia il link nella lingua che serve e mandalo.", "Si pu\xf2 disattivare quando vuoi.") ]
+ },
+ sito: {
+  n: "La cucciolata sul sito",
+  base: () => 0,
+  done: gdDone1("cuPub"),
+  why: gdW("La cucciolata sul sito", "Metti la cucciolata sul sito dell'allevamento, con lo stato (in programma, in arrivo, nati) e le foto.", [ "Sito dell'allevamento", "Google" ], "Un minuto."),
+  end: "Fatto: la cucciolata va sul sito in pochi minuti.",
+  S: [ gdNavS("cucciolate", "Cucciolate", ""), gdLit, gdI(() => gdVis('#sheet [data-a="siStage"]'), "Lo stato", "In programma, In arrivo, Sono nati.", "Sul sito si vede a che punto \xe8."), gdB("cuPub", "", "Tocca \xabPubblica sul sito\xbb", "", "Il sito si aggiorna da solo.") ]
+ },
+ expoIscr: {
+  n: "Iscritto, poi i risultati",
+  base: () => 0,
+  done: gdDone1("exSt", "shSave"),
+  why: gdW("Dall'iscrizione al risultato", "Quando ti sei iscritto lo segni, cos\xec il promemoria si ferma; dopo l'esposizione scrivi il risultato del cane.", [ "Scadenze e Oggi", "Scheda del cane" ], "Trenta secondi."),
+  end: "Fatto: l'esposizione \xe8 aggiornata.",
+  S: [ gdNavS("esposizioni", "Esposizioni", ""), gdB("exOpen", "", "Tocca un'esposizione", "Nel calendario o nell'elenco.", "", () => !!document.querySelector('#sheet [data-a="exSt"]')), gdB("exSt", "", "Tocca \xabFatto: iscritto\xbb", "Quando hai pagato l'iscrizione.", "Il promemoria della chiusura si ferma."), gdI(() => gdVis("#sheet .ex-res") || gdVis('#sheet [data-a="exSt"]'), "Dopo l'esposizione", "Tocca il cane per scrivere qualifica e titoli.", "Il risultato va nella scheda del cane.") ]
+ },
+ coi: {
+  n: "Provare un accoppiamento (COI)",
+  base: () => 0,
+  done: () => tab === "coi" && !!mateS && !!mateD && GD.clk.has("mateAnalysis"),
+  why: gdW("La prova di accoppiamento", "Scegli femmina e maschio: il gestionale calcola la consanguineit\xe0 (COI), controlla le regole ENCI e i test genetici della coppia.", [ "Scelta dello stallone", "Pianificazione della cucciolata", "Link da mandare al proprietario del maschio" ], "Un minuto."),
+  end: "Fatto: hai il COI della coppia e le regole ENCI.",
+  S: [ gdNavS("coi", "Accoppiamenti", ""), gdCb("md", "La femmina", "Scrivi il nome e sceglila dall'elenco.", ""), gdCb("ms", "Il maschio", "Anche esterno.", ""), gdI(() => gdVis(".en-box"), "Regole ENCI", "Et\xe0 della madre e giorni dall'ultimo parto alla data della monta.", "In rosso se non si pu\xf2."), gdB("mateAnalysis", "", "Tocca \xabVedi analisi COI\xbb", "", "Vedi gli antenati in comune e quanto pesano.") ]
+ },
+ coiSug: {
+  n: "Maschi suggeriti",
+  base: () => 0,
+  done: gdDone1("mateSugPick"),
+  why: gdW("I maschi suggeriti", "Il gestionale prova tutti i maschi in archivio con la tua femmina e li mette in ordine di COI.", [ "Scelta dello stallone" ], "Trenta secondi."),
+  end: "Fatto: il maschio scelto \xe8 nella prova di accoppiamento.",
+  S: [ gdNavS("coi", "Accoppiamenti", ""), gdCb("md", "Scegli la femmina", "Scrivi il nome e sceglila.", ""), gdB("mateSug", "", "Tocca \xabSuggerisci i maschi\xbb", "", "", () => !!document.querySelector('[data-a="mateSugPick"]')), gdB("mateSugPick", "", "Tocca \xabScegli\xbb sul maschio", "", "Si apre la prova con quel maschio.") ]
+ },
+ coiShare: {
+  n: "Condividere la coppia",
+  base: () => 0,
+  done: gdDone1("mateShareCopy", "mateShareSave"),
+  why: gdW("La coppia da condividere", "Un link con la prova di accoppiamento da mandare al proprietario del maschio: vede COI, genitori e test.", [ "Proprietario dello stallone" ], "Trenta secondi."),
+  end: "Fatto: il link \xe8 pronto.",
+  S: [ gdNavS("coi", "Accoppiamenti", ""), gdCb("md", "La femmina", "Scrivi il nome e sceglila dall'elenco.", ""), gdCb("ms", "Il maschio", "", ""), gdB("mateShare", "", "Tocca \xabLink da condividere\xbb", "", ""), gdI(() => gdVis('#sheet [data-a="mateShareCopy"]') || gdVis("#sheet"), "Copia il link", "E mandalo al proprietario del maschio.", "Lo puoi disattivare quando vuoi.") ]
+ },
+ coiPdf: {
+  n: "PDF COI e test mating",
+  base: () => 0,
+  done: gdDone1("tmSave"),
+  why: gdW("Il PDF del COI", "Se hai il calcolo del COI fatto da un servizio esterno, lo carichi: resta con la coppia e lo vedi nella scheda della cucciolata.", [ "Scheda della cucciolata", "Famiglie" ], "Trenta secondi."),
+  end: "Fatto: il PDF \xe8 con la coppia.",
+  S: [ gdNavS("coi", "Accoppiamenti", ""), gdCb("md", "La femmina", "Scrivi il nome e sceglila dall'elenco.", ""), gdCb("ms", "Il maschio", "", ""), gdB("tmPick", "", "Tocca \xabCarica PDF COI\xbb", "", "Scegli il PDF.") ]
+ },
+ anIscr: {
+  n: "Iscrivere all'anagrafe",
+  base: () => 0,
+  done: gdDone1("anagDone", "anagMail"),
+  why: gdW("L'anagrafe canina", "Ogni cane va iscritto all'anagrafe del Comune. Il gestionale prepara la dichiarazione con i dati del cane e dell'intestatario e la manda all'ufficio.", [ "Anagrafe canina del Comune", "Passaggi di propriet\xe0" ], "Cinque minuti."),
+  end: "Fatto: la pratica \xe8 mandata o segnata.",
+  S: [ gdNavS("anagrafe", "Anagrafe", ""), gdB("anagOpen", "", "Tocca il cane da iscrivere", "", "Si apre la pratica.", () => !!document.getElementById("an_h")), gdCF("anag"), gdF("#an_h", "Intestatario", "Chi risulta proprietario.", ""), gdF("#an_chip", "Microchip", "", "Senza microchip non si iscrive.", 1), gdB("anagPdf", "", "Tocca \xabDichiarazione (PDF)\xbb", "Falla firmare.", ""), gdB("anagSign", "", "Carica la dichiarazione firmata", "", ""), gdB("anagMail", "", "Tocca \xabEmail all'anagrafe canina\xbb", "Parte con gli allegati.", "L'indirizzo \xe8 in Account → Enti e destinatari.") ]
+ },
+ anAcq: {
+  n: "Cane acquisito",
+  base: gdCnt(() => Object.keys(D.dogs).length),
+  done: b => Object.keys(D.dogs).length > b,
+  why: gdW("Un cane comprato", "Per un cane che arriva da un altro allevamento (anche dall'estero) prepari la pratica per l'anagrafe: dati, provenienza, documenti.", [ "Anagrafe canina", "Archivio dei cani" ], "Cinque minuti."),
+  end: "Fatto: il cane \xe8 in archivio e la pratica \xe8 aperta.",
+  S: [ gdNavS("anagrafe", "Anagrafe", ""), gdB("anagNew", "", "Tocca \xabCane acquisito\xbb", "", "", () => !!document.getElementById("ann_n")), gdCF("acq"), gdF("#ann_n", "Nome di chiamata", "", "", 1), gdF("#ann_p", "Nome di pedigree", "Lascialo vuoto se \xe8 uguale.", ""), gdI(() => gdVis('[data-a="annSx"]'), "Il sesso", "Tocca Maschio o Femmina.", ""), gdSave("annSave", "Tocca \xabSalva e apri la pratica\xbb") ]
+ },
+ crocc: {
+  n: "Piano crocchette",
+  base: () => 0,
+  done: gdDone1("fdPrint", "fdUOk", "fdManSave"),
+  why: gdW("Quanto mangia", "Fotografi il sacco delle crocchette: Claude legge marca e calorie e il gestionale calcola i grammi al giorno e i pasti, per il tuo cane o per le famiglie.", [ "Scheda per la famiglia, stampabile", "Pagina della famiglia: quanto mangia il suo cucciolo" ], "Un minuto."),
+  end: "Fatto: hai il piano delle crocchette.",
+  S: [ gdNavS("pappa", "Alimentazione", ""), gdB("fdFoto", "", "Tocca \xabFotografa il sacco\xbb", "Oppure \xabScrivi il nome\xbb.", "Claude legge le calorie dall'etichetta."), gdO(gdI(() => gdVis('[data-a="fdSet"]'), "Quanti pasti", "Scegli quanti pasti al giorno.", "I grammi si dividono da soli.")), gdB("fdPrint", "", "Tocca \xabStampa o salva in PDF\xbb", "", "Da dare alla famiglia.") ]
+ },
+ barf: {
+  n: "Dieta BARF",
+  base: () => 0,
+  done: () => false,
+  why: gdW("La dieta BARF", "Per chi d\xe0 il crudo: carne, ossa, frattaglie, verdure e frutta al giorno, calcolati dal peso e dall'et\xe0.", [ "Scheda per la famiglia" ], "Un minuto."),
+  end: "Fatto: hai le dosi BARF.",
+  S: [ gdNavS("pappa", "Alimentazione", ""), gdI(gdSec("al-barf"), "Il riquadro BARF", "Aprilo e scrivi peso ed et\xe0.", "Le dosi si aggiornano da sole.") ]
+ },
+ contr: {
+  n: "Contratto di cessione e firma",
+  base: () => 0,
+  done: gdDone1("ctGo"),
+  why: gdW("Il contratto di cessione", "Il contratto si prepara da solo con i dati del cucciolo, tuoi e della famiglia. Scrivi il prezzo, firmi una volta e lo mandi: la famiglia firma dal telefono e torna da solo.", [ "Documenti del cucciolo e della famiglia", "Pagina privata della famiglia", "Conti della cucciolata" ], "Due minuti."),
+  end: "Fatto: il contratto \xe8 nella pagina della famiglia, che lo firma dal telefono.",
+  S: [ gdCani, gdDogS(d => !!d.owner, "il cucciolo prenotato"), gdI(() => gdVis("#ctPrice") || gdVis('[data-a="ctView"]'), "Il riquadro \xabContratto di cessione\xbb", "\xc8 nella scheda del cucciolo prenotato.", "Compare quando il cucciolo ha la sua famiglia (guida \xabPrenotare un cucciolo\xbb)."), gdF("#ctPrice", "1. Il prezzo", "Es. 1.400 €.", "Va nel contratto e nei Conti.", 1), gdI(() => gdVis("#ctMe") || gdVis(".saved-sig"), "2. La tua firma", "Se l'hai gi\xe0 salvata \xe8 gi\xe0 l\xec.", "Firmi una volta e vale per tutti i contratti."), gdSave("ctGo", "3. Tocca \xabFirma e manda\xbb", "", "La famiglia lo trova nella sua pagina privata e firma dal telefono.") ]
+ },
+ pp: {
+  n: "Passaggio di propriet\xe0",
+  base: () => 0,
+  done: gdDone1("ppGo"),
+  why: gdW("Il passaggio di propriet\xe0", "Il modulo del Comune si compila da solo con i dati del cucciolo, tuoi e della famiglia: mancano la nascita dell'acquirente e le firme. Si firma sul telefono, anche insieme alla famiglia al ritiro.", [ "Anagrafe canina (entro 15 giorni)", "Documenti del cucciolo" ], "Tre minuti."),
+  end: "Fatto: il PDF firmato \xe8 nei documenti del cucciolo. Mandalo all'anagrafe entro 15 giorni.",
+  S: [ gdCani, gdDogS(d => !!d.owner, "il cucciolo prenotato"), gdB("ppForm", "", "Tocca \xabCompila e firma\xbb", "Nel riquadro Passaggio di propriet\xe0.", "", () => !!document.getElementById("pp_bcf")), gdF("#pp_date", "La data della cessione", "", "", 1), gdCF("ppb"), gdF("#pp_bcf", "Codice fiscale dell'acquirente", "", "Resta solo per te: mai nella pagina della famiglia.", 1), gdF("#pp_bres", "Residenza", "CAP, citt\xe0, via.", "", 1), gdI(() => gdVis("#ppB"), "Le firme", "La tua (se salvata c'\xe8 gi\xe0) e quella dell'acquirente col dito.", "Poi l'acquirente mette la spunta."), gdSave("ppGo", "Tocca \xabFirma e crea il PDF\xbb") ]
+ },
+ famPag: {
+  n: "Pagina privata della famiglia",
+  base: () => 0,
+  done: gdDone1("newToken", "copyLink", "lkWa"),
+  why: gdW("La pagina della famiglia", "Ogni famiglia ha una pagina privata con il suo cucciolo: foto, pesate, vaccini, contratto da firmare, consigli. Si apre con un link segreto.", [ "Famiglie: tutto in un posto", "Meno messaggi e telefonate" ], "Un minuto."),
+  end: "Fatto: la famiglia ha il suo link.",
+  S: [ gdCani, gdDogS(d => !!d.owner, "il cucciolo prenotato"), gdB("newToken", "", "Tocca \xabCrea il link privato\xbb", "Se c'\xe8 gi\xe0, vedi \xabApri\xbb e \xabCopia link\xbb.", ""), gdB("ownerPreview", "", "Tocca \xabCome la vede la famiglia\xbb", "Per controllare cosa vede.", "Note, documenti privati e altri cani non li vede mai."), gdI(() => gdVis('[data-a="lkWa"]') || gdVis('[data-a="copyLink"]'), "Manda il link", "WhatsApp, email o copia.", "Il messaggio \xe8 gi\xe0 scritto.") ]
+ },
+ nv: {
+  n: "Avvisare la famiglia delle novit\xe0",
+  base: () => 0,
+  done: gdDone1("nvSend", "nvSkip"),
+  why: gdW("Le novit\xe0 alla famiglia", "Quando aggiungi foto, pesate o vaccini, il gestionale prepara il messaggio per la famiglia: lo mandi con un tocco.", [ "WhatsApp", "Pagina della famiglia" ], "Dieci secondi."),
+  end: "Fatto: la famiglia \xe8 avvisata.",
+  S: [ gdCani, gdDogS(d => !!d.owner, "il cucciolo prenotato"), gdB("nvSheet", "", "Tocca \xabAvvisa la famiglia\xbb", "", "", () => !!document.getElementById("nv_txt")), gdF("#nv_txt", "Il messaggio", "\xc8 gi\xe0 scritto: cambialo se vuoi.", ""), gdSave("nvSend", "Tocca \xabApri WhatsApp\xbb") ]
+ },
+ dep: {
+  n: "Acconto e ricevuta",
+  base: () => 0,
+  done: gdDone1("depGo"),
+  why: gdW("L'acconto", "Segni l'acconto (bonifico o contanti) e il gestionale prepara la ricevuta da mandare alla famiglia; l'importo va nei Conti.", [ "Ricevuta per la famiglia", "Conti della cucciolata" ], "Un minuto."),
+  end: "Fatto: l'acconto \xe8 segnato.",
+  S: [ gdCani, gdDogS(d => !!d.owner, "il cucciolo prenotato"), gdF("#dep_bon_a", "Bonifico: importo", "", ""), gdF("#dep_bon_d", "Bonifico: data", "", ""), gdF("#dep_cash_a", "Contanti: importo", "", ""), gdB("depGo", "", "Tocca \xabSalva\xbb o \xabWhatsApp\xbb", "WhatsApp manda anche la ricevuta.", "") ]
+ },
+ wlNew: {
+  n: "Una richiesta nuova",
+  base: gdCnt(() => (D.waitlist || []).length),
+  done: b => (D.waitlist || []).length > b,
+  why: gdW("La lista d'attesa", "Chi chiede un cucciolo va in lista d'attesa con le sue preferenze: quando nascono, sai a chi scrivere e in che ordine.", [ "Assegnazione dei cuccioli", "Messaggi a tutta la lista" ], "Un minuto."),
+  end: "Fatto: la persona \xe8 in lista d'attesa.",
+  S: [ gdNavS("attesa", "Attesa", ""), gdB("wlNew", "", "Tocca \xabNuova\xbb", "", "", () => !!document.getElementById("wln")), gdF("#wln", "Nome", "", "", 1), gdF("#wlp", "Telefono", "Per WhatsApp.", ""), gdF("#wlc", "Citt\xe0", "", ""), gdF("#wlt", "Cosa cerca e note", "", "Lo ritrovi quando assegni i cuccioli."), gdSave("wlSave") ]
+ },
+ wlAss: {
+  n: "Assegnare un cucciolo",
+  base: () => 0,
+  done: gdDone1("wlAssignDo"),
+  why: gdW("Assegnare un cucciolo", "Dalla lista d'attesa scegli la persona e il cucciolo: diventa una famiglia prenotata, pronta per acconto e contratto.", [ "Proprietari", "Scheda del cucciolo" ], "Un minuto."),
+  end: "Fatto: il cucciolo \xe8 assegnato.",
+  S: [ gdNavS("attesa", "Attesa", ""), gdB("wlOpen", "", "Tocca la persona", "", "", () => !!document.querySelector('#sheet [data-a="wlAssign"]')), gdB("wlAssign", "", "Tocca \xabAssegna un cucciolo\xbb", "", ""), gdI(() => gdVis('#sheet [data-a="wlAssignDo"]') || gdVis("#sheet"), "Scegli il cucciolo", "E conferma.", "") ]
+ },
+ wlAll: {
+  n: "Messaggio a tutti",
+  base: () => 0,
+  done: gdDone1("wlSendAll", "wbSent"),
+  why: gdW("Un messaggio a tutta la lista", "Per annunciare una cucciolata a tutti quelli in attesa: il messaggio \xe8 gi\xe0 scritto e tradotto per chi \xe8 straniero.", [ "WhatsApp" ], "Due minuti."),
+  end: "Fatto.",
+  S: [ gdNavS("attesa", "Attesa", ""), gdB("wlAll", "", "Tocca \xabMessaggio a tutti\xbb", "", ""), gdF("#wb_it", "Il messaggio", "Cambialo se vuoi.", ""), gdI(() => gdVis("#sheet .actions") || gdVis("#sheet"), "Manda", "Uno per uno su WhatsApp.", "") ]
+ },
+ trIn: {
+  n: "Tradurre un messaggio",
+  base: () => 0,
+  done: gdDone1("trIn"),
+  why: gdW("Tradurre", "Incolli un messaggio in qualsiasi lingua e lo leggi in italiano.", [ "Famiglie straniere", "Allevatori esteri" ], "Dieci secondi."),
+  end: "Fatto.",
+  S: [ gdNavS("traduci", "Traduci", ""), gdF("#tr_in", "Incolla il messaggio", "", "", 1), gdSave("trIn", "Tocca \xabTraduci in italiano\xbb") ]
+ },
+ trOut: {
+  n: "Rispondere in un'altra lingua",
+  base: () => 0,
+  done: gdDone1("trOut", "trWa"),
+  why: gdW("Rispondere", "Scrivi in italiano e il gestionale traduce nella lingua giusta, pronto per WhatsApp.", [ "Famiglie straniere" ], "Trenta secondi."),
+  end: "Fatto.",
+  S: [ gdNavS("traduci", "Traduci", ""), gdF("#tr_it", "Scrivi in italiano", "", "", 1), gdF("#tr_lang", "La lingua", "", ""), gdB("trOut", "", "Tocca \xabTraduci\xbb", "", ""), gdSave("trWa", "Tocca \xabWhatsApp\xbb") ]
+ },
+ rv: {
+  n: "Rispondere a una recensione",
+  base: () => 0,
+  done: gdDone1("rvPub"),
+  why: gdW("Le recensioni Google", "Le nuove recensioni arrivano qui: Claude scrive la risposta, tu la controlli e la pubblichi.", [ "Profilo Google", "Pagina Oggi" ], "Un minuto."),
+  end: "Fatto: la risposta \xe8 su Google.",
+  S: [ gdNavS("recensioni", "Google", ""), gdB("rvSub", "rev", "Tocca \xabRecensioni\xbb", "", ""), gdB("rvGen", "", "Tocca \xabScrivi la risposta\xbb", "Sotto la recensione.", "Se vuoi scrivi uno spunto."), gdSave("rvPub", "Controlla e pubblica") ]
+ },
+ gpost: {
+  n: "Un post su Google",
+  base: () => 0,
+  done: gdDone1("gpPub", "gpFreePub"),
+  why: gdW("I post su Google", "Un post con foto sul profilo Google tiene vivo l'allevamento nelle ricerche.", [ "Profilo Google" ], "Due minuti."),
+  end: "Fatto: il post \xe8 su Google.",
+  S: [ gdNavS("recensioni", "Google", ""), gdB("rvSub", "post", "Tocca \xabPost\xbb", "", ""), gdB("gpFree", "", "Tocca \xabScrivi un post\xbb", "O \xabPrepara il post\xbb su uno spunto.", ""), gdSave("gpFreePub", "Controlla e pubblica") ]
+ },
+ gvid: {
+  n: "Un video per Google",
+  base: () => 0,
+  done: gdDone1("vdGo"),
+  why: gdW("I video", "Un video breve dei cuccioli, preparato per il profilo Google.", [ "Profilo Google" ], "Due minuti."),
+  end: "Fatto.",
+  S: [ gdNavS("recensioni", "Google", ""), gdB("rvSub", "vid", "Tocca \xabVideo\xbb", "", ""), gdSave("vdGo", "Tocca \xabPrepara il video per Google\xbb") ]
+ },
+ stat: {
+  n: "Leggere le statistiche",
+  base: () => 0,
+  done: () => false,
+  why: gdW("Le statistiche", "Quanti cuccioli per cucciolata, gestazione media, fattrici e stalloni; e le visite al sito.", [ "Scelte di allevamento" ], "Un minuto."),
+  end: "Fatto.",
+  S: [ gdNavS("statistiche", "Statistiche", ""), gdI(() => gdVis(gdK("stSub", "alle")), "Allevamento", "Cucciolate, nati, gestazione.", ""), gdI(() => gdVis(gdK("stSub", "sito")), "Sito web", "Visite e pagine pi\xf9 viste.", "") ]
+ },
+ contiIn: {
+  n: "Prezzi e entrate",
+  base: () => 0,
+  done: gdDone1("acPriceSave", "acIncSave"),
+  why: gdW("I conti della cucciolata", "Prezzo di ogni cucciolo, acconti, saldi e altre entrate: vedi quanto rende ogni cucciolata.", [ "Conti", "Contratti" ], "Un minuto."),
+  end: "Fatto.",
+  S: [ gdNavS("conti", "Conti", ""), gdB("acOpen", "", "Apri i conti della cucciolata", "", ""), gdB("acPrice", "", "Tocca un cucciolo per il prezzo", "", "", () => !!document.getElementById("acp") || GD.clk.has("acInc")), gdF("#acp", "Il prezzo", "", ""), gdSave("acPriceSave") ]
+ },
+ contiSp: {
+  n: "Spese e fatture",
+  base: () => 0,
+  done: gdDone1("acExpSave", "gvSave"),
+  why: gdW("Le spese", "Ogni spesa (veterinario, cibo, ENCI) va nella cucciolata o nelle spese generali; con la foto della fattura la legge Claude.", [ "Conti" ], "Un minuto."),
+  end: "Fatto.",
+  S: [ gdNavS("conti", "Conti", ""), gdB("acOpen", "gen", "Apri le spese generali", "O i conti di una cucciolata.", ""), gdB("acExp", "", "Tocca \xabAggiungi spesa\xbb", "Oppure \xabCarica fattura\xbb: la legge Claude.", "", () => !!document.getElementById("acv")), gdF("#acd", "Data", "", ""), gdF("#acv", "Importo", "", "", 1), gdF("#acc", "Voce", "Veterinario, cibo…", ""), gdSave("acExpSave") ]
+ },
+ hp: {
+  n: "Piano sanitario",
+  base: () => JSON.stringify((D.settings || {}).health || {}),
+  done: b => JSON.stringify((D.settings || {}).health || {}) !== b,
+  why: gdW("Il piano sanitario", "Decidi tu, con il veterinario, i periodi di pulci e zecche, filaria, leishmania, i richiami e i vermifughi: da qui nascono gli avvisi in Scadenze.", [ "Scadenze e Oggi", "Vermifugo in gravidanza e ai cuccioli" ], "Due minuti."),
+  end: "Fatto: gli avvisi seguono le tue regole.",
+  S: [ gdAcc, gdI(gdSec("ac-Piano sanitario"), "Apri \xabPiano sanitario\xbb", "", ""), gdI(() => gdVis(".hp-r"), "Ogni riga", "S\xec/No, ogni quanti giorni e da che mese a che mese.", "Si salva da solo."), gdI(() => gdVis(".hp-vet"), "Il veterinario", "Scrivi le sue indicazioni.", "") ]
+ },
+ chi: {
+  n: "Chi entra e cosa pu\xf2 fare",
+  base: () => 0,
+  done: gdDone1("acSave"),
+  why: gdW("Le persone", "Dai l'accesso a chi ti aiuta (un familiare, un handler) scegliendo per ogni sezione: No, Vede, Modifica.", [ "Accesso sicuro con la sua email" ], "Due minuti."),
+  end: "Fatto.",
+  S: [ gdAcc, gdB("acEd", "people", "Apri \xabChi entra\xbb", "", "", () => !!document.getElementById("acp_new")), gdF("#acp_new", "L'email", "", "", 1), gdB("acPpAdd", "", "Tocca \xabAggiungi\xbb", "", ""), gdSave("acSave") ]
+ },
+ coll: {
+  n: "Collegamenti",
+  base: () => 0,
+  done: () => false,
+  why: gdW("I collegamenti", "Claude (traduzioni e letture), Google (recensioni e statistiche), Drive (documenti).", [ "Tutte le letture da foto" ], "Due minuti."),
+  end: "Fatto.",
+  S: [ gdAcc, gdI(gdSec("ac-Collegamenti"), "Apri \xabCollegamenti\xbb", "Vedi cosa \xe8 attivo.", ""), gdI(() => gdVis('[data-a="acReload"]'), "Controlla di nuovo", "", "") ]
+ },
+ barra: {
+  n: "Barra in basso sul telefono",
+  base: () => 0,
+  done: gdDone1("acNbSave"),
+  why: gdW("La barra del telefono", "Scegli le 4 sezioni che usi di pi\xf9: le trovi in basso sul telefono.", [ "Telefono" ], "Trenta secondi."),
+  end: "Fatto.",
+  S: [ gdAcc, gdB("acNbT", "", "Tocca le sezioni", "In ordine.", ""), gdSave("acNbSave") ]
+ }
+});
+
+GUIDES.oggi.S.slice(2).forEach(gdO);
+
+GUIDES.cane.S = [ gdCani, gdB("dogForm", "", "Tocca \xabNuovo cane\xbb", "\xc8 in alto a destra nella pagina Cani.", "Da qui si aggiunge ogni cane, anche un maschio esterno che usi per una monta.", () => gdSh("#fn")), gdCF("cane"), gdF("#fn", "Nome completo", "Come sul pedigree, con l'affisso.", "\xc8 il nome che va sui moduli ENCI.", 1), gdF("#fk", "Soprannome", "Il nome di casa.", "Lo vedi negli elenchi e nei messaggi."), gdF("#fs", "Sesso", "", "Serve per accoppiamenti, calori e moduli.", 1), gdF("#fb", "Nascita", "", "Calcola et\xe0 e regole ENCI."), gdF("#fl", "LOI", "", "Il numero del libro genealogico."), gdF("#fm", "Microchip", "", "Serve per anagrafe e moduli."), gdI(() => gdVis('.cb[data-for="fsi"]'), "Padre e madre", "Scegli dall'archivio o \xabAggiungi\xbb.", "Servono per il COI."), gdF("#fst", "Stato", "In casa, fattrice, ceduto, esterno…", "Decide in quali elenchi compare."), gdSave("saveDog", "Tocca \xabSalva cane\xbb") ];
+
+GUIDES.cucc.S = [ gdNavS("cucciolate", "Cucciolate", "Qui ci sono le cucciolate in programma e quelle nate."), gdB("litterForm", "", "Tocca \xabAggiungi\xbb", "\xc8 in alto a destra.", "Una cucciolata si pu\xf2 segnare dalla monta oppure gi\xe0 nata.", () => gdSh("#lm")), gdCF("litter"), gdF("#lm", "La madre", "Deve essere gi\xe0 in Cani.", "", 1), gdF("#lp", "Il padre", "Anche esterno.", "", 1), gdF("#ld", "Data di nascita", "Lasciala vuota se \xe8 in programma.", "Senza data resta pianificata."), gdF("#ln", "Numero dei cuccioli", "", "Li crea gi\xe0 collegati ai genitori."), gdSave("saveLitter", "Tocca \xabSalva cucciolata\xbb") ];
+
+GUIDES.prenota.S = [ gdNavS("proprietari", "Proprietari", "Qui ci sono le famiglie."), gdB("ownerForm", "", "Tocca \xabAggiungi proprietario\xbb", "", "", () => gdSh("#on") || Object.keys(D.owners || {}).length > (GD.base.owners || 0)), gdCF("famiglia"), gdF("#on", "Nome", "", "", 1), gdF("#op", "Telefono", "", "Per i messaggi WhatsApp gi\xe0 pronti."), gdF("#oa", "Indirizzo", "", "Va nel contratto."), gdF("#olang", "Lingua della pagina privata", "", "Italiano o inglese."), {
+ t: "Tocca \xabSalva proprietario\xbb",
+ p: "",
+ w: "",
+ el: () => gdVis('#sheet [data-a="saveOwner"]'),
+ ok: () => Object.keys(D.owners || {}).length > (GD.base.owners || 0)
+}, gdCani, gdOpenDog, {
+ t: "Tocca \xabModifica\xbb",
+ p: "\xc8 in alto nella scheda del cucciolo.",
+ w: "Nella scheda si collega il cucciolo alla sua famiglia.",
+ el: () => gdVis('#main [data-a="editOn"]'),
+ ok: () => typeof EDIT !== "undefined" && EDIT === view
+}, gdF("#ef_owner", "Scegli la famiglia", "Nel campo \xabProprietario\xbb.", "Da qui partono pagina privata, contratto e passaggio di propriet\xe0.", 1), gdSave("editSave") ];
+
+GUIDES.vacc.S = [ gdCani, gdOpenDog, gdB("hForm", "", "Nella parte Salute tocca \xabAggiungi\xbb", "Su Vaccinazioni (o Sverminazioni, Pulci e zecche, Leishmania e filaria).", "Ogni voce di salute ha il suo elenco.", () => gdSh("#hd")), gdF("#hd", "La data", "", "", 1), gdF("#hp", "Il prodotto", "Il nome del vaccino o del prodotto.", "", 1), gdF("#hn", "Prossimo richiamo", "Se il veterinario l'ha scritto; se no lo calcola il Piano sanitario.", ""), gdF("#hf", "Allegato", "Foto del libretto, facoltativa.", ""), gdSave("hSave") ];
+
+GUIDES.doc.S = [ gdCani, gdOpenDog, gdB("docForm", "", "In \xabReferti e documenti\xbb tocca \xabAggiungi\xbb", "", "", () => gdSh("#dt")), gdF("#dfile", "Scegli la foto o il PDF", "", "Dal telefono puoi fotografare il foglio.", 1), gdB("docAi", "", "Tocca \xabLeggi con Claude\xbb", "Facoltativo: compila titolo e data.", ""), gdF("#dt", "Titolo", "", "", 1), gdF("#dpriv", "Privato", "Se \xe8 spuntato la famiglia non lo vede.", ""), gdSave("docSave") ];
+
+GUIDES.copie.S = [ gdB("exportData", "", "Tocca \xabCopia di sicurezza\xbb", "\xc8 in alto, accanto a \xabSalvato alle…\xbb.", "Da qui vedi tutte le copie dei giorni passati.", () => gdSh('[data-a="bkNow"]')), gdI(() => gdVis("#sheet"), "Le copie automatiche", "Una al giorno, tenute 90 giorni: si possono ripristinare da qui.", "Se sbagli qualcosa, torni a ieri."), gdSave("bkNow", "Tocca \xabScarica una copia adesso\xbb", "Il file si salva nei download.", "Tienila in una cartella sicura.") ];
+
+// Sezioni: in ogni pagina un solo «Guidami» con le guide di quella pagina.
+const GD_SEC = [ [ "oggi", "Oggi", [ "oggi" ] ], [ "agenda", "Agenda", [ "agApp", "agMsg", "agTel" ] ], [ "scadenze", "Scadenze", [ "scUse", "scPro", "scBell", "vacc", "dna" ] ], [ "cani", "Cani", [ "cane", "foto", "pedi", "vacc", "libro", "test", "doc", "calori", "tempe", "expoRes" ] ], [ "cucciolate", "Cucciolate", [ "cucc", "nascita", "pesate", "modA", "modB", "adv", "sito" ] ], [ "esposizioni", "Esposizioni", [ "expo", "expoIscr", "expoRes" ] ], [ "coi", "Accoppiamenti", [ "coi", "coiSug", "pedi", "coiShare", "coiPdf" ] ], [ "anagrafe", "Anagrafe", [ "anIscr", "anAcq" ] ], [ "pappa", "Alimentazione", [ "crocc", "barf" ] ], [ "proprietari", "Proprietari", [ "prenota", "dep", "contr", "pp", "famPag", "nv" ] ], [ "attesa", "Attesa", [ "wlNew", "wlAss", "wlAll" ] ], [ "traduci", "Traduci", [ "trIn", "trOut" ] ], [ "recensioni", "Google", [ "rv", "gpost", "gvid" ] ], [ "statistiche", "Statistiche", [ "stat" ] ], [ "conti", "Conti", [ "contiIn", "dep", "contiSp" ] ], [ "account", "Account", [ "allev", "firma", "enti", "hp", "chi", "coll", "barra", "copie" ] ] ];
+
+const gdDoneL = () => {
+ try {
+  return JSON.parse(localStorage.getItem("gdDone") || "[]");
+ } catch (e) {
+  return [];
+ }
+};
+
+function gdMarkDone(k) {
+ try {
+  const L = gdDoneL();
+  if (!L.includes(k)) localStorage.setItem("gdDone", JSON.stringify(L.concat([ k ])));
+ } catch (e) {}
+}
+
+const gdNSteps = k => (GUIDES[k].S || []).length;
+
+function gdMenu(sec) {
+ const S = GD_SEC.find(x => x[0] === sec);
+ if (!S) return gdAll();
+ const dn = gdDoneL(), tot = GD_SEC.reduce((n, x) => n + x[2].length, 0);
+ sheet(`<h2 style="margin-top:0">Guide di ${esc(S[1])}</h2><p class="row-meta" style="margin:0 0 8px">Scegli cosa vuoi fare: ti accompagno passo passo, con il perch\xe9 di ogni passo.</p><div class="gd-list">${S[2].filter(k => GUIDES[k]).map(k => `<div class="gd-li"><span><b>${esc(GUIDES[k].n)}</b><small>${gdNSteps(k)} passi</small></span>${dn.includes(k) ? '<span class="gd-dn">fatta</span>' : ""}<button class="btn small ${dn.includes(k) ? "ghost" : "gd"}" data-a="guide" data-v="${k}">Avvia</button></div>`).join("")}</div><div class="actions"><button class="btn ghost" data-gdall="1">Tutte le guide (${new Set(GD_SEC.flatMap(x => x[2])).size})</button><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+}
+
+function gdAll() {
+ const dn = gdDoneL();
+ sheet(`<h2 style="margin-top:0">Tutte le guide</h2><p class="row-meta" style="margin:0 0 8px">Una per ogni cosa che si fa nel gestionale, divise per sezione.</p>${GD_SEC.map(([s, t, L]) => `<div class="gd-sec"><h3>${esc(t)}</h3>${L.filter(k => GUIDES[k]).map(k => `<div class="gd-li"><span><b>${esc(GUIDES[k].n)}</b><small>${gdNSteps(k)} passi</small></span>${dn.includes(k) ? '<span class="gd-dn">fatta</span>' : ""}<button class="btn small ${dn.includes(k) ? "ghost" : "gd"}" data-a="guide" data-v="${k}">Avvia</button></div>`).join("")}</div>`).join("")}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+}
+
+function gdDecorate() {
+ if (!gdOn() || RO || typeof OWNER_MODE !== "undefined") return;
+ const m = document.getElementById("main");
+ if (!m || m.querySelector(".gd-pg")) return;
+ const sec = GD_SEC.some(x => x[0] === tab) ? tab : "";
+ if (!sec) return;
+ const h = `<button class="btn small gd gd-pg" data-gdm="${sec}">Guidami</button>`;
+ const a = m.querySelector(".pgh-a") || m.querySelector(".toolbar") || m.querySelector(".idc-acts");
+ if (a) a.insertAdjacentHTML("afterbegin", h); else {
+  const t = m.querySelector("h1");
+  t && t.insertAdjacentHTML("afterend", `<div class="gd-row">${h}</div>`);
+ }
+}
+
+document.addEventListener("click", e => {
+ const b = e.target.closest && e.target.closest("[data-gdm],[data-gdall],[data-gdn]");
+ if (!b) return;
+ e.preventDefault();
+ if (b.dataset.gdm) gdMenu(b.dataset.gdm); else if (b.dataset.gdall) gdAll(); else if (b.dataset.gdn) {
+  GD.nx = GD.nx || new Set;
+  GD.nx.add(b.dataset.gdn);
+  gdTick();
+ }
+});
+
 // Compila da foto o documento (25/10/2026): in cima ai moduli una riga con «Foto» e «File». Una foto vale come un PDF:
 // Claude legge (task ai «compila») e riempie i campi, che restano in verde finché non si salva. Funziona per tutti i moduli
 // riconosciuti da cfKind(); il documento resta allegato dove ha senso (cane, pedigree, esposizione, anagrafe).
@@ -4525,6 +5118,7 @@ const CF_H = {
  rp: "Foto del referto o del foglio scritto a mano: data, valore e note",
  litter: "Foto del Modello A o del foglio della cucciolata: genitori, nascita, cuccioli",
  w: "Foto del foglio delle pesate, anche scritto a mano",
+ nasc: "Foto del foglio del parto, anche scritto a mano: ora, collarino e peso di ogni cucciolo",
  famiglia: "Foto della carta d'identit\xe0 o della tessera sanitaria: nome, nascita, indirizzo",
  ppb: "Foto del documento dell'acquirente: nascita, codice fiscale, residenza",
  inc: "Foto della ricevuta del bonifico o dello screenshot del pagamento",
@@ -4559,6 +5153,7 @@ function cfKind() {
   if (q(S, "#rpd")) return [ "rp", at(S, "#rpd") ];
   if (q(S, "#lm") && q(S, "#lp")) return [ "litter", at(S, "#lm") ];
   if (q(S, "#wd") && q(S, ".wgrid")) return [ "w", at(S, "#wd") ];
+  if (q(S, "#bt") && q(S, '[id^="bo_"]')) return [ "nasc", at(S, "#bt") ];
   if (q(S, "#on") && q(S, "#obp")) return [ "famiglia", at(S, "#on") ];
   if (q(S, "#pp_bcf")) return [ "ppb", at(S, "#pp_bna") ];
   if (q(S, "#aiv") && q(S, "#ait")) return [ "inc", at(S, "#aid") ];
@@ -4759,6 +5354,16 @@ const CF_FILL = {
    const e = document.getElementById("wd");
    e && e.classList.add("cf-ai");
   }
+  return n;
+ },
+ nasc: f => {
+  let n = cfSet("bt", f.type) + cfSet("bs", f.start) + cfSet("bn", f.note);
+  const I = [ ...document.querySelectorAll('input[id^="bo_"]') ].map(e => e.id.slice(3));
+  (f.pups || []).slice(0, I.length).forEach((p, i) => {
+   const k = I[i];
+   n += cfSet("bo_" + k, i + 1) + cfSet("bh_" + k, p.time) + cfSet("bc_" + k, p.collar) + (p.g ? cfSet("bw_" + k, Math.round(p.g)) : 0);
+  });
+  if ((f.pups || []).length > I.length) n += cfNote("bn", "Nel foglio ci sono " + f.pups.length + " cuccioli, qui " + I.length + ": aggiungi gli altri dalla cucciolata.");
   return n;
  },
  famiglia: f => cfSet("on", f.name) + cfSet("oc", f.country) + cfSet("op", f.phone) + cfSet("oe", f.email) + cfSet("oa", f.addr) + cfSet("obp", f.bplace) + cfSet("obd", f.bdate) + (f.cf ? cfNote("ono", "Codice fiscale: " + f.cf.toUpperCase()) : 0),
