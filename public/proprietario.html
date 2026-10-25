@@ -304,6 +304,7 @@ nav.side .navbtn{padding:6px 8px;color:var(--ink);font-weight:500;font-size:.93r
 nav.side .navbtn[aria-current="true"]{background:#EEF0F3;color:var(--ink);font-weight:600}nav.side .navbtn[aria-current="true"] .nlb{border-bottom:2px solid var(--accent)}
 .nsq{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex:none}nav.side .nsq svg{width:15px;height:15px}.nlb{flex:1;min-width:0}
 nav.side .navbtn .nb{background:#F3E3E1;color:var(--accent)}
+.gsx{position:relative;flex:1 1 240px;max-width:420px;min-width:0}.gsx input{width:100%;font:inherit;font-size:.95rem;padding:7px 10px 7px 32px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);outline:0}.gsx input:focus{border-color:#3E5C76}.gsx>svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}.gs-res{position:absolute;left:0;top:calc(100% + 6px);width:max(100%,min(520px,92vw));background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px rgba(28,34,48,.18);max-height:70vh;overflow:auto;z-index:60;text-align:left;font-size:.92rem;color:var(--ink)}.gs-g{padding:4px 0;border-bottom:1px solid var(--line)}.gs-h{display:flex;justify-content:space-between;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:6px 14px 3px}.gs-i{display:flex;gap:10px;align-items:center;width:100%;padding:7px 14px;background:none;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit}.gs-i:hover,.gs-i.sel{background:#F1F4F8}.gs-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex:none;background:#5C6472}.gs-cani{background:#7A5A3A}.gs-own{background:#4E7A5A}.gs-lit{background:#6B5A8A}.gs-wait{background:#3E5C76}.gs-t{min-width:0;flex:1}.gs-t b{font-weight:600}.gs-t small{display:block;color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gs-tag{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 7px;white-space:nowrap}.gs-res mark{background:#FFF1B8;color:inherit;border-radius:2px}.gs-more,.gs-foot{padding:6px 14px;font-size:.76rem;color:var(--muted)}.gs-foot{border-top:1px solid var(--line)}.gs-none{padding:12px 14px;margin:0;color:var(--muted)}@media(max-width:520px){.gsx{flex:1 1 100%;max-width:none;order:1}.banner.sbar .sb-l{order:2}.gs-res{width:100%}}
 .banner.sbar{background:none;color:var(--muted);border-radius:0;border-bottom:1px solid var(--line);padding:0 0 10px;margin:0 0 18px;display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;font-size:.82rem}
 .sb-s{display:flex;align-items:center;gap:7px}.sb-s i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;flex:none}.sbar.err .sb-s{color:var(--warn)}.sbar.err .sb-s i{background:var(--warn)}
 .sb-l{display:flex;gap:16px}.sb-l>*{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}.sb-l>*:hover{color:var(--ink)}
@@ -7961,6 +7962,60 @@ function dogDel(id){const d=D.dogs[id];if(!d||dogLinks(id).length)return;const n
   Object.keys(D.matings||{}).forEach(k=>{if(k.split("|").includes(id))delete D.matings[k]});
   if(typeof mateS!=="undefined"&&mateS===id)mateS=null;if(typeof mateD!=="undefined"&&mateD===id)mateD=null;
   closeSheet();EDIT=null;EDIRTY=false;view=null;tab="cani";resetCalc();render();typeof saveNow==="function"&&saveNow();toast(esc(n)+" eliminato.")}
+/* ---------- Cerca in tutto il gestionale (26/10/2026, anteprima 45 approvata da Paolo) ----------
+   Campo #gsq nella fascia in alto (bannerHtml, solo index.html): cani, famiglie, cucciolate, lista d'attesa, documenti dei cani.
+   Solo le sezioni che la persona può vedere (PERM). Tocco, o frecce e Invio → apre la scheda (gsGo). Esc chiude. */
+let GSR=[],GSS=-1;
+const gsN=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function gsHl(t,q){t=String(t||"");const i=gsN(t).indexOf(q);return i<0||!q?esc(t):esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+q.length))+"</mark>"+esc(t.slice(i+q.length))}
+const gsVis=k=>!window.PERM||(window.PERM[k]||0)>=1;
+const gsDn=id=>{const d=D.dogs[id];return d?(d.nick||d.name):""};
+function gsLit(l){return (gsDn(l.dam)||"?")+" × "+(gsDn(l.sire)||"?")}
+const GS_IC={cani:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 11c0-3 2-6 7-6s7 3 7 6v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><circle cx="9.5" cy="12" r=".8" fill="#fff"/><circle cx="14.5" cy="12" r=".8" fill="#fff"/></svg>',
+  own:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  lit:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+  wait:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  doc:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>'};
+function gsFind(q){const G=[],has=s=>gsN(s).includes(q),own=id=>(D.owners||{})[id];
+  if(gsVis("cani")){const L=[];for(const[k,d]of Object.entries(D.dogs||{})){const o=own(d.owner);if(!has(d.name+" "+(d.nick||"")+" "+(d.loi||"")+" "+(d.chip||"")+" "+(o?o.name:"")))continue;
+      const l=d.litter&&D.litters[d.litter],g=typeof sxGroup==="function"?sxGroup(d)[0]:"";
+      L.push({go:["dog",k],sx:d.sex,n:d.name,k:d.nick,tag:g,sub:[o?"famiglia "+o.name:"",l?gsLit(l)+(l.date?", "+fmt(l.date):""):"",d.loi||"",d.chip?"microchip "+d.chip:""].filter(Boolean).join(" · ")})}
+    L.sort((a,b)=>(gsN(a.n).startsWith(q)?0:1)-(gsN(b.n).startsWith(q)?0:1)||a.n.localeCompare(b.n));if(L.length)G.push(["Cani","cani",L])}
+  if(gsVis("proprietari")){const L=[];for(const[k,o]of Object.entries(D.owners||{})){if(!has((o.name||"")+" "+(o.addr||"")+" "+(o.phone||"")+" "+(o.email||"")+" "+(o.country||"")))continue;
+      const pups=Object.values(D.dogs||{}).filter(d=>d.owner===k).map(d=>d.name+(d.nick?" «"+d.nick+"»":""));
+      L.push({go:["own",k],n:o.name||"(senza nome)",sub:[o.addr||o.country||"",pups.join(", ")].filter(Boolean).join(" · ")})}
+    L.sort((a,b)=>a.n.localeCompare(b.n));if(L.length)G.push(["Famiglie","own",L])}
+  if(gsVis("cucciolate")){const L=[];for(const[k,l]of Object.entries(D.litters||{})){const fam=Object.values(D.dogs||{}).filter(d=>d.litter===k&&own(d.owner)).map(d=>own(d.owner).name);
+      const t=gsLit(l)+" "+((D.dogs[l.dam]||{}).name||"")+" "+((D.dogs[l.sire]||{}).name||"")+" "+(l.date?fmt(l.date):"")+" "+fam.join(" ");if(!has(t))continue;
+      L.push({go:["lit",k],n:gsLit(l),sub:[l.state==="pianificata"?"In programma":l.date?"Nata il "+fmt(l.date):"",fam.length?"famiglie: "+fam.slice(0,3).join(", ")+(fam.length>3?"…":""):""].filter(Boolean).join(" · "),d:l.date||"9"})}
+    L.sort((a,b)=>String(b.d).localeCompare(String(a.d)));if(L.length)G.push(["Cucciolate","lit",L])}
+  if(gsVis("attesa")){const L=(D.waitlist||[]).filter(w=>has((w.name||"")+" "+(w.city||"")+" "+(w.phone||"")+" "+(w.email||"")))
+      .map(w=>({go:["wait",w.id],n:w.name||"(senza nome)",sub:[w.city||"",w.status==="dropped"?"ha rinunciato":"",w.litter&&D.litters[w.litter]?gsLit(D.litters[w.litter]):""].filter(Boolean).join(" · ")}));if(L.length)G.push(["Lista d'attesa","wait",L])}
+  if(gsVis("cani")){const L=[];for(const[k,d]of Object.entries(D.dogs||{}))(d.docs||[]).forEach(x=>{if(x&&x.title&&has(x.title+" "+d.name+" "+(d.nick||"")))L.push({go:["dog",k],n:x.title+" – "+(d.nick||d.name),sub:(x.date?fmt(x.date):"")+(x.private?" · privato":""),d:x.date||""})});
+    L.sort((a,b)=>String(b.d).localeCompare(String(a.d)));if(L.length)G.push(["Documenti","doc",L])}
+  return G}
+function gsShow(){const inp=$("#gsq"),box=$("#gsres");if(!inp||!box)return;const raw=inp.value.trim(),q=gsN(raw);
+  if(q.length<2){box.hidden=true;return}
+  const G=gsFind(q);GSR=[];GSS=-1;
+  box.innerHTML=G.length?G.map(([lab,ic,L])=>`<div class="gs-g"><div class="gs-h"><span>${lab}</span><span>${L.length}</span></div>`+L.slice(0,6).map(x=>{GSR.push(x.go);const i=GSR.length-1;
+      return `<button type="button" class="gs-i" data-gs="${i}"><span class="gs-ic gs-${ic}">${GS_IC[ic==="cani"?"cani":ic]}</span><span class="gs-t"><b>${x.sx?`<span class="${x.sx==="F"?"sx-f":"sx-m"}">${x.sx==="F"?"♀":"♂"}</span> `:""}${gsHl(x.n,q)}${x.k?" «"+gsHl(x.k,q)+"»":""}</b><small>${gsHl(x.sub||"",q)}</small></span>${x.tag?`<span class="gs-tag">${esc(x.tag)}</span>`:""}</button>`}).join("")+(L.length>6?`<div class="gs-more">e altri ${L.length-6}: scrivi qualche lettera in più</div>`:"")+`</div>`).join("")+`<div class="gs-foot">↑↓ per scegliere · Invio per aprire · Esc per chiudere</div>`
+    :`<p class="gs-none">Niente trovato per «${esc(raw)}».</p>`;
+  box.hidden=false}
+function gsGo(i){const g=GSR[i];if(!g)return;const box=$("#gsres"),inp=$("#gsq");if(box)box.hidden=true;if(inp){inp.value="";inp.blur()}
+  const [t,id]=g,run=()=>{
+    if(t==="dog"){openItem(id);return}
+    if(t==="own"){tab="proprietari";view=id;render();scrollTo(0,0);return}
+    if(t==="lit"){tab="cucciolate";view=null;render();scrollTo(0,0);litterSheet(id);return}
+    if(t==="wait"){tab="attesa";view=null;render();scrollTo(0,0);wlForm(id)}};
+  if(typeof leaveOk==="function"&&!leaveOk(run))return;run()}
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="gsq")gsShow()});
+document.addEventListener("focusin",e=>{if(e.target&&e.target.id==="gsq")gsShow()});
+document.addEventListener("keydown",e=>{if(!e.target||e.target.id!=="gsq")return;const box=$("#gsres");if(e.key==="Escape"){if(box)box.hidden=true;return}
+  if(!box||box.hidden)return;const b=[...box.querySelectorAll(".gs-i")];if(!b.length)return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();GSS=(GSS+(e.key==="ArrowDown"?1:-1)+b.length)%b.length;b.forEach((x,i)=>x.classList.toggle("sel",i===GSS));b[GSS].scrollIntoView({block:"nearest"})}
+  else if(e.key==="Enter"){e.preventDefault();gsGo(+b[GSS>=0?GSS:0].dataset.gs)}});
+document.addEventListener("click",e=>{const it=e.target.closest&&e.target.closest(".gs-i");if(it){e.preventDefault();gsGo(+it.dataset.gs);return}
+  if(!(e.target.closest&&e.target.closest(".gsx"))){const box=$("#gsres");if(box)box.hidden=true}});
 /* ---------- Ricerca con suggerimenti (ottobre 2026, scelta di Paolo) ----------
    "Cerca in tutti i cani": cerca sempre in tutto l'archivio, qualunque filtro sia scelto; sotto il campo fino a 8
    suggerimenti (♂/♀, nome con le lettere evidenziate, soprannome, LOI o microchip, gruppo). Tocco o Invio → scheda. */

@@ -891,6 +891,10 @@ Accessi e copie
   evidenziate, gruppo (Mio/Esterno/Ceduto/Prenotato/Sterilizzata…). Tocco, o frecce e Invio, aprono la scheda.
   Il campo non filtra più l'elenco sotto (`q` resta vuoto): l'elenco segue solo i bottoni (scelta di Paolo).
 
+- Cerca in tutto il gestionale (26/10/2026, anteprima 45 approvata): campo `#gsq` nella fascia in alto (`bannerHtml`), risultati in
+  `#gsres` divisi in Cani, Famiglie, Cucciolate, Lista d'attesa, Documenti (`gsFind`, `gsShow`, `gsGo`; solo sezioni visibili per i
+  permessi). `refreshBanner` cambia solo «Salvato alle…» quando c'è il campo, così la ricerca non si perde. Blocco comune nei due file.
+
 ## Schede che non si aprono (ottobre 2026)
 - `dogDetail` è chiamata tramite `dogDetailSafe`: se la scheda va in errore, al posto del nulla compare un riquadro con il
   messaggio d'errore da mandare a Claude. Ogni sezione della scheda passa da `safe(()=>…,"nome")`: una sezione rotta
