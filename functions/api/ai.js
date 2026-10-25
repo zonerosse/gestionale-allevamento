@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2], libretto: [ "cani", 2 ] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -270,6 +270,32 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
       const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 30).map(x => ({ desc: String(x.desc || ""), cat: ["Crocchette", "Vaccini", "Visite", "Terapie", "Altro"].includes(x.cat) ? x.cat : "Altro", puppy: !!x.puppy, brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
       return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
+  // Libretto sanitario (25/10/2026): legge le foto delle pagine e restituisce vaccini e trattamenti da controllare
+  if (task === "libretto") {
+   const P = (Array.isArray(p.pages) ? p.pages : []).slice(0, 8), content = [];
+   for (const x of P) {
+    const data = String(x && x.data || "").replace(/^data:[^,]*,/, ""), media = String(x && x.media || "image/jpeg");
+    if (!data) continue;
+    content.push(media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
+     : { type: "image", source: { type: "base64", media_type: /^image\/(jpeg|png|gif|webp)$/.test(media) ? media : "image/jpeg", data } });
+   }
+   if (!content.length) return json({ ok: false, error: "Manca la foto del libretto." });
+   const dg = p.dog || {};
+   content.push({ type: "text", text: `Cane: ${String(dg.name || "").slice(0, 80)}${dg.birth ? ", nato il " + String(dg.birth).slice(0, 10) : ""}. Oggi è il ${new Date().toISOString().slice(0, 10)}.` });
+   const o = await ask(env, `Leggi le pagine del libretto sanitario (o passaporto europeo) di un cane, in qualsiasi lingua. Leggi TUTTO ed estrai ogni vaccinazione e trattamento registrato, con la sua data. Scrivi SOLO quello che c'è, senza inventare: se la data non si legge con sicurezza non mettere la voce e dillo in "unread".
+Rispondi con {"items":[...],"unread":""} dove ogni voce ha:
+- "t": "vacc" (vaccino polivalente o altro vaccino: cimurro, parvovirosi, epatite, leptospirosi, tosse dei canili, ecc.), "rab" (antirabbica), "vle" (vaccino contro la leishmania: LetiFend, CaniLeish, ecc.), "ple" (prevenzione leishmania con collare o spot repellente: Scalibor, Seresto, Advantix, ecc. se scritto come leishmania), "pfi" (prevenzione filaria: Cardotek, Milbemax se indicato per filaria, Nexgard Spectra, iniezione ProHeart, ecc.), "pz" (pulci e zecche: Bravecto, Nexgard, Simparica, Frontline, ecc.), "verm" (vermifugo / sverminazione: Drontal, Milbemax, Panacur, ecc.).
+- "date": data del trattamento AAAA-MM-GG (le date scritte a mano sono di solito GG/MM/AA europeo).
+- "prod": nome del prodotto come scritto sull'etichetta o a mano (es. "Nobivac DHPPi + L4"), o "".
+- "next": data del prossimo richiamo o della prossima dose SE scritta sul libretto (AAAA-MM-GG), altrimenti "".
+- "note": breve nota in italiano solo se utile (es. "valida 3 anni scritto sul libretto"), altrimenti "".
+Un vaccino che copre più malattie è UNA voce. Un prodotto contro pulci, zecche e filaria insieme: usa "pfi" se il libretto lo indica per la filaria, altrimenti "pz".
+"unread": una frase in italiano su righe che non riesci a leggere bene, altrimenti "".`, content, 3000);
+   const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "", T = ["vacc", "rab", "vle", "ple", "pfi", "pz", "verm"];
+   const items = (Array.isArray(o.items) ? o.items : []).slice(0, 80).map(x => ({ t: T.includes(x.t) ? x.t : "", date: D8(x.date), prod: String(x.prod || "").slice(0, 120), next: D8(x.next), note: String(x.note || "").slice(0, 160) })).filter(x => x.t && x.date);
+   if (!items.length) return json({ ok: false, error: "Non trovo vaccini o trattamenti da leggere. Prova con una foto più nitida, una pagina per foto." + (o.unread ? " " + String(o.unread).slice(0, 200) : "") });
+   return json({ ok: true, items, unread: String(o.unread || "").slice(0, 300) });
+  }
     if (task === "expo") {
    const content = [];
    if (p.url) {

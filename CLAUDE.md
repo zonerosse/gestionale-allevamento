@@ -543,6 +543,10 @@ Sito delpiccolodiavolo.it
   Pagine: Palmarès e sotto ogni cane in Femmine/Maschi, IT/EN/DE.
 - Piano sanitario: `settings.health` (Account → Piano sanitario, valori di partenza in `HP_DEF`); gli avvisi di salute suggeriti in
   Scadenze nascono da `hpSug()` (per cane) e `hpLit()` (vermifugo ai cuccioli). Sezione permessi `scadenze`.
+- Foto del libretto: tasto «Leggi il libretto» nella Salute del cane (`lbOpen`, `LB`), `/api/ai` task `libretto`; l'allevatore controlla
+  l'elenco e le voci spuntate vanno in `health`, le foto tra i documenti privati del cane. Guida `GUIDES.libro`.
+- Guide interattive (`GUIDES`, `gdStart`…, tasto Guida in alto `gdToggle`): stesso blocco della copia vergine kennel-manager;
+  se si cambia una guida, cambiarla in tutti e due. Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).
