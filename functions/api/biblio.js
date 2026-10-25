@@ -12,12 +12,17 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 
 async function ask(env, system, content, max, model) {
   // 25/10/2026 (letture interrotte): Claude occupato o sovraccarico (429, 500, 529…) → si aspetta e si riprova da soli
-  for (let i = 0, busy = 0; i < 2; i++) {
+  // 25/10/2026 («ha risposto in modo strano»): la risposta arriva come strumento «risposta», cioè un oggetto già pronto,
+  // non come testo da cui ritagliare il JSON (Haiku a volte scriveva JSON non valido). Se è troppo lunga si chiede più spazio.
+  let why = "";
+  for (let i = 0, busy = 0; i < 3; i++) {
     let r, j;
     try {
       r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
         headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model: model || MODEL, max_tokens: max || 2000, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
+        body: JSON.stringify({ model: model || MODEL, max_tokens: Math.round((max || 2000) * (i ? 1.6 : 1)), system: system + "\nRispondi chiamando lo strumento «risposta» con l'oggetto descritto.",
+          tools: [{ name: "risposta", description: "La risposta, con i campi chiesti.", input_schema: { type: "object", additionalProperties: true } }], tool_choice: { type: "tool", name: "risposta" },
+          messages: [{ role: "user", content }] }) });
       j = await r.json().catch(() => ({}));
     } catch (e) { r = { ok: false, status: 0 }; j = {}; }
     if (!r.ok) {
@@ -28,10 +33,13 @@ async function ask(env, system, content, max, model) {
       if ((r.status === 0 || r.status >= 500) && busy < 4) { busy++; i--; await wait(4000 * busy); continue; }
       throw new Error(r.status === 429 ? "limite al minuto dell'account Anthropic raggiunto (rate limit)" : r.status === 529 ? "Claude sovraccarico (529)" : r.status === 0 ? "Claude non raggiungibile" : "Claude " + r.status + ": " + m);
     }
+    const u = (j.content || []).find(c => c.type === "tool_use");
+    if (u && u.input && typeof u.input === "object" && Object.keys(u.input).length && j.stop_reason !== "max_tokens") return u.input;
     const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim(), a = t.indexOf("{"), z = t.lastIndexOf("}");
-    try { if (a >= 0 && z > a) return JSON.parse(t.slice(a, z + 1)); } catch (e) {}
+    try { if (a >= 0 && z > a && j.stop_reason !== "max_tokens") return JSON.parse(t.slice(a, z + 1)); } catch (e) {}
+    why = j.stop_reason === "max_tokens" ? "risposta troppo lunga" : "risposta senza dati (" + (j.stop_reason || "?") + ")";
   }
-  throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo.");
+  throw new Error("Claude ha risposto in modo strano: " + why + ". Riprova tra un attimo.");
 }
 
 async function tables(env) {
@@ -178,7 +186,8 @@ async function work(env, op, p, id, doc) {
     let part = { sec: [], sol: [] };
     if (txt) {
       const o = await ask(env, `Studia queste pagine di un documento veterinario (tesi, articolo o appunti) per un allevatore di cani. Leggi TUTTO. Scrivi in italiano semplice gli appunti dei punti importanti e pratici, con i valori e i numeri come sono scritti, e la pagina da cui vengono (i numeri [[p. N]]).
-Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 5000, FAST);
+Al massimo 12 argomenti e 10 soluzioni, punti brevi.
+Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 8000, FAST);
       part = { title: S(o.title, 200), sec: (Array.isArray(o.sec) ? o.sec : []).slice(0, 20).map(s => ({ t: S(s.t, 120), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 25).map(x => ({ x: S(x.x, 500), p: PG(x.p) })) })), sol: (Array.isArray(o.sol) ? o.sol : []).slice(0, 15).map(s => ({ q: S(s.q, 300), a: S(s.a, 700), p: PG(s.p) })) };
     }
     await env.DB.prepare("INSERT OR REPLACE INTO biblio_part (doc, a, b, json) VALUES (?, ?, ?, ?)").bind(id, a, b, JSON.stringify(part)).run();
