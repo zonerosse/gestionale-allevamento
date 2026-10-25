@@ -10,7 +10,7 @@
 >    sito, istruzioni, novità e altro: recuperati nel commit "recupero" unendo le due versioni.
 >
 > **Menu del gestionale (07/10/2026), tutte voci che devono esserci:** ☀️ Oggi (pagina d'apertura) · Cani · Cucciolate · Proprietari · Accoppiamenti ·
-> Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web) · ⚙️ Account.
+> Agenda · Attesa · Google (recensioni e post) · Anagrafe · Traduci · Conti · Scadenze · Statistiche (Allevamento + Sito web) · Biblioteca · ⚙️ Account.
 
 
 Istruzioni per chi (Claude, in chat o in Claude Code) lavora su questo repository.
@@ -548,6 +548,12 @@ Sito delpiccolodiavolo.it
 - Compila da foto o documento: riga `cf-bar` messa da sola in cima ai moduli riconosciuti da `cfKind()` (cane, pedigree,
   esposizione, calori, cucciolata, pesate, famiglia, acquirente, entrate, cane acquisito, anagrafe, allevamento, enti);
   `/api/ai` task `compila` con `kind`; `CF_FILL[kind]` riempie i campi (classe `cf-ai`, in verde). Una foto vale come un PDF.
+- Biblioteca (25/10/2026, voce del menu sotto Alimentazione, `biblioPage`, `BB`): tesi, articoli e appunti (anche esportati da
+  Verba Manent). Il browser estrae il testo delle pagine con pdf.js (pagine scansionate e foto → immagini che Claude trascrive);
+  `functions/api/biblio.js` (op list/doc/search/ask/new/pages/part/final/rename/del) salva in D1 `biblio` e `biblio_txt` (si
+  creano da sole), il PDF in R2. Claude studia a pezzi di 20 pagine (`part`) e poi scrive appunti, mappa e soluzioni con le pagine
+  (`final`). «Chiedi alla Biblioteca» risponde SOLO dalle pagine trovate, con le fonti. Vede chi vede Cani, modifica chi modifica Cani.
+  NON è nelle copie di sicurezza del gestionale (sta in D1/R2 a parte). Dalla scheda della fattrice: «Cosa dicono i miei documenti».
 - Guide interattive (`GUIDES`, `gdStart`…, tasto Guida in alto `gdToggle`): stesso blocco della copia vergine kennel-manager;
   se si cambia una guida, cambiarla in tutti e due. Elenco per pagina in `GD_SEC` (un solo «Guidami» per pagina,
   `gdMenu`, indice `gdAll`); passi `nx` con «Avanti»; `gdCF(kind)` = passo «compila da foto». Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).
