@@ -6,13 +6,24 @@ import { json, role, deny, can } from "../_lib.js";
    Vede chi vede Cani; aggiunge e cancella chi modifica Cani. Le risposte di "ask" usano SOLO i documenti caricati. */
 const MODEL = "claude-sonnet-5-5";
 
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
 async function ask(env, system, content, max) {
-  for (let i = 0; i < 2; i++) {
-    const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
-      headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: max || 2000, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) { const m = (j.error && j.error.message) || "errore"; throw new Error(/credit|balance/i.test(m) ? "Credito di Claude finito: ricarica in console.anthropic.com → Billing." : "Claude " + r.status + ": " + m); }
+  // 25/10/2026 (letture interrotte): Claude occupato o sovraccarico (429, 500, 529…) → si aspetta e si riprova da soli
+  for (let i = 0, busy = 0; i < 2; i++) {
+    let r, j;
+    try {
+      r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
+        headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({ model: MODEL, max_tokens: max || 2000, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
+      j = await r.json().catch(() => ({}));
+    } catch (e) { r = { ok: false, status: 0 }; j = {}; }
+    if (!r.ok) {
+      const m = (j.error && j.error.message) || "errore";
+      if (/credit|balance/i.test(m)) throw new Error("Credito di Claude finito: ricarica in console.anthropic.com → Billing.");
+      if ((r.status === 0 || r.status === 429 || r.status >= 500) && busy < 4) { busy++; i--; await wait(4000 * busy); continue; }
+      throw new Error("Claude " + r.status + ": " + m);
+    }
     const t = (j.content || []).map(c => c.text || "").join("").replace(/```json|```/g, "").trim(), a = t.indexOf("{"), z = t.lastIndexOf("}");
     try { if (a >= 0 && z > a) return JSON.parse(t.slice(a, z + 1)); } catch (e) {}
   }
@@ -42,6 +53,20 @@ function snip(r, q) {
   const T = terms(q), x = r.x, i = Math.max(0, Math.min(...T.map(t => { const k = x.indexOf(t); return k < 0 ? 1e9 : k; })));
   const a = Math.max(0, (i > 1e8 ? 0 : i) - 110), s = r.text.slice(a, a + 300).replace(/\s+/g, " ").trim();
   return (a > 0 ? "…" : "") + s + (a + 300 < r.text.length ? "…" : "");
+}
+
+// Le operazioni lunghe (Claude scrive per minuti) rispondono subito e mandano uno spazio ogni 10 secondi finché il lavoro
+// non è finito, poi il JSON: così né il telefono né Cloudflare chiudono la connessione perché «non arriva niente».
+function slow(fn) {
+  const { readable, writable } = new TransformStream(), w = writable.getWriter(), enc = new TextEncoder();
+  const t = setInterval(() => { w.write(enc.encode(" ")).catch(() => {}); }, 10000);
+  (async () => {
+    let out;
+    try { out = await fn(); } catch (e) { out = { ok: false, error: e.message || "errore", retry: !/Credito|ANTHROPIC_API_KEY/.test(e.message || "") }; }
+    clearInterval(t);
+    try { await w.write(enc.encode(JSON.stringify(out))); await w.close(); } catch (e) {}
+  })();
+  return new Response(readable, { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 }
 
 export async function onRequest({ request, env }) {
@@ -117,13 +142,18 @@ Se un valore \u00e8 in nmol/l convertilo in ng/ml (dividi per 3,18) e dillo in t
     if (doc.file && /^\/files\//.test(doc.file)) { try { await env.FILES.delete(doc.file.replace(/^\/files\//, "")); } catch (e) {} }
     return json({ ok: true });
   }
+  if (op === "pages" || op === "part" || op === "final") return slow(() => work(env, op, p, id, doc));
+  return json({ ok: false, error: "Operazione sconosciuta." });
+}
+
+async function work(env, op, p, id, doc) {
   if (op === "pages") {
     const L = (Array.isArray(p.pages) ? p.pages : []).slice(0, 12);
     for (const x of L) {
       const n = parseInt(x.n, 10); if (!(n > 0)) continue;
       let text = S(x.text, 40000);
       if (x.img) {
-        if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Per le pagine fotografate serve Claude (ANTHROPIC_API_KEY)." });
+        if (!env.ANTHROPIC_API_KEY) return { ok: false, error: "Per le pagine fotografate serve Claude (ANTHROPIC_API_KEY)." };
         const data = String(x.img).replace(/^data:[^,]*,/, ""), media = /^image\/(jpeg|png|webp)$/.test(x.media || "") ? x.media : "image/jpeg";
         const o = await ask(env, "Trascrivi parola per parola il testo di questa pagina (in qualsiasi lingua, senza tradurre). Tabelle: una riga per riga, celle separate da \" | \". Se ci sono figure scrivi [Figura: breve descrizione]. Rispondi con {\"text\":\"...\"}.", [{ type: "image", source: { type: "base64", media_type: media, data } }], 4000);
         text = S(o.text, 40000);
@@ -131,10 +161,10 @@ Se un valore \u00e8 in nmol/l convertilo in ng/ml (dividi per 3,18) e dillo in t
       await env.DB.prepare("INSERT OR REPLACE INTO biblio_txt (doc, n, text) VALUES (?, ?, ?)").bind(id, n, text).run();
     }
     const got = (await env.DB.prepare("SELECT count(*) AS c FROM biblio_txt WHERE doc = ?").bind(id).first()).c;
-    return json({ ok: true, got });
+    return { ok: true, got };
   }
   if (op === "part") {
-    if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." });
+    if (!env.ANTHROPIC_API_KEY) return { ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." };
     const a = parseInt(p.from, 10) || 1, b = parseInt(p.to, 10) || a;
     const R = (await env.DB.prepare("SELECT n, text FROM biblio_txt WHERE doc = ? AND n BETWEEN ? AND ? ORDER BY n").bind(id, a, b).all()).results || [];
     const txt = R.filter(r => (r.text || "").trim()).map(r => `[[p. ${r.n}]]\n${r.text.slice(0, 12000)}`).join("\n\n").slice(0, 300000);
@@ -147,15 +177,15 @@ Rispondi con {"title":"titolo del documento se compare in queste pagine, altrime
     let parts = []; try { parts = JSON.parse(doc.parts || "[]"); } catch (e) {}
     parts = parts.filter(x => x.from !== a).concat([{ from: a, to: b, part }]).sort((x, y) => x.from - y.from);
     await env.DB.prepare("UPDATE biblio SET parts = ?, status = 'studio' WHERE id = ?").bind(JSON.stringify(parts), id).run();
-    return json({ ok: true });
+    return { ok: true };
   }
   if (op === "final") {
-    if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." });
+    if (!env.ANTHROPIC_API_KEY) return { ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." };
     let parts = []; try { parts = JSON.parse(doc.parts || "[]"); } catch (e) {}
     const all = { sec: parts.flatMap(x => x.part.sec || []), sol: parts.flatMap(x => x.part.sol || []) }, ttl = (parts.find(x => x.part.title) || {}).part;
     const o = await ask(env, `Hai gli appunti, a pezzi, di un documento veterinario per un allevatore di cani. Riordinali in un solo insieme, senza perdere valori, numeri e pagine, togliendo le ripetizioni, in italiano semplice.
 Rispondi con {"title":"titolo breve del documento","sum":"di cosa parla, 2 frasi","sec":[{"t":"argomento","pts":[{"x":"punto","p":[pagine]}]}],"map":[{"t":"ramo","it":[{"t":"voce breve","s":indice dell'argomento in sec (da 0),"p":pagina}]}],"sol":[{"q":"situazione o problema","a":"cosa fare","p":[pagine]}],"kw":["parole chiave"]}
-La mappa ha 3-7 rami con 2-6 voci ciascuno; gli argomenti in ordine logico.`, [{ type: "text", text: JSON.stringify(all).slice(0, 400000) }], 12000);
+La mappa ha 3-7 rami con 2-6 voci ciascuno; gli argomenti in ordine logico. Punti brevi.`, [{ type: "text", text: JSON.stringify(all).slice(0, 400000) }], 20000);
     const sec = (Array.isArray(o.sec) ? o.sec : []).slice(0, 40).map(s => ({ t: S(s.t, 120), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 40).map(x => ({ x: S(x.x, 600), p: PG(x.p) })) }));
     const notes = { sum: S(o.sum, 600), sec, map: (Array.isArray(o.map) ? o.map : []).slice(0, 8).map(b => ({ t: S(b.t, 80), it: (Array.isArray(b.it) ? b.it : []).slice(0, 8).map(x => ({ t: S(x.t, 80), s: Math.max(0, Math.min(sec.length - 1, parseInt(x.s, 10) || 0)), p: parseInt(x.p, 10) || 0 })) })),
       sol: (Array.isArray(o.sol) ? o.sol : []).slice(0, 40).map(s => ({ q: S(s.q, 300), a: S(s.a, 800), p: PG(s.p) })), kw: (Array.isArray(o.kw) ? o.kw : []).slice(0, 20).map(x => S(x, 40)) };
@@ -163,7 +193,6 @@ La mappa ha 3-7 rami con 2-6 voci ciascuno; gli argomenti in ordine logico.`, [{
     const auto = !doc.title || doc.title === String(doc.fname || "").replace(/\.pdf$/i, "") || /^Foto di \d+ pagin/.test(doc.title) || doc.title.length < 4;
     const title = auto ? S(o.title || (ttl && ttl.title), 200) || doc.title : doc.title;
     await env.DB.prepare("UPDATE biblio SET notes = ?, status = 'ok', title = ? WHERE id = ?").bind(JSON.stringify(notes), title, id).run();
-    return json({ ok: true });
+    return { ok: true };
   }
-  return json({ ok: false, error: "Operazione sconosciuta." });
 }

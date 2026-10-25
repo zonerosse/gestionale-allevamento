@@ -868,6 +868,16 @@ input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-colo
 .rp-v{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px}.rp-v b{font-size:14.5px}.rp-val{font-family:var(--serif,Georgia,serif);font-size:17px;text-align:right;white-space:nowrap}.rp-s{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
 .rp-tg{display:inline-block;font-size:11px;font-weight:600;border-radius:8px;padding:1px 7px;margin-right:6px}.rp-tg.doc{background:#E1EEE4;color:#2F6B3F}.rp-tg.gen{background:#F6EAD8;color:#9A5B12}
 .rp-ch2{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.rp-ch2>small{flex-basis:100%;color:var(--muted)}.rp-ch2 label{display:flex;gap:7px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13.5px;cursor:pointer;flex:1 1 240px}.rp-ch2 input{margin-top:3px;accent-color:#2F6B3F}.rp-ch2 label small{display:block;color:var(--muted)}
+.bb-qn{font-size:12.5px;color:var(--muted);margin:2px 0 0 25px}
+.bb-q{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--line)}.bb-q:empty{display:none}
+.bb-q li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.bb-qt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bb-q em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.bb-q li.ok em{color:var(--ok,#2F6B3F)}.bb-q li.now em{color:var(--blue,#3E5C76);font-weight:600}
+.bb-qd{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);justify-self:center}
+.bb-q li.ok .bb-qd{background:var(--ok,#2F6B3F);border-color:var(--ok,#2F6B3F)}
+.bb-q li.now .bb-qd{width:12px;height:12px;border-color:var(--blue,#3E5C76);border-top-color:transparent;animation:cfspin 1s linear infinite}
+@keyframes cfspin{to{transform:rotate(360deg)}}
+.bb-q li.ko em{color:var(--warn,#9A5B12)}.bb-q li.ko .bb-qd{border-color:var(--warn,#9A5B12)}
 </style>
 </head>
 <body class="owner-mode">
@@ -4220,20 +4230,54 @@ const BB_IC = {
  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
 };
 
+// 25/10/2026 (letture interrotte): se la connessione cade o Claude è occupato si riprova da soli, fino a 5 volte
 async function bbApi(op, body) {
- const r = await fetch("/api/biblio", {
-  method: "POST",
-  headers: {
-   "content-type": "application/json"
-  },
-  body: JSON.stringify(Object.assign({
-   op: op
-  }, body || {}))
- });
- const j = await r.json().catch(() => ({}));
- if (!r.ok || j.ok === false) throw new Error(j.error || "errore " + r.status);
- return j;
+ const long = /^(pages|part|final)$/.test(op);
+ for (let k = 0; ; k++) {
+  let r = null, j = {}, net = false;
+  try {
+   r = await fetch("/api/biblio", {
+    method: "POST",
+    headers: {
+     "content-type": "application/json"
+    },
+    body: JSON.stringify(Object.assign({
+     op: op
+    }, body || {}))
+   });
+   j = await r.json().catch(() => ({}));
+  } catch (e) {
+   net = true;
+  }
+  if (r && r.ok && j.ok !== false) return j;
+  const again = long && k < 5 && (net || !r.ok || j.retry);
+  if (!again) throw new Error(net ? "Connessione persa." : j.error || "errore " + r.status);
+  const t = BB.job && BB.job.t;
+  if (BB.job) bbSet((net ? "Connessione persa" : "Claude \xe8 occupato") + ": riprovo tra " + 5 * (k + 1) + " secondi…", BB.job.p);
+  await new Promise(z => setTimeout(z, 5000 * (k + 1)));
+  if (BB.job && t) bbSet(t, BB.job.p);
+ }
 }
+
+// Schermo acceso durante la lettura: sul telefono, a schermo spento, la connessione si chiude e la lettura si fermava
+async function bbAwake(on) {
+ try {
+  if (on && !BB.lock && navigator.wakeLock) BB.lock = await navigator.wakeLock.request("screen");
+  if (!on && BB.lock) {
+   await BB.lock.release();
+   BB.lock = null;
+  }
+ } catch (e) {
+  BB.lock = null;
+ }
+}
+
+document.addEventListener("visibilitychange", () => {
+ if (document.visibilityState === "visible" && BB.job) {
+  BB.lock = null;
+  bbAwake(true);
+ }
+});
 
 async function bbLoad() {
  if (BB.load) return;
@@ -4265,7 +4309,7 @@ function biblioPage() {
  const L = BB.docs || [], kw = [ ...new Set([ "progesterone", "temperatura", "colostro", "cesareo" ]) ];
  const J = BB.job;
  const up = RO ? "" : `<div class="cf-bar"><span class="cf-ic">${BB_IC.doc}</span><span class="cf-t"><b>Aggiungi un documento</b><small>PDF di una tesi o di un articolo, foto delle pagine, appunti o mappe esportati da Verba Manent</small></span><span class="cf-bb">${J ? "" : `<label class="btn small">${BB_IC.cam}Foto<input type="file" accept="image/*" capture="environment" multiple data-bbf="1" hidden></label><label class="btn small ghost">${BB_IC.doc}File<input type="file" accept="application/pdf,image/*" multiple data-bbf="1" hidden></label>`}</span></div>`;
- const job = J ? `<div class="bb-job"><div class="cf-wait"><span class="cf-spin"></span>${esc(J.t)}</div><div class="bb-prog"><i style="width:${Math.round(J.p * 100)}%"></i></div><small>Non chiudere il gestionale finch\xe9 non ha finito. Intanto puoi cercare negli altri documenti.</small></div>` : "";
+ const job = J ? `<div class="bb-job"><div class="cf-wait"><span class="cf-spin"></span>${esc(J.t)}</div><div class="bb-qw">${bbQHtml()}</div><div class="bb-prog"><i style="width:${Math.round(J.p * 100)}%"></i></div><small>Non chiudere il gestionale finch\xe9 non ha finito${BB.qu && BB.qu.length > 1 ? " tutti i documenti" : ""}. Intanto puoi cercare negli altri documenti.</small><ul class="bb-q">${bbQList()}</ul></div>` : "";
  const res = BB.res ? `<div class="card bb-res">${BB.res.length ? `<p class="row-meta" style="margin:0 0 4px">${BB.res.length} risultati in ${new Set(BB.res.map(r => r.doc)).size} documenti</p>` + BB.res.map(r => `<button class="bb-r" data-bbo="${r.doc}"><b>${esc(r.title)}</b> <small>p. ${r.n}</small><span>${bbMark(r.s, BB.q)}</span></button>`).join("") : `<p class="row-meta" style="margin:0">Nessun risultato. Prova con un'altra parola.</p>`}</div>` : "";
  const ans = BB.asking ? `<div class="bb-ans"><span class="cf-wait"><span class="cf-spin"></span>Claude cerca nei tuoi documenti…</span></div>` : BB.ans ? `<div class="bb-ans">${esc(BB.ans.a).replace(/\n/g, "<br>")}${BB.ans.src && BB.ans.src.length ? `<div class="bb-src">Fonti: ${BB.ans.src.map(s => `<button data-bbo="${esc(s.doc)}">${esc(s.title)}, p. ${s.p}</button>`).join(" \xb7 ")}</div>` : ""}<p class="row-meta" style="margin:6px 0 0">Risponde solo con quello che c'\xe8 nei documenti caricati. Per decidere conta sempre il tuo veterinario.</p></div>` : "";
  const st = d => d.status === "ok" ? `<span class="bb-tg ok">appunti, mappa e soluzioni pronti</span>` : J && J.id === d.id ? `<span class="bb-tg w">in lettura…</span>` : `<span class="bb-tg w">lettura interrotta</span>${RO ? "" : `<button class="btn small ghost" data-bbr="${d.id}">Riprendi</button>`}`;
@@ -4344,6 +4388,28 @@ async function bbOpen(id, sec) {
    block: "start"
   });
  }, 50);
+}
+
+// Più documenti scelti insieme (25/10/2026): «Documento 2 di 5» e elenco con lo stato di ognuno
+function bbQHtml() {
+ const Q = BB.qu;
+ if (!Q || Q.length < 2 || BB.qi == null) return "";
+ return `<div class="bb-qn">Documento ${BB.qi + 1} di ${Q.length} \xb7 ${esc(String(Q[BB.qi].n).replace(/\.pdf$/i, ""))}</div>`;
+}
+
+function bbQList() {
+ const Q = BB.qu;
+ if (!Q || Q.length < 2) return "";
+ return Q.map(q => `<li class="${q.s === 2 ? "ok" : q.s === 1 ? "now" : q.s === 3 ? "ko" : ""}"><span class="bb-qd"></span><span class="bb-qt">${esc(String(q.n).replace(/\.pdf$/i, ""))}</span><em>${q.s === 2 ? "pronto" : q.s === 1 ? "in lettura" : q.s === 3 ? "interrotto" : "in coda"}</em></li>`).join("");
+}
+
+function bbQUpd() {
+ if (tab !== "biblioteca" || BB.open) return;
+ const w = document.querySelector(".bb-job .bb-qw"), l = document.querySelector(".bb-job .bb-q");
+ if (w && l) {
+  w.innerHTML = bbQHtml();
+  l.innerHTML = bbQList();
+ } else render();
 }
 
 const bbSet = (t, p, id) => {
@@ -4427,23 +4493,52 @@ async function bbAdd(files) {
  const F = [ ...files ], pdfs = F.filter(f => f.type === "application/pdf"), imgs = F.filter(f => /^image\//.test(f.type));
  if (!pdfs.length && !imgs.length) return toast("Si leggono solo PDF e foto.");
  try {
-  for (const f of pdfs) {
-   if (f.size > 25 * 1048576) {
-    toast("\xab" + f.name + "\xbb pesa pi\xf9 di 25 MB: dividilo in due PDF.");
-    continue;
-   }
-   await bbRun({
+  const big = pdfs.filter(f => f.size > 25 * 1048576);
+  big.forEach(f => toast("\xab" + f.name + "\xbb pesa pi\xf9 di 25 MB: dividilo in due PDF."));
+  const W = pdfs.filter(f => f.size <= 25 * 1048576).map(f => ({
+   o: {
     file: f,
     name: f.name
-   });
-  }
-  if (imgs.length) await bbRun({
-   imgs: imgs,
-   name: "Foto di " + imgs.length + (imgs.length === 1 ? " pagina" : " pagine")
+   },
+   n: f.name
+  }));
+  if (imgs.length) W.push({
+   o: {
+    imgs: imgs,
+    name: "Foto di " + imgs.length + (imgs.length === 1 ? " pagina" : " pagine")
+   },
+   n: "Foto di " + imgs.length + (imgs.length === 1 ? " pagina" : " pagine")
   });
+  BB.qu = W.map(w => ({
+   n: w.n,
+   s: 0
+  }));
+  bbAwake(true);
+  let bad = 0;
+  for (let k = 0; k < W.length; k++) {
+   BB.qi = k;
+   BB.qu[k].s = 1;
+   bbQUpd();
+   BB.job = null;
+   try {
+    await bbRun(W[k].o);
+    BB.qu[k].s = 2;
+    BB.docs = null;
+    bbLoad();
+   } catch (e) {
+    // un documento che non riesce non ferma gli altri: resta «lettura interrotta» con Riprendi
+    BB.qu[k].s = 3;
+    bad++;
+    BB.err = e.message;
+    if (/Credito|ANTHROPIC_API_KEY/.test(e.message || "")) break;
+   }
+  }
+  if (bad && !/Credito|ANTHROPIC_API_KEY/.test(BB.err || "")) BB.err = (bad === 1 ? "Un documento si \xe8 fermato" : bad + " documenti si sono fermati") + " (" + BB.err + "): tocca \xabRiprendi\xbb e continua da dove era arrivato.";
  } catch (e) {
   BB.err = e.message;
  }
+ bbAwake(false);
+ BB.qu = null;
  BB.job = null;
  BB.docs = null;
  render();
@@ -4499,7 +4594,7 @@ async function bbRun(o, resume) {
   let sz = 0;
   while (i < N && B.length < 12) {
    const p = pages[i], s = p.img ? p.img.length : p.text.length;
-   if (B.length && (p.img ? B.some(x => x.img) && B.filter(x => x.img).length >= 3 : sz + s > 6e5)) break;
+   if (B.length && (p.img ? B.some(x => x.img) : sz + s > 6e5)) break;
    B.push(Object.assign({
     n: i + 1
    }, p.img ? {
@@ -4542,6 +4637,8 @@ async function bbResume(id) {
    p: 0,
    id: id
   };
+  BB.err = null;
+  bbAwake(true);
   render();
   if ((d.got || 0) >= d.pages) {
    const N = d.pages;
@@ -4563,6 +4660,7 @@ async function bbResume(id) {
  } catch (e) {
   BB.err = e.message;
  }
+ bbAwake(false);
  BB.job = null;
  BB.docs = null;
  render();

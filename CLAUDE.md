@@ -554,6 +554,10 @@ Sito delpiccolodiavolo.it
   creano da sole), il PDF in R2. Claude studia a pezzi di 20 pagine (`part`) e poi scrive appunti, mappa e soluzioni con le pagine
   (`final`). «Chiedi alla Biblioteca» risponde SOLO dalle pagine trovate, con le fonti. Vede chi vede Cani, modifica chi modifica Cani.
   NON è nelle copie di sicurezza del gestionale (sta in D1/R2 a parte). Dalla scheda della fattrice: «Cosa dicono i miei documenti».
+- Biblioteca, letture interrotte (25/10/2026): `pages`/`part`/`final` rispondono con `slow()` (uno spazio ogni 10 s, poi il JSON) e
+  `ask` riprova da solo se Claude è occupato (429/5xx/529); nel browser `bbApi` riprova fino a 5 volte (connessione persa o
+  `retry`), `bbAwake` tiene lo schermo acceso (Wake Lock), una pagina fotografata per chiamata. Più file insieme: `BB.qu`/`BB.qi`,
+  «Documento 2 di 5» (`bbQHtml`) ed elenco pronto/in lettura/in coda/interrotto (`bbQList`); un documento fermo non blocca gli altri.
 - Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
   ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
   media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è
