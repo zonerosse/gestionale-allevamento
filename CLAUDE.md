@@ -868,6 +868,8 @@ Accessi e copie
   proposte {title,desc,why}; «Usa questa» (`pgUse`) le scrive nei campi italiani come se le avesse scritte Paolo, poi traduzione e
   pubblicazione come sempre. Tetto `sug` in Account → Tetti di spesa (predefinito 30 al mese, `SUG_CAP`), contatore gbp
   "sug:used:AAAA-MM" (conta dopo la chiamata a DataForSEO riuscita). Permessi: vede chi vede Google, suggerisce chi lo modifica.
+  Correzione 25/10/2026 («max_tokens»): Sonnet consumava i 1500 token prima di finire il JSON → ora 6000; i volumi della stessa
+  pagina e delle stesse parole presi oggi si riusano (gbp "sug:vol:<url>"), così un nuovo tentativo non paga di nuovo DataForSEO.
   Guida `gpag`. In Kennel Manager: funzione del pacchetto Gold (scelta di Paolo), da portare con i pacchetti.
 
 ## App sul telefono (ottobre 2026)

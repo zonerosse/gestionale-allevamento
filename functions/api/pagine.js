@@ -72,8 +72,11 @@ export async function onRequestPost({ request, env }) {
     const top = d.q.slice().sort((a, b) => b.i - a.i).slice(0, 20);
     const K = [...new Set([kwOk(p.kw), ...top.map(x => kwOk(x.q))].filter(Boolean))];
     if (!K.length) return json({ ok: false, error: "Questa pagina non ha ancora ricerche in Search Console e manca la parola chiave: non c'è niente da misurare." });
-    const V = await volumes(env, K);
-    await gbpSet(env, UKEY(), String(n + 1));   // DataForSEO è stato pagato: si conta anche se poi Claude non risponde
+    // volumi della stessa pagina e delle stesse parole già presi oggi: si riusano (un nuovo tentativo non paga di nuovo)
+    const CK = "sug:vol:" + p.url, today = day(new Date()); let V = null, paid = false;
+    try { const c = JSON.parse(await gbpGet(env, CK) || "null"); if (c && c.d === today && c.k === K.join("|")) V = c.v; } catch (e) {}
+    if (!V) { V = await volumes(env, K); paid = true; await gbpSet(env, CK, JSON.stringify({ d: today, k: K.join("|"), v: V })); }
+    if (paid) await gbpSet(env, UKEY(), String(n + 1));   // DataForSEO è stato pagato: si conta anche se poi Claude non risponde
     const byQ = Object.fromEntries(d.q.map(x => [kwOk(x.q), x]));
     const vol = K.map(k => ({ q: k, v: V[k] ?? null, ...(byQ[k] ? { c: byQ[k].c, i: byQ[k].i, p: byQ[k].p } : {}) }))
       .sort((a, b) => (b.v || 0) - (a.v || 0) || (b.i || 0) - (a.i || 0));
@@ -85,9 +88,9 @@ Per ogni versione "why": una o due frasi semplici per chi non è esperto, con i 
 Formato: {"options":[{"title":"…","desc":"…","why":"…"}]}`,
       JSON.stringify({ indirizzo: p.url, parola_chiave: cut(p.kw, 100), titolo_attuale: cut(p.title, 200), descrizione_attuale: cut(p.desc, 400), titolo_grande: cut(p.h1, 200), apertura: cut(p.ap, 1200),
         numeri_28_giorni_italia: { clic: d.t.c, impressioni: d.t.i, posizione_media: +d.t.p.toFixed(1) },
-        ricerche: vol.map(x => ({ ricerca: x.q, ricerche_al_mese_italia: x.v, clic: x.c, impressioni: x.i, posizione: x.p != null ? +x.p.toFixed(1) : null })) }), 1500);
+        ricerche: vol.map(x => ({ ricerca: x.q, ricerche_al_mese_italia: x.v, clic: x.c, impressioni: x.i, posizione: x.p != null ? +x.p.toFixed(1) : null })) }), 6000);
     const options = (o.options || []).filter(x => x && x.title && x.desc).slice(0, 2).map(x => ({ title: String(x.title).trim(), desc: String(x.desc).trim(), why: String(x.why || "").trim() }));
     if (!options.length) throw new Error("Claude non ha scritto le proposte. Riprova tra un attimo.");
-    return json({ ok: true, vol, options, used: n + 1, cap });
+    return json({ ok: true, vol, options, used: n + (paid ? 1 : 0), cap });
   } catch (e) { return json({ ok: false, error: String(e.message || e), connect: !!e.connect, used: await used(env), cap }); }
 }
