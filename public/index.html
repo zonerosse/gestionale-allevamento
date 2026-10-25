@@ -898,6 +898,16 @@ input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-colo
 .bb-pg{border:0;background:none;color:#3E5C76;font:inherit;font-size:12px;font-weight:600;cursor:pointer;padding:0 0 0 4px;white-space:nowrap}
 .bb-map{display:flex;flex-direction:column;align-items:center;gap:12px}.bb-root{background:var(--ink);color:#fff;border-radius:12px;padding:9px 16px;font-weight:600;text-align:center}.bb-br{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:10px;width:100%}.bb-b{border:1.5px solid #3E5C76;border-radius:12px;padding:8px 10px}.bb-b b{display:block;color:#3E5C76;font-size:14px;margin-bottom:4px}.bb-b button{display:block;width:100%;text-align:left;border:0;background:#E2E8EF;border-radius:6px;padding:4px 7px;margin:3px 0;font:inherit;font-size:13px;cursor:pointer;color:var(--ink)}
 .bb-sol{border-left:3px solid #2F6B3F;padding:6px 10px;margin:0 0 10px}.bb-sol b{display:block;font-size:14.5px}.bb-sol p{margin:3px 0 0;font-size:14px}.bb-link{margin:8px 0}
+.rp-prog{margin:0 0 12px}.rp-kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:10px;margin:0 0 10px}
+.rp-k{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper)}.rp-k small{display:block;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}.rp-k b{display:block;font-family:var(--serif,Georgia,serif);font-weight:400;font-size:21px;margin:2px 0}.rp-k span{font-size:12.5px;color:var(--muted)}
+.rp-k.hi{border-color:#2F6B3F;background:#E1EEE4}.rp-k.hi b{color:#2F6B3F}.rp-k.wa{border-color:#E8D2AE;background:#F6EAD8}.rp-k.wa b{color:#9A5B12}
+.rp-src{font-size:12px;color:var(--muted)}button.rp-src{color:#3E5C76;padding:0}
+.rp-ch{border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--paper)}.rp-ch svg{width:100%;height:auto;display:block}.rp-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 2px 0}.rp-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.rp-note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.bb-refd{margin:0 0 12px}.bb-ref h3{font-family:var(--serif,Georgia,serif);font-weight:400;font-size:18px;margin:0 0 4px}.rp-acts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+.rp-v{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px}.rp-v b{font-size:14.5px}.rp-val{font-family:var(--serif,Georgia,serif);font-size:17px;text-align:right;white-space:nowrap}.rp-s{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.rp-tg{display:inline-block;font-size:11px;font-weight:600;border-radius:8px;padding:1px 7px;margin-right:6px}.rp-tg.doc{background:#E1EEE4;color:#2F6B3F}.rp-tg.gen{background:#F6EAD8;color:#9A5B12}
+.rp-ch2{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.rp-ch2>small{flex-basis:100%;color:var(--muted)}.rp-ch2 label{display:flex;gap:7px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13.5px;cursor:pointer;flex:1 1 240px}.rp-ch2 input{margin-top:3px;accent-color:#2F6B3F}.rp-ch2 label small{display:block;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1647,7 +1657,7 @@ function dogDetail(id){
   // Crescita
   if(d.bred&&d.litter&&!d.ext){const nw=(d.weights||[]).length,nf=(d.wphotos||[]).length;P("cre","grow","Crescita",`${nw} ${nw===1?"pesata":"pesate"}, ${nf} foto`,[],`${wSeries(id).length>=3?safe(()=>growthDog(id),"growthDog"):""}<h2>Foto della crescita</h2>${safe(()=>wphotosHtml(id),"wphotosHtml")}`)}
   // Calori e cucciolate
-  if(isFattrice(d)||myLitters.length){const rs=isFattrice(d)?reproState(id):null,sub=rs&&rs.preg?"In gravidanza, giorno "+dDiff(td,rs.m.date)+", parto previsto "+fmt(addD(rs.m.date,63)):(myLitters.length?myLitters.length+(myLitters.length===1?" cucciolata":" cucciolate"):"")+(kids.length?", "+kids.length+" figli":"");
+  if(isFattrice(d)||myLitters.length){const rs=isFattrice(d)?reproState(id):null,sub=rs&&rs.preg?"In gravidanza, giorno "+dDiff(td,rs.m.date)+", parto previsto "+fmt((rs.due||addD(rs.m.date,63))):(myLitters.length?myLitters.length+(myLitters.length===1?" cucciolata":" cucciolate"):"")+(kids.length?", "+kids.length+" figli":"");
     P("rep","rep",isFattrice(d)?"Calori e cucciolate":"Cucciolate e figli",sub||"Calori e monte",[],`${isFattrice(d)?safe(()=>reproHtml(id),"reproHtml"):""}${myLitters.length?`<h2>Cucciolate</h2><div class="list">${myLitters.map(litterRow).join("")}</div>`:""}${kids.length?(()=>{const [fk,rk]=pupFold(kids,"Cucciolata attuale");return `<h2>Figli</h2>${fk}${rk.length?`<div class="list"${fk?' style="margin-top:10px"':""}>${safe(()=>rows(rk),"rows")}</div>`:""}`})():""}`)}
   // Salute e documenti
   P("sal","health","Salute e documenti","Vaccini, vermifughi, certificati, referti",late.slice(0,4).map(e=>({t:esc(Array.isArray(e.t)?e.t[0]:e.t),v:"in ritardo dal "+fmt(e.date),st:"todo"})),
@@ -1811,7 +1821,7 @@ function reproState(id){const d=D.dogs[id],R=(d.repro||[]).slice().sort((a,b)=>a
   let next=null;if(heats.length){let iv=180;if(heats.length>1){const ds=heats.slice(1).map((h,i)=>dDiff(h.date,heats[i].date)).filter(x=>x>100&&x<400);if(ds.length)iv=Math.round(ds.reduce((a,b)=>a+b,0)/ds.length)}next=addD(last.date,iv)}
   return{R,heats,last,M,m,preg,born,next}}
 function pregLine(l){if(!l.dam||l.state!=="pianificata")return"";const s=reproState(l.dam);if(!s.preg||(l.sire&&s.m.sire&&s.m.sire!==l.sire))return"";
-  const day=dDiff(todayS(),s.m.date),due=addD(s.m.date,63),left=dDiff(due,todayS());const steps=[[25,"ecografia"],[55,"radiografia"],[56,"cassa parto"]].map(([n,t])=>[addD(s.m.date,n),t]).filter(x=>x[0]>=todayS());
+  const day=dDiff(todayS(),s.m.date),due=(s.due||addD(s.m.date,63)),left=dDiff(due,todayS());const steps=[[25,"ecografia"],[55,"radiografia"],[56,"cassa parto"]].map(([n,t])=>[addD(s.m.date,n),t]).filter(x=>x[0]>=todayS());
   return `<p class="row-meta preg-l">🌸 In gravidanza · giorno ${day} · <b>parto previsto ${fmt(due)}</b>${left>=0?` (tra ${left} giorni)`:` (${-left} giorni fa)`}${steps.length?` · prossima tappa: ${steps[0][1]} il ${fmt(steps[0][0])}`:""}</p>`}
 /* ---------- 🌡️ Temperatura prima del parto (20/10/2026, anteprima approvata da Paolo; idea presa dall'app Breedera) ----------
    d.temps=[{at:"AAAA-MM-GGTHH:MM",v:37.8}]. Il riquadro compare da solo dal giorno 55 della gravidanza (o se ci sono già misure
@@ -1827,7 +1837,7 @@ function tpChart(T){const L=T.L.slice(-12);if(L.length<2)return"";const W=600,H=
   let g=`<svg class="tp-ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafico della temperatura"><rect x="${P}" y="${y(39)}" width="${W-P-10}" height="${y(38)-y(39)}" fill="var(--ok-soft)"/>`+[39,38,37].map(v=>`<text x="2" y="${y(v)+4}" font-size="11" fill="var(--muted)">${v}°</text>`).join("")+
    `<line x1="${P}" x2="${W-10}" y1="${y(37)}" y2="${y(37)}" stroke="#c0392b" stroke-dasharray="4 4"/><polyline fill="none" stroke="var(--ink)" stroke-width="2.5" points="${L.map((t,i)=>x(i)+","+y(t.v)).join(" ")}"/>`;
   L.forEach((t,i)=>{g+=`<circle cx="${x(i)}" cy="${y(t.v)}" r="5" fill="${T.isLow(t)?"#c0392b":"var(--ink)"}"/>`+(i===0||i===L.length-1||t.at.slice(0,10)!==L[i-1].at.slice(0,10)?`<text x="${x(i)}" y="${H-6}" font-size="10" text-anchor="middle" fill="var(--muted)">${fmt(t.at.slice(0,10)).slice(0,5)}</text>`:"")});return g+"</svg>"}
-function tpHtml(id){const T=tpState(id);if(!T)return"";const due=addD(T.s.m.date,63);
+function tpHtml(id){const T=tpState(id);if(!T)return"";const due=(T.s.due||addD(T.s.m.date,63));
   const st=!T.last?`<div class="tp-st wait">🌡️ <span><b>Inizia a misurare la temperatura</b><br><small>2–3 volte al giorno, da adesso fino al parto.</small></span></div>`
    :T.low?`<div class="tp-st bad">⚠️ <span><b>Temperatura scesa: ${tpN(T.last.v)} °C</b>${T.avg!=null?` (media ${tpN(T.avg)} °C)`:""}.<br>Il parto di solito arriva entro 12–24 ore. Tieni pronta la cassa parto.</span></div>`
    :`<div class="tp-st ok">✓ <span>Ultima: <b>${tpN(T.last.v)} °C</b> alle ${tpAt(T.last.at).slice(6)} del ${tpAt(T.last.at).slice(0,5)}${T.avg!=null?` · media ${tpN(T.avg)} °C`:""} · nessun calo</span></div>`;
@@ -1841,7 +1851,7 @@ function tpAdd(id){const d=D.dogs[id],e=$("#tpv_"+id),v=parseFloat(((e&&e.value)
 function tpDel(v){const i=v.indexOf("|"),id=v.slice(0,i),at=v.slice(i+1),d=D.dogs[id];if(!confirm("Togliere la misura del "+tpAt(at)+"?"))return;
   d.temps=(d.temps||[]).filter(t=>t.at!==at);typeof saveNow==="function"&&saveNow();render()}
 function reproHtml(id){const d=D.dogs[id];if(!isFattrice(d))return"";const s=reproState(id);
-  let sub;if(s.preg){const M=s.m.date;sub=`In gravidanza · giorno ${dDiff(todayS(),M)} · parto previsto ${fmt(addD(M,63))}`}else sub=s.next?`Prossimo calore previsto: ${new Date(s.next+"T12:00:00").toLocaleDateString("it-IT",{month:"long",year:"numeric"})}`:"Nessun calore segnato";
+  let sub;if(s.preg){const M=s.m.date;sub=`In gravidanza · giorno ${dDiff(todayS(),M)} · parto previsto ${fmt((s.due||addD(M,63)))}`}else sub=s.next?`Prossimo calore previsto: ${new Date(s.next+"T12:00:00").toLocaleDateString("it-IT",{month:"long",year:"numeric"})}`:"Nessun calore segnato";
   return `<details class="hs c-rep" ${hsOpen.has(id+"rep")?"open":""} data-hs="${id}rep"><summary><span class="ic">🌸</span><span class="tt"><b>Calori e monte</b><span>${sub}</span></span>${s.R.length?`<span class="n">${s.R.length}</span>`:"<span></span>"}<span class="ar">▾</span></summary><div class="body">${reproInner(id,s)}${enciFattr(id)}</div></details>${tpHtml(id)}`}
 /* ---------- Regole ENCI (punto 9) ----------
    Norme tecniche del Libro genealogico dal 1/9/2023 (DM 116130/2023) + limiti più prudenti scelti da Paolo + codice etico ENCI:
@@ -1923,11 +1933,11 @@ function reproInner(id,s){const d=D.dogs[id];
   const add=`<div class="hsx"><b>Aggiungi</b><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${Object.entries(lab).map(([k,t])=>`<button class="btn ghost small" data-a="rpForm" data-v="${id}|${k}">${t}</button>`).join("")}</div></div>`;
   const row=(x,i)=>{const t=x.t==="heat"?"Inizio calore":x.t==="prog"?`Progesterone ${esc(x.val||"")} ng/ml`:x.t==="mating"?`Monta${x.sire?" con "+esc(dn(x.sire)):""}${x.kind?" ("+esc(x.kind)+")":""}`:"Ecografia / visita";
     return `<li class="done"><span class="d">${fmt(x.date)}</span> ${t}${x.note?`<small>${esc(x.note)}</small>`:""}<button class="hx" data-a="rpDel" data-v="${id}|${(d.repro||[]).indexOf(x)}" title="Elimina">×</button></li>`};
-  if(s.preg){const M=s.m.date,day=dDiff(todayS(),M),due=addD(M,63),left=dDiff(due,todayS());
+  if(s.preg){const M=s.m.date,day=dDiff(todayS(),M),due=(s.due||addD(M,63)),left=dDiff(due,todayS());
     const cyc=s.R.filter(x=>!s.last||x.date>=s.last.date);
     const fut=[[addD(M,25),"Ecografia","dal 25° giorno: conferma della gravidanza"],[addD(M,55),"Radiografia","dal 55° giorno: quanti cuccioli"],[addD(M,56),"Preparare la cassa parto","una settimana prima"],[addD(M,58),"Finestra del parto",`58–68 giorni dalla monta: ${fmt(addD(M,58))} → ${fmt(addD(M,68))}`]];
     const items=cyc.map(x=>({date:x.date,html:row(x)})).concat(fut.map(([dt,t,sub])=>({date:dt,html:`<li class="${dt<todayS()?"done":""}"><span class="d">${fmt(dt)}</span> ${t}<small>${sub}</small></li>`}))).sort((a,b)=>a.date.localeCompare(b.date));
-    return `<div class="rp"><div class="big"><div class="kp"><small>Parto previsto</small><b>${fmt(due)}</b><span>63 giorni dalla monta · ${left>=0?"tra "+left+" giorni":(-left)+" giorni fa"}</span></div><div class="kp"><small>Giorno di gravidanza</small><b>${day}°</b><span>monta del ${fmt(M)}${s.m.sire?" con "+esc(dn(s.m.sire)):""}</span></div></div>
+    return `<div class="rp"><div class="big"><div class="kp"><small>Parto previsto</small><b>${fmt(due)}</b><span>${s.dueTxt||"63 giorni dalla monta"} · ${left>=0?"tra "+left+" giorni":(-left)+" giorni fa"}</span></div><div class="kp"><small>Giorno di gravidanza</small><b>${day}°</b><span>monta del ${fmt(M)}${s.m.sire?" con "+esc(dn(s.m.sire)):""}</span></div></div>
     <div class="prog"><span>Gravidanza</span><span class="pbar"><i style="width:${Math.min(100,Math.max(0,day/63*100))}%"></i></span><span>${day} / 63</span></div>
     <p style="font-weight:600;margin:14px 0 6px">Le tappe</p><ul class="tl">${items.map(x=>x.html).join("")}</ul>${add}</div>`}
   const lastL=Object.values(D.litters).filter(l=>l.dam===id&&l.state==="nata"&&l.date).sort((a,b)=>b.date.localeCompare(a.date))[0];
@@ -3038,7 +3048,7 @@ function stAllevPage(){if(RO)return'<p class="empty">Sezione riservata.</p>';con
   <h2>Cucciolate</h2><div class="st-t"><table><tr><th>Nata il</th><th>Madre × padre</th><th>Nati / iscritti</th>${MF?"<th>M / F</th>":""}</tr>
   ${S.map(([k,l,s])=>{const x=gest(l),i=isc(l);return row([fmt(l.date)+(x?`<small class="st-sm">monta ${fmt(x.m)}<br>${x.g} giorni</small>`:""),esc(nk(l.dam))+" × "+esc(nk(l.sire)),(s?s.n+(s.man?` <button class="plink" data-a="stBorn" data-v="${k}">✎</button>`:""):`<button class="btn ghost small" data-a="stBorn" data-v="${k}">Scrivi quanti</button>`)+(i!=null?" / "+i:"")].concat(MF?[s&&!s.tot?s.m+" / "+s.f+(s.part?`<small class="st-sm">su ${s.n}</small>`:""):"–"]:[]))}).join("")}</table></div>
   ${(()=>{const GD=gStat("dam"),GS=gStat("sire"),ga=v=>v&&v.length?f1(v.reduce((a,b)=>a+b,0)/v.length):"–";
-  return `<h2>Per fattrice</h2><div class="st-t"><table><tr><th>Fattrice</th><th title="Cucciolate">Cucc.</th><th title="Cuccioli nati">Nati</th><th title="Media dei nati per cucciolata">Media</th><th title="Gestazione media in giorni">Gest. gg</th></tr>${grp("dam").map(([k,g])=>row([esc(nk(k))+`<small class="st-sm">${esc(loiOf(k))}</small>`,g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–",ga(GD[k])])).join("")}</table></div>
+  return `<h2>Per fattrice</h2><div class="st-t"><table><tr><th>Fattrice</th><th title="Cucciolate">Cucc.</th><th title="Cuccioli nati">Nati</th><th title="Media dei nati per cucciolata">Media</th><th title="Gestazione media in giorni">Gest. gg</th><th title="Gestazione media dall'ovulazione stimata col progesterone">Dall'ovul.</th></tr>${grp("dam").map(([k,g])=>row([esc(nk(k))+`<small class="st-sm">${esc(loiOf(k))}</small>`,g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–",ga(GD[k]),repGestTxt(k)])).join("")}</table></div>
   <h2>Per stallone</h2><div class="st-t"><table><tr><th>Stallone</th><th title="Cucciolate">Cucc.</th><th title="Cuccioli nati">Nati</th><th title="Media dei nati per cucciolata">Media</th><th title="Gestazione media in giorni">Gest. gg</th></tr>${grp("sire").map(([k,g])=>row([esc((D.dogs[k]||{}).name||"?")+`<small class="st-sm">${esc(loiOf(k))}</small>`,g.c,g.known?g.n:"–",g.known?(g.n/g.known).toFixed(1).replace(".",","):"–",ga(GS[k])])).join("")}</table></div>`})()}
   <h2>I cani che hai allevato: titoli ed esposizioni</h2>${bred.length?`<div class="cs" style="gap:0;padding:4px 14px">${bred.map(([k,d])=>{const sh=d.shows||[],c=t=>sh.filter(s=>(s.titles||[]).includes(t)).length;
     return `<button class="st-r" data-a="open" data-v="${k}"><b>${esc(d.name)}</b><small>${esc(d.titles||"")}${sh.length?`${d.titles?" · ":""}${sh.length} esposizion${sh.length===1?"e":"i"} · ${c("CAC")} CAC · ${c("CACIB")} CACIB · ${c("BOB")} BOB`:""}</small></button>`}).join("")}</div>`:'<p class="empty">Nessun titolo ancora.</p>'}`}
@@ -5641,6 +5651,358 @@ GUIDES.bbRead = {
 
 GD_SEC.splice(GD_SEC.findIndex(x => x[0] === "pappa") + 1, 0, [ "biblioteca", "Biblioteca", [ "bbAdd", "bbFind", "bbRead" ] ]);
 
+// Progesterone (25/10/2026, anteprime 25 e 26): dai valori segnati in Calori e monte il gestionale stima picco LH e ovulazione,
+// i giorni migliori per la monta, il prossimo prelievo e il parto dall'ovulazione; a ogni parto impara la gestazione di quella
+// fattrice. I numeri di riferimento stanno in D.settings.repRef: di partenza REP_DEF (letteratura generale), poi quelli presi dai
+// documenti della Biblioteca (Claude li cerca con /api/biblio op "refs", Paolo conferma), ognuno con documento e pagina.
+const REP_DEF = {
+ lh: [ 2, 3 ],
+ ov: [ 5, 8 ],
+ lhOv: [ 2 ],
+ mWin: [ 2, 4 ],
+ m2: [ 48 ],
+ pLow: [ 48 ],
+ pHigh: [ 24 ],
+ gest: [ 63 ]
+};
+
+const REP_L = {
+ lh: [ "Picco di LH", "ng/ml" ],
+ ov: [ "Ovulazione", "ng/ml" ],
+ lhOv: [ "Dal picco di LH all'ovulazione", "giorni" ],
+ mWin: [ "Monta: giorni dopo l'ovulazione", "giorni" ],
+ m2: [ "Seconda monta dopo la prima", "ore" ],
+ pLow: [ "Prelievi sotto la soglia del picco: ogni", "ore" ],
+ pHigh: [ "Prelievi sopra la soglia del picco: ogni", "ore" ],
+ gest: [ "Parto: giorni dall'ovulazione", "giorni" ]
+};
+
+const repRef = () => {
+ const S = (D.settings || {}).repRef || {}, o = {};
+ for (const k of Object.keys(REP_DEF)) o[k] = S[k] && Array.isArray(S[k].v) && S[k].v.length ? S[k].v.map(Number) : REP_DEF[k];
+ return o;
+};
+
+const repSrc = k => ((D.settings || {}).repRef || {})[k] || null;
+
+const repNum = v => {
+ const n = parseFloat(String(v == null ? "" : v).replace(",", "."));
+ return isNaN(n) ? null : n;
+};
+
+const repVal = (k, sep) => {
+ const v = repRef()[k];
+ return v.map(x => String(x).replace(".", ",")).join(sep || "–");
+};
+
+function repCross(S, T) {
+ for (let i = 0; i < S.length; i++) if (S[i].v >= T) {
+  const p = S[i - 1];
+  if (!p || p.v >= T) return S[i].date;
+  const f = (T - p.v) / (S[i].v - p.v);
+  return addD(p.date, Math.round(f * dDiff(S[i].date, p.date)));
+ }
+ return null;
+}
+
+// stima su una lista di valori {date,v} ordinata
+function repEstimate(S) {
+ const R = repRef();
+ if (!S.length) return null;
+ const lh = repCross(S, R.lh[0]), ov0 = repCross(S, R.ov[0]), ov = ov0 || (lh ? addD(lh, Math.round(R.lhOv[0])) : null), last = S[S.length - 1];
+ const next = ov0 ? null : addD(last.date, Math.max(1, Math.round((last.v >= R.lh[0] ? R.pHigh[0] : R.pLow[0]) / 24)));
+ return {
+  S: S,
+  lh: lh,
+  ov: ov,
+  conf: !!ov0,
+  next: next,
+  m1: ov ? addD(ov, Math.round(R.mWin[0])) : null,
+  m2: ov ? addD(ov, Math.round(R.mWin[R.mWin.length - 1])) : null,
+  last: last
+ };
+}
+
+const repProgs = d => (d.repro || []).filter(x => x.t === "prog" && x.date && repNum(x.val) != null).map(x => ({
+ date: x.date,
+ v: repNum(x.val)
+})).sort((a, b) => a.date.localeCompare(b.date));
+
+// valori del calore in corso (dall'ultimo inizio calore, o gli ultimi 40 giorni di prelievi)
+function progEst(id, s) {
+ const d = D.dogs[id];
+ if (!d) return null;
+ const P = repProgs(d);
+ if (!P.length) return null;
+ const from = s && s.last && s.last.date ? s.last.date : addD(P[P.length - 1].date, -40);
+ return repEstimate(P.filter(x => x.date >= from));
+}
+
+// gestazione di quella fattrice: dall'ovulazione stimata alla nascita, per ogni cucciolata con i valori del progesterone
+function repGest(id) {
+ const d = D.dogs[id];
+ if (!d) return {
+  n: 0
+ };
+ const P = repProgs(d), G = [];
+ Object.values(D.litters || {}).filter(l => l.dam === id && l.state === "nata" && l.date).forEach(l => {
+  const E = repEstimate(P.filter(x => x.date >= addD(l.date, -85) && x.date <= addD(l.date, -50)));
+  if (E && E.ov) {
+   const g = dDiff(l.date, E.ov);
+   if (g >= 56 && g <= 70) G.push(g);
+  }
+ });
+ return G.length ? {
+  n: G.length,
+  avg: Math.round(G.reduce((a, b) => a + b, 0) / G.length * 10) / 10
+ } : {
+  n: 0
+ };
+}
+
+const repGestTxt = id => {
+ const g = repGest(id);
+ return g.n ? String(g.avg).replace(".", ",") : "–";
+};
+
+if (typeof reproState === "function") {
+ const r0 = reproState;
+ reproState = function(id) {
+  const s = r0.apply(this, arguments);
+  try {
+   const P = progEst(id, s);
+   s.prog = P;
+   if (s.preg && s.m && P && P.ov && P.ov <= addD(s.m.date, 5) && P.ov >= addD(s.m.date, -10)) {
+    const g = repGest(id), days = g.n ? g.avg : repRef().gest[0];
+    s.due = addD(P.ov, Math.round(days));
+    s.dueTxt = String(days).replace(".", ",") + " giorni dall'ovulazione" + (g.n ? " (media di questa fattrice)" : "") + " \xb7 stima";
+   }
+  } catch (e) {}
+  return s;
+ };
+}
+
+function repChart(P) {
+ const R = repRef(), S = P.S, x0 = S[0].date, last = S[S.length - 1].date, span = Math.max(10, dDiff(P.m2 && P.m2 > last ? addD(P.m2, 1) : addD(last, 3), x0));
+ const top = Math.max(20, Math.ceil(Math.max(...S.map(s => s.v)) / 5) * 5), X = d => 40 + dDiff(d, x0) / span * 580, Y = v => 200 - Math.min(v, top) / top * 180;
+ let g = `<rect x="40" y="${Y(R.lh[R.lh.length - 1])}" width="580" height="${Math.max(2, Y(R.lh[0]) - Y(R.lh[R.lh.length - 1]))}" fill="#E2E8EF"/><rect x="40" y="${Y(R.ov[R.ov.length - 1])}" width="580" height="${Math.max(2, Y(R.ov[0]) - Y(R.ov[R.ov.length - 1]))}" fill="#E1EEE4"/>`;
+ for (let v = 0; v <= top; v += 5) g += `<line x1="40" x2="620" y1="${Y(v)}" y2="${Y(v)}" stroke="#E6E8EC"/><text x="32" y="${Y(v) + 4}" font-size="11" text-anchor="end" fill="#5C6472">${v}</text>`;
+ const st = Math.max(1, Math.ceil(span / 8));
+ for (let i = 0; i <= span; i += st) {
+  const d = addD(x0, i);
+  g += `<text x="${X(d)}" y="220" font-size="10.5" text-anchor="middle" fill="#5C6472">${fmt(d).slice(0, 5)}</text>`;
+ }
+ if (P.ov) g += `<rect x="${X(P.m1)}" y="20" width="${Math.max(3, X(P.m2) - X(P.m1))}" height="180" fill="rgba(47,107,63,.12)"/><line x1="${X(P.ov)}" x2="${X(P.ov)}" y1="20" y2="200" stroke="#2F6B3F" stroke-dasharray="4 3"/><text x="${X(P.ov) + 4}" y="32" font-size="11" fill="#2F6B3F">ovulazione</text><text x="${X(P.m1) + 4}" y="46" font-size="11" fill="#2F6B3F">monta</text>`;
+ g += `<polyline fill="none" stroke="#3E5C76" stroke-width="2.5" points="${S.map(s => X(s.date) + "," + Y(s.v)).join(" ")}"/>` + S.map(s => `<circle cx="${X(s.date)}" cy="${Y(s.v)}" r="4.5" fill="#3E5C76"/><text x="${X(s.date)}" y="${Y(s.v) - 9}" font-size="11" text-anchor="middle" fill="#1C2230">${String(s.v).replace(".", ",")}</text>`).join("");
+ return `<div class="rp-ch"><svg viewBox="0 0 640 230" role="img" aria-label="Andamento del progesterone">${g}</svg><div class="rp-leg"><span><i style="background:#E2E8EF"></i>${repVal("lh")} ng/ml: picco LH</span><span><i style="background:#E1EEE4"></i>${repVal("ov")} ng/ml: ovulazione</span><span><i style="background:#3E5C76"></i>i tuoi valori</span></div></div>`;
+}
+
+const repSrcTxt = k => {
+ const s = repSrc(k);
+ return s && s.title ? `<button class="plink rp-src" data-bbo="${esc(s.doc || "")}">${esc(s.title)}${s.p ? ", p. " + s.p : ""}</button>` : `<span class="rp-src">valore di partenza, non dai tuoi documenti</span>`;
+};
+
+function progBox(id) {
+ const d = D.dogs[id];
+ if (!d || typeof OWNER_MODE !== "undefined") return "";
+ const s = reproState(id), P = s.prog;
+ if (!P || s.preg && !P.S.some(x => x.date >= addD(s.m.date, -12))) return "";
+ const R = repRef(), td = todayS(), K = [];
+ K.push(P.ov ? `<div class="rp-k ${P.conf ? "hi" : "wa"}"><small>Ovulazione ${P.conf ? "stimata" : "prevista"}</small><b>${fmt(P.ov)}</b><span>${P.conf ? "il progesterone ha passato " + repVal("ov").split("–")[0] + " ng/ml" : "picco LH il " + fmt(P.lh) + " + " + repVal("lhOv") + " giorni"} \xb7 ${repSrcTxt("ov")}</span></div>` : `<div class="rp-k"><small>Ovulazione</small><b>—</b><span>il progesterone \xe8 ancora sotto ${repVal("lh").split("–")[0]} ng/ml</span></div>`);
+ if (P.ov && !s.preg) K.push(`<div class="rp-k hi"><small>Giorni migliori per la monta</small><b>${fmt(P.m1).slice(0, 5)} – ${fmt(P.m2).slice(0, 5)}</b><span>${repVal("mWin")} giorni dopo l'ovulazione \xb7 ${repSrcTxt("mWin")}<br>seconda monta ${repVal("m2")} ore dopo la prima \xb7 ${repSrcTxt("m2")}</span></div>`);
+ if (!s.preg) K.push(P.next ? `<div class="rp-k wa"><small>Prossimo prelievo</small><b>${P.next <= td ? "oggi" : fmt(P.next).slice(0, 5)}</b><span>${P.last.v >= R.lh[0] ? "ogni " + repVal("pHigh") + " ore: sei sopra la soglia del picco" : "ogni " + repVal("pLow") + " ore finch\xe9 resta sotto la soglia"} \xb7 ${repSrcTxt(P.last.v >= R.lh[0] ? "pHigh" : "pLow")}</span></div>` : `<div class="rp-k"><small>Prelievi</small><b>basta</b><span>ovulazione passata</span></div>`);
+ return `<div class="rp-prog"><div class="rp-kp">${K.join("")}</div>${P.S.length > 1 ? repChart(P) : ""}<p class="rp-note">Stime fatte con i valori di riferimento (Biblioteca → Valori di riferimento); ogni laboratorio misura in modo un po' diverso. Per decidere conta il tuo veterinario. <button class="btn small ghost" data-bbq="progesterone ovulazione monta">Cosa dicono i miei documenti</button> <button class="btn small ghost" data-bbref="1">Valori di riferimento</button></p></div>`;
+}
+
+if (typeof reproHtml === "function") {
+ const h0 = reproHtml;
+ reproHtml = function(id) {
+  const h = h0.apply(this, arguments);
+  let b = "";
+  try {
+   b = progBox(id);
+  } catch (e) {}
+  if (!b) return h;
+  const i = h.indexOf("</summary>");
+  return i < 0 ? b + h : h.slice(0, i + 10) + b + h.slice(i + 10);
+ };
+}
+
+// Scadenze e Oggi: prelievo e giorni della monta (si calcolano da Calori e monte)
+if (typeof scEvents === "function") {
+ const e0 = scEvents;
+ scEvents = function() {
+  const out = e0.apply(this, arguments);
+  try {
+   const td = todayS();
+   for (const [id, d] of Object.entries(D.dogs || {})) {
+    if (!isFattrice(d)) continue;
+    const s = reproState(id), P = s.prog, nm = d.nick || d.name;
+    if (!P || s.preg || P.last.date < addD(td, -12)) continue;
+    const mk = (k, date, t, sub) => out.push({
+     id: id + k,
+     src: "repro",
+     dog: id,
+     nm: nm,
+     cat: "c",
+     ico: "",
+     date: date,
+     t: t,
+     s: sub,
+     members: [ {
+      dog: id
+     } ]
+    });
+    if (P.next) mk("prel", P.next, "Prelievo del progesterone", "ultimo valore " + String(P.last.v).replace(".", ",") + " ng/ml il " + fmt(P.last.date));
+    if (P.ov && P.m2 >= addD(td, -1)) mk("mwin", P.m1, "Giorni migliori per la monta", "dal " + fmt(P.m1) + " al " + fmt(P.m2) + " \xb7 ovulazione " + (P.conf ? "stimata" : "prevista") + " " + fmt(P.ov));
+   }
+   out.sort((a, b) => a.date.localeCompare(b.date));
+  } catch (e) {}
+  return out;
+ };
+}
+
+// Biblioteca → Valori di riferimento
+let REPF = {
+ busy: 0,
+ prop: null,
+ err: ""
+};
+
+function repRefHtml() {
+ const S = (D.settings || {}).repRef || {}, R = repRef(), P = REPF.prop;
+ const row = k => {
+  const L = REP_L[k], s = S[k], props = P && P[k] || [];
+  const uniq = [ ...new Map(props.map(x => [ x.v.join("-"), x ])).values() ];
+  let src = s && s.title ? `<span class="rp-tg doc">dai tuoi documenti</span><button class="plink" data-bbo="${esc(s.doc || "")}">${esc(s.title)}${s.p ? ", p. " + s.p : ""}</button>` : s && s.own ? `<span class="rp-tg doc">scritto da te</span>` : `<span class="rp-tg gen">valore di partenza</span>letteratura veterinaria generale, non dai tuoi documenti`;
+  let ch = "";
+  if (P && !RO) {
+   if (!uniq.length) ch = `<div class="rp-ch2"><small>Non trovato nei tuoi documenti.</small></div>`; else ch = `<div class="rp-ch2">${uniq.length > 1 ? `<small>I documenti non dicono lo stesso: scegli quale usare.</small>` : ""}${uniq.map((x, j) => `<label><input type="radio" name="rp_${k}" value="${j}" ${uniq.length === 1 || j === 0 ? "checked" : ""}><span><b>${x.v.map(n => String(n).replace(".", ",")).join("–")} ${L[1]}</b><small>${esc(x.title)}${x.p ? ", p. " + x.p : ""}${x.txt ? " \xb7 \xab" + esc(x.txt) + "\xbb" : ""}</small></span></label>`).join("")}</div>`;
+  }
+  return `<div class="rp-v"><b>${L[0]}</b><span class="rp-val">${repVal(k)} ${L[1]}</span><div class="rp-s">${src}${RO ? "" : ` <button class="plink" data-rpown="${k}">scrivi tu</button>`}</div>${ch}</div>`;
+ };
+ return `<div class="bb-ref" id="bbRef"><h3>Valori di riferimento per calore e gravidanza</h3><p class="row-meta" style="margin:0 0 8px">Il gestionale usa questi numeri per ovulazione, monta, prelievi e parto previsto. Ognuno dice da dove viene.</p>${RO ? "" : `<div class="rp-acts"><button class="btn small" data-rpfind="1" ${REPF.busy ? "disabled" : ""}>Cerca i valori nei miei documenti</button>${P ? `<button class="btn small gd" data-rpsave="1">Usa quelli scelti</button><button class="btn small ghost" data-rpno="1">Annulla</button>` : ""}</div>`}${REPF.busy ? `<div class="cf-wait"><span class="cf-spin"></span>Claude cerca i valori nei tuoi documenti…</div>` : ""}${REPF.err ? `<p class="fnote">${esc(REPF.err)}</p>` : ""}${Object.keys(REP_DEF).map(row).join("")}<p class="row-meta" style="margin:8px 0 0">Un valore confermato vale finch\xe9 non lo cambi. Per tornare al valore di partenza: \xabscrivi tu\xbb e lascia vuoto.</p></div>`;
+}
+
+if (typeof biblioPage === "function") {
+ const b0 = biblioPage;
+ biblioPage = function() {
+  const h = b0.apply(this, arguments);
+  if (BB.open) return h;
+  const R = `<details class="dph bb-refd" ${REPF.open || REPF.prop || REPF.busy ? "open" : ""}><summary><span class="dph-tt"><b>Valori di riferimento</b><span>progesterone, monta, parto: ${Object.keys(REP_DEF).filter(k => ((D.settings || {}).repRef || {})[k]).length} di ${Object.keys(REP_DEF).length} dai tuoi documenti</span></span></summary><div class="dph-b">${repRefHtml()}</div></details>`;
+  const i = h.indexOf('<div class="bb-srch"');
+  return i < 0 ? h + R : h.slice(0, i) + R + h.slice(i);
+ };
+}
+
+document.addEventListener("toggle", e => {
+ if (e.target && e.target.classList && e.target.classList.contains("bb-refd")) REPF.open = e.target.open;
+}, true);
+
+async function repFind() {
+ REPF.busy = 1;
+ REPF.err = "";
+ REPF.open = 1;
+ render();
+ try {
+  REPF.prop = (await bbApi("refs")).items || {};
+ } catch (e) {
+  REPF.err = e.message;
+ }
+ REPF.busy = 0;
+ render();
+}
+
+function repSaveProp() {
+ const P = REPF.prop || {}, S = (D.settings = D.settings || {}).repRef = Object.assign({}, (D.settings || {}).repRef || {});
+ let n = 0;
+ for (const k of Object.keys(REP_DEF)) {
+  const uniq = [ ...new Map((P[k] || []).map(x => [ x.v.join("-"), x ])).values() ];
+  if (!uniq.length) continue;
+  const r = document.querySelector(`input[name="rp_${k}"]:checked`), x = uniq[r ? +r.value : 0];
+  if (!x) continue;
+  S[k] = {
+   v: x.v,
+   title: x.title,
+   doc: x.doc,
+   p: x.p,
+   at: todayS()
+  };
+  n++;
+ }
+ REPF.prop = null;
+ render();
+ typeof saveNow === "function" && saveNow();
+ toast(n ? n + (n === 1 ? " valore preso" : " valori presi") + " dai tuoi documenti." : "Nessun valore cambiato.");
+}
+
+document.addEventListener("click", e => {
+ const b = e.target.closest && e.target.closest("[data-rpfind],[data-rpsave],[data-rpno],[data-rpown],[data-bbref]");
+ if (!b) return;
+ e.preventDefault();
+ if (b.dataset.bbref) {
+  tab = "biblioteca";
+  view = null;
+  BB.open = null;
+  REPF.open = 1;
+  render();
+  return setTimeout(() => {
+   const x = document.getElementById("bbRef");
+   x && x.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+   });
+  }, 50);
+ }
+ if (b.dataset.rpfind) return repFind();
+ if (b.dataset.rpsave) return repSaveProp();
+ if (b.dataset.rpno) {
+  REPF.prop = null;
+  return render();
+ }
+ if (b.dataset.rpown) {
+  const k = b.dataset.rpown, L = REP_L[k], t = prompt(L[0] + " (" + L[1] + "). Un numero, o due separati da un trattino (es. 5-8). Vuoto = valore di partenza.", repVal(k, "-"));
+  if (t === null) return;
+  const S = (D.settings = D.settings || {}).repRef = Object.assign({}, (D.settings || {}).repRef || {});
+  const v = String(t).split(/[-–]/).map(repNum).filter(x => x != null);
+  if (!v.length) delete S[k]; else S[k] = {
+   v: v.slice(0, 2),
+   own: true,
+   at: todayS()
+  };
+  render();
+  typeof saveNow === "function" && saveNow();
+ }
+});
+
+GUIDES.prog = {
+ n: "Progesterone e giorni della monta",
+ base: () => 0,
+ done: gdDone1("rpSave"),
+ why: gdW("Il progesterone", "Segni ogni valore del progesterone: il gestionale stima picco LH e ovulazione, ti dice i giorni migliori per la monta e quando rifare il prelievo, e dopo la monta calcola il parto dall'ovulazione. I numeri di riferimento vengono dai tuoi documenti (Biblioteca → Valori di riferimento).", [ "Grafico nella scheda della fattrice", "Prelievi e giorni della monta in Oggi e in Scadenze", "Parto previsto pi\xf9 preciso", "Statistiche: gestazione dall'ovulazione" ], "Trenta secondi a prelievo."),
+ end: "Fatto: il valore \xe8 nel grafico e le stime si sono aggiornate.",
+ S: [ gdCani, gdDogS(d => d.sex === "F", "la fattrice"), gdB("rpForm", "a|prog", "Tocca \xabProgesterone\xbb", "Nel riquadro Calori e monte.", "Ogni prelievo \xe8 un punto del grafico.", () => !!document.getElementById("rpv")), gdCF("rp"), gdF("#rpd", "La data del prelievo", "", "", 1), gdF("#rpv", "Il valore", "In ng/ml, come sul referto.", "Il gestionale stima l'ovulazione quando passa la soglia dei tuoi documenti.", 1), gdSave("rpSave") ]
+};
+
+GUIDES.prog.S[2].el = () => gdVis('#main [data-a="rpForm"][data-v$="|prog"]');
+
+GUIDES.bbRef = {
+ n: "Valori di riferimento dai documenti",
+ base: () => JSON.stringify((D.settings || {}).repRef || {}),
+ done: b => JSON.stringify((D.settings || {}).repRef || {}) !== b,
+ why: gdW("I valori di riferimento", "Le soglie del progesterone, i giorni della monta, i prelievi e la gestazione il gestionale li prende dai tuoi documenti, con documento e pagina. Finch\xe9 non li confermi usa i valori di partenza, scritti come tali.", [ "Stime del progesterone", "Parto previsto" ], "Due minuti."),
+ end: "Fatto: le stime usano i valori dei tuoi documenti.",
+ S: [ gdNavS("biblioteca", "Biblioteca", ""), gdI(() => gdVis(".bb-refd"), "Apri \xabValori di riferimento\xbb", "\xc8 in alto.", ""), gdB("rpfind", "", "Tocca \xabCerca i valori nei miei documenti\xbb", "", "Claude legge le pagine che ne parlano e propone i valori con la pagina.", () => !!REPF.prop), gdI(() => gdVis(".rp-ch2"), "Scegli", "Se i documenti non dicono lo stesso, scegli quale usare.", ""), gdSave("rpsave", "Tocca \xabUsa quelli scelti\xbb") ]
+};
+
+GUIDES.bbRef.S[2].el = () => gdVis("[data-rpfind]");
+
+GUIDES.bbRef.S[4].el = () => gdVis("[data-rpsave]");
+
+(GD_SEC.find(x => x[0] === "cani") || [ , , [] ])[2].splice(8, 0, "prog");
+
+(GD_SEC.find(x => x[0] === "biblioteca") || [ , , [] ])[2].push("bbRef");
+
 // Compila da foto o documento (25/10/2026): in cima ai moduli una riga con «Foto» e «File». Una foto vale come un PDF:
 // Claude legge (task ai «compila») e riempie i campi, che restano in verde finché non si salva. Funziona per tutti i moduli
 // riconosciuti da cfKind(); il documento resta allegato dove ha senso (cane, pedigree, esposizione, anagrafe).
@@ -6266,8 +6628,8 @@ function scEvents(){const ev=[],td=todayS(),add=(e)=>ev.push(e);hpLit(add,td);
     if(pup&&!SK.m3){let m3=addD(d.birth,91);const V=(h.vacc||[]);if(MV.m3&&MV.m3.date)m3=MV.m3.date;if(!V.some(v=>v.date&&dDiff(v.date,d.birth)>=70))add({id:id+"m3",src:"pup",k:"vacc",dog:id,nm,cat:"p",ico:"🐶",date:m3,t:"Richiamo del vaccino (3 mesi)",s:"cucciolo ancora da te"})}
     (d.todo||[]).forEach(x=>add({id:id+"td"+x.id,src:x.k==="memo"?"memo":"todo",k:x.k,ref:x.id,dog:id,nm,cat:x.k==="memo"?"m":"h",ico:x.k==="memo"?"📝":SC_K[x.k][0],date:x.date,t:x.k==="memo"?(x.text||"Promemoria"):SC_K[x.k][1],s:x.k==="memo"?"promemoria":(x.text||"in programma"),memo:x.k==="memo"}));
     if(isFattrice(d)){const s=reproState(id);
-      if(s.preg){const due=addD(s.m.date,63);add({id:id+"parto",src:"repro",dog:id,nm,cat:"c",ico:"🌸",date:due,t:"Parto previsto",s:"monta del "+fmt(s.m.date)+" · finestra "+fmt(addD(s.m.date,58))+"–"+fmt(addD(s.m.date,68))});
-        [[25,"Ecografia"],[55,"Radiografia"],[56,"Prepara la cassa parto"]].forEach(([n,t])=>{const dt=addD(s.m.date,n);if(dt>=td)add({id:id+"tp"+n,src:"repro",dog:id,nm,cat:"c",ico:"🌸",date:dt,t,s:"gravidanza, giorno "+n})})}
+      if(s.preg){const due=(s.due||addD(s.m.date,63));add({id:id+"parto",src:"repro",dog:id,nm,cat:"c",ico:"🌸",date:due,t:"Parto previsto",s:"monta del "+fmt(s.m.date)+" · finestra "+fmt(addD(s.m.date,58))+"–"+fmt(addD(s.m.date,68))});
+        [[25,"Ecografia"],[55,"Radiografia"],[56,"Prepara la cassa parto"]].forEach(([n,t])=>{const dt=n>50&&s.due?addD(s.due,n-63):addD(s.m.date,n);if(dt>=td)add({id:id+"tp"+n,src:"repro",dog:id,nm,cat:"c",ico:"🌸",date:dt,t,s:"gravidanza, giorno "+n})})}
       else if(s.next)add({id:id+"cal",src:"repro",dog:id,nm,cat:"c",ico:"🌸",date:s.next,t:"Prossimo calore previsto",s:"ultimo il "+fmt(s.last.date)})}
     (d.shows||[]).forEach(x=>{if(x.date&&x.date>=td)add({id:id+"sh"+x.id,src:"show",ref:x.id,dog:id,nm,cat:"x",ico:"🏅",date:x.date,t:x.name||"Esposizione",s:"in programma"+(x.type?" · "+x.type:"")})})}
   for(const [lid,l] of Object.entries(D.litters)){const dm=D.dogs[l.dam];if(l.state!=="nata"||!l.date||!dm||dm.ext||dDiff(td,l.date)>180)continue;const nk=k=>(D.dogs[k]&&(D.dogs[k].nick||D.dogs[k].name))||"";
@@ -9077,7 +9439,7 @@ function ogPage(){const td=todayS(),w=addD(td,7),wd=d=>["domenica","lunedì","ma
   const AN=(typeof anagDogs==="function"?anagDogs():[]).filter(k=>{const a=D.dogs[k].anag||{};return!a.done&&!a.already});
   const anB=(AN.length?AN.slice(0,8).map(k=>PROW("todo",esc(D.dogs[k].nick||D.dogs[k].name),"da iscrivere")).join(""):PROW("ok","Nessun cane da iscrivere"))+go("anagrafe","Apri l'Anagrafe");
   const FT=[],TPA=[];for(const [id,d] of Object.entries(D.dogs||{})){if(!isFattrice(d))continue;const s=reproState(id),nm=d.nick||d.name;
-    if(s.preg){const due=addD(s.m.date,63),left=dDiff(due,td);if(left>=-3)FT.push([due,`<b>${esc(nm)}</b>: parto previsto ${left>0?"fra "+left+" giorni":left===0?"oggi":"da "+(-left)+" giorni"}`,fmt(due).slice(0,5),id]);
+    if(s.preg){const due=(s.due||addD(s.m.date,63)),left=dDiff(due,td);if(left>=-3)FT.push([due,`<b>${esc(nm)}</b>: parto previsto ${left>0?"fra "+left+" giorni":left===0?"oggi":"da "+(-left)+" giorni"}`,fmt(due).slice(0,5),id]);
       const T=tpState(id);if(T&&T.low)TPA.push([id,nm,T]);else if(T)FT.push([due,`<b>${esc(nm)}</b>: misura la temperatura (giorno ${T.day})${T.last?" · ultima "+tpN(T.last.v)+" °C":""}`,"giorno "+T.day,id])}
     else if(s.next){const left=dDiff(s.next,td);if(left<=21&&left>=-10)FT.push([s.next,`<b>${esc(nm)}</b>: calore previsto ${left>0?"fra "+left+" giorni":left===0?"oggi":"da "+(-left)+" giorni"}`,fmt(s.next).slice(0,5),id])}}
   FT.sort((a,b)=>a[0].localeCompare(b[0]));const ftB=FT.length?FT.map(x=>PROW("no",x[1],x[2],`<button class="btn small ghost" data-a="openDog" data-v="${x[3]}">Apri</button>`)).join(""):PROW("ok","Niente parti o calori nelle prossime 3 settimane");

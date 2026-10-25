@@ -258,7 +258,7 @@ export function limitedData(data, P) {
   const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
   cp(["rules", "enti"]);
   if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken", "health"]);
-  if (v("cani") || v("proprietari")) cp(["kitExtra"]);
+  if (v("cani") || v("proprietari")) cp(["kitExtra"]); if (v("cani")) cp(["repRef"]);
   if (v("cucciolate")) cp(["modB", "drive", "sitePub"]);
   if (v("cucciolate") || v("anagrafe")) cp(["holders", "ppMe", "anagrafeEmail"]);
   if (v("anagrafe")) cp(["myIds"]);
@@ -306,7 +306,7 @@ export function mergeLimited(cur, body, P) {
   // impostazioni: solo le voci delle sezioni modificabili
   const S = out.settings = out.settings || {}, BS = B.settings || {}, put = ks => ks.forEach(k => { if (BS[k] === undefined) delete S[k]; else S[k] = BS[k]; });
   if (m("scadenze")) put(["scad", "alarms", "todo", "calToken", "health"]);
-  if (mm(["cani", "proprietari"])) put(["kitExtra"]);
+  if (mm(["cani", "proprietari"])) put(["kitExtra"]); if (m("cani")) put(["repRef"]);
   if (m("cucciolate")) put(["drive", "sitePub"]);
   return out;
 }

@@ -554,6 +554,13 @@ Sito delpiccolodiavolo.it
   creano da sole), il PDF in R2. Claude studia a pezzi di 20 pagine (`part`) e poi scrive appunti, mappa e soluzioni con le pagine
   (`final`). «Chiedi alla Biblioteca» risponde SOLO dalle pagine trovate, con le fonti. Vede chi vede Cani, modifica chi modifica Cani.
   NON è nelle copie di sicurezza del gestionale (sta in D1/R2 a parte). Dalla scheda della fattrice: «Cosa dicono i miei documenti».
+- Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
+  ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
+  media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è
+  `(s.due||addD(s.m.date,63))`. Scadenze: «Prelievo del progesterone» e «Giorni migliori per la monta» (src "repro").
+  Statistiche: colonna «Dall'ovul.». Numeri di riferimento in `settings.repRef` (`REP_DEF` = valori di partenza della letteratura
+  generale, scritti come tali): Biblioteca → Valori di riferimento, `/api/biblio` op `refs` li cerca nei documenti con pagina,
+  Paolo sceglie e conferma («scrivi tu» per un valore suo). Guide `prog` e `bbRef`.
 - Guide interattive (`GUIDES`, `gdStart`…, tasto Guida in alto `gdToggle`): stesso blocco della copia vergine kennel-manager;
   se si cambia una guida, cambiarla in tutti e due. Elenco per pagina in `GD_SEC` (un solo «Guidami» per pagina,
   `gdMenu`, indice `gdAll`); passi `nx` con «Avanti»; `gdCF(kind)` = passo «compila da foto». Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).

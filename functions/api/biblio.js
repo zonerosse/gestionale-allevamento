@@ -77,6 +77,30 @@ Rispondi con {"a":"risposta (al massimo 8 frasi)","src":[{"title":"titolo del do
     const src = (Array.isArray(o.src) ? o.src : []).map(x => ({ title: S(x.title, 200), p: parseInt(x.p, 10) || 0 })).filter(x => x.p).slice(0, 8).map(x => Object.assign(x, { doc: D.get(x.title + "|" + x.p) || (R.find(r => r.title === x.title) || {}).doc || "" }));
     return json({ ok: true, a: S(o.a, 3000), src });
   }
+  if (op === "refs") {
+    // Valori di riferimento (25/10/2026): soglie del progesterone, finestra della monta, prelievi, gestazione, presi SOLO dai documenti
+    if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Claude non \u00e8 collegato: manca ANTHROPIC_API_KEY." });
+    const Q = ["progesterone ovulazione", "picco LH ormone luteinizzante", "monta accoppiamento inseminazione fertile", "gestazione parto giorni ovulazione", "prelievo dosaggio progesterone ore"];
+    const seen = new Map();
+    for (const q of Q) for (const r of await findPages(env, q, 8)) { const k = r.doc + "|" + r.n; if (!seen.has(k)) seen.set(k, r); }
+    const R = [...seen.values()].sort((a, b) => b.sc - a.sc).slice(0, 24);
+    if (!R.length) return json({ ok: true, items: {}, note: "Nei documenti della Biblioteca non ci sono pagine su progesterone, monta o gestazione." });
+    const content = [{ type: "text", text: R.map(r => `[[${r.title} | p. ${r.n}]]\n${r.text.slice(0, 7000)}`).join("\n\n") }];
+    const o = await ask(env, `Leggi queste pagine di tesi e studi veterinari sulla riproduzione della cagna. Trova SOLO i valori scritti esplicitamente (non dedurre, non usare conoscenze tue) per queste voci:
+- "lh": progesterone (ng/ml) al picco di LH
+- "ov": progesterone (ng/ml) all'ovulazione
+- "lhOv": giorni dal picco di LH all'ovulazione
+- "mWin": giorni dopo l'ovulazione in cui fare la monta (periodo fertile)
+- "m2": ore tra la prima e la seconda monta
+- "pLow": ogni quante ore fare il prelievo del progesterone quando \u00e8 ancora basso
+- "pHigh": ogni quante ore fare il prelievo quando sale / vicino all'ovulazione
+- "gest": giorni di gestazione contati dall'ovulazione (o dal picco di LH: in quel caso scrivilo in txt)
+Se un valore \u00e8 in nmol/l convertilo in ng/ml (dividi per 3,18) e dillo in txt. Rispondi con {"items":{"lh":[{"v":[min,max] oppure [numero],"title":"titolo del documento come tra [[ ]]","p":pagina,"txt":"le parole del documento, massimo 15"}],...}}; una voce senza valori nei testi: [].`, content, 3000);
+    const keys = ["lh", "ov", "lhOv", "mWin", "m2", "pLow", "pHigh", "gest"], items = {}, I = o.items || {};
+    const docOf = t => (R.find(r => r.title === t) || R.find(r => r.title && t && (r.title.includes(t) || t.includes(r.title))) || {}).doc || "";
+    for (const k of keys) items[k] = (Array.isArray(I[k]) ? I[k] : []).slice(0, 6).map(x => ({ v: (Array.isArray(x.v) ? x.v : [x.v]).map(n => parseFloat(String(n).replace(",", "."))).filter(n => !isNaN(n) && n >= 0 && n < 1000).slice(0, 2), title: S(x.title, 200), p: parseInt(x.p, 10) || 0, txt: S(x.txt, 160), doc: docOf(S(x.title, 200)) })).filter(x => x.v.length);
+    return json({ ok: true, items });
+  }
   if (!canEdit) return deny();
   if (op === "new") {
     const id = "b" + crypto.randomUUID().replace(/-/g, "").slice(0, 12);
