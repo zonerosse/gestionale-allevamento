@@ -347,7 +347,7 @@ label.f select{padding:10px 12px;border:1px solid var(--line);border-radius:8px;
 .mb-ok{background:#e9f5ec;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}.mb-warn{background:#fff3e0;border-radius:10px;padding:8px 12px;font-size:.92rem;margin:6px 0}
 .nick-c{font-weight:800;font-size:1.35rem;color:var(--accent);margin:2px 0 0;line-height:1.2}.nick-l{color:var(--accent);font-weight:800;font-size:1.05em}
 .st-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 6px}.st-kpi div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st-kpi small{display:block;color:var(--muted);font-size:.8rem}.st-kpi b{font-size:1.3rem}
-.ad-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px}.ad-g .btn{justify-content:center;text-align:center;width:100%}.st-t{overflow-x:auto}.st-sm{display:block;color:#6b7280;font-size:.8em;font-weight:400}@media(max-width:600px){.st-t th,.st-t td{padding:6px 5px;font-size:.82rem}}.st-t table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.92rem}.st-t th,.st-t td{padding:8px 10px;border-top:1px solid var(--line);text-align:left}.st-t th{background:#f6f7f9;font-size:.8rem;color:var(--muted);border-top:0}.st-t td.n{text-align:right;white-space:nowrap}
+.ad-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px}.ad-g .btn{justify-content:center;text-align:center;width:100%}.ad-lbl{font-size:.78rem;color:var(--muted);font-weight:600;margin:12px 0 4px}.st-t{overflow-x:auto}.st-sm{display:block;color:#6b7280;font-size:.8em;font-weight:400}@media(max-width:600px){.st-t th,.st-t td{padding:6px 5px;font-size:.82rem}}.st-t table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.92rem}.st-t th,.st-t td{padding:8px 10px;border-top:1px solid var(--line);text-align:left}.st-t th{background:#f6f7f9;font-size:.8rem;color:var(--muted);border-top:0}.st-t td.n{text-align:right;white-space:nowrap}
 .st-r{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;font:inherit;color:inherit;cursor:pointer}.cs>.st-r:first-child{border-top:0}.st-r small{display:block;color:var(--muted)}
 .lk-rev{background:#fff7d6!important;border-color:#ecd27a!important}
 @media (max-width:640px){.st-kpi{grid-template-columns:1fr 1fr}}
@@ -6105,13 +6105,17 @@ function adBox(lid){if(RO||typeof OWNER_MODE!=="undefined")return"";const l=D.li
   const wa=lg=>`https://wa.me/?text=${encodeURIComponent(msg[lg]+"\n"+adUrl(l,lg))}`;
   return `<div class="card" style="padding:12px 14px;margin:0 0 12px"><div style="font-weight:700;margin-bottom:4px">Link pubblicità${on?" · attivo":""}</div>
   <p class="row-meta" style="margin:0 0 8px">Una pagina da mandare a chi è interessato: genitori e nonni con foto, titoli e test, pedigree e contatti. Niente COI, note, prezzi o proprietari.</p>
-  ${on?`<div class="tr-out" style="word-break:break-all;margin-bottom:8px">${esc(adUrl(l))}</div><div class="ad-g"><a class="btn small" href="${wa("it")}" target="_blank" rel="noopener">WhatsApp italiano</a><a class="btn small" href="${wa("en")}" target="_blank" rel="noopener">WhatsApp inglese</a><a class="btn small" href="${wa("de")}" target="_blank" rel="noopener">WhatsApp tedesco</a></div>
-  <div class="ad-g" style="margin-top:8px"><button class="btn ghost small" data-a="adCopy" data-v="${lid}">Copia il link</button><a class="btn ghost small" href="${esc(adUrl(l))}" target="_blank" rel="noopener">Apri la pagina</a><button class="btn ghost small" data-a="adOff" data-v="${lid}">Disattiva il link</button></div>`
+  ${on?`<div class="tr-out" style="word-break:break-all;margin-bottom:8px">${esc(adUrl(l))}</div>
+  <div class="ad-lbl">Manda su WhatsApp</div>
+  <div class="ad-g"><a class="btn small" href="${wa("it")}" target="_blank" rel="noopener">WhatsApp italiano</a><a class="btn small" href="${wa("en")}" target="_blank" rel="noopener">WhatsApp inglese</a><a class="btn small" href="${wa("de")}" target="_blank" rel="noopener">WhatsApp tedesco</a></div>
+  <div class="ad-lbl">Copia il link</div>
+  <div class="ad-g"><button class="btn ghost small" data-a="adCopy" data-v="${lid}|it">Copia IT</button><button class="btn ghost small" data-a="adCopy" data-v="${lid}|en">Copia EN</button><button class="btn ghost small" data-a="adCopy" data-v="${lid}|de">Copia DE</button></div>
+  <div class="ad-g" style="margin-top:8px"><a class="btn ghost small" href="${esc(adUrl(l))}" target="_blank" rel="noopener">Apri la pagina</a><button class="btn ghost small" data-a="adOff" data-v="${lid}">Disattiva il link</button></div>`
   :`<button class="btn small" data-a="adOn" data-v="${lid}">Crea il link pubblicità</button>`}</div>`}
-function adAct(a,lid){const l=D.litters[lid];if(!l)return;
+function adAct(a,arg){const [lid,lg]=String(arg).split("|");const l=D.litters[lid];if(!l)return;
   if(a==="adOn"){l.ad=l.ad||{};if(!l.ad.tok){const x=new Uint8Array(15);crypto.getRandomValues(x);l.ad.tok=[...x].map(b=>"abcdefghijkmnpqrstuvwxyz23456789"[b%32]).join("")}l.ad.on=true;toast("Link pubblicità creato.")}
   if(a==="adOff"){if(!confirm("Disattivare il link pubblicità? Chi l'ha ricevuto non potrà più aprirlo."))return;l.ad.on=false;toast("Link disattivato.")}
-  if(a==="adCopy"){aiCopy(adUrl(l));return}
+  if(a==="adCopy"){aiCopy(adUrl(l,lg||"it"));return}
   typeof saveNow==="function"&&saveNow();litterSheet(lid)}
 function litterSheet(lid){CK_LIT=lid;const l=D.litters[lid];if(!l)return;const s=l.sire,dm=l.dam,a=l.sbtA&&l.sbtA.c8?l.sbtA:null;
   const pups=Object.keys(D.dogs).filter(k=>D.dogs[k].litter===lid).sort((x,y)=>D.dogs[x].name.localeCompare(D.dogs[y].name));
