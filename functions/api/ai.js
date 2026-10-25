@@ -68,7 +68,7 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2], libretto: [ "cani", 2 ] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2], libretto: [ "cani", 2 ], compila: [ [ "cani", "cucciolate", "proprietari", "conti", "anagrafe", "esposizioni" ], 2 ] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -270,6 +270,53 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
       const lines = (Array.isArray(o.lines) ? o.lines : []).slice(0, 30).map(x => ({ desc: String(x.desc || ""), cat: ["Crocchette", "Vaccini", "Visite", "Terapie", "Altro"].includes(x.cat) ? x.cat : "Altro", puppy: !!x.puppy, brand: String(x.brand || ""), name: String(x.name || ""), qty: Math.max(1, Math.round(n(x.qty) || 1)), kg: (n(x.kg) > 0 && n(x.kg) < 50) ? n(x.kg) : null, unit: n(x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null, total: n(x.total) }));
       return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
+  // Compila da foto o documento (25/10/2026): una foto vale come un PDF. Claude legge e restituisce i campi del modulo indicato da "kind".
+  if (task === "compila") {
+   const CK = {
+    cane: ["un pedigree, un certificato LOI/ROI, un libretto o un passaporto di un cane", { name: "nome completo del cane come sul documento (con l'affisso)", sex: "\"M\" o \"F\"", birth: "data di nascita", color: "mantello / colore", loi: "numero LOI o ROI o del libro genealogico (es. \"LOI 23/123456\")", chip: "numero del microchip (solo cifre)", sire: "nome del padre", sire_loi: "LOI del padre", dam: "nome della madre", dam_loi: "LOI della madre", titles: "titoli del cane scritti sul documento", tests: "test sanitari scritti sul documento", breeder: "allevatore" }],
+    ped: ["un pedigree (anche estero, qualsiasi lingua)", { tree: "albero degli antenati: {\"s\":{\"name\":\"\",\"loi\":\"\",\"s\":{...},\"d\":{...}},\"d\":{...}} dove s = padre e d = madre; fino a 4 generazioni sopra il cane, solo quelli scritti" }],
+    sh: ["la scheda del giudice, il libretto delle qualifiche o il catalogo di un'esposizione canina", { date: "data dell'esposizione", show: "nome e luogo dell'esposizione", judge: "giudice (nome e nazione)", cls: "classe (Baby, Juniores, Giovani, Intermedia, Libera, Lavoro, Campioni, Veterani)", qual: "qualifica (Eccellente, Molto Buono, Buono, Sufficiente, Molto Promettente, Promettente, Poco Promettente, Squalificato, Non giudicabile)", rank: "classifica come numero 1-4 o \"\"", titles: "elenco dei titoli presi (CAC, Ris. CAC, JCAC, CACIB, Ris. CACIB, BOB, JBOB, BOS, Miglior Giovane, Best Baby, Best Puppy, BIG, BIS)", text: "giudizio scritto, parola per parola, tradotto in italiano se in altra lingua" }],
+    rp: ["un referto di progesterone, una visita o un foglio scritto a mano su calore o monta", { date: "data", value: "valore del progesterone in ng/ml (numero) o \"\"", note: "nota breve con quello che c'è scritto" }],
+    litter: ["un Modello A, una denuncia di monta e nascita o un foglio sulla cucciolata", { dam: "nome della madre", sire: "nome del padre", birth: "data di nascita dei cuccioli", pups: "numero dei cuccioli nati (numero) o \"\"", note: "maschi/femmine e altre informazioni utili" }],
+    w: ["un foglio (anche scritto a mano) con le pesate dei cuccioli", { date: "data della pesata", pups: "elenco [{\"name\":\"nome o colore del collarino\",\"g\":peso in grammi}]" }],
+    famiglia: ["una carta d'identità, una patente, una tessera sanitaria o un biglietto con i dati di una persona", { name: "nome e cognome", country: "paese (Italia se italiano)", phone: "telefono", email: "email", addr: "indirizzo di residenza completo", bplace: "luogo di nascita (con la sigla della provincia)", bdate: "data di nascita", cf: "codice fiscale" }],
+    ppb: ["un documento d'identità o la tessera sanitaria dell'acquirente", { bplace: "luogo di nascita", bdate: "data di nascita", cf: "codice fiscale", res: "residenza: CAP, città, via", cell: "cellulare", mail: "email" }],
+    inc: ["una ricevuta di bonifico, uno screenshot di un pagamento o una ricevuta", { date: "data del pagamento", amount: "importo in euro (numero)", txt: "chi ha pagato e la causale" }],
+    acq: ["un pedigree, un passaporto o un contratto di un cane acquistato", { name: "nome di chiamata, se scritto, altrimenti \"\"", ped: "nome di pedigree completo", sex: "\"M\" o \"F\"" }],
+    anag: ["un passaporto, un pedigree o un contratto di un cane da iscrivere all'anagrafe", { nm: "nome di chiamata", ped: "nome di pedigree", chip: "microchip (solo cifre)", pass: "numero del passaporto", pedn: "numero del pedigree (LOI)", lit: "numero della cucciolata", col: "mantello", seg: "segni particolari", prov: "provenienza (paese e allevamento)", acq: "titolo di acquisizione (es. contratto di compravendita del ...)" }],
+    farm: ["un biglietto da visita, una carta intestata o una pagina con i dati di un allevamento", { name: "nome dell'allevamento senza la parola Allevamento", first: "nome del titolare", last: "cognome del titolare", street: "via", num: "numero civico", cap: "CAP", city: "comune", prov: "sigla della provincia", provName: "provincia per esteso", phone: "telefono senza +39", email: "email", site: "sito senza https://", breed: "razza", since: "anno da cui alleva" }],
+    enti: ["una lettera, un'email o una pagina della delegazione ENCI o dell'anagrafe canina", { deleg: "delegazione ENCI (città)", email: "email della delegazione", who: "persona di riferimento", wa: "telefono o WhatsApp della delegazione", ana: "email dell'anagrafe canina" }]
+   };
+   const K = CK[p.kind];
+   if (!K) return json({ ok: false, error: "Modulo sconosciuto." });
+   const P = (Array.isArray(p.pages) ? p.pages : []).slice(0, 6), content = [];
+   for (const x of P) {
+    const data = String(x && x.data || "").replace(/^data:[^,]*,/, ""), media = String(x && x.media || "image/jpeg");
+    if (!data) continue;
+    content.push(media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
+     : { type: "image", source: { type: "base64", media_type: /^image\/(jpeg|png|gif|webp)$/.test(media) ? media : "image/jpeg", data } });
+   }
+   if (!content.length) return json({ ok: false, error: "Manca la foto o il documento." });
+   content.push({ type: "text", text: `Oggi è il ${new Date().toISOString().slice(0, 10)}.` + (p.ctx ? " Contesto: " + String(p.ctx).slice(0, 400) : "") });
+   const o = await ask(env, `Leggi ${K[0]}. Può essere una foto o un PDF: trattali allo stesso modo. Leggi TUTTO quello che c'è scritto e compila i campi qui sotto SOLO con quello che c'è scritto, senza inventare: se un dato manca metti "". Le date scritte a mano sono di solito GG/MM/AAAA europeo: rispondi sempre AAAA-MM-GG.
+Rispondi con {"f":{...},"note":""} dove "f" ha questi campi:
+${Object.entries(K[1]).map(([k, d]) => `- "${k}": ${d}`).join("\n")}
+"note": una frase in italiano su quello che non hai potuto leggere bene, altrimenti "".`, content, p.kind === "ped" ? 3000 : 1600);
+   const F = o.f && typeof o.f === "object" ? o.f : {}, out = {};
+   const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "", S = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
+   const tree = (t, lv) => { if (!t || typeof t !== "object" || lv > 4) return null; const r = { name: S(t.name, 120), loi: S(t.loi, 40) }; const s = tree(t.s, lv + 1), d = tree(t.d, lv + 1); if (s) r.s = s; if (d) r.d = d; return r.name || r.s || r.d ? r : null; };
+   for (const k of Object.keys(K[1])) {
+    const v = F[k];
+    if (k === "tree") out.tree = tree(v, 0) || {};
+    else if (k === "pups" && p.kind === "w") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ name: S(x && x.name, 40), g: +String(x && x.g || "").replace(",", ".") || 0 })).filter(x => x.name && x.g > 0);
+    else if (k === "titles" && p.kind === "sh") out.titles = (Array.isArray(v) ? v : String(v || "").split(/[,;]/)).map(x => S(x, 30)).filter(Boolean).slice(0, 12);
+    else if (/^(birth|bdate|date)$/.test(k)) out[k] = D8(v);
+    else if (k === "text") out[k] = S(v, 3000);
+    else out[k] = S(v);
+   }
+   if (!Object.values(out).some(v => v && (typeof v !== "object" || Object.keys(v).length))) return json({ ok: false, error: "Non riesco a leggere niente di utile. Prova con una foto più nitida, dritta e con più luce." + (o.note ? " " + S(o.note, 200) : "") });
+   return json({ ok: true, f: out, note: S(o.note, 300) });
+  }
   // Libretto sanitario (25/10/2026): legge le foto delle pagine e restituisce vaccini e trattamenti da controllare
   if (task === "libretto") {
    const P = (Array.isArray(p.pages) ? p.pages : []).slice(0, 8), content = [];

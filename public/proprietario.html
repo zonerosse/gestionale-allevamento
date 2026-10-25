@@ -835,6 +835,13 @@ textarea.pg-f{resize:vertical}.pg-f[readonly]{background:var(--bg)}
 .lb-it.dup{opacity:.55}.lb-it small{grid-column:3;color:var(--muted);font-size:12px}
 .lb-unk{background:#F6EAD8;color:#7A4A0E;border-radius:10px;padding:8px 10px;font-size:13px;margin:10px 0 0}
 @media(max-width:600px){.lb-it{grid-template-columns:24px minmax(0,1fr)}.lb-it .lb-p,.lb-it small{grid-column:2}}
+.cf-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1.5px dashed #9FB2C4;background:#F3F6F9;border-radius:12px;padding:9px 12px;margin:0 0 10px}
+.cf-ic{width:30px;height:30px;border-radius:8px;background:#3E5C76;color:#fff;display:grid;place-items:center;flex:none}.cf-ic svg{width:17px;height:17px}
+.cf-t{flex:1 1 200px;min-width:0}.cf-t b{display:block;font-size:14px}.cf-t small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.cf-bb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.cf-bb .btn{cursor:pointer}.cf-bb .btn svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px}
+.cf-wait{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px}.cf-spin{width:17px;height:17px;flex:none;border:2.5px solid var(--line);border-top-color:#3E5C76;border-radius:50%;animation:cfs 1s linear infinite}@keyframes cfs{to{transform:rotate(360deg)}}
+.cf-msg:empty{display:none}.cf-ok{background:#E1EEE4;color:#2F6B3F;border-radius:10px;padding:8px 10px;font-size:13.5px;margin:0 0 10px}.cf-err{background:#F6EAD8;color:#7A4A0E;border-radius:10px;padding:8px 10px;font-size:13.5px;margin:0 0 10px}
+input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-color:#9CC3A5!important}label.cf-ai{color:#2F6B3F;font-weight:600}
 </style>
 </head>
 <body class="owner-mode">
@@ -3570,6 +3577,371 @@ function gdTick() {
  t.style.top = Math.max(8, Math.min(innerHeight - th - 8, T)) + "px";
 }
 
+
+// Compila da foto o documento (25/10/2026): in cima ai moduli una riga con «Foto» e «File». Una foto vale come un PDF:
+// Claude legge (task ai «compila») e riempie i campi, che restano in verde finché non si salva. Funziona per tutti i moduli
+// riconosciuti da cfKind(); il documento resta allegato dove ha senso (cane, pedigree, esposizione, anagrafe).
+const CF_H = {
+ cane: "Foto o PDF del pedigree, del certificato LOI o del libretto: i campi si compilano da soli",
+ ped: "Foto o PDF del pedigree: Claude scrive tutti gli antenati, generazione per generazione",
+ sh: "Foto della scheda del giudice o del catalogo: qualifica, classifica, titoli e giudizio",
+ rp: "Foto del referto o del foglio scritto a mano: data, valore e note",
+ litter: "Foto del Modello A o del foglio della cucciolata: genitori, nascita, cuccioli",
+ w: "Foto del foglio delle pesate, anche scritto a mano",
+ famiglia: "Foto della carta d'identit\xe0 o della tessera sanitaria: nome, nascita, indirizzo",
+ ppb: "Foto del documento dell'acquirente: nascita, codice fiscale, residenza",
+ inc: "Foto della ricevuta del bonifico o dello screenshot del pagamento",
+ acq: "Foto del pedigree o del passaporto del cane",
+ anag: "Foto del passaporto, del pedigree o del contratto: i campi si compilano da soli",
+ farm: "Foto del biglietto da visita o della carta intestata",
+ enti: "Foto della lettera o dell'email della delegazione"
+};
+
+let CF = {
+ busy: 0,
+ msg: null,
+ att: null
+};
+
+const CF_IC = {
+ doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h4"/></svg>',
+ cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+ file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg>'
+};
+
+function cfKind() {
+ const S = document.getElementById("sheet"), M = document.getElementById("main"), q = (r, s) => r && r.querySelector(s), open = typeof sheetOpen === "function" && sheetOpen();
+ const at = (r, s) => {
+  const e = q(r, s);
+  return e ? e.closest(".form,.ac-g,.ped-wrap") || e : null;
+ };
+ if (open && S) {
+  if (q(S, "#fn") && q(S, "#fsi")) return [ "cane", at(S, "#fn") ];
+  if (q(S, ".pedf")) return [ "ped", q(S, ".ped-wrap") ];
+  if (q(S, "#sh_n")) return [ "sh", at(S, "#sh_n") ];
+  if (q(S, "#rpd")) return [ "rp", at(S, "#rpd") ];
+  if (q(S, "#lm") && q(S, "#lp")) return [ "litter", at(S, "#lm") ];
+  if (q(S, "#wd") && q(S, ".wgrid")) return [ "w", at(S, "#wd") ];
+  if (q(S, "#on") && q(S, "#obp")) return [ "famiglia", at(S, "#on") ];
+  if (q(S, "#pp_bcf")) return [ "ppb", at(S, "#pp_bna") ];
+  if (q(S, "#aiv") && q(S, "#ait")) return [ "inc", at(S, "#aid") ];
+  if (q(S, "#ann_n")) return [ "acq", at(S, "#ann_n") ];
+  if (q(S, "#an_ped")) return [ "anag", at(S, "#an_h") ];
+ }
+ if (M && typeof tab !== "undefined" && tab === "account") {
+  if (q(M, "#acf_name")) return [ "farm", at(M, "#acf_name") ];
+  if (q(M, "#ace_deleg")) return [ "enti", at(M, "#ace_deleg") ];
+ }
+ return [ "", null ];
+}
+
+function cfDecorate() {
+ if (typeof RO !== "undefined" && RO || typeof OWNER_MODE !== "undefined") return;
+ const [k, el] = cfKind();
+ if (!k || !el || !el.parentNode || el.parentNode.querySelector(":scope > .cf-bar")) return;
+ const m = CF.msg && CF.msg.k === k && Date.now() - CF.msg.t < 6e5 ? CF.msg.h : "";
+ el.insertAdjacentHTML("beforebegin", `<div class="cf-bar" data-cfk="${k}"><span class="cf-ic">${CF_IC.doc}</span><span class="cf-t"><b>Compila da foto o documento</b><small>${CF_H[k]}</small></span><span class="cf-bb"><label class="btn small">${CF_IC.cam}Foto<input type="file" accept="image/*" capture="environment" data-cff="1" hidden></label><label class="btn small ghost">${CF_IC.file}File<input type="file" accept="image/*,application/pdf" multiple data-cff="1" hidden></label></span></div><div class="cf-msg">${m}</div>`);
+}
+
+if (typeof sheet === "function" && typeof render === "function") {
+ const s0 = sheet;
+ sheet = function() {
+  const x = s0.apply(this, arguments);
+  try {
+   cfDecorate();
+  } catch (e) {}
+  return x;
+ };
+ const r0 = render;
+ render = function() {
+  const x = r0.apply(this, arguments);
+  try {
+   cfDecorate();
+  } catch (e) {}
+  return x;
+ };
+}
+
+const cfNorm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+function cfDog(name, loi, sex) {
+ const n = cfNorm(name), l = cfNorm(loi).replace(/^(loi|roi) /, "");
+ if (!n && !l) return "";
+ return Object.keys(D.dogs).find(k => {
+  const d = D.dogs[k];
+  if (sex && d.sex && d.sex !== sex) return false;
+  return l && l.length > 3 && cfNorm(d.loi).replace(/^(loi|roi) /, "") === l || n && (cfNorm(d.name) === n || cfNorm(d.nick) === n);
+ }) || "";
+}
+
+function cfSet(id, v) {
+ const e = document.getElementById(id);
+ if (!e || v == null || v === "") return 0;
+ if (e.tagName === "SELECT") {
+  const t = cfNorm(v), O = [ ...e.options ];
+  const o = O.find(o => cfNorm(o.value) === t || cfNorm(o.text) === t) || O.find(o => o.value !== "" && cfNorm(o.text) && t && (cfNorm(o.text).includes(t) || t.includes(cfNorm(o.text))));
+  if (!o) return 0;
+  e.value = o.value;
+ } else e.value = String(v);
+ e.classList.add("cf-ai");
+ e.dispatchEvent(new Event("input", {
+  bubbles: !0
+ }));
+ return 1;
+}
+
+function cfCombo(fid, id, name) {
+ const cb = document.querySelector(`.cb[data-for="${fid}"]`), h = document.getElementById(fid);
+ if (!cb || !h) return 0;
+ h.value = id;
+ const i = cb.querySelector(".cbi");
+ i.value = D.dogs[id] ? D.dogs[id].name : name;
+ i.classList.add("cf-ai");
+ return 1;
+}
+
+const cfNote = (id, t) => {
+ const e = document.getElementById(id);
+ if (!e || !t) return 0;
+ e.value = (e.value ? e.value.trim() + "\n" : "") + t;
+ e.classList.add("cf-ai");
+ return 1;
+};
+
+const cfDec = v => v === "" || v == null ? "" : String(v).replace(".", ",");
+
+function cfPedLink(child, side, node, sexOf) {
+ if (!node || !D.dogs[child]) return 0;
+ const c = D.dogs[child], f = side === "s" ? "sire" : "dam", sx = side === "s" ? "M" : "F";
+ let n = 0, pid = c[f] && D.dogs[c[f]] ? c[f] : "";
+ if (!pid && node.name) {
+  pid = cfDog(node.name, node.loi, sx);
+  if (!pid) {
+   pid = newId("d");
+   D.dogs[pid] = {
+    name: node.name,
+    sex: sx,
+    ext: true,
+    status: "",
+    loi: node.loi || ""
+   };
+  }
+  c[f] = pid;
+  n++;
+ }
+ if (pid) {
+  if (node.loi && !D.dogs[pid].loi) D.dogs[pid].loi = node.loi;
+  n += cfPedLink(pid, "s", node.s) + cfPedLink(pid, "d", node.d);
+ }
+ return n;
+}
+
+const cfDoc = (id, title) => {
+ const d = D.dogs[id];
+ if (!d || !CF.att) return;
+ CF.att.pages.forEach((p, i) => (d.docs = d.docs || []).push({
+  title: title + (CF.att.pages.length > 1 ? " – pagina " + (i + 1) : ""),
+  date: todayS(),
+  file: p.data,
+  fname: p.name,
+  private: true
+ }));
+ CF.att = null;
+};
+
+const CF_FILL = {
+ cane: f => {
+  let n = cfSet("fn", f.name) + cfSet("fs", f.sex) + cfSet("fb", f.birth) + cfSet("fc", f.color) + cfSet("fl", f.loi) + cfSet("fm", (f.chip || "").replace(/\D/g, "")) + cfSet("fti", f.titles) + cfSet("ft", f.tests);
+  for (const [fid, nm, loi, sx, lab] of [ [ "fsi", f.sire, f.sire_loi, "M", "Padre" ], [ "fda", f.dam, f.dam_loi, "F", "Madre" ] ]) {
+   if (!nm) continue;
+   const id = cfDog(nm, loi, sx);
+   if (id) n += cfCombo(fid, id, nm); else n += cfNote("fno", lab + " (non in archivio): " + nm + (loi ? " \xb7 " + loi : "") + " – lo aggiungi con \xabPedigree\xbb dalla scheda");
+  }
+  if (f.breeder) n += cfNote("fno", "Allevatore: " + f.breeder);
+  CF.att.title = "Pedigree / documento del cane";
+  return n;
+ },
+ ped: f => {
+  const r = typeof PEDROOT !== "undefined" ? PEDROOT : "";
+  if (!r || !D.dogs[r]) return 0;
+  const n = cfPedLink(r, "s", (f.tree || {}).s) + cfPedLink(r, "d", (f.tree || {}).d);
+  cfDoc(r, "Pedigree");
+  if (n) {
+   typeof saveNow === "function" && saveNow();
+   CF.msg = {
+    k: "ped",
+    t: Date.now(),
+    h: `<div class="cf-ok">Claude ha scritto ${n} antenati dalla foto del pedigree, come da un documento. Controlla i nomi: se uno \xe8 sbagliato correggilo nella scheda di quel cane.</div>`
+   };
+   pedForm(r);
+  }
+  return n;
+ },
+ sh: f => {
+  let n = cfSet("sh_d", f.date) + cfSet("sh_n", f.show) + cfSet("sh_j", f.judge) + cfSet("sh_c", f.cls) + cfSet("sh_q", f.qual) + (f.rank ? cfSet("sh_r", String(f.rank).replace(/\D/g, "") + "\xb0") : 0) + cfSet("sh_g", f.text);
+  (f.titles || []).forEach(t => {
+   const b = [ ...document.querySelectorAll(".sh-tt input") ].find(x => cfNorm(x.value) === cfNorm(t));
+   if (b && !b.checked) {
+    b.checked = true;
+    b.parentNode.classList.add("cf-ai");
+    n++;
+   }
+  });
+  if (typeof SH_FILE !== "undefined" && !SH_FILE && CF.att) {
+   SH_FILE = {
+    data: CF.att.pages[0].data,
+    name: CF.att.pages[0].name
+   };
+   const p = document.getElementById("sh_fp");
+   if (p) p.innerHTML = /^data:image/.test(SH_FILE.data) ? `<img src="${SH_FILE.data}" style="max-width:140px;border-radius:8px">` : esc(SH_FILE.name);
+  }
+  return n;
+ },
+ rp: f => cfSet("rpd", f.date) + cfSet("rpv", cfDec(f.value)) + cfSet("rpn", f.note),
+ litter: f => {
+  const dm = cfDog(f.dam, "", "F"), sr = cfDog(f.sire, "", "M");
+  let n = (dm ? cfSet("lm", dm) : 0) + (sr ? cfSet("lp", sr) : 0) + cfSet("ld", f.birth) + cfSet("ln", f.pups);
+  const miss = [ !dm && f.dam ? "madre: " + f.dam : "", !sr && f.sire ? "padre: " + f.sire : "" ].filter(Boolean).join(", ");
+  n += cfNote("lno", [ f.note, miss ? "Non in archivio (" + miss + ")" : "" ].filter(Boolean).join(" \xb7 "));
+  return n;
+ },
+ w: f => {
+  const wd = document.getElementById("wd"), lid = wd && wd.dataset.lid;
+  if (f.date && lid && f.date !== wd.value && typeof wForm === "function") wForm(lid, f.date);
+  let n = f.date ? 1 : 0;
+  const I = [ ...document.querySelectorAll('input[id^="ww_"]') ];
+  (f.pups || []).forEach(p => {
+   const t = cfNorm(p.name), e = I.find(i => {
+    const d = D.dogs[i.id.slice(3)] || {};
+    return [ d.nick, d.name, d.collar ].some(x => x && (cfNorm(x) === t || cfNorm(x).includes(t) || t.includes(cfNorm(x))));
+   });
+   if (e) n += cfSet(e.id, Math.round(p.g));
+  });
+  if (typeof wDiffs === "function") wDiffs();
+  if (f.date) {
+   const e = document.getElementById("wd");
+   e && e.classList.add("cf-ai");
+  }
+  return n;
+ },
+ famiglia: f => cfSet("on", f.name) + cfSet("oc", f.country) + cfSet("op", f.phone) + cfSet("oe", f.email) + cfSet("oa", f.addr) + cfSet("obp", f.bplace) + cfSet("obd", f.bdate) + (f.cf ? cfNote("ono", "Codice fiscale: " + f.cf.toUpperCase()) : 0),
+ ppb: f => cfSet("pp_bna", f.bplace) + cfSet("pp_bil", f.bdate) + cfSet("pp_bcf", (f.cf || "").toUpperCase()) + cfSet("pp_bres", f.res) + cfSet("pp_bcell", f.cell) + cfSet("pp_bmail", f.mail),
+ inc: f => cfSet("aid", f.date) + cfSet("aiv", cfDec(f.amount)) + cfSet("ait", f.txt),
+ acq: f => {
+  let n = cfSet("ann_n", f.name || (f.ped || "").split(" ")[0]) + cfSet("ann_p", f.ped);
+  const b = f.sex && document.querySelector(`[data-a="annSx"][data-v="${f.sex}"]`);
+  if (b) {
+   b.click();
+   n++;
+  }
+  return n;
+ },
+ anag: f => {
+  const n = cfSet("an_nm", f.nm) + cfSet("an_ped", f.ped) + cfSet("an_chip", (f.chip || "").replace(/\D/g, "")) + cfSet("an_pass", f.pass) + cfSet("an_pedn", f.pedn) + cfSet("an_lit", f.lit) + cfSet("an_col", f.col) + cfSet("an_seg", f.seg) + cfSet("an_prov", f.prov) + cfSet("an_acq", f.acq);
+  const b = document.querySelector('#sheet [data-a="anagPdf"]');
+  if (b && n) {
+   cfDoc(b.dataset.v, "Documento del cane");
+   typeof saveNow === "function" && saveNow();
+  }
+  return n;
+ },
+ farm: f => [ "name", "first", "last", "street", "num", "cap", "city", "prov", "provName", "phone", "email", "site", "breed", "since" ].reduce((n, k) => n + cfSet("acf_" + k, k === "site" ? String(f[k] || "").replace(/^https?:\/\//, "") : k === "phone" ? String(f[k] || "").replace(/^\+?39\s*/, "") : f[k]), 0),
+ enti: f => cfSet("ace_deleg", f.deleg) + cfSet("ace_email", f.email) + cfSet("ace_who", f.who) + cfSet("ace_wa", f.wa) + cfSet("ace_ana", f.ana)
+};
+
+function cfCtx(k) {
+ if (k === "ped" && typeof PEDROOT !== "undefined" && D.dogs[PEDROOT]) return "Il cane del pedigree \xe8 " + D.dogs[PEDROOT].name + ".";
+ if (k === "w") return "Cuccioli: " + [ ...document.querySelectorAll('input[id^="ww_"]') ].map(i => {
+  const d = D.dogs[i.id.slice(3)] || {};
+  return (d.nick || d.name || "") + (d.collar ? " (collarino " + d.collar + ")" : "");
+ }).join(", ");
+ return "";
+}
+
+async function cfRead(bar, files) {
+ const k = bar.dataset.cfk, bb = bar.querySelector(".cf-bb"), msg = bar.nextElementSibling, keep = bb.innerHTML, pages = [];
+ const say = h => {
+  const m = document.querySelector(".cf-bar + .cf-msg");
+  if (m) m.innerHTML = h;
+ };
+ for (const f of [ ...files ].slice(0, 6)) {
+  const u = await new Promise(ok => {
+   const r = new FileReader;
+   r.onload = () => ok(r.result);
+   r.onerror = () => ok("");
+   r.readAsDataURL(f);
+  });
+  if (!u) continue;
+  const img = /^image\//.test(f.type);
+  if (!img && f.type !== "application/pdf") continue;
+  pages.push({
+   data: img ? await aiImg(u) : u,
+   media: img ? "image/jpeg" : "application/pdf",
+   name: (f.name || "documento").replace(/\.[^.]+$/, "") + (img ? ".jpg" : ".pdf")
+  });
+ }
+ if (!pages.length) {
+  if (msg) msg.innerHTML = `<div class="cf-err">Si leggono solo foto e PDF.</div>`;
+  return;
+ }
+ bb.innerHTML = `<span class="cf-wait"><span class="cf-spin"></span>Claude legge${pages.length > 1 ? " " + pages.length + " pagine" : ""}…</span>`;
+ if (msg) msg.innerHTML = "";
+ CF.busy = 1;
+ try {
+  const j = await aiCall("compila", {
+   kind: k,
+   pages: pages.map(p => ({
+    data: p.data,
+    media: p.media
+   })),
+   ctx: cfCtx(k)
+  });
+  CF.att = {
+   pages: pages,
+   title: ""
+  };
+  const n = CF_FILL[k](j.f || {});
+  const src = pages.some(p => /^data:image/.test(p.data)) ? "dalla foto" : "dal documento";
+  const h = n ? `<div class="cf-ok">Claude ha compilato ${n} ${n === 1 ? "campo" : "campi"} ${src}: sono quelli in verde. Controlla e salva.${j.note ? " " + esc(j.note) : ""}</div>` : `<div class="cf-err">Non ho trovato dati da mettere in questo modulo.${j.note ? " " + esc(j.note) : ""}</div>`;
+  if (k !== "ped" || !n) {
+   CF.msg = {
+    k: k,
+    t: Date.now(),
+    h: h
+   };
+   say(h);
+  }
+  if (k !== "cane") CF.att = null;
+ } catch (e) {
+  say(`<div class="cf-err">${esc(e.message)}</div>`);
+ }
+ CF.busy = 0;
+ const b2 = document.querySelector(`.cf-bar[data-cfk="${k}"] .cf-bb`);
+ if (b2 && b2.querySelector(".cf-wait")) b2.innerHTML = keep;
+}
+
+document.addEventListener("change", e => {
+ const t = e.target;
+ if (!t.dataset || !t.dataset.cff) return;
+ const bar = t.closest(".cf-bar"), F = [ ...t.files || [] ];
+ t.value = "";
+ if (bar && F.length && !CF.busy) cfRead(bar, F);
+});
+
+if (typeof saveDog === "function") {
+ const s0 = saveDog;
+ saveDog = function(id) {
+  const before = new Set(Object.keys(D.dogs)), att = CF.att && CF.att.title ? CF.att : null, x = s0.apply(this, arguments);
+  if (att) {
+   const nid = id || Object.keys(D.dogs).find(k => !before.has(k));
+   if (nid && D.dogs[nid] && D.dogs[nid].name) {
+    cfDoc(nid, att.title);
+    typeof saveNow === "function" && saveNow();
+   }
+  }
+  return x;
+ };
+}
 
 // Piano sanitario (25/10/2026): le regole degli avvisi di salute in Scadenze le decide l'allevatore in Account.
 const HP_DEF = {

@@ -545,6 +545,9 @@ Sito delpiccolodiavolo.it
   Scadenze nascono da `hpSug()` (per cane) e `hpLit()` (vermifugo ai cuccioli). Sezione permessi `scadenze`.
 - Foto del libretto: tasto «Leggi il libretto» nella Salute del cane (`lbOpen`, `LB`), `/api/ai` task `libretto`; l'allevatore controlla
   l'elenco e le voci spuntate vanno in `health`, le foto tra i documenti privati del cane. Guida `GUIDES.libro`.
+- Compila da foto o documento: riga `cf-bar` messa da sola in cima ai moduli riconosciuti da `cfKind()` (cane, pedigree,
+  esposizione, calori, cucciolata, pesate, famiglia, acquirente, entrate, cane acquisito, anagrafe, allevamento, enti);
+  `/api/ai` task `compila` con `kind`; `CF_FILL[kind]` riempie i campi (classe `cf-ai`, in verde). Una foto vale come un PDF.
 - Guide interattive (`GUIDES`, `gdStart`…, tasto Guida in alto `gdToggle`): stesso blocco della copia vergine kennel-manager;
   se si cambia una guida, cambiarla in tutti e due. Firma dell'allevatore da Account → «Firma qui» (`acSigPad`).
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
