@@ -563,6 +563,8 @@ Sito delpiccolodiavolo.it
   `final` unisce gli appunti nel server (stesso argomento = uno solo, punti e soluzioni senza doppioni) e Claude scrive solo titolo,
   riassunto, mappa e parole chiave.
   Modello: SEMPRE Sonnet (`MODEL`, `FAST = MODEL`). Paolo non vuole Haiku per gli appunti: provato il 25/10/2026 e tolto.
+  Risposte: strumento «risposta» con `tool_choice: auto` (Sonnet 5.5 rifiuta «tool»/«any» forzati: errore 400), se no il JSON dal testo.
+  Coda (anteprima 28): mentre legge «Foto»/«File» restano; i nuovi file vanno in `BB.W`/`BB.qu` «in coda», la × (`data-bbx`) toglie quelli in coda.
 - Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
   ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
   media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è

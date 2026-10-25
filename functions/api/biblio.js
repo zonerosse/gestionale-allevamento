@@ -21,7 +21,7 @@ async function ask(env, system, content, max, model) {
       r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
         headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
         body: JSON.stringify({ model: model || MODEL, max_tokens: Math.round((max || 2000) * (i ? 1.6 : 1)), system: system + "\nRispondi chiamando lo strumento «risposta» con l'oggetto descritto.",
-          tools: [{ name: "risposta", description: "La risposta, con i campi chiesti.", input_schema: { type: "object", additionalProperties: true } }], tool_choice: { type: "tool", name: "risposta" },
+          tools: [{ name: "risposta", description: "La risposta, con i campi chiesti.", input_schema: { type: "object", additionalProperties: true } }], tool_choice: { type: "auto" }, // Sonnet 5.5 non accetta «tool»/«any» forzati (errore 400 del 25/10/2026)
           messages: [{ role: "user", content }] }) });
       j = await r.json().catch(() => ({}));
     } catch (e) { r = { ok: false, status: 0 }; j = {}; }
@@ -76,7 +76,7 @@ function slow(fn) {
   const t = setInterval(() => { w.write(enc.encode(" ")).catch(() => {}); }, 10000);
   (async () => {
     let out;
-    try { out = await fn(); } catch (e) { out = { ok: false, error: e.message || "errore", retry: !/Credito|ANTHROPIC_API_KEY/.test(e.message || "") }; }
+    try { out = await fn(); } catch (e) { out = { ok: false, error: e.message || "errore", retry: !/Credito|ANTHROPIC_API_KEY|Claude 4\d\d/.test(e.message || "") }; }
     clearInterval(t);
     try { await w.write(enc.encode(JSON.stringify(out))); await w.close(); } catch (e) {}
   })();

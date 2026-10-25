@@ -918,6 +918,7 @@ input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-colo
 .bb-q li.now .bb-qd{width:12px;height:12px;border-color:var(--blue,#3E5C76);border-top-color:transparent;animation:cfspin 1s linear infinite}
 @keyframes cfspin{to{transform:rotate(360deg)}}
 .bb-q li.ko em{color:var(--warn,#9A5B12)}.bb-q li.ko .bb-qd{border-color:var(--warn,#9A5B12)}
+.bb-q li{grid-template-columns:18px minmax(0,1fr) auto 22px}.bb-qx{background:none;border:0;color:var(--muted);font-size:18px;line-height:1;padding:0 4px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -5248,8 +5249,8 @@ function biblioPage() {
  if (BB.open) return bbDocView();
  const L = BB.docs || [], kw = [ ...new Set([ "progesterone", "temperatura", "colostro", "cesareo" ]) ];
  const J = BB.job;
- const up = RO ? "" : `<div class="cf-bar"><span class="cf-ic">${BB_IC.doc}</span><span class="cf-t"><b>Aggiungi un documento</b><small>PDF di una tesi o di un articolo, foto delle pagine, appunti o mappe esportati da Verba Manent</small></span><span class="cf-bb">${J ? "" : `<label class="btn small">${BB_IC.cam}Foto<input type="file" accept="image/*" capture="environment" multiple data-bbf="1" hidden></label><label class="btn small ghost">${BB_IC.doc}File<input type="file" accept="application/pdf,image/*" multiple data-bbf="1" hidden></label>`}</span></div>`;
- const job = J ? `<div class="bb-job"><div class="cf-wait"><span class="cf-spin"></span>${esc(J.t)}</div><div class="bb-qw">${bbQHtml()}</div><div class="bb-prog"><i style="width:${Math.round(J.p * 100)}%"></i></div><small>Non chiudere il gestionale finch\xe9 non ha finito${BB.qu && BB.qu.length > 1 ? " tutti i documenti" : ""}. Intanto puoi cercare negli altri documenti.</small><ul class="bb-q">${bbQList()}</ul></div>` : "";
+ const up = RO ? "" : `<div class="cf-bar"><span class="cf-ic">${BB_IC.doc}</span><span class="cf-t"><b>Aggiungi un documento</b><small>PDF di una tesi o di un articolo, foto delle pagine, appunti o mappe esportati da Verba Manent${J && BB.W ? ". Puoi aggiungerne anche mentre legge: vanno in coda" : ""}</small></span><span class="cf-bb">${J && !BB.W ? "" : `<label class="btn small">${BB_IC.cam}Foto<input type="file" accept="image/*" capture="environment" multiple data-bbf="1" hidden></label><label class="btn small ghost">${BB_IC.doc}File<input type="file" accept="application/pdf,image/*" multiple data-bbf="1" hidden></label>`}</span></div>`;
+ const job = J ? `<div class="bb-job"><div class="cf-wait"><span class="cf-spin"></span>${esc(J.t)}</div><div class="bb-qw">${bbQHtml()}</div><div class="bb-prog"><i style="width:${Math.round(J.p * 100)}%"></i></div><small>Non chiudere il gestionale finch\xe9 non ha finito.${BB.W ? " Intanto puoi aggiungere altri documenti o cercare in quelli gi\xe0 pronti." : " Intanto puoi cercare negli altri documenti."}</small><ul class="bb-q">${bbQList()}</ul></div>` : "";
  const res = BB.res ? `<div class="card bb-res">${BB.res.length ? `<p class="row-meta" style="margin:0 0 4px">${BB.res.length} risultati in ${new Set(BB.res.map(r => r.doc)).size} documenti</p>` + BB.res.map(r => `<button class="bb-r" data-bbo="${r.doc}"><b>${esc(r.title)}</b> <small>p. ${r.n}</small><span>${bbMark(r.s, BB.q)}</span></button>`).join("") : `<p class="row-meta" style="margin:0">Nessun risultato. Prova con un'altra parola.</p>`}</div>` : "";
  const ans = BB.asking ? `<div class="bb-ans"><span class="cf-wait"><span class="cf-spin"></span>Claude cerca nei tuoi documenti…</span></div>` : BB.ans ? `<div class="bb-ans">${esc(BB.ans.a).replace(/\n/g, "<br>")}${BB.ans.src && BB.ans.src.length ? `<div class="bb-src">Fonti: ${BB.ans.src.map(s => `<button data-bbo="${esc(s.doc)}">${esc(s.title)}, p. ${s.p}</button>`).join(" \xb7 ")}</div>` : ""}<p class="row-meta" style="margin:6px 0 0">Risponde solo con quello che c'\xe8 nei documenti caricati. Per decidere conta sempre il tuo veterinario.</p></div>` : "";
  const st = d => d.status === "ok" ? `<span class="bb-tg ok">appunti, mappa e soluzioni pronti</span>` : J && J.id === d.id ? `<span class="bb-tg w">in lettura…</span>` : `<span class="bb-tg w">lettura interrotta</span>${RO ? "" : `<button class="btn small ghost" data-bbr="${d.id}">Riprendi</button>`}`;
@@ -5340,7 +5341,7 @@ function bbQHtml() {
 function bbQList() {
  const Q = BB.qu;
  if (!Q || Q.length < 2) return "";
- return Q.map(q => `<li class="${q.s === 2 ? "ok" : q.s === 1 ? "now" : q.s === 3 ? "ko" : ""}"><span class="bb-qd"></span><span class="bb-qt">${esc(String(q.n).replace(/\.pdf$/i, ""))}</span><em>${q.s === 2 ? "pronto" : q.s === 1 ? "in lettura" : q.s === 3 ? "interrotto" : "in coda"}</em></li>`).join("");
+ return Q.map((q, i) => `<li class="${q.s === 2 ? "ok" : q.s === 1 ? "now" : q.s === 3 ? "ko" : ""}"><span class="bb-qd"></span><span class="bb-qt">${esc(String(q.n).replace(/\.pdf$/i, ""))}</span><em>${q.s === 2 ? "pronto" : q.s === 1 ? "in lettura" : q.s === 3 ? "interrotto" : "in coda"}</em>${q.s === 0 && BB.W ? `<button class="bb-qx" data-bbx="${i}" title="Togli dalla coda" aria-label="Togli dalla coda">\xd7</button>` : "<span></span>"}</li>`).join("");
 }
 
 function bbQUpd() {
@@ -5429,7 +5430,8 @@ async function bbPdfPages(buf, from) {
 }
 
 async function bbAdd(files) {
- if (BB.job) return toast("Aspetta che finisca il documento in lettura.");
+ // 25/10/2026 (anteprima 28): mentre legge si può aggiungere: i nuovi vanno in coda (BB.W) e partono da soli
+ if (BB.job && !BB.W) return toast("Aspetta che finisca il documento in lettura.");
  const F = [ ...files ], pdfs = F.filter(f => f.type === "application/pdf"), imgs = F.filter(f => /^image\//.test(f.type));
  if (!pdfs.length && !imgs.length) return toast("Si leggono solo PDF e foto.");
  try {
@@ -5449,6 +5451,19 @@ async function bbAdd(files) {
    },
    n: "Foto di " + imgs.length + (imgs.length === 1 ? " pagina" : " pagine")
   });
+  if (BB.W) {
+   W.forEach(w => {
+    BB.W.push(w);
+    BB.qu.push({
+     n: w.n,
+     s: 0
+    });
+   });
+   if (W.length) toast(W.length === 1 ? "Messo in coda." : W.length + " documenti messi in coda.");
+   bbQUpd();
+   return;
+  }
+  BB.W = W;
   BB.qu = W.map(w => ({
    n: w.n,
    s: 0
@@ -5478,6 +5493,7 @@ async function bbAdd(files) {
   BB.err = e.message;
  }
  bbAwake(false);
+ BB.W = null;
  BB.qu = null;
  BB.job = null;
  BB.docs = null;
@@ -5694,6 +5710,16 @@ document.addEventListener("keydown", e => {
   e.preventDefault();
   bbAsk();
  }
+});
+
+document.addEventListener("click", e => {
+ const b = e.target.closest && e.target.closest("[data-bbx]");
+ if (!b || !BB.W) return;
+ const k = +b.dataset.bbx;
+ if (!BB.qu[k] || BB.qu[k].s !== 0) return;
+ BB.W.splice(k, 1);
+ BB.qu.splice(k, 1);
+ bbQUpd();
 });
 
 document.addEventListener("change", e => {
