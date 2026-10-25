@@ -22,7 +22,8 @@ export async function onRequestGet({ request, env }) {
   out.google = { linked: !!(await g("refresh")), gsc: await g("gsc"), profile: !!(await g("loc")) };
   const C = await capsCfg(env);
   out.caps = { maps: { used: parseInt(await g("maps:used2:" + month()) || "0", 10) || 0, cap: C.maps },
-    sott: { used: parseInt(await g("budget:sottosopra:" + month()) || "0", 10) || 0, cap: C.sott } };
+    sott: { used: parseInt(await g("budget:sottosopra:" + month()) || "0", 10) || 0, cap: C.sott },
+    sug: { used: parseInt(await g("sug:used:" + month()) || "0", 10) || 0, cap: C.sug } };
   try { const r = await env.DB.prepare("SELECT MAX(ts) AS t, COUNT(*) AS n FROM wa").first(); out.wa = { last: r && r.t || null, n: r && r.n || 0 }; } catch (e) { out.wa = { last: null, n: 0 }; }
   // credito DataForSEO (lettura gratuita); se non risponde in 6 secondi si dice "non so"
   if (out.keys.dfs) {
@@ -35,15 +36,15 @@ export async function onRequestGet({ request, env }) {
   return json(out);
 }
 
-// POST { caps:{maps,sott} } oppure { people:{ email: "admin" | { sezione: 0|1|2 } } } — solo admin.
+// POST { caps:{maps,sott,sug} } oppure { people:{ email: "admin" | { sezione: 0|1|2 } } } — solo admin.
 // Chi salva resta sempre "admin" (così non si chiude fuori da solo).
 export async function onRequestPost({ request, env }) {
   if (!(await isAdmin(request, env))) return deny();
   const b = await request.json().catch(() => ({})), me = await accessEmail(request, env).catch(() => null);
   if (b.caps) {
     const n = v => { const x = parseInt(v, 10); return isNaN(x) ? null : Math.max(0, Math.min(100000, x)); };
-    const c = { maps: n(b.caps.maps), sott: n(b.caps.sott) };
-    if (c.maps === null || c.sott === null) return json({ ok: false, error: "Scrivi due numeri (0 = fermo)." });
+    const old = await capsCfg(env), c = { maps: n(b.caps.maps), sott: n(b.caps.sott), sug: b.caps.sug == null ? old.sug : n(b.caps.sug) };
+    if (c.maps === null || c.sott === null || c.sug === null) return json({ ok: false, error: "Scrivi dei numeri (0 = fermo)." });
     await gbpSet(env, "cfg:caps", JSON.stringify(c)); return json({ ok: true, caps: c });
   }
   if (b.people) {

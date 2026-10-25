@@ -28,7 +28,7 @@ const voice = F => `Scrivi come ${F.person}, allevatore di ${F.breed} a ${F.city
 Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "${F.first}".`;
 // 13/10/2026: a volte Claude risponde senza il JSON (testo vuoto o solo parole): prima dava "Unexpected end of JSON input".
 // Ora si riprova una volta da soli; se ancora niente, un messaggio chiaro.
-const ask = async (env, system, content, max = 1200, tools) => {
+export const ask = async (env, system, content, max = 1200, tools) => {
   for (let i = 0; ; i++) {
     try { return await ask1(env, system, content, max, tools); }
     catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo. (" + e.why + ")"); }

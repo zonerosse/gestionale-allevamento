@@ -14,7 +14,7 @@ import { gbpGet, gbpSet, gbpToken } from "../_gbp.js";
 const HOST = "delpiccolodiavolo.it";
 const day = (d) => d.toISOString().slice(0, 10);
 const back = (n, from = new Date()) => { const d = new Date(from); d.setUTCDate(d.getUTCDate() - n); return d; };
-async function gsc(env, token, site, body, it) {
+export async function gsc(env, token, site, body, it) {
   if (it) body = { ...body, dimensionFilterGroups: [{ filters: [{ dimension: "country", operator: "equals", expression: "ita" }] }] };
   const r = await fetch("https://www.googleapis.com/webmasters/v3/sites/" + encodeURIComponent(site) + "/searchAnalytics/query", {
     method: "POST", headers: { Authorization: "Bearer " + token, "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -27,7 +27,7 @@ async function gsc(env, token, site, body, it) {
   }
   return j.rows || [];
 }
-async function siteProp(env, token) {
+export async function siteProp(env, token) {
   let s = await gbpGet(env, "gsc"); if (s) return s;
   const r = await fetch("https://www.googleapis.com/webmasters/v3/sites", { headers: { Authorization: "Bearer " + token } });
   const j = await r.json().catch(() => ({}));

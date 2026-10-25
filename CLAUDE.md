@@ -859,6 +859,16 @@ Accessi e copie
 - "🌐 Pubblica tutte le modifiche" (`pgPublish`): un commit con `data/pagine.json` (tutte le pagine con modifiche), `mod` = oggi
   per quelle cambiate (sitemap/IndexNow le vedono aggiornate). Pagine da pubblicare segnate ✏️ (anche sul tasto della sezione);
   "Annulla modifiche di questa pagina" torna a `pub` (l'ultima pubblicazione).
+- Numeri e «Suggerisci» (25/10/2026, anteprima 39 approvata da Paolo): `functions/api/pagine.js` (Search Console con lo stesso
+  collegamento di Statistiche: `gsc`/`siteProp` esportate da sitestats.js; 28 giorni chiusi a 2 giorni fa, confronto con i 28 prima).
+  Elenco: clic e posizione di ogni pagina (`GET ?all=1`, `PG.all`, `pgAllTxt`). Dentro la pagina, card 1: clic, impressioni, clic ogni
+  100, posizione (solo Italia in italiano, tutto il mondo in inglese/tedesco) e le ricerche che la portano (`pgGscHtml`, `PG.gs`).
+  Solo in italiano «Suggerisci titolo e descrizione» (`pgSug` → `POST /api/pagine`): ricerche della pagina + parola chiave →
+  DataForSEO `keywords_data/google_ads/search_volume/live` (Italia, circa 0,09 $) → Claude Sonnet (`ask` esportata da ai.js) scrive 2
+  proposte {title,desc,why}; «Usa questa» (`pgUse`) le scrive nei campi italiani come se le avesse scritte Paolo, poi traduzione e
+  pubblicazione come sempre. Tetto `sug` in Account → Tetti di spesa (predefinito 30 al mese, `SUG_CAP`), contatore gbp
+  "sug:used:AAAA-MM" (conta dopo la chiamata a DataForSEO riuscita). Permessi: vede chi vede Google, suggerisce chi lo modifica.
+  Guida `gpag`. In Kennel Manager: funzione del pacchetto Gold (scelta di Paolo), da portare con i pacchetti.
 
 ## App sul telefono (ottobre 2026)
 - Il gestionale si installa come app web: `public/manifest.webmanifest` (nome "Gestionale", schermo intero), icone dal logo
