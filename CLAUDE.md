@@ -558,6 +558,10 @@ Sito delpiccolodiavolo.it
   `ask` riprova da solo se Claude è occupato (429/5xx/529); nel browser `bbApi` riprova fino a 5 volte (connessione persa o
   `retry`), `bbAwake` tiene lo schermo acceso (Wake Lock), una pagina fotografata per chiamata. Più file insieme: `BB.qu`/`BB.qi`,
   «Documento 2 di 5» (`bbQHtml`) ed elenco pronto/in lettura/in coda/interrotto (`bbQList`); un documento fermo non blocca gli altri.
+- Biblioteca più veloce (25/10/2026, «34 pagine ci mette troppo»): pagine e pezzi partono 4 alla volta (`bbPool`, `bbStudy`: pezzi di
+  10 pagine); ogni pezzo in una riga della tabella D1 `biblio_part` (si crea da sola; `biblio.parts` resta per i documenti vecchi);
+  `final` unisce gli appunti nel server (stesso argomento = uno solo, punti e soluzioni senza doppioni) e Claude scrive solo titolo,
+  riassunto, mappa e parole chiave.
 - Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
   ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
   media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è

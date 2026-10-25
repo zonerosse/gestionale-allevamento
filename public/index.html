@@ -5192,7 +5192,7 @@ async function bbApi(op, body) {
   const t = BB.job && BB.job.t;
   if (BB.job) bbSet((net ? "Connessione persa" : "Claude \xe8 occupato") + ": riprovo tra " + 5 * (k + 1) + " secondi…", BB.job.p);
   await new Promise(z => setTimeout(z, 5000 * (k + 1)));
-  if (BB.job && t) bbSet(t, BB.job.p);
+  if (BB.job && t && /riprovo tra/.test(BB.job.t)) bbSet(t, BB.job.p);
  }
 }
 
@@ -5526,6 +5526,7 @@ async function bbRun(o, resume) {
  BB.job.id = id;
  BB.docs = null;
  bbLoad();
+ const BT = [];
  for (let i = from - 1; i < N; ) {
   const B = [];
   let sz = 0;
@@ -5543,26 +5544,54 @@ async function bbRun(o, resume) {
    sz += s;
    i++;
   }
-  bbSet((B.some(x => x.img) ? "Claude trascrive le pagine fotografate: " : "Salvo il testo: ") + "pagina " + i + " di " + N, .2 + .4 * i / N, id);
+  BT.push(B);
+ }
+ // 25/10/2026 (troppo lento): le chiamate partono 4 alla volta invece che una dopo l'altra
+ const ni = BT.filter(B => B.some(x => x.img)).length;
+ let dn = 0, di = 0;
+ await bbPool(BT.map(B => async () => {
   await bbApi("pages", {
    id: id,
    pages: B
   });
- }
- const step = 20;
- for (let a = 1; a <= N; a += step) {
-  bbSet("Claude studia il documento: pagine " + a + "–" + Math.min(N, a + step - 1) + " di " + N, .6 + .3 * (a - 1) / N, id);
+  dn += B.length;
+  if (B.some(x => x.img)) di++;
+  bbSet((ni ? "Claude trascrive le pagine fotografate (" + di + " di " + ni + ") e salva il testo: " : "Salvo il testo: ") + "pagina " + Math.min(dn, N) + " di " + N, .2 + .4 * dn / N, id);
+ }));
+ await bbStudy(id, N);
+ toast("Documento pronto: appunti, mappa e soluzioni pratiche.");
+}
+
+// Al massimo n lavori insieme
+async function bbPool(J, n) {
+ let k = 0;
+ const run = async () => {
+  while (k < J.length) await J[k++]();
+ };
+ await Promise.all(Array.from({
+  length: Math.min(n || 4, J.length)
+ }, run));
+}
+
+// Claude studia il documento a pezzi di 10 pagine, 4 pezzi insieme; poi titolo, riassunto e mappa
+async function bbStudy(id, N) {
+ const step = 10, P = [];
+ for (let a = 1; a <= N; a += step) P.push([ a, Math.min(N, a + step - 1) ]);
+ let dn = 0;
+ bbSet("Claude studia il documento: " + N + " pagine, " + P.length + (P.length === 1 ? " parte" : " parti insieme") + "…", .6, id);
+ await bbPool(P.map(x => async () => {
   await bbApi("part", {
    id: id,
-   from: a,
-   to: Math.min(N, a + step - 1)
+   from: x[0],
+   to: x[1]
   });
- }
- bbSet("Claude scrive appunti, mappa e soluzioni…", .93, id);
+  dn++;
+  bbSet("Claude studia il documento: " + dn + " di " + P.length + (P.length === 1 ? " parte" : " parti") + " fatte", .6 + .3 * dn / P.length, id);
+ }));
+ bbSet("Claude scrive il riassunto e la mappa…", .93, id);
  await bbApi("final", {
   id: id
  });
- toast("Documento pronto: appunti, mappa e soluzioni pratiche.");
 }
 
 async function bbResume(id) {
@@ -5577,21 +5606,7 @@ async function bbResume(id) {
   BB.err = null;
   bbAwake(true);
   render();
-  if ((d.got || 0) >= d.pages) {
-   const N = d.pages;
-   for (let a = 1; a <= N; a += 20) {
-    bbSet("Claude studia il documento: pagine " + a + "–" + Math.min(N, a + 19) + " di " + N, .6 + .3 * (a - 1) / N, id);
-    await bbApi("part", {
-     id: id,
-     from: a,
-     to: Math.min(N, a + 19)
-    });
-   }
-   bbSet("Claude scrive appunti, mappa e soluzioni…", .93, id);
-   await bbApi("final", {
-    id: id
-   });
-  } else await bbRun({
+  if ((d.got || 0) >= d.pages) await bbStudy(id, d.pages); else await bbRun({
    name: d.fname
   }, d);
  } catch (e) {

@@ -33,6 +33,8 @@ async function ask(env, system, content, max) {
 async function tables(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS biblio (id TEXT PRIMARY KEY, title TEXT, file TEXT, fname TEXT, pages INTEGER, status TEXT, created TEXT, notes TEXT, parts TEXT)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS biblio_txt (doc TEXT, n INTEGER, text TEXT, PRIMARY KEY (doc, n))").run();
+  // 25/10/2026: un pezzo studiato per riga, così più pezzi si studiano insieme senza sovrascriversi
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS biblio_part (doc TEXT, a INTEGER, b INTEGER, json TEXT, PRIMARY KEY (doc, a))").run();
 }
 
 const S = (v, n) => String(v == null ? "" : v).slice(0, n || 300);
@@ -138,6 +140,7 @@ Se un valore \u00e8 in nmol/l convertilo in ng/ml (dividi per 3,18) e dillo in t
   if (op === "rename") { await env.DB.prepare("UPDATE biblio SET title = ? WHERE id = ?").bind(S(p.title, 200) || doc.title, id).run(); return json({ ok: true }); }
   if (op === "del") {
     await env.DB.prepare("DELETE FROM biblio_txt WHERE doc = ?").bind(id).run();
+    await env.DB.prepare("DELETE FROM biblio_part WHERE doc = ?").bind(id).run();
     await env.DB.prepare("DELETE FROM biblio WHERE id = ?").bind(id).run();
     if (doc.file && /^\/files\//.test(doc.file)) { try { await env.FILES.delete(doc.file.replace(/^\/files\//, "")); } catch (e) {} }
     return json({ ok: true });
@@ -171,24 +174,41 @@ async function work(env, op, p, id, doc) {
     let part = { sec: [], sol: [] };
     if (txt) {
       const o = await ask(env, `Studia queste pagine di un documento veterinario (tesi, articolo o appunti) per un allevatore di cani. Leggi TUTTO. Scrivi in italiano semplice gli appunti dei punti importanti e pratici, con i valori e i numeri come sono scritti, e la pagina da cui vengono (i numeri [[p. N]]).
-Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 6000);
+Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 5000);
       part = { title: S(o.title, 200), sec: (Array.isArray(o.sec) ? o.sec : []).slice(0, 20).map(s => ({ t: S(s.t, 120), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 25).map(x => ({ x: S(x.x, 500), p: PG(x.p) })) })), sol: (Array.isArray(o.sol) ? o.sol : []).slice(0, 15).map(s => ({ q: S(s.q, 300), a: S(s.a, 700), p: PG(s.p) })) };
     }
-    let parts = []; try { parts = JSON.parse(doc.parts || "[]"); } catch (e) {}
-    parts = parts.filter(x => x.from !== a).concat([{ from: a, to: b, part }]).sort((x, y) => x.from - y.from);
-    await env.DB.prepare("UPDATE biblio SET parts = ?, status = 'studio' WHERE id = ?").bind(JSON.stringify(parts), id).run();
+    await env.DB.prepare("INSERT OR REPLACE INTO biblio_part (doc, a, b, json) VALUES (?, ?, ?, ?)").bind(id, a, b, JSON.stringify(part)).run();
+    await env.DB.prepare("UPDATE biblio SET status = 'studio' WHERE id = ?").bind(id).run();
     return { ok: true };
   }
   if (op === "final") {
     if (!env.ANTHROPIC_API_KEY) return { ok: false, error: "Claude non è collegato: manca ANTHROPIC_API_KEY." };
+    // 25/10/2026 (troppo lento): Claude non riscrive più tutti gli appunti (minuti di scrittura). Gli appunti dei pezzi si
+    // uniscono qui (stesso argomento = un solo argomento, punti uguali una volta sola); Claude scrive solo titolo, riassunto,
+    // mappa e parole chiave, guardando l'elenco degli argomenti.
     let parts = []; try { parts = JSON.parse(doc.parts || "[]"); } catch (e) {}
-    const all = { sec: parts.flatMap(x => x.part.sec || []), sol: parts.flatMap(x => x.part.sol || []) }, ttl = (parts.find(x => x.part.title) || {}).part;
-    const o = await ask(env, `Hai gli appunti, a pezzi, di un documento veterinario per un allevatore di cani. Riordinali in un solo insieme, senza perdere valori, numeri e pagine, togliendo le ripetizioni, in italiano semplice.
-Rispondi con {"title":"titolo breve del documento","sum":"di cosa parla, 2 frasi","sec":[{"t":"argomento","pts":[{"x":"punto","p":[pagine]}]}],"map":[{"t":"ramo","it":[{"t":"voce breve","s":indice dell'argomento in sec (da 0),"p":pagina}]}],"sol":[{"q":"situazione o problema","a":"cosa fare","p":[pagine]}],"kw":["parole chiave"]}
-La mappa ha 3-7 rami con 2-6 voci ciascuno; gli argomenti in ordine logico. Punti brevi.`, [{ type: "text", text: JSON.stringify(all).slice(0, 400000) }], 20000);
-    const sec = (Array.isArray(o.sec) ? o.sec : []).slice(0, 40).map(s => ({ t: S(s.t, 120), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 40).map(x => ({ x: S(x.x, 600), p: PG(x.p) })) }));
-    const notes = { sum: S(o.sum, 600), sec, map: (Array.isArray(o.map) ? o.map : []).slice(0, 8).map(b => ({ t: S(b.t, 80), it: (Array.isArray(b.it) ? b.it : []).slice(0, 8).map(x => ({ t: S(x.t, 80), s: Math.max(0, Math.min(sec.length - 1, parseInt(x.s, 10) || 0)), p: parseInt(x.p, 10) || 0 })) })),
-      sol: (Array.isArray(o.sol) ? o.sol : []).slice(0, 40).map(s => ({ q: S(s.q, 300), a: S(s.a, 800), p: PG(s.p) })), kw: (Array.isArray(o.kw) ? o.kw : []).slice(0, 20).map(x => S(x, 40)) };
+    const rows = (await env.DB.prepare("SELECT a, b, json FROM biblio_part WHERE doc = ? ORDER BY a").bind(id).all()).results || [];
+    for (const r of rows) { let part = {}; try { part = JSON.parse(r.json); } catch (e) {} parts = parts.filter(x => x.from !== r.a).concat([{ from: r.a, to: r.b, part }]); }
+    parts.sort((x, y) => x.from - y.from);
+    const key = t => norm(t).replace(/[^a-z0-9]+/g, " ").trim();
+    const SM = new Map(), sec = [], SQ = new Set(), sol = [];
+    for (const x of parts) {
+      for (const s of x.part.sec || []) {
+        const k = key(s.t); let g = SM.get(k);
+        if (!g) { g = { t: S(s.t, 120), pts: [], seen: new Set() }; SM.set(k, g); sec.push(g); }
+        for (const q of s.pts || []) { const kk = key(q.x); if (kk && !g.seen.has(kk)) { g.seen.add(kk); g.pts.push({ x: S(q.x, 600), p: PG(q.p) }); } }
+      }
+      for (const s of x.part.sol || []) { const k = key(s.q); if (k && !SQ.has(k)) { SQ.add(k); sol.push({ q: S(s.q, 300), a: S(s.a, 800), p: PG(s.p) }); } }
+    }
+    sec.forEach(g => delete g.seen);
+    const ttl = (parts.find(x => x.part.title) || {}).part;
+    const list = sec.map((g, i) => `${i}. ${g.t}: ` + g.pts.slice(0, 3).map(q => q.x).join(" / ")).join("\n").slice(0, 60000);
+    const o = await ask(env, `Hai l'elenco numerato degli argomenti degli appunti di un documento veterinario per un allevatore di cani (con i primi punti di ognuno). Scrivi in italiano semplice titolo, riassunto, mappa e parole chiave.
+Rispondi con {"title":"titolo breve del documento","sum":"di cosa parla, 2 frasi","map":[{"t":"ramo","it":[{"t":"voce breve","s":numero dell'argomento nell'elenco}]}],"kw":["parole chiave"]}
+La mappa ha 3-7 rami con 2-6 voci ciascuno.`, [{ type: "text", text: (ttl && ttl.title ? "Titolo trovato nel documento: " + ttl.title + "\n" : "") + list }], 2500);
+    const pg = i => ((sec[i] || {}).pts || []).map(q => q.p[0]).find(Boolean) || 0;
+    const notes = { sum: S(o.sum, 600), sec, map: (Array.isArray(o.map) ? o.map : []).slice(0, 8).map(b => ({ t: S(b.t, 80), it: (Array.isArray(b.it) ? b.it : []).slice(0, 8).map(x => { const s = Math.max(0, Math.min(sec.length - 1, parseInt(x.s, 10) || 0)); return { t: S(x.t, 80), s, p: pg(s) }; }) })),
+      sol: sol.slice(0, 60), kw: (Array.isArray(o.kw) ? o.kw : []).slice(0, 20).map(x => S(x, 40)) };
     // il titolo di Claude prende il posto del nome del file (o di «Foto di N pagine»); un titolo scritto da Paolo resta
     const auto = !doc.title || doc.title === String(doc.fname || "").replace(/\.pdf$/i, "") || /^Foto di \d+ pagin/.test(doc.title) || doc.title.length < 4;
     const title = auto ? S(o.title || (ttl && ttl.title), 200) || doc.title : doc.title;
