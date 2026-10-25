@@ -5,17 +5,19 @@ import { json, role, deny, can } from "../_lib.js";
    trascrive Claude. Poi Claude studia il documento a pezzi ("part") e scrive appunti, mappa e soluzioni ("final").
    Vede chi vede Cani; aggiunge e cancella chi modifica Cani. Le risposte di "ask" usano SOLO i documenti caricati. */
 const MODEL = "claude-sonnet-5-5";
+// 25/10/2026, scelta 1A di Paolo: Haiku (veloce) per trascrivere e studiare le pagine; Sonnet per «Chiedi» e i valori di riferimento
+const FAST = "claude-haiku-5-5";
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
-async function ask(env, system, content, max) {
+async function ask(env, system, content, max, model) {
   // 25/10/2026 (letture interrotte): Claude occupato o sovraccarico (429, 500, 529…) → si aspetta e si riprova da soli
   for (let i = 0, busy = 0; i < 2; i++) {
     let r, j;
     try {
       r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
         headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model: MODEL, max_tokens: max || 2000, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
+        body: JSON.stringify({ model: model || MODEL, max_tokens: max || 2000, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }) });
       j = await r.json().catch(() => ({}));
     } catch (e) { r = { ok: false, status: 0 }; j = {}; }
     if (!r.ok) {
@@ -160,7 +162,7 @@ async function work(env, op, p, id, doc) {
       if (x.img) {
         if (!env.ANTHROPIC_API_KEY) return { ok: false, error: "Per le pagine fotografate serve Claude (ANTHROPIC_API_KEY)." };
         const data = String(x.img).replace(/^data:[^,]*,/, ""), media = /^image\/(jpeg|png|webp)$/.test(x.media || "") ? x.media : "image/jpeg";
-        const o = await ask(env, "Trascrivi parola per parola il testo di questa pagina (in qualsiasi lingua, senza tradurre). Tabelle: una riga per riga, celle separate da \" | \". Se ci sono figure scrivi [Figura: breve descrizione]. Rispondi con {\"text\":\"...\"}.", [{ type: "image", source: { type: "base64", media_type: media, data } }], 4000);
+        const o = await ask(env, "Trascrivi parola per parola il testo di questa pagina (in qualsiasi lingua, senza tradurre). Tabelle: una riga per riga, celle separate da \" | \". Se ci sono figure scrivi [Figura: breve descrizione]. Rispondi con {\"text\":\"...\"}.", [{ type: "image", source: { type: "base64", media_type: media, data } }], 4000, FAST);
         text = S(o.text, 40000);
       }
       await env.DB.prepare("INSERT OR REPLACE INTO biblio_txt (doc, n, text) VALUES (?, ?, ?)").bind(id, n, text).run();
@@ -176,7 +178,7 @@ async function work(env, op, p, id, doc) {
     let part = { sec: [], sol: [] };
     if (txt) {
       const o = await ask(env, `Studia queste pagine di un documento veterinario (tesi, articolo o appunti) per un allevatore di cani. Leggi TUTTO. Scrivi in italiano semplice gli appunti dei punti importanti e pratici, con i valori e i numeri come sono scritti, e la pagina da cui vengono (i numeri [[p. N]]).
-Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 5000);
+Rispondi con {"title":"titolo del documento se compare in queste pagine, altrimenti \\"\\"","sec":[{"t":"argomento","pts":[{"x":"punto, una frase","p":[pagine]}]}],"sol":[{"q":"situazione pratica o problema","a":"cosa fare secondo il documento","p":[pagine]}]}`, [{ type: "text", text: txt }], 5000, FAST);
       part = { title: S(o.title, 200), sec: (Array.isArray(o.sec) ? o.sec : []).slice(0, 20).map(s => ({ t: S(s.t, 120), pts: (Array.isArray(s.pts) ? s.pts : []).slice(0, 25).map(x => ({ x: S(x.x, 500), p: PG(x.p) })) })), sol: (Array.isArray(o.sol) ? o.sol : []).slice(0, 15).map(s => ({ q: S(s.q, 300), a: S(s.a, 700), p: PG(s.p) })) };
     }
     await env.DB.prepare("INSERT OR REPLACE INTO biblio_part (doc, a, b, json) VALUES (?, ?, ?, ?)").bind(id, a, b, JSON.stringify(part)).run();
@@ -207,7 +209,7 @@ Rispondi con {"title":"titolo del documento se compare in queste pagine, altrime
     const list = sec.map((g, i) => `${i}. ${g.t}: ` + g.pts.slice(0, 3).map(q => q.x).join(" / ")).join("\n").slice(0, 60000);
     const o = await ask(env, `Hai l'elenco numerato degli argomenti degli appunti di un documento veterinario per un allevatore di cani (con i primi punti di ognuno). Scrivi in italiano semplice titolo, riassunto, mappa e parole chiave.
 Rispondi con {"title":"titolo breve del documento","sum":"di cosa parla, 2 frasi","map":[{"t":"ramo","it":[{"t":"voce breve","s":numero dell'argomento nell'elenco}]}],"kw":["parole chiave"]}
-La mappa ha 3-7 rami con 2-6 voci ciascuno.`, [{ type: "text", text: (ttl && ttl.title ? "Titolo trovato nel documento: " + ttl.title + "\n" : "") + list }], 2500);
+La mappa ha 3-7 rami con 2-6 voci ciascuno.`, [{ type: "text", text: (ttl && ttl.title ? "Titolo trovato nel documento: " + ttl.title + "\n" : "") + list }], 2500, FAST);
     const pg = i => ((sec[i] || {}).pts || []).map(q => q.p[0]).find(Boolean) || 0;
     const notes = { sum: S(o.sum, 600), sec, map: (Array.isArray(o.map) ? o.map : []).slice(0, 8).map(b => ({ t: S(b.t, 80), it: (Array.isArray(b.it) ? b.it : []).slice(0, 8).map(x => { const s = Math.max(0, Math.min(sec.length - 1, parseInt(x.s, 10) || 0)); return { t: S(x.t, 80), s, p: pg(s) }; }) })),
       sol: sol.slice(0, 60), kw: (Array.isArray(o.kw) ? o.kw : []).slice(0, 20).map(x => S(x, 40)) };

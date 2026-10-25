@@ -562,6 +562,7 @@ Sito delpiccolodiavolo.it
   10 pagine); ogni pezzo in una riga della tabella D1 `biblio_part` (si crea da sola; `biblio.parts` resta per i documenti vecchi);
   `final` unisce gli appunti nel server (stesso argomento = uno solo, punti e soluzioni senza doppioni) e Claude scrive solo titolo,
   riassunto, mappa e parole chiave.
+  Modelli (scelta 1A di Paolo): `FAST` = claude-haiku-5-5 per trascrivere, studiare i pezzi e il riassunto; `MODEL` = Sonnet per `ask` e `refs`.
 - Progesterone (25/10/2026, `progEst`, `repEstimate`, `progBox` nel riquadro Calori e monte): dai valori `repro` t "prog" stima picco LH,
   ovulazione, giorni della monta, prossimo prelievo; `reproState` (avvolta) dà `s.prog`, `s.due` (parto dall'ovulazione + gestazione
   media della fattrice `repGest`, se no il valore di riferimento) e `s.dueTxt`; dove serviva `addD(s.m.date,63)` ora c'è
