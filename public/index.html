@@ -5429,11 +5429,11 @@ async function bbPdfPages(buf, from) {
  return out;
 }
 
-async function bbAdd(files) {
+async function bbAdd(files, pre) {
  // 25/10/2026 (anteprima 28): mentre legge si può aggiungere: i nuovi vanno in coda (BB.W) e partono da soli
  if (BB.job && !BB.W) return toast("Aspetta che finisca il documento in lettura.");
  const F = [ ...files ], pdfs = F.filter(f => f.type === "application/pdf"), imgs = F.filter(f => /^image\//.test(f.type));
- if (!pdfs.length && !imgs.length) return toast("Si leggono solo PDF e foto.");
+ if (!pre && !pdfs.length && !imgs.length) return toast("Si leggono solo PDF e foto.");
  try {
   const big = pdfs.filter(f => f.size > 25 * 1048576);
   big.forEach(f => toast("\xab" + f.name + "\xbb pesa pi\xf9 di 25 MB: dividilo in due PDF."));
@@ -5451,6 +5451,7 @@ async function bbAdd(files) {
    },
    n: "Foto di " + imgs.length + (imgs.length === 1 ? " pagina" : " pagine")
   });
+  if (pre) W.push(...pre);
   if (BB.W) {
    W.forEach(w => {
     BB.W.push(w);
@@ -5476,7 +5477,7 @@ async function bbAdd(files) {
    bbQUpd();
    BB.job = null;
    try {
-    await bbRun(W[k].o);
+    await (W[k].r ? bbResumeDoc(W[k].r) : bbRun(W[k].o));
     BB.qu[k].s = 2;
     BB.docs = null;
     bbLoad();
@@ -5613,28 +5614,41 @@ async function bbStudy(id, N) {
  });
 }
 
+// «Riprendi» passa dalla stessa coda dei documenti nuovi: così mentre riprende si possono aggiungere altri file
 async function bbResume(id) {
  const d = (BB.docs || []).find(x => x.id === id);
- if (!d || BB.job) return;
- try {
-  BB.job = {
-   t: "Riprendo…",
-   p: 0,
-   id: id
-  };
-  BB.err = null;
-  bbAwake(true);
-  render();
-  if ((d.got || 0) >= d.pages) await bbStudy(id, d.pages); else await bbRun({
-   name: d.fname
-  }, d);
- } catch (e) {
-  BB.err = e.message;
+ if (!d) return;
+ if (BB.W) {
+  if (BB.W.some(w => w.r && w.r.id === id)) return;
+  BB.W.push({
+   r: d,
+   n: d.title
+  });
+  BB.qu.push({
+   n: d.title,
+   s: 0
+  });
+  toast("Messo in coda.");
+  return bbQUpd();
  }
- bbAwake(false);
- BB.job = null;
- BB.docs = null;
+ if (BB.job) return;
+ BB.err = null;
+ bbAdd([], [ {
+  r: d,
+  n: d.title
+ } ]);
+}
+
+async function bbResumeDoc(d) {
+ BB.job = {
+  t: "Riprendo…",
+  p: 0,
+  id: d.id
+ };
  render();
+ if ((d.got || 0) >= d.pages) await bbStudy(d.id, d.pages); else await bbRun({
+  name: d.fname
+ }, d);
 }
 
 document.addEventListener("click", async e => {
