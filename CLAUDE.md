@@ -541,6 +541,8 @@ Scadenze e regole
 Sito delpiccolodiavolo.it
 - Esposizioni: interruttori "Proprietario" (parte spento) e "Sul sito"; sul sito niente giudizi né foto; titoli presi anche in "Titoli".
   Pagine: Palmarès e sotto ogni cane in Femmine/Maschi, IT/EN/DE.
+- Piano sanitario: `settings.health` (Account → Piano sanitario, valori di partenza in `HP_DEF`); gli avvisi di salute suggeriti in
+  Scadenze nascono da `hpSug()` (per cane) e `hpLit()` (vermifugo ai cuccioli). Sezione permessi `scadenze`.
 - Cucciolate: solo quelle accese con "Sul sito"; genitori come nel Programma allevamento, etichetta Disponibili/Non disponibili/In
   programma, niente cuccioli singoli, niente prenotazioni né riquadro contatti; test e titoli tradotti in EN/DE (campi `_en`, `_de`).
 - Sempre: "in automatico" + "Prepara per il sito" per il testo vero (Google e IA).

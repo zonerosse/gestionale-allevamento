@@ -257,7 +257,7 @@ export function limitedData(data, P) {
   if (!v("anagrafe")) for (const x of Object.values(d.dogs)) delete x.anag; // pratica dell'anagrafe: documenti e firma dell'intestatario
   const s = { farm: farmRaw(data) }, cp = ks => ks.forEach(k => { if (S[k] !== undefined) s[k] = S[k]; });
   cp(["rules", "enti"]);
-  if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken"]);
+  if (v("scadenze")) cp(["scad", "alarms", "todo", "calToken", "health"]);
   if (v("cani") || v("proprietari")) cp(["kitExtra"]);
   if (v("cucciolate")) cp(["modB", "drive", "sitePub"]);
   if (v("cucciolate") || v("anagrafe")) cp(["holders", "ppMe", "anagrafeEmail"]);
@@ -305,7 +305,7 @@ export function mergeLimited(cur, body, P) {
   }
   // impostazioni: solo le voci delle sezioni modificabili
   const S = out.settings = out.settings || {}, BS = B.settings || {}, put = ks => ks.forEach(k => { if (BS[k] === undefined) delete S[k]; else S[k] = BS[k]; });
-  if (m("scadenze")) put(["scad", "alarms", "todo", "calToken"]);
+  if (m("scadenze")) put(["scad", "alarms", "todo", "calToken", "health"]);
   if (mm(["cani", "proprietari"])) put(["kitExtra"]);
   if (m("cucciolate")) put(["drive", "sitePub"]);
   return out;
