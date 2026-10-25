@@ -5,8 +5,8 @@ import { json, role, deny, can } from "../_lib.js";
    trascrive Claude. Poi Claude studia il documento a pezzi ("part") e scrive appunti, mappa e soluzioni ("final").
    Vede chi vede Cani; aggiunge e cancella chi modifica Cani. Le risposte di "ask" usano SOLO i documenti caricati. */
 const MODEL = "claude-sonnet-5-5";
-// 25/10/2026, scelta 1A di Paolo: Haiku (veloce) per trascrivere e studiare le pagine; Sonnet per «Chiedi» e i valori di riferimento
-const FAST = "claude-haiku-5-5";
+// 25/10/2026: Paolo NON vuole Haiku per gli appunti («vengono male»): tutto con Sonnet. Non rimettere Haiku.
+const FAST = MODEL;
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
