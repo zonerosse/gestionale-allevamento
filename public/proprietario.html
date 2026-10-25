@@ -7787,7 +7787,7 @@ function pgEditor(k){const p=pgPage(k),e=pgEntry(k)||{it:{},en:{},de:{},spente:[
       `<div class="pg-n ${okN?"pg-ok":"pg-bad"}" id="pgn_${f}">${f==="ap"?n+" parole":n+" caratteri"}${hint?" · "+hint:""}</div>`};
   const has=x=>x?'<span class="ok-v">✓</span>':'<span class="pg-e"></span>';
   const ch=pgChecks(k),warn=pgWarn(k),busy=PG.tr[k];
-  return `<div class="pg-card"><p style="margin:0 0 6px"><button class="chip" data-a="pgBack">‹ Tutte le pagine</button></p><h2 style="margin:4px 0">${esc((p.lingue.it||{}).titolo)}</h2>
+  return `<div class="pg-card"><div class="pg-crumb">Google › Pagine del sito › <b>${esc((p.lingue.it||{}).titolo)}</b></div><button class="btn small ghost" data-a="pgBack" style="margin:0 0 10px">‹ Torna a Pagine del sito</button><h2 style="margin:4px 0">${esc((p.lingue.it||{}).titolo)}</h2>
 <div class="pg-muted">${esc(FM().site)}${esc(o.url||"")}${kw?` · parola chiave: <b>${esc(kw)}</b>`:""}</div>
 <div class="toolbar" style="margin-top:8px">${["it","en","de"].map(l=>`<button class="chip" data-a="pgLang" data-v="${l}" aria-pressed="${l===L}">${PG_LN[l]}</button>`).join("")}</div>
 ${ro?`<div class="pg-info">Inglese e tedesco li traduce Claude da solo quando cambi l'italiano. Qui li puoi solo leggere.${busy?" ⏳ Traduco…":""}</div>`:`<div class="pg-info">Scrivi solo in italiano: quando esci da un campo, Claude lo traduce in inglese e tedesco.${busy?" ⏳ Traduco…":""}</div>`}</div>
@@ -7890,7 +7890,7 @@ async function pgPublish(b){const dk=pgDirty();if(!dk.length)return;
 async function pgAct(a,v,b){const k=PG.cur,e=k&&pgEntry(k,true);
   if(a==="pgLoad"){PG.idx=null;pgLoad(true);render();return}
   if(a==="pgOpen"){PG.cur=v;PG.L="it";render();scrollTo(0,0);return}
-  if(a==="pgBack"){PG.cur=null;render();return}
+  if(a==="pgBack"){PG.cur=null;render();scrollTo(0,0);return}
   if(a==="pgLang"){PG.L=v;render();return}
   if(a==="pgPub"){pgPublish(b);return}
   if(!k)return;
