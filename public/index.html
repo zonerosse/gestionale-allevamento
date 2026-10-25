@@ -1295,7 +1295,7 @@ function fdAgeTxt(m){if(m==null)return"data di nascita da inserire";if(m<4)retur
    del sito calcolatore-cane.js (come il BARF), 5 Crocchette e risultato a destra come su delpiccolodiavolo.it. Dati del cane presi dalla scheda;
    le scelte fatte qui si salvano in d.feed (solo i campi toccati). */
 const FD_C={};let FD_CL=null;
-function fdCaneLoad(){return FD_CL=FD_CL||(window.DPDCane?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://delpiccolodiavolo.it/js/calcolatore-cane.js?v=20261024-1830";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)}))}
+function fdCaneLoad(){return FD_CL=FD_CL||(window.DPDCane?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://delpiccolodiavolo.it/js/calcolatore-cane.js?v=20261025-2110";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)}))}
 function fdCaneS(id){const d=fdObj(id),s=fdState(id),F=s.F,S={sex:s.sex,ster:+F.ster||0,bcs:+F.bcs||0,act:+F.act||1,np:6,rep:"no",repD:""};
   if(d.free){["mode","age","birth","adult","kg"].forEach(k=>{if(F[k]!=null)S[k]=F[k]});S.mode=S.mode||"age"}
   else{const bd=d.birth||(D.litters[d.litter]||{}).date||"";S.mode=bd?"date":"age";S.birth=bd;S.age=bd?"":"24";S.adult=s.adult?String(Math.round(s.adult*10)/10):"";S.kg=s.pup&&s.last?String(Math.round(s.last.g/100)/10):"";
@@ -1389,7 +1389,7 @@ function alBfMount(){const el=document.getElementById("albf");if(!el||el.dataset
   if(BF_PICK!=="_free"&&D.dogs[BF_PICK])return owBfMount(el,BF_PICK,"it");
   const go=()=>{try{window.barfInit(el,{lang:"it",S:{sx:"m",st:0,ad:16,eta:"ad",kg:16}})}catch(x){console.warn(x)}};
   if(window.barfInit)return go();
-  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261024-1830";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2110";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   BF_LOAD.then(go,()=>{el.innerHTML='<p class="lead">Il calcolatore non si è caricato: riprova più tardi oppure aprilo sul sito.</p>'})}
 function alBfAuto(){const d=document.querySelector('details[data-dph="pg|al-barf"]');if(d&&d.open)alBfMount()}
 document.addEventListener("toggle",e=>{const t=e.target;if(t.tagName==="DETAILS"&&t.dataset&&t.dataset.dph==="pg|al-barf"&&t.open)alBfMount()},true);
@@ -2432,7 +2432,7 @@ function owBfMount(el,id,lang){const d=D.dogs[id];if(!d)return;
     try{window.barfInit(el,{lang:lang,S:S})}catch(x){console.warn(x)}
     const pr=el.parentNode.querySelector("details.bf-prima");if(pr&&!pr.dataset.t){pr.dataset.t=1;pr.addEventListener("toggle",()=>{if(pr.open)pr.classList.add("letto")})}};
   if(window.barfInit)return go();
-  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261024-1830";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  BF_LOAD=BF_LOAD||new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://delpiccolodiavolo.it/js/calcolatore-barf.js?v=20261025-2110";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
   BF_LOAD.then(go,()=>{el.innerHTML=`<p class="lead">${T("Il calcolatore non si è caricato: riprova più tardi oppure aprilo sul sito.","The calculator did not load: try later or open it on the website.")}</p>`})}
 function owFdHtml(id){const d=D.dogs[id];if(!d||!d.ownFeed)return"";const nm=esc(d.nick||d.name||"");
   return owBfWrap(id,`<div class="owfd"><h2>${T("🍖 Quanto mangia","🍖 How much to feed")} ${nm}</h2><p class="lead" style="margin:0 0 4px">${T("Grammi di crocchette al giorno. Età, sesso, ultima pesata e un peso da adulto tipico dello Staffy sono già inseriti: scegli le crocchette e correggi se serve.","Grams of kibble per day. Age, sex, the last weighing and a typical Staffy adult weight are already filled in: choose the kibble and adjust if needed.")}</p><div class="owfd-box" data-dog="${id}"></div>
