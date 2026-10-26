@@ -5299,16 +5299,29 @@ document.addEventListener("change", e => { if (e.target && e.target.matches && e
 async function bbExpGo(b) {
  const ids = [...document.querySelectorAll("input[data-bbe]:checked")].map(x => x.dataset.bbe);
  if (!ids.length) return;
+ // 26/10/2026 (Paolo: «in Download non c'è… dovrebbe chiedere dove va e che nome dare»): sul computer si apre «Salva con nome»
+ // (cartella e nome li sceglie lui) PRIMA di preparare il file, finché il tocco è ancora valido; dove non c'è, scarica come prima.
+ const name = "biblioteca-" + todayS() + ".json";
+ let fh = null;
+ if (window.showSaveFilePicker) {
+  try { fh = await window.showSaveFilePicker({ suggestedName: name, types: [ { description: "Biblioteca (file .json)", accept: { "application/json": [ ".json" ] } } ] }); }
+  catch (e) { if (e && e.name === "AbortError") return; fh = null; }
+ }
  const t0 = b.innerHTML; b.disabled = true; b.innerHTML = `<span class="cf-spin"></span>Preparo il file…`;
  try {
   const j = await bbApi("export", { ids });
   const f = j.file, n = (f && f.docs || []).length;
   if (!n) throw new Error("Nessun documento gi\xe0 studiato da scaricare.");
-  const url = URL.createObjectURL(new Blob([JSON.stringify(f)], { type: "application/json" }));
-  const A = document.createElement("a"); A.href = url; A.download = "biblioteca-" + todayS() + ".json"; A.style.display = "none"; document.body.appendChild(A); A.click(); setTimeout(() => A.remove(), 1500);
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  const blob = new Blob([JSON.stringify(f)], { type: "application/json" });
+  if (fh) { const w = await fh.createWritable(); await w.write(blob); await w.close(); }
+  else if (navigator.canShare && typeof isPhone === "function" && isPhone() && navigator.canShare({ files: [ new File([ blob ], name, { type: "application/json" }) ] })) { await navigator.share({ files: [ new File([ blob ], name, { type: "application/json" }) ], title: name }).catch(() => {}); }
+  else {
+   const url = URL.createObjectURL(blob);
+   const A = document.createElement("a"); A.href = url; A.download = name; A.style.display = "none"; document.body.appendChild(A); A.click(); setTimeout(() => A.remove(), 1500);
+   setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
   closeSheetRaw();
-  toast("Biblioteca scaricata: " + n + (n === 1 ? " documento" : " documenti") + ". In Kennel Manager: Biblioteca \u2192 Importa una Biblioteca.");
+  toast("Biblioteca salvata" + (fh ? " in \xab" + esc(fh.name) + "\xbb" : "") + ": " + n + (n === 1 ? " documento" : " documenti") + ". In Kennel Manager: Biblioteca \u2192 Importa una Biblioteca.");
  } catch (e) { b.disabled = false; b.innerHTML = t0; toast(esc(e.message || "Non riesco a preparare il file.")); }
 }
 
