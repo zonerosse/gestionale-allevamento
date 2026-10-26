@@ -37,7 +37,7 @@ export const ask = async (env, system, content, max = 1200, tools) => {
 const ask1 = async (env, system, content, max, tools) => {
   const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify(Object.assign({ model: MODEL, max_tokens: max, system: system + "\nRispondi SOLO con un oggetto JSON valido, senza altro testo.", messages: [{ role: "user", content }] }, tools ? { tools } : {})) });
+    body: JSON.stringify(Object.assign({ model: MODEL, max_tokens: max, system: system + "\nRispondi SOLO con un oggetto JSON valido e compatto (su una riga, senza spazi né a capo inutili), senza altro testo.", messages: [{ role: "user", content }] }, tools ? { tools } : {})) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) {
     const m = (j.error && j.error.message) || "errore";
@@ -302,7 +302,7 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
    const o = await ask(env, `Leggi ${K[0]}. Può essere una foto o un PDF: trattali allo stesso modo. Leggi TUTTO quello che c'è scritto e compila i campi qui sotto SOLO con quello che c'è scritto, senza inventare: se un dato manca metti "". Le date scritte a mano sono di solito GG/MM/AAAA europeo: rispondi sempre AAAA-MM-GG.
 Rispondi con {"f":{...},"note":""} dove "f" ha questi campi:
 ${Object.entries(K[1]).map(([k, d]) => `- "${k}": ${d}`).join("\n")}
-"note": una frase in italiano su quello che non hai potuto leggere bene, altrimenti "".`, content, p.kind === "ped" ? 3000 : 1600);
+"note": una frase in italiano su quello che non hai potuto leggere bene, altrimenti "".`, content, p.kind === "ped" ? 8000 : 2500);
    const F = o.f && typeof o.f === "object" ? o.f : {}, out = {};
    const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "", S = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
    const tree = (t, lv) => { if (!t || typeof t !== "object" || lv > 4) return null; const r = { name: S(t.name, 120), loi: S(t.loi, 40) }; const s = tree(t.s, lv + 1), d = tree(t.d, lv + 1); if (s) r.s = s; if (d) r.d = d; return r.name || r.s || r.d ? r : null; };
