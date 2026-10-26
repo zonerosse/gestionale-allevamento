@@ -148,6 +148,19 @@ Se un valore \u00e8 in nmol/l convertilo in ng/ml (dividi per 3,18) e dillo in t
     return json({ ok: true, items });
   }
   if (!canEdit) return deny();
+  if (op === "export") {
+    // «Scarica la Biblioteca» (26/10/2026, anteprima 62): i documenti già studiati scelti da Paolo, con il testo delle pagine,
+    // appunti, mappa e soluzioni, per importarli in Kennel Manager senza ristudiarli. I PDF NON escono mai (restano in R2).
+    const ids = (Array.isArray(p.ids) ? p.ids : []).map(x => S(x, 40)).slice(0, 500), docs = [];
+    for (const id of ids) {
+      const d = await env.DB.prepare("SELECT id, title, fname, pages, created, notes FROM biblio WHERE id = ? AND status = 'ok'").bind(id).first();
+      if (!d || !d.notes) continue;
+      let notes = null; try { notes = JSON.parse(d.notes); } catch (e) {} if (!notes) continue;
+      const T = (await env.DB.prepare("SELECT n, text FROM biblio_txt WHERE doc = ? ORDER BY n").bind(id).all()).results || [];
+      docs.push({ title: d.title, fname: d.fname || "", pages: d.pages, created: d.created, notes, txt: T.map(r => [r.n, r.text || ""]) });
+    }
+    return json({ ok: true, file: { kind: "biblioteca-km", v: 1, at: new Date().toISOString(), docs } });
+  }
   if (op === "new") {
     const id = "b" + crypto.randomUUID().replace(/-/g, "").slice(0, 12);
     await env.DB.prepare("INSERT INTO biblio (id, title, file, fname, pages, status, created, notes, parts) VALUES (?, ?, ?, ?, ?, 'pagine', ?, NULL, '[]')")

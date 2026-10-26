@@ -554,6 +554,9 @@ Sito delpiccolodiavolo.it
   creano da sole), il PDF in R2. Claude studia a pezzi di 20 pagine (`part`) e poi scrive appunti, mappa e soluzioni con le pagine
   (`final`). «Chiedi alla Biblioteca» risponde SOLO dalle pagine trovate, con le fonti. Vede chi vede Cani, modifica chi modifica Cani.
   NON è nelle copie di sicurezza del gestionale (sta in D1/R2 a parte). Dalla scheda della fattrice: «Cosa dicono i miei documenti».
+  «Scarica la Biblioteca» (26/10/2026, anteprima 62): riga `bbExpBar` sotto i documenti, finestra con le spunte (`bbExpSheet`,
+  `bbExpGo`), op `export` (solo chi modifica Cani): file `biblioteca-AAAA-MM-GG.json` {kind:"biblioteca-km",v:1,docs:[{title,fname,pages,
+  created,notes,txt:[[n,testo]]}]} solo dei documenti già studiati, MAI i PDF. Si importa in Kennel Manager (op `import`).
 - Biblioteca, letture interrotte (25/10/2026): `pages`/`part`/`final` rispondono con `slow()` (uno spazio ogni 10 s, poi il JSON) e
   `ask` riprova da solo se Claude è occupato (429/5xx/529); nel browser `bbApi` riprova fino a 5 volte (connessione persa o
   `retry`), `bbAwake` tiene lo schermo acceso (Wake Lock), una pagina fotografata per chiamata. Più file insieme: `BB.qu`/`BB.qi`,

@@ -892,6 +892,7 @@ input.cf-ai,select.cf-ai,textarea.cf-ai{background:#EEF5EF!important;border-colo
 .bb-res,.bb-ask{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px}.bb-res{padding:8px 14px}.bb-r{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:9px 0;font:inherit;color:var(--ink);cursor:pointer}.bb-r:first-of-type{border-top:0}.bb-r small{color:var(--muted)}.bb-r span{display:block;font-size:14px;margin-top:2px}.bb-r mark{background:#FFF1B8;border-radius:3px;padding:0 2px}
 .bb-ask h3{font-family:var(--serif,Georgia,serif);font-weight:400;font-size:19px;margin:0 0 8px}.bb-row{display:flex;gap:8px}.bb-row input{flex:1;min-width:0;margin:0}@media(max-width:600px){.bb-row{flex-direction:column}}
 .bb-ans{margin-top:10px;background:#F3F6F9;border-radius:10px;padding:10px 12px;font-size:14.5px}.bb-src{margin-top:8px;font-size:12.5px;color:var(--muted)}.bb-src button{border:0;background:none;color:#3E5C76;text-decoration:underline;font:inherit;cursor:pointer;padding:0}
+.bb-pick{border:1px solid var(--line);border-radius:12px;padding:4px 12px;margin:8px 0}.bb-pick label{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}.bb-pick label:last-child{border-bottom:0}.bb-pick input{width:18px;height:18px;flex:none}.bb-pick span{flex:1;min-width:0}.bb-exp{margin-top:12px}
 .bb-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:10px;margin-top:6px}.bb-doc{display:flex;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}.bb-di{width:36px;height:44px;border-radius:6px;background:#E2E8EF;color:#3E5C76;display:grid;place-items:center;flex:none}.bb-di svg{width:19px;height:19px}.bb-dt{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px}.bb-dt .plink{text-align:left;padding:0}.bb-dt small{color:var(--muted);font-size:12.5px}
 .bb-tg{font-size:11.5px;font-weight:600;border-radius:8px;padding:1px 7px}.bb-tg.ok{background:#E1EEE4;color:#2F6B3F}.bb-tg.w{background:#F6EAD8;color:#7A4A0E}
 .bb-job{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px}.bb-job small{color:var(--muted);font-size:12.5px}.bb-prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:8px 0 6px}.bb-prog i{display:block;height:100%;background:#3E5C76;transition:width .4s}
@@ -5278,7 +5279,37 @@ function biblioPage() {
  const ans = BB.asking ? `<div class="card bb-ans2"><span class="cf-wait"><span class="cf-spin"></span>Claude legge le pagine dei tuoi documenti che ne parlano…</span></div>` : A ? `<div class="card bb-ans2"><button class="bb-x" data-bb="clr" title="Chiudi la risposta" aria-label="Chiudi la risposta">\xd7</button>${A.none ? `<p>${esc(A.brief || A.a || "")}</p>` : `<h4>In breve</h4><p>${esc(A.brief || A.a || "")} ${srcB(A.bsrc || (A.sec ? [] : A.src))}</p>${(A.sec || []).map(s => `<h4>${esc(s.t)}</h4><ul>${(s.pts || []).map(x => `<li>${esc(x.x)} ${srcB(x.src)}</li>`).join("")}</ul>`).join("")}${A.missing ? `<p class="row-meta"><b>Non c'\xe8 nei tuoi documenti:</b> ${esc(A.missing)}</p>` : ""}`}<p class="row-meta bb-note">Risponde solo con quello che c'\xe8 nei tuoi documenti; se non c'\xe8, lo dice. Per decidere conta sempre il tuo veterinario.</p>${res}</div>` : "";
  const st = d => d.status === "ok" ? `<span class="bb-tg ok">appunti, mappa e soluzioni pronti</span>` : J && J.id === d.id ? `<span class="bb-tg w">in lettura…</span>` : `<span class="bb-tg w">lettura interrotta</span>${RO ? "" : `<button class="btn small ghost" data-bbr="${d.id}">Riprendi</button>`}`;
  const docs = L.length ? `<div class="bb-docs">${L.map(d => `<div class="bb-doc"><span class="bb-di">${BB_IC.doc}</span><span class="bb-dt"><button class="plink" data-bbo="${d.id}"><b>${esc(d.title)}</b></button><small>${d.pages} pagine \xb7 ${fmt(String(d.created).slice(0, 10))}</small>${st(d)}</span></div>`).join("")}</div>` : BB.docs === null ? `<div class="cf-wait"><span class="cf-spin"></span>Carico la Biblioteca…</div>` : `<p class="row-meta">Nessun documento ancora. Comincia con una tesi o un articolo sulla riproduzione.</p>`;
- return PGH("Biblioteca", L.length ? L.length + (L.length === 1 ? " documento" : " documenti") + " \xb7 ricerca e domande su tutti" : "tesi, articoli e appunti da consultare") + (BB.err ? `<p class="fnote">${esc(BB.err)}</p>` : "") + up + job + `<div class="bb-srch">${BB_IC.search}<input id="bbq" value="${esc(BB.q)}" placeholder="Fai una domanda o cerca una parola nei tuoi documenti" enterkeyhint="search"><button class="btn small" data-bb="ask" ${BB.asking ? "disabled" : ""}>Chiedi</button></div><div class="bb-chips"><span class="row-meta">Esempi:</span>${kw.map(k => `<button data-bbk="${k}">${k}</button>`).join("")}</div>` + ans + docs;
+ return PGH("Biblioteca", L.length ? L.length + (L.length === 1 ? " documento" : " documenti") + " \xb7 ricerca e domande su tutti" : "tesi, articoli e appunti da consultare") + (BB.err ? `<p class="fnote">${esc(BB.err)}</p>` : "") + up + job + `<div class="bb-srch">${BB_IC.search}<input id="bbq" value="${esc(BB.q)}" placeholder="Fai una domanda o cerca una parola nei tuoi documenti" enterkeyhint="search"><button class="btn small" data-bb="ask" ${BB.asking ? "disabled" : ""}>Chiedi</button></div><div class="bb-chips"><span class="row-meta">Esempi:</span>${kw.map(k => `<button data-bbk="${k}">${k}</button>`).join("")}</div>` + ans + docs + bbExpBar(L, J);
+}
+// «Scarica la Biblioteca» (26/10/2026, anteprima 62): file con testo, appunti, mappe e soluzioni dei documenti già studiati,
+// da importare in Kennel Manager senza ristudiarli. I PDF non escono mai.
+function bbExpBar(L, J) {
+ if (RO || J || !L.some(d => d.status === "ok")) return "";
+ return `<div class="cf-bar bb-exp"><span class="cf-ic">${BB_IC.doc}</span><span class="cf-t"><b>Porta la Biblioteca in Kennel Manager</b><small>Un file con testo, appunti, mappe e soluzioni dei documenti gi\xe0 studiati, senza i PDF</small></span><span class="cf-bb"><button class="btn small" data-bb="exp">Scarica la Biblioteca</button></span></div>`;
+}
+function bbExpSheet() {
+ const L = (BB.docs || []).filter(d => d.status === "ok");
+ sheet(`<h2 style="margin-top:0">Scarica la Biblioteca</h2><p class="row-meta">Togli la spunta ai documenti che non vuoi portare in Kennel Manager (per esempio appunti personali). I PDF non vengono mai scaricati.</p><div class="bb-pick">${L.map(d => `<label><input type="checkbox" checked data-bbe="${esc(d.id)}"><span><b>${esc(d.title)}</b><br><small class="row-meta">${d.pages} pagine \xb7 appunti, mappa e soluzioni</small></span></label>`).join("")}</div><div class="actions"><button class="btn" data-bb="expgo" id="bbExpGo">Scarica il file \xb7 ${L.length} ${L.length === 1 ? "documento" : "documenti"}</button><button class="btn ghost" data-a="close">Annulla</button></div>`);
+}
+function bbExpCount() {
+ const n = document.querySelectorAll("input[data-bbe]:checked").length, b = document.getElementById("bbExpGo");
+ if (b) { b.disabled = !n; b.textContent = n ? "Scarica il file \xb7 " + n + (n === 1 ? " documento" : " documenti") : "Scegli almeno un documento"; }
+}
+document.addEventListener("change", e => { if (e.target && e.target.matches && e.target.matches("input[data-bbe]")) bbExpCount(); });
+async function bbExpGo(b) {
+ const ids = [...document.querySelectorAll("input[data-bbe]:checked")].map(x => x.dataset.bbe);
+ if (!ids.length) return;
+ const t0 = b.innerHTML; b.disabled = true; b.innerHTML = `<span class="cf-spin"></span>Preparo il file…`;
+ try {
+  const j = await bbApi("export", { ids });
+  const f = j.file, n = (f && f.docs || []).length;
+  if (!n) throw new Error("Nessun documento gi\xe0 studiato da scaricare.");
+  const url = URL.createObjectURL(new Blob([JSON.stringify(f)], { type: "application/json" }));
+  const A = document.createElement("a"); A.href = url; A.download = "biblioteca-" + todayS() + ".json"; A.style.display = "none"; document.body.appendChild(A); A.click(); setTimeout(() => A.remove(), 1500);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  closeSheetRaw();
+  toast("Biblioteca scaricata: " + n + (n === 1 ? " documento" : " documenti") + ". In Kennel Manager: Biblioteca \u2192 Importa una Biblioteca.");
+ } catch (e) { b.disabled = false; b.innerHTML = t0; toast(esc(e.message || "Non riesco a preparare il file.")); }
 }
 
 function bbMark(s, q) {
@@ -5712,6 +5743,8 @@ document.addEventListener("click", async e => {
  }
  const a = D0.bb;
  if (a === "srch" || a === "ask") return bbAsk();
+ if (a === "exp") return bbExpSheet();
+ if (a === "expgo") return bbExpGo(b);
  if (a === "clr") {
   BB.ans = null;
   BB.res = null;
