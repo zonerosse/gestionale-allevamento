@@ -6364,8 +6364,8 @@ GUIDES.bbRef.S[4].el = () => gdVis("[data-rpsave]");
    /api/ai task «smista» dice che cos'è, di chi è e legge i campi; la pagina abbina all'archivio (smWho) e mostra il riepilogo.
    Niente viene scritto prima di «Va bene»: poi si apre il modulo giusto già compilato (CF_FILL) o la lista del libretto (LB). */
 let SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
-const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", fattura: "Fattura di una spesa", foto: "Foto del cane", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
-const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro", "foto" ], SM_LIT = [ "w", "nasc" ];
+const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", morte: "Morte del cane", fattura: "Fattura di una spesa", foto: "Foto del cane", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
+const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro", "foto", "morte" ], SM_LIT = [ "w", "nasc" ];
 
 function smBox() {
  if (typeof RO !== "undefined" && RO || typeof OWNER_MODE !== "undefined") return "";
@@ -6514,7 +6514,7 @@ function smWho(r, hint) {
    return { t: "multi", grp: g, ids: smGroup(g) };
   }
   // ceduti, deceduti ed esterni solo se il documento li indica con sicurezza (microchip o registro)
-  const R = smDogs(sj, hint).filter(x => x[0] >= 80 || !smGone(D.dogs[x[1]])), top = R[0], sure = !!top && top[0] >= 50 && (!R[1] || top[0] - R[1][0] >= 25);
+  const R = smDogs(sj, hint).filter(x => x[0] >= 80 || k === "morte" || !smGone(D.dogs[x[1]])), top = R[0], sure = !!top && top[0] >= 50 && (!R[1] || top[0] - R[1][0] >= 25);
   return { t: "dog", id: sure ? top[1] : "", cand: R.slice(0, 6).map(x => x[1]) };
  }
  if (SM_LIT.includes(k)) {
@@ -6588,6 +6588,11 @@ ${H.length ? `<div class="sm-gh">Cani di casa</div><div class="sm-dls">${srt(H).
  else if (k === "nasc") L = li(`Parto della cucciolata ${who}`, `${(f.pups || []).length} cuccioli`) + li("Apro la nascita gi\xe0 compilata", "controlli e salvi");
  else if (k === "litter") L = li("Nuova cucciolata", [ f.dam, f.sire ].filter(Boolean).map(esc).join(" \xd7 ")) + li("Apro il modulo gi\xe0 compilato", "controlli e salvi");
  else if (k === "famiglia") L = li(W.id === "new" ? "Nuovo proprietario: apro il modulo gi\xe0 compilato" : `Scheda di ${who}: apro i dati gi\xe0 compilati`, "controlli e salvi") + (W.id !== "new" ? li(`Il documento va nei documenti d'identit\xe0 di ${who}`, "privato: la famiglia non lo vede") : "");
+ else if (k === "morte") {
+  // 27/10/2026 (anteprima 96, Paolo: anche scrivendo «è morto Pinco il 23/11/2019»)
+  const dt = f.date || todayS(), old = dDiff(todayS(), dt) > 15, dk = f.doc || (SM.pages.length ? "vet" : "");
+  L = li(`Scheda di ${who}: stato «Deceduto», morte il ${fmt(dt)}`, f.date ? "" : "la data non c'è: metto oggi") + (dk ? li(`${dk === "crem" ? "L'attestato di cremazione" : "Il certificato del veterinario"} va nei documenti di ${who}`, "privato: le famiglie non lo vedono") : "") + li(`Scadenze: «Comunica al Comune la morte di ${who}» entro il ${fmt(addD(dt, 15))}`, "poi apro la pratica dell'Anagrafe con l'email già scritta") + `<li style="border:0"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="smMoSent"${old && SM.moSent !== false || SM.moSent ? " checked" : ""} onchange="SM.moSent=this.checked"> L'ho già comunicata al Comune</label></li>`;
+ }
  else if (k === "inc") L = li("Nuova entrata", [ f.amount ? f.amount + " €" : "", f.date ? fmt(f.date) : "", f.txt ].filter(Boolean).map(esc).join(" \xb7 ")) + li("Apro il modulo gi\xe0 compilato in Conti", "controlli e salvi");
  else if (k === "foto") {
   // 27/10/2026 (Paolo: «ho caricato una nuova foto di Billy e ho detto di sostituire… non ha funzionato»)
@@ -6872,6 +6877,24 @@ function smApply() {
   go("proprietari", id && id !== "new" ? id : null);
   ownerForm(id && id !== "new" ? id : undefined);
   CF_FILL.famiglia(f);
+  return;
+ }
+ if (k === "morte") {
+  const d = D.dogs[id];
+  CF.att = null;
+  if (!d) return;
+  const dt = f.date || todayS(), dk = f.doc || (pages.length ? "vet" : ""), old = dDiff(todayS(), dt) > 15, sent = SM.moSent === undefined ? old : SM.moSent;
+  d.status = "deceduto";
+  d.death = dt;
+  if (dk && pages[0]) {
+   d.docs = (d.docs || []).filter(x => x.mo !== dk);
+   d.docs.push({ title: dk === "crem" ? "Attestato di cremazione" : "Certificato di morte del veterinario", date: todayS(), file: pages[0].data, fname: pages[0].name || (dk === "crem" ? "attestato-cremazione" : "certificato-morte"), private: true, mo: dk });
+  }
+  if (sent) { d.anag = d.anag || {}; d.anag.deathSent = d.anag.deathSent || todayS(); }
+  SM.moSent = undefined;
+  go("cani", id);
+  if (typeof saveNow === "function") saveNow();
+  if (typeof anagOpen === "function" && (typeof moIt !== "function" || moIt())) { MO_GO = 1; setTimeout(() => anagOpen(id), 120); }
   return;
  }
  if (k === "inc") { CF.msg = msg(); CF.att = null; go("conti"); acIncForm("gen|"); CF_FILL.inc(f); return; }

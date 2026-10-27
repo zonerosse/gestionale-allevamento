@@ -1739,3 +1739,8 @@ Accessi e copie
   (i cani da comunicare restano in elenco); `anagOpen` avvolta: riquadro `moBox` (data, certificato del veterinario e attestato di cremazione
   nei documenti privati `mo:"vet"/"crem"`, email FISSA `moData` dove cambiano solo i dati, «Email all'anagrafe» `moMail` come anagMail, «Comunicata»
   → `d.anag.deathSent`). In Kennel Manager solo con nazione Italia (`moIt`).
+- Smista documenti, morte del cane (27/10/2026, anteprima 96, Paolo: anche scrivendo «è morto Pinco il 23/11/2019»): `kind` "morte" (CK in ai.js:
+  certificato del veterinario, attestato di cremazione o messaggio; campi date, doc "vet"/"crem"/""), in SM_DOG; i cani già deceduti si
+  propongono lo stesso. Riepilogo: stato «Deceduto» e data (senza data = oggi), documento nei privati (`mo`), scadenza dei 15 giorni,
+  casella «L'ho già comunicata al Comune» (`SM.moSent`, già spuntata se la morte è di più di 15 giorni fa) → `d.anag.deathSent`;
+  «Va bene» apre la scheda e la pratica dell'Anagrafe sul riquadro `moBox`.
