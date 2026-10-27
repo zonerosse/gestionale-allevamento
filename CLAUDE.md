@@ -1705,3 +1705,5 @@ Accessi e copie
   un'immagine): riepilogo con foto di adesso → foto nuova, «Va bene» = `d.photo` ridotta a 900 px come «Aggiungi foto» (`qPhOpen`).
 - Smista documenti, messaggio senza foto che non è un documento (27/10/2026, Paolo: promemoria «allegato ai documenti di Maris»): «altro»
   senza pagine non si allega a niente; riepilogo con «Apri in Agenda» (`data-sm="agenda"` → `#agenda=<testo>` + `agFromHash`) e «Annulla».
+- Smista documenti, dopo «Va bene» si vede cosa ha fatto (27/10/2026, Paolo): ogni tipo porta alla scheda, al modulo o alla pagina
+  giusta (messaggio → Agenda); il trattamento a più cani apre la finestra «Fatto» con i cani toccati e «Apri la scheda».
