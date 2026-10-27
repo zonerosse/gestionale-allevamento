@@ -1707,3 +1707,5 @@ Accessi e copie
   senza pagine non si allega a niente; riepilogo con «Apri in Agenda» (`data-sm="agenda"` → `#agenda=<testo>` + `agFromHash`) e «Annulla».
 - Smista documenti, dopo «Va bene» si vede cosa ha fatto (27/10/2026, Paolo): ogni tipo porta alla scheda, al modulo o alla pagina
   giusta (messaggio → Agenda); il trattamento a più cani apre la finestra «Fatto» con i cani toccati e «Apri la scheda».
+  27/10/2026 (Paolo: «in caso di più posti… li voglio vedere tutti»): `smDone(prima, testo, cane, tasto)` = finestra «Fatto: ecco dove l'ho
+  messo» con OGNI cane cambiato o nuovo (confronto `smSnap`/`smJ` prima e dopo, campi `SM_F`) e «Apri la scheda»; pedigree anche «Il pedigree».

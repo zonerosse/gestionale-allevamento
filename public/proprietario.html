@@ -5584,10 +5584,43 @@ function smReset() {
  SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
 }
 
+// 27/10/2026 (Paolo: «in caso di più posti dove compilerà… li voglio vedere tutti»): dopo «Va bene» la finestra «Fatto» elenca
+// OGNI cane toccato (nuovo o cambiato, confrontando prima e dopo) con cosa è cambiato e «Apri la scheda».
+const SM_F = { photo: "foto principale", health: "Salute", docs: "documenti", sire: "padre", dam: "madre", loi: "registro", chip: "microchip", birth: "nascita", color: "colore", tests: "test", titles: "titoli", breeder: "allevatore", sex: "sesso", name: "nome" };
+// confronto senza le liste e gli oggetti vuoti (aprire una scheda crea health:{vacc:[]…} e non è un cambiamento)
+const smCl = x => {
+ if (Array.isArray(x)) return x.length ? x.map(smCl) : undefined;
+ if (x && typeof x === "object") { const o = {}; for (const k of Object.keys(x)) { const v = smCl(x[k]); if (v !== undefined && v !== "") o[k] = v; } return Object.keys(o).length ? o : undefined; }
+ return x;
+};
+const smJ = v => JSON.stringify(smCl(v)) || "";
+function smSnap() {
+ const o = {};
+ for (const [k, d] of Object.entries(D.dogs || {})) o[k] = smJ(d);
+ return o;
+}
+function smDone(before, head, first, firstBtn) {
+ const rows = [];
+ for (const [k, d] of Object.entries(D.dogs || {})) {
+  if (before[k] === smJ(d)) continue;
+  let what;
+  if (!(k in before)) what = "nuovo in archivio";
+  else {
+   const b = JSON.parse(before[k]);
+   what = [ ...new Set(Object.keys(Object.assign({}, b, d)).filter(x => SM_F[x] && smJ(b[x]) !== smJ(d[x])).map(x => SM_F[x])) ].join(", ") || "dati aggiornati";
+  }
+  rows.push([ k === first ? 0 : !(k in before) ? 2 : 1, k, what ]);
+ }
+ rows.sort((a, b) => a[0] - b[0] || smNm(a[1]).localeCompare(smNm(b[1])));
+ const nn = rows.filter(x => x[2] === "nuovo in archivio").length;
+ sheet(`<h2 style="margin-top:0">Fatto: ecco dove l'ho messo</h2><p class="row-meta" style="margin:0 0 10px">${head}${rows.length ? ` \xb7 ${rows.length} ${rows.length === 1 ? "scheda" : "schede"}${nn ? `, ${nn} ${nn === 1 ? "nuova" : "nuove"}` : ""}` : ""}</p>${rows.length ? `<div class="list">${rows.map(([, k, w]) => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="flex:1;min-width:0"><b>${esc(smNm(k))}</b><small style="display:block;color:var(--muted)">${esc(w)}</small></span>${k === first && firstBtn ? firstBtn : ""}<button class="btn small ghost" data-a="open" data-v="${k}">Apri la scheda</button></div>`).join("")}</div>` : '<p class="row-meta">Non \xe8 cambiato niente: c\'era gi\xe0 tutto.</p>'}<div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+}
+
 function smApply() {
  const r = SM.res, W = SM.who || {}, k = r.kind, f = r.f || {}, id = W.id, pages = SM.pages;
  const msg = n => ({ k: k, t: Date.now(), h: `<div class="cf-ok">Ho compilato i campi in verde dal documento caricato in Smista documenti: controlla e salva.${r.note ? " " + esc(r.note) : ""}</div>` });
  const go = (t, v) => { tab = t; view = v || null; if (typeof render === "function") render(); };
+ const B0 = smSnap();
  if (W.t === "multi") {
   // trattamento dato a più cani: una voce per cane, saltando chi ce l'ha già (come «Leggi il libretto»)
   let n = 0, c = 0;
@@ -5613,8 +5646,8 @@ function smApply() {
   render();
   if (typeof saveNow === "function") saveNow();
   // 27/10/2026 (Paolo: «dopo Va bene voglio vedere cosa ha fatto»): riepilogo con i cani toccati, ognuno con «Apri la scheda»
-  const done = tch, x0 = (r.items || [])[0] || {};
-  sheet(`<h2 style="margin-top:0">Fatto</h2><p class="row-meta" style="margin:0 0 10px">${n ? `${esc(x0.prod || "")}${x0.date ? " del " + fmt(x0.date) : ""}: aggiunto alla Salute di ${c} ${c === 1 ? "cane" : "cani"}. Gli avvisi dei prossimi sono in Scadenze.` : "Nessuna voce aggiunta: c'era gi\xe0."}</p><div class="list">${done.map(id => `<div class="row" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="flex:1"><b>${esc(smNm(id))}</b></span><button class="btn small ghost" data-a="open" data-v="${id}">Apri la scheda</button></div>`).join("")}</div><div class="actions"><button class="btn ghost" data-a="close">Chiudi</button></div>`);
+  const x0 = (r.items || [])[0] || {};
+  smDone(B0, n ? `${esc(x0.prod || "")}${x0.date ? " del " + fmt(x0.date) : ""} aggiunto alla Salute. Gli avvisi dei prossimi sono in Scadenze.` : "Nessuna voce aggiunta: c'era gi\xe0.");
   return;
  }
  smReset();
@@ -5631,7 +5664,7 @@ function smApply() {
    D.dogs[id].photo = c.toDataURL("image/jpeg", .82);
    go("cani", id);
    if (typeof saveNow === "function") saveNow();
-   toast("Foto di " + smNm(id) + " cambiata.");
+   smDone(B0, "Foto cambiata.", id);
   };
   im.src = src;
   return;
@@ -5648,6 +5681,7 @@ function smApply() {
   pedForm(did);
   CF_FILL.ped(f);
   if (typeof saveNow === "function") saveNow();
+  smDone(B0, "Pedigree letto: antenati, numeri di registro, microchip, test e titoli solo dove mancavano; la foto nei documenti.", did, `<button class="btn small" data-a="pedForm" data-v="${did}">Il pedigree</button>`);
   return;
  }
  if (k === "lib") {
@@ -5692,7 +5726,7 @@ function smApply() {
  cfDoc(id, r.label || "Documento");
  if (typeof saveNow === "function") saveNow();
  go("cani", id);
- toast("Allegato ai documenti di " + (D.dogs[id] ? D.dogs[id].nick || D.dogs[id].name : "") + ".");
+ smDone(B0, "Allegato ai documenti.", id);
 }
 
 document.addEventListener("change", e => {
