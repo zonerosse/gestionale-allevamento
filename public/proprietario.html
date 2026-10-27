@@ -5293,7 +5293,7 @@ GUIDES.bbRef.S[4].el = () => gdVis("[data-rpsave]");
    /api/ai task «smista» dice che cos'è, di chi è e legge i campi; la pagina abbina all'archivio (smWho) e mostra il riepilogo.
    Niente viene scritto prima di «Va bene»: poi si apre il modulo giusto già compilato (CF_FILL) o la lista del libretto (LB). */
 let SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
-const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", foto: "Foto del cane", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
+const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", fattura: "Fattura di una spesa", foto: "Foto del cane", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
 const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro", "foto" ], SM_LIT = [ "w", "nasc" ];
 
 function smBox() {
@@ -5435,6 +5435,7 @@ function smNm(id) {
 
 function smWho(r, hint) {
  const k = r.kind, sj = r.subj || {};
+ if (k === "fattura") return { t: "fat", dest: smFatSug(r) };
  if (k === "altro" && !SM.pages.length) return { t: "", id: "" };   // solo un messaggio: niente da allegare
  if (SM_DOG.includes(k)) {
   if (k === "lib" && (r.all || /\btutt[ie]\b|\bpi\xf9 cani\b/i.test(hint || ""))) {
@@ -5493,6 +5494,7 @@ ${H.length ? `<div class="sm-gh">Cani di casa</div><div class="sm-dls">${srt(H).
  // 27/10/2026 (Paolo: un promemoria dettato veniva «allegato ai documenti di Maris»): un messaggio senza foto che non è un
  // documento non si allega a niente; se è un appuntamento si apre l'Agenda con lo stesso testo.
  if (k === "altro" && !SM.pages.length) return `<div class="sm-got">${th}<span><b>${esc(r.label || "Il tuo messaggio")}</b><small>${esc(r.note || "Non \xe8 un documento da mettere in una scheda.")}</small></span></div><ul class="sm-where"><li><span class="sm-ck">\u2713</span><span><b>Se \xe8 un appuntamento (visita, ritiro, consegna) mettilo in Agenda</b><small>si apre l'Agenda con questo messaggio: l\xec tocchi \xabLeggi il messaggio\xbb</small></span></li></ul><div class="sm-bts sm-l"><button class="btn small" data-sm="agenda">Apri in Agenda</button><button class="btn small ghost" data-sm="cancel">Annulla</button></div>`;
+ if (W.t === "fat") return smFatHtml(th);
  // manca di chi è: lo chiede
  if (W.t && !W.id || SM.pick) {
   const C = (W.cand || []).length ? W.cand : W.t === "dog" ? Object.keys(D.dogs).filter(x => smHome(D.dogs[x]) || smPup(D.dogs[x])).sort((a, b) => (D.dogs[a].nick || D.dogs[a].name || "").localeCompare(D.dogs[b].nick || D.dogs[b].name || "")).slice(0, 12) : W.t === "lit" ? Object.keys(D.litters || {}).slice(0, 8) : Object.keys(D.owners || {}).slice(0, 8);
@@ -5599,6 +5601,93 @@ function smSnap() {
  for (const [k, d] of Object.entries(D.dogs || {})) o[k] = smJ(d);
  return o;
 }
+
+// 27/10/2026 (anteprima 94, scelta 1A di Paolo): Smista riconosce fatture e scontrini di spesa e li mette nei Conti:
+// una cucciolata (proposta se la fattura parla di monta, gravidanza o cuccioli) oppure le Spese generali.
+function smFatLits() {
+ return Object.entries(D.litters || {}).filter(([, l]) => !l.ext).sort((a, b) => (b[1].date || "9").localeCompare(a[1].date || "9")).map(x => x[0]);
+}
+function smFatSug(r) {
+ const I = r.inv || {};
+ if (!I.lit) return "gen";
+ const L = smFatLits(), pl = L.find(id => D.litters[id].state === "pianificata"), rc = L.find(id => D.litters[id].date && dDiff(todayS(), D.litters[id].date) <= 120);
+ return pl || rc || "gen";
+}
+function smFatLab(id) {
+ const l = D.litters[id];
+ return l ? dn(l.dam) + " \xd7 " + dn(l.sire) : "";
+}
+function smFatCat(x) {
+ const t = (x.desc || "") + " " + (x.name || "");
+ if (x.cat === "Crocchette") return "Cibo";
+ if (x.cat === "Vaccini") return "Vaccini e sverminazioni";
+ if (/ecograf|radiograf|\brx\b/i.test(t)) return "Ecografia e radiografia";
+ if (/microchip/i.test(t)) return "Microchip";
+ if (/\benci\b|pedigree/i.test(t)) return "Pedigree ENCI";
+ if (/\bdna\b|genetic|test genet/i.test(t)) return "Test genetici";
+ if (/monta|stallone/i.test(t)) return "Monta / stallone";
+ if (x.cat === "Visite" || x.cat === "Terapie") return "Veterinario";
+ return "Altro";
+}
+function smFatHtml(th) {
+ const r = SM.res, I = r.inv || {}, W = SM.who, L = I.lines || [], tot = I.total > 0 ? I.total : L.reduce((s, x) => s + invAmt(x), 0);
+ const sug = smFatSug(r), others = smFatLits().filter(id => id !== sug).slice(0, 12);
+ const opt = (v, t, s) => `<label class="sm-fo${W.dest === v ? " on" : ""}"><input type="radio" name="smfat" value="${v}"${W.dest === v ? " checked" : ""}><span><b>${t}</b>${s ? `<small>${s}</small>` : ""}</span></label>`;
+ const oth = others.length ? `<label class="sm-fo${others.includes(W.dest) ? " on" : ""}"><input type="radio" name="smfat" value="${others.includes(W.dest) ? W.dest : others[0]}"${others.includes(W.dest) ? " checked" : ""}><span><b>Un'altra cucciolata</b><select id="smFatSel">${others.map(id => `<option value="${id}"${W.dest === id ? " selected" : ""}>${esc(smFatLab(id))}${D.litters[id].date ? " \xb7 " + fmt(D.litters[id].date) : " \xb7 pianificata"}</option>`).join("")}</select></span></label>` : "";
+ return `<div class="sm-got">${th}<span><b>Ho capito: ${esc(r.label || "fattura di una spesa")}</b><span class="sm-chip">${L.length} ${L.length === 1 ? "riga" : "righe"}${tot ? " \xb7 " + eur(tot) : ""}</span><small>${esc([ I.shop, I.date ? fmt(I.date) : "" ].filter(Boolean).join(" \xb7 "))}${r.note ? " \xb7 " + esc(r.note) : ""}</small></span></div>
+<table class="sm-ft">${L.map(x => `<tr><td>${esc(x.desc || ((x.brand || "") + " " + (x.name || "")).trim())}${x.qty > 1 ? " \xd7" + x.qty : ""} <small>\xb7 ${esc(W.dest === "gen" ? (AC_GEN.includes(x.cat) ? x.cat : "Altro") : smFatCat(x))}</small></td><td>${invAmt(x) ? eur(invAmt(x)) : "—"}</td></tr>`).join("")}</table>
+<p class="sm-q">Dove va questa spesa?</p><div class="sm-fopts">${sug !== "gen" ? opt(sug, "Cucciolata " + esc(smFatLab(sug)), "la monta o i cuccioli di questa cucciolata (la propongo perch\xe9 la fattura ne parla)") : ""}${opt("gen", "Spese generali dell'allevamento", "crocchette, visite e vaccini dei cani di casa")}${oth}</div>
+<div class="sm-bts sm-l"><button class="btn small" data-sm="ok"${L.length || tot ? "" : " disabled"}>Va bene, mettila nei Conti</button><button class="btn small ghost" data-sm="cancel">Annulla</button></div><p class="row-meta" style="margin:6px 0 0">Niente viene scritto prima di \xabVa bene\xbb. La fattura resta allegata alla spesa.${W.dest === "gen" ? " Le crocchette Puppy servono anche per \xabQuanto costa ogni cucciolo\xbb." : ""}</p>`;
+}
+async function smFatApply(r, W, pages) {
+ const I = r.inv || {}, L = (I.lines || []).map(x => Object.assign({}, x)), dt = I.date || todayS(), p0 = pages[0] || {};
+ let file = p0.data || "", fname = p0.name || "fattura";
+ if (/^data:image\//.test(file)) {
+  try {
+   const bl = await (await fetch(file)).blob(), s = await shrink(new File([ bl ], fname, { type: bl.type }));
+   if (s && s.data) { file = s.data; fname = fname.replace(/\.[^.]+$/, "") + ".jpg"; }
+  } catch (e) {}
+ }
+ let head, btn;
+ if (W.dest === "gen") {
+  L.forEach(x => { x.fid = x.cat === "Crocchette" && typeof aeMatch === "function" ? aeMatch(x) : ""; });
+  const before = (D.accGen || []).length;
+  invSave({ shop: I.shop, date: dt, total: I.total, all: L }, { file: file, fname: fname });
+  const n = (D.accGen || []).length - before;
+  head = `Conti → <b>Spese generali</b>: ${n} ${n === 1 ? "spesa aggiunta" : "spese aggiunte"}${I.total ? ", " + eur(I.total) : ""}, con la fattura allegata.`;
+  btn = `<button class="btn" onclick="closeSheet();go('conti');view='gen';render();scrollTo(0,0)">Apri le Spese generali</button>`;
+ } else {
+  const A = acL(W.dest);
+  let sum = 0, n = 0;
+  L.forEach(x => {
+   const a = invAmt(x);
+   if (!a) return;
+   sum += a;
+   if (A.exp.some(e => e.date === dt && +e.amt === a && e.fname === fname)) return;
+   A.exp.push({ id: newId("x"), date: dt, amt: a, cat: smFatCat(x), txt: ((I.shop ? I.shop + " \xb7 " : "") + (x.desc || ((x.brand || "") + " " + (x.name || "")).trim()) + (x.qty > 1 ? " (" + x.qty + ")" : "")).slice(0, 240), file: file, fname: fname, inv: 1 });
+   n++;
+  });
+  if (I.total > 0 && I.total - sum > .5) { A.exp.push({ id: newId("x"), date: dt, amt: Math.round((I.total - sum) * 100) / 100, cat: "Altro", txt: ((I.shop ? I.shop + " \xb7 " : "") + "spedizione e altro").slice(0, 240), file: file, fname: fname, inv: 1 }); n++; }
+  if (!n && I.total > 0) { A.exp.push({ id: newId("x"), date: dt, amt: I.total, cat: "Altro", txt: ((I.shop ? I.shop + " \xb7 " : "") + "fattura").slice(0, 240), file: file, fname: fname, inv: 1 }); n++; }
+  head = `Conti → <b>${esc(smFatLab(W.dest))}</b>: ${n} ${n === 1 ? "spesa aggiunta" : "spese aggiunte"}${I.total ? ", " + eur(I.total) : ""}, con la fattura allegata.`;
+  btn = `<button class="btn" onclick="closeSheet();go('conti');view='${W.dest}';render();scrollTo(0,0)">Apri i Conti della cucciolata</button>`;
+ }
+ smReset();
+ CF.att = null;
+ render();
+ if (typeof saveNow === "function") saveNow();
+ sheet(`<h2 style="margin-top:0">Fatto: ecco dove l'ho messa</h2><p style="margin:0 0 12px">${head}</p><div class="row2" style="display:flex;gap:8px;flex-wrap:wrap">${btn}<button class="btn ghost" data-a="close">Chiudi</button></div>`);
+}
+document.addEventListener("change", e => {
+ const t = e.target;
+ if (!SM.who || SM.who.t !== "fat") return;
+ if (t.name === "smfat") { SM.who.dest = t.value; smDraw(); }
+ else if (t.id === "smFatSel") { SM.who.dest = t.value; smDraw(); }
+});
+const SM_FAT_CSS = `.sm-ft{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}.sm-ft td{padding:6px 4px;border-bottom:1px solid var(--line)}.sm-ft td:last-child{text-align:right;white-space:nowrap}.sm-ft small{color:var(--muted)}
+.sm-fopts{display:grid;gap:8px}.sm-fo{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:#fff}.sm-fo.on{border-color:var(--ok,#2F6B3F);background:#F1F6F3}.sm-fo input{width:18px;height:18px;margin-top:2px;accent-color:var(--ok,#2F6B3F);flex:none}.sm-fo b{display:block}.sm-fo small{display:block;color:var(--muted)}.sm-fo select{display:block;margin-top:6px;width:100%}`;
+(() => { try { const s = document.createElement("style"); s.textContent = SM_FAT_CSS; document.head.appendChild(s); } catch (e) {} })();
+
 function smDone(before, head, first, firstBtn) {
  const rows = [];
  for (const [k, d] of Object.entries(D.dogs || {})) {
@@ -5621,6 +5710,7 @@ function smApply() {
  const msg = n => ({ k: k, t: Date.now(), h: `<div class="cf-ok">Ho compilato i campi in verde dal documento caricato in Smista documenti: controlla e salva.${r.note ? " " + esc(r.note) : ""}</div>` });
  const go = (t, v) => { tab = t; view = v || null; if (typeof render === "function") render(); };
  const B0 = smSnap();
+ if (W.t === "fat") return smFatApply(r, W, pages);
  if (W.t === "multi") {
   // trattamento dato a più cani: una voce per cane, saltando chi ce l'ha già (come «Leggi il libretto»)
   let n = 0, c = 0;

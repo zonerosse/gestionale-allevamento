@@ -1727,3 +1727,9 @@ Accessi e copie
   DataForSEO google_ads/search_volume/live per nazione (≈ 0,09 $ l'una), dopo 10 richieste aspetta un minuto (limite 12/minuto).
   Pagina HTML che si riempie riga per riga, classifica in fondo. Risultati del giorno in gbp "mkt:vol:AAAA-MM-GG": ricaricare
   lo stesso giorno non paga di nuovo. Serve per decidere le nazioni di Kennel Manager.
+- Smista documenti, fatture → Conti (27/10/2026, anteprima 94 approvata, scelta 1A di Paolo): `smista` riconosce anche `kind` "fattura"
+  (spesa: veterinario, crocchette, farmacia, ENCI…; NON un pagamento ricevuto, che resta "inc") e risponde `inv` = {shop,date,total,lit,lines}
+  ripulito da `invClean` (ai.js, stesso formato del task «fattura»; `lit` = parla di monta, gravidanza o cuccioli). Pagina: `SM.who` = {t:"fat",dest}
+  (`smFatSug`: con `lit` la cucciolata pianificata o nata da ≤120 giorni, se no "gen"), `smFatHtml` (righe con la voce, «Dove va questa spesa?»:
+  cucciolata proposta / Spese generali / Un'altra cucciolata), `smFatApply`: "gen" = `invSave` (crocchette con `aeMatch`), cucciolata = una spesa
+  per riga in `acL(lid).exp` con la voce da `smFatCat`, fattura allegata (`inv:1`); poi «Fatto: ecco dove l'ho messa» con «Apri i Conti…».

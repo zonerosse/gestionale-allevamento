@@ -28,7 +28,31 @@ const voice = F => `Scrivi come ${F.person}, allevatore di ${F.breed} a ${F.city
 Tono: diretto, cordiale, sobrio. Prima persona singolare. Niente titoli o palmarès dei cani ("non tirarsela"), niente parole vuote (passione, amore per la razza, professionalità), niente promesse, niente prezzi, niente pressione commerciale. Frasi brevi. Si firma "${F.first}".`;
 // 13/10/2026: a volte Claude risponde senza il JSON (testo vuoto o solo parole): prima dava "Unexpected end of JSON input".
 // Ora si riprova una volta da soli; se ancora niente, un messaggio chiaro.
-export const ask = async (env, system, content, max = 1200, tools) => {
+export 
+// Righe di una fattura ripulite (task «fattura» e Smista documenti, 27/10/2026)
+const invClean = o => {
+ const n = v => v === null || v === undefined || v === "" || isNaN(+String(v).replace(",", ".")) ? null : +String(v).replace(",", ".");
+ o = o && typeof o === "object" ? o : {};
+ return {
+  shop: String(o.shop || "").slice(0, 120),
+  date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "",
+  total: n(o.total),
+  lit: o.lit === true,
+  lines: (Array.isArray(o.lines) ? o.lines : []).slice(0, 30).map(x => ({
+   desc: String(x && x.desc || "").slice(0, 200),
+   cat: [ "Crocchette", "Vaccini", "Visite", "Terapie", "Altro" ].includes(x && x.cat) ? x.cat : "Altro",
+   puppy: !!(x && x.puppy),
+   brand: String(x && x.brand || "").slice(0, 80),
+   name: String(x && x.name || "").slice(0, 120),
+   qty: Math.max(1, Math.round(n(x && x.qty) || 1)),
+   kg: n(x && x.kg) > 0 && n(x && x.kg) < 50 ? n(x.kg) : null,
+   unit: n(x && x.unit) > 0 ? Math.round(n(x.unit) * 100) / 100 : null,
+   total: n(x && x.total)
+  }))
+ };
+};
+
+const ask = async (env, system, content, max = 1200, tools) => {
   for (let i = 0; ; i++) {
     try { return await ask1(env, system, content, max, tools); }
     catch (e) { if (!e.noJson) throw e; if (i >= 1) throw new Error("Claude ha risposto in modo strano. Riprova tra un attimo. (" + e.why + ")"); }
@@ -322,12 +346,15 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
    content.push({ type: "text", text: content.length ? `Oggi è il ${oggi}.` + (hint ? ` Aiuto scritto dall'allevatore: «${hint}».` : "")
     : `Oggi è il ${oggi}. NON c'è nessuna foto: il documento è questo messaggio dell'allevatore, scritto o dettato a voce (può avere errori di trascrizione): «${hint}». «Oggi», «ieri», «sabato scorso» vanno trasformati in date vere. Se il messaggio non è nessuno dei tipi (per esempio un appuntamento) usa "altro" e spiegalo in "note".` });
    const KS = [ "ped", "cane", "sh", "rp", "litter", "w", "nasc", "famiglia", "inc", "farm", "enti" ].filter(k => CK[k]);
+   const FAT = `### fattura: una fattura, una ricevuta o uno scontrino di una SPESA dell'allevatore (veterinario, negozio di animali anche online, farmacia, crocchette, ENCI, test genetici). NON un pagamento ricevuto dall'allevatore (quello è "inc").
+Invece di "f" metti "inv": {"shop":"negozio, veterinario o venditore","date":"AAAA-MM-GG","total":totale pagato (numero) o null,"lit":true SOLO se la fattura parla di monta, inseminazione, gravidanza, ecografia di gravidanza, parto, cesareo o cuccioli/cucciolata, altrimenti false,"lines":[TUTTE le righe con un importo: {"desc":"descrizione com'è scritta","cat":"Crocchette | Vaccini | Visite (visite, esami, ecografie, prestazioni) | Terapie (farmaci, antiparassitari, integratori) | Altro","puppy":true solo per crocchette per cuccioli,"brand":"marca (solo crocchette)","name":"prodotto senza peso (solo crocchette)","qty":1,"kg":peso di UN sacco in kg o null,"unit":prezzo di UNA confezione IVA compresa o null,"total":totale della riga IVA compresa}]}`;
    const LIB = `### lib: le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini, sverminazioni, antiparassitari)
 Invece di "f" metti "items": ogni vaccinazione e trattamento registrato, [{"t":"vacc (vaccini polivalenti, cimurro, parvovirosi, leptospirosi, tosse dei canili) | rab (antirabbica) | vle (vaccino leishmania) | ple (collare o spot contro la leishmania) | pfi (prevenzione filaria) | pz (pulci e zecche) | verm (vermifugo)","date":"AAAA-MM-GG","prod":"nome del prodotto","next":"prossimo richiamo AAAA-MM-GG se scritto, altrimenti \"\"","note":""}]`;
    const o = await ask(env, `Ti arriva una foto o un documento caricato da un allevatore di cani nel suo gestionale. Fai tre cose.
 1) "kind": che cos'è, uno di questi tipi (se non è nessuno: "altro"):
 ${KS.map(k => `- "${k}": ${CK[k][0]}`).join("\n")}
 - "lib": le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini e trattamenti)
+- "fattura": una fattura, ricevuta o scontrino di una spesa (veterinario, crocchette, farmacia, ENCI…)
 - "foto": la fotografia di un cane (non un documento): va come foto principale della sua scheda; di chi è lo dice l'aiuto
 Un pedigree con l'albero degli antenati è "ped", non "cane". Se l'allevatore ha scritto un aiuto, usalo per capire che cos'è e di chi è.
 La foto di una confezione di vaccino, antiparassitario o vermifugo è "lib": una voce con quel prodotto e la data scritta nell'aiuto (anno di oggi se manca; senza data, oggi).
@@ -337,8 +364,9 @@ La foto di una confezione di vaccino, antiparassitario o vermifugo è "lib": una
 Campi per tipo:
 ${KS.map(k => `### ${k}\n${Object.entries(CK[k][1]).map(([a, d]) => `- "${a}": ${d}`).join("\n")}`).join("\n")}
 ${LIB}
+${FAT}
 Rispondi con {"kind":"","all":false,"grp":"","label":"descrizione breve in italiano di cosa hai letto, es. Pedigree di Amazing Paddy the Baddy","subj":{...},"f":{...},"items":[],"note":"una frase su quello che non hai letto bene, altrimenti \"\""}.`, content, 8000);
-   const kind = KS.includes(o.kind) || o.kind === "lib" || o.kind === "foto" && content.some(c => c.type === "image") ? o.kind : "altro";
+   const kind = KS.includes(o.kind) || o.kind === "lib" || o.kind === "fattura" || o.kind === "foto" && content.some(c => c.type === "image") ? o.kind : "altro";
    const S1 = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
    const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
    const s0 = o.subj && typeof o.subj === "object" ? o.subj : {};
@@ -347,7 +375,8 @@ Rispondi con {"kind":"","all":false,"grp":"","label":"descrizione breve in itali
    if (kind === "lib") {
     const T = [ "vacc", "rab", "vle", "ple", "pfi", "pz", "verm" ];
     out.items = (Array.isArray(o.items) ? o.items : []).slice(0, 80).map(x => ({ t: T.includes(x && x.t) ? x.t : "", date: D8(x && x.date), prod: S1(x && x.prod, 120), next: D8(x && x.next), note: S1(x && x.note, 160) })).filter(x => x.t && x.date);
-   } else if (CK[kind]) out.f = cfOut(kind, o.f);
+   } else if (kind === "fattura") out.inv = invClean(o.inv);
+   else if (CK[kind]) out.f = cfOut(kind, o.f);
    return json(out);
   }
   if (task === "compila") {
