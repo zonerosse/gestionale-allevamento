@@ -1703,3 +1703,5 @@ Accessi e copie
   (`continuous` falso); se in 6 s il microfono non parte (`onstart`/`onaudiostart`/`onresult`) si ferma, `SM.noMic` e lo dice; «Fine» abort sicuro.
 - Smista documenti, foto del cane (27/10/2026, Paolo: «nuova foto di Billy, sostituisci… non ha funzionato»): `kind` "foto" (solo con
   un'immagine): riepilogo con foto di adesso → foto nuova, «Va bene» = `d.photo` ridotta a 900 px come «Aggiungi foto» (`qPhOpen`).
+- Smista documenti, messaggio senza foto che non è un documento (27/10/2026, Paolo: promemoria «allegato ai documenti di Maris»): «altro»
+  senza pagine non si allega a niente; riepilogo con «Apri in Agenda» (`data-sm="agenda"` → `#agenda=<testo>` + `agFromHash`) e «Annulla».

@@ -5435,6 +5435,7 @@ function smNm(id) {
 
 function smWho(r, hint) {
  const k = r.kind, sj = r.subj || {};
+ if (k === "altro" && !SM.pages.length) return { t: "", id: "" };   // solo un messaggio: niente da allegare
  if (SM_DOG.includes(k)) {
   if (k === "lib" && (r.all || /\btutt[ie]\b|\bpi\xf9 cani\b/i.test(hint || ""))) {
    const g = SM_GRP.some(x => x[0] === r.grp) ? r.grp : "tutti";
@@ -5489,6 +5490,9 @@ ${H.length ? `<div class="sm-gh">Cani di casa</div><div class="sm-dls">${srt(H).
 <ul class="sm-where"><li><span class="sm-ck">✓</span><span><b>Salute di ${n} ${n === 1 ? "cane" : "cani"} → ${esc(lt)}</b><small>${esc(I.map(x => (x.prod || LB_T[x.t] && LB_T[x.t][0] || "") + (x.date ? " \xb7 " + fmt(x.date) : "")).join(" — "))}</small></span></li></ul>
 <div class="sm-bts sm-l"><button class="btn small" data-sm="ok"${n ? "" : " disabled"}>Va bene, aggiungi a ${n} ${n === 1 ? "cane" : "cani"}</button><button class="btn small ghost" data-sm="cancel">Annulla</button></div><p class="row-meta" style="margin:6px 0 0">Niente viene scritto prima di \xabVa bene\xbb. La prossima scadenza di ognuno si calcola da sola.</p>`;
  }
+ // 27/10/2026 (Paolo: un promemoria dettato veniva «allegato ai documenti di Maris»): un messaggio senza foto che non è un
+ // documento non si allega a niente; se è un appuntamento si apre l'Agenda con lo stesso testo.
+ if (k === "altro" && !SM.pages.length) return `<div class="sm-got">${th}<span><b>${esc(r.label || "Il tuo messaggio")}</b><small>${esc(r.note || "Non \xe8 un documento da mettere in una scheda.")}</small></span></div><ul class="sm-where"><li><span class="sm-ck">\u2713</span><span><b>Se \xe8 un appuntamento (visita, ritiro, consegna) mettilo in Agenda</b><small>si apre l'Agenda con questo messaggio: l\xec tocchi \xabLeggi il messaggio\xbb</small></span></li></ul><div class="sm-bts sm-l"><button class="btn small" data-sm="agenda">Apri in Agenda</button><button class="btn small ghost" data-sm="cancel">Annulla</button></div>`;
  // manca di chi è: lo chiede
  if (W.t && !W.id || SM.pick) {
   const C = (W.cand || []).length ? W.cand : W.t === "dog" ? Object.keys(D.dogs).filter(x => smHome(D.dogs[x]) || smPup(D.dogs[x])).sort((a, b) => (D.dogs[a].nick || D.dogs[a].name || "").localeCompare(D.dogs[b].nick || D.dogs[b].name || "")).slice(0, 12) : W.t === "lit" ? Object.keys(D.litters || {}).slice(0, 8) : Object.keys(D.owners || {}).slice(0, 8);
@@ -5720,6 +5724,7 @@ document.addEventListener("click", e => {
  const a = b.dataset.sm;
  if (a === "cancel") { smReset(); return smDraw(); }
  if (a === "go") return smGo();
+ if (a === "agenda") { const t = SM.hint; smReset(); location.hash = "#agenda=" + encodeURIComponent(t); if (typeof agFromHash === "function") setTimeout(agFromHash, 0); return; }
  if (a === "mic") { SM.keep = (document.getElementById("smHint") || {}).value || SM.hint; return smMic(); }
  if (a === "micStop") return smMicStop(false);
  if (a === "micCancel") return smMicStop(true);
