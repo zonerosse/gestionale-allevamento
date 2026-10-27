@@ -347,7 +347,7 @@ Rispondi con {"kind":"","all":false,"grp":"","label":"descrizione breve in itali
    if (kind === "lib") {
     const T = [ "vacc", "rab", "vle", "ple", "pfi", "pz", "verm" ];
     out.items = (Array.isArray(o.items) ? o.items : []).slice(0, 80).map(x => ({ t: T.includes(x && x.t) ? x.t : "", date: D8(x && x.date), prod: S1(x && x.prod, 120), next: D8(x && x.next), note: S1(x && x.note, 160) })).filter(x => x.t && x.date);
-   } else if (kind !== "altro") out.f = cfOut(kind, o.f);
+   } else if (CK[kind]) out.f = cfOut(kind, o.f);
    return json(out);
   }
   if (task === "compila") {

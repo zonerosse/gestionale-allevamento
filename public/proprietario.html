@@ -5569,7 +5569,7 @@ async function smGo() {
   SM.pick = 0;
   SM.st = "res";
  } catch (e) {
-  SM.st = "";
+  SM.st = SM.pages.length ? "ready" : "";
   SM.err = e.message || String(e);
  }
  smDraw();
