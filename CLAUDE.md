@@ -1718,3 +1718,4 @@ Accessi e copie
 - Agenda «Al calendario» (27/10/2026, scelta 1C di Paolo: «sono su PC, non ho calendari»; prima scaricava un .ics che sul PC non si vedeva):
   `agCal(x)` all'inizio di `agIcs`: computer e Android → Google Calendar con l'appuntamento già scritto (calendar.google.com/calendar/render
   action=TEMPLATE, ctz Europe/Rome); iPhone/iPad (`SM_IOS`) → data:text/calendar = «Aggiungi al calendario» del telefono. Senza ora = tutto il giorno.
+  Si apre con un link in una scheda nuova (prima window.open con "noopener" dava null e la pagina andava via dal gestionale).

@@ -8803,8 +8803,16 @@ function agCal(x) {
  const det = [ x.tel ? "Tel. " + x.tel : "", x.note || "" ].filter(Boolean).join("\n"), loc = AG_ADDR_F().replace(/^[\s,]+|[\s,]+$/g, "");
  if (!SM_IOS) {
   const u = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(tit) + "&dates=" + st + "/" + en + "&ctz=Europe/Rome&details=" + encodeURIComponent(det) + "&location=" + encodeURIComponent(loc);
-  const w = window.open(u, "_blank", "noopener");
-  if (!w) location.href = u;
+  // 27/10/2026 (Paolo: «mi ha buttato fuori dal gestionale»): con "noopener" window.open dà sempre null e si andava via dalla pagina.
+  // Ora un link in una scheda nuova: il gestionale resta aperto.
+  const a = document.createElement("a");
+  a.href = u;
+  a.target = "_blank";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  toast("Google Calendar si apre in una scheda nuova: tocca \xabSalva\xbb e torna qui.");
   return true;
  }
  const e = s => String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
