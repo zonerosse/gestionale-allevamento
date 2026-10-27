@@ -1698,3 +1698,6 @@ Accessi e copie
   quello della tastiera). Il campo `#smHint` è un textarea (`smField`): con foto = aiuto, senza foto = il messaggio; «Leggi il messaggio»
   (`#smTxtBts`) compare quando c'è testo. Server `smista`: senza pagine usa il messaggio come documento (date relative → vere, «altro» per
   cose come gli appuntamenti).
+  27/10/2026 (Paolo, iPhone: «non sente e si è bloccato tutto»): sull'iPhone nell'app aperta dall'icona della Home (`SM_IOS && SM_APP`)
+  niente «Parla», solo la riga «Per dettare: tocca il campo e poi il microfono della tastiera»; su iPhone una frase alla volta
+  (`continuous` falso); se in 6 s il microfono non parte (`onstart`/`onaudiostart`/`onresult`) si ferma, `SM.noMic` e lo dice; «Fine» abort sicuro.

@@ -5314,13 +5314,18 @@ ${smField()}<div class="sm-bts sm-l" id="smTxtBts"${SM.hint.trim() ? "" : " hidd
 }
 
 // Voce (27/10/2026, anteprima 88, scelta 1B di Paolo): «Parla» solo se il browser ha il riconoscimento vocale; se no il microfono della tastiera.
-const SM_SR = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+// 27/10/2026 (Paolo, iPhone: «inizio a parlare e non sente, si è bloccato tutto»): nell'app aperta dall'icona della Home l'iPhone
+// non fa funzionare il riconoscimento vocale delle pagine → lì niente «Parla», resta il microfono della tastiera. Altrove: una frase
+// alla volta (continuous solo fuori da iPhone/iPad) e un controllo: se in 6 secondi il microfono non parte, si ferma e lo dice.
+const SM_IOS = typeof navigator !== "undefined" && (/iPhone|iPad|iPod/.test(navigator.userAgent) || navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const SM_APP = typeof window !== "undefined" && (window.navigator.standalone === true || window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+const SM_SR = typeof window !== "undefined" && !(SM_IOS && SM_APP) && (window.SpeechRecognition || window.webkitSpeechRecognition);
 let SM_REC = null;
 function smMicBtn(t) {
  return SM_SR && !SM.noMic ? `<button class="btn small ghost sm-mic" data-sm="mic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg> ${t}</button>` : "";
 }
 function smField() {
- return `<label class="sm-hint"><textarea id="smHint" class="nodirty" rows="2" placeholder="${SM.pages.length ? "Aiutami (facoltativo): es. \xabpedigree di Tikus\xbb, \xabvaccino di Luna\xbb" : "Scrivi o detta: es. \xaboggi NexGard a tutti i cani\xbb, \xabvermifugo a Desy ieri\xbb"}">${esc(SM.hint)}</textarea></label>${SM.err ? `<div class="cf-err">${esc(SM.err)}</div>` : ""}`;
+ return `<label class="sm-hint"><textarea id="smHint" class="nodirty" rows="2" placeholder="${SM.pages.length ? "Aiutami (facoltativo): es. \xabpedigree di Tikus\xbb, \xabvaccino di Luna\xbb" : "Scrivi o detta: es. \xaboggi NexGard a tutti i cani\xbb, \xabvermifugo a Desy ieri\xbb"}">${esc(SM.hint)}</textarea></label>${!SM_SR || SM.noMic ? '<p class="row-meta" style="margin:4px 0 0">Per dettare: tocca il campo e poi il microfono della tastiera.</p>' : ""}${SM.err ? `<div class="cf-err">${esc(SM.err)}</div>` : ""}`;
 }
 function smMic() {
  if (!SM_SR || SM_REC) return;
@@ -5329,7 +5334,18 @@ function smMic() {
  const base = SM.hint.trim() ? SM.hint.trim() + " " : "";
  const r = new SM_SR();
  r.lang = "it-IT";
- r.continuous = true;
+ r.continuous = !SM_IOS;
+ let alive = 0;
+ r.onstart = r.onaudiostart = () => { alive = 1; };
+ setTimeout(() => {
+  if (SM_REC !== r || alive) return;
+  try { r.abort(); } catch (e) {}
+  SM_REC = null;
+  SM.noMic = 1;
+  SM.st = SM.prev === "ready" ? "ready" : "";
+  SM.err = "Il microfono del gestionale non parte su questo telefono: tocca il campo e usa il microfono della tastiera.";
+  smDraw();
+ }, 6000);
  r.interimResults = true;
  SM.prev = SM.st;
  SM.st = "listen";
@@ -5338,6 +5354,7 @@ function smMic() {
  smDraw();
  r.onresult = e => {
   let t = "";
+  alive = 1;
   for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
   SM.hint = base + t.trim();
   const f = document.getElementById("smHint");
@@ -5358,8 +5375,9 @@ function smMicStop(cancel) {
  const r = SM_REC;
  SM_REC = null;
  SM.st = SM.prev === "ready" ? "ready" : "";
- try { r && r.stop(); } catch (e) {}
  smDraw();
+ try { r && (cancel ? r.abort() : r.stop()); } catch (e) {}
+ setTimeout(() => { try { r && r.abort(); } catch (e) {} }, 1500);
 }
 
 function smNorm(s) {
