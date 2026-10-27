@@ -6237,8 +6237,8 @@ GUIDES.bbRef.S[4].el = () => gdVis("[data-rpsave]");
    /api/ai task «smista» dice che cos'è, di chi è e legge i campi; la pagina abbina all'archivio (smWho) e mostra il riepilogo.
    Niente viene scritto prima di «Va bene»: poi si apre il modulo giusto già compilato (CF_FILL) o la lista del libretto (LB). */
 let SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
-const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
-const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro" ], SM_LIT = [ "w", "nasc" ];
+const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", foto: "Foto del cane", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
+const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro", "foto" ], SM_LIT = [ "w", "nasc" ];
 
 function smBox() {
  if (typeof RO !== "undefined" && RO || typeof OWNER_MODE !== "undefined") return "";
@@ -6456,6 +6456,11 @@ ${H.length ? `<div class="sm-gh">Cani di casa</div><div class="sm-dls">${srt(H).
  else if (k === "litter") L = li("Nuova cucciolata", [ f.dam, f.sire ].filter(Boolean).map(esc).join(" \xd7 ")) + li("Apro il modulo gi\xe0 compilato", "controlli e salvi");
  else if (k === "famiglia") L = li(W.id === "new" ? "Nuovo proprietario: apro il modulo gi\xe0 compilato" : `Scheda di ${who}: apro i dati gi\xe0 compilati`, "controlli e salvi") + (W.id !== "new" ? li(`Il documento va nei documenti d'identit\xe0 di ${who}`, "privato: la famiglia non lo vede") : "");
  else if (k === "inc") L = li("Nuova entrata", [ f.amount ? f.amount + " €" : "", f.date ? fmt(f.date) : "", f.txt ].filter(Boolean).map(esc).join(" \xb7 ")) + li("Apro il modulo gi\xe0 compilato in Conti", "controlli e salvi");
+ else if (k === "foto") {
+  // 27/10/2026 (Paolo: «ho caricato una nuova foto di Billy e ho detto di sostituire… non ha funzionato»)
+  const d = D.dogs[W.id] || {}, img = s => `<img src="${esc(s)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">`;
+  L = li(`Foto principale di ${who}`, d.photo ? "prende il posto di quella di adesso" : "la scheda non ha ancora una foto") + `<li style="display:flex;gap:12px;align-items:center;border:0">${d.photo ? img(d.photo) + '<span style="font-size:1.4rem;color:var(--muted)">\u2192</span>' : ""}${SM.pages[0] ? img(SM.pages[0].data) : ""}</li>`;
+ }
  else if (k === "farm") L = li("Account → Allevamento", "apro i dati gi\xe0 compilati: controlli e salvi");
  else if (k === "enti") L = li("Account → Enti e destinatari", "apro gli indirizzi gi\xe0 compilati: controlli e salvi");
  else L = li(`Lo allego ai documenti di ${who}`, "non \xe8 un documento che so leggere: lo tengo come allegato");
@@ -6550,6 +6555,23 @@ function smApply() {
  }
  smReset();
  CF.att = { pages: pages, title: "" };
+ if (k === "foto") {
+  CF.att = null;
+  const src = (pages[0] || {}).data, im = new Image;
+  if (!src || !D.dogs[id]) return;
+  im.onload = () => {
+   const m = 900, sc = Math.min(1, m / Math.max(im.width, im.height)), c = document.createElement("canvas");
+   c.width = Math.round(im.width * sc);
+   c.height = Math.round(im.height * sc);
+   c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+   D.dogs[id].photo = c.toDataURL("image/jpeg", .82);
+   go("cani", id);
+   if (typeof saveNow === "function") saveNow();
+   toast("Foto di " + smNm(id) + " cambiata.");
+  };
+  im.src = src;
+  return;
+ }
  if (k === "cane") { CF.msg = msg(); go("cani", id !== "new" ? id : null); dogForm(id !== "new" ? id : undefined); CF_FILL.cane(f); return; }
  if (k === "ped") {
   let did = id;

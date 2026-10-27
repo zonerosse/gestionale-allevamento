@@ -1701,3 +1701,5 @@ Accessi e copie
   27/10/2026 (Paolo, iPhone: «non sente e si è bloccato tutto»): sull'iPhone nell'app aperta dall'icona della Home (`SM_IOS && SM_APP`)
   niente «Parla», solo la riga «Per dettare: tocca il campo e poi il microfono della tastiera»; su iPhone una frase alla volta
   (`continuous` falso); se in 6 s il microfono non parte (`onstart`/`onaudiostart`/`onresult`) si ferma, `SM.noMic` e lo dice; «Fine» abort sicuro.
+- Smista documenti, foto del cane (27/10/2026, Paolo: «nuova foto di Billy, sostituisci… non ha funzionato»): `kind` "foto" (solo con
+  un'immagine): riepilogo con foto di adesso → foto nuova, «Va bene» = `d.photo` ridotta a 900 px come «Aggiungi foto» (`qPhOpen`).

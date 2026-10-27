@@ -328,6 +328,7 @@ Invece di "f" metti "items": ogni vaccinazione e trattamento registrato, [{"t":"
 1) "kind": che cos'è, uno di questi tipi (se non è nessuno: "altro"):
 ${KS.map(k => `- "${k}": ${CK[k][0]}`).join("\n")}
 - "lib": le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini e trattamenti)
+- "foto": la fotografia di un cane (non un documento): va come foto principale della sua scheda; di chi è lo dice l'aiuto
 Un pedigree con l'albero degli antenati è "ped", non "cane". Se l'allevatore ha scritto un aiuto, usalo per capire che cos'è e di chi è.
 La foto di una confezione di vaccino, antiparassitario o vermifugo è "lib": una voce con quel prodotto e la data scritta nell'aiuto (anno di oggi se manca; senza data, oggi).
 "all": true se il documento o l'aiuto dicono che è stato dato a più cani (es. «a tutti», «tutte le fattrici»), altrimenti false; "grp": "tutti", "fattrici", "maschi" o "cuccioli" se l'aiuto lo dice, altrimenti "".
@@ -337,7 +338,7 @@ Campi per tipo:
 ${KS.map(k => `### ${k}\n${Object.entries(CK[k][1]).map(([a, d]) => `- "${a}": ${d}`).join("\n")}`).join("\n")}
 ${LIB}
 Rispondi con {"kind":"","all":false,"grp":"","label":"descrizione breve in italiano di cosa hai letto, es. Pedigree di Amazing Paddy the Baddy","subj":{...},"f":{...},"items":[],"note":"una frase su quello che non hai letto bene, altrimenti \"\""}.`, content, 8000);
-   const kind = KS.includes(o.kind) || o.kind === "lib" ? o.kind : "altro";
+   const kind = KS.includes(o.kind) || o.kind === "lib" || o.kind === "foto" && content.some(c => c.type === "image") ? o.kind : "altro";
    const S1 = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
    const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
    const s0 = o.subj && typeof o.subj === "object" ? o.subj : {};
