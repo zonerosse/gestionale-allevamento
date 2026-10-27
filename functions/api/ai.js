@@ -315,9 +315,12 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
     content.push(media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
      : { type: "image", source: { type: "base64", media_type: /^image\/(jpeg|png|gif|webp)$/.test(media) ? media : "image/jpeg", data } });
    }
-   if (!content.length) return json({ ok: false, error: "Manca la foto o il documento." });
-   const hint = String(p.hint || "").slice(0, 200);
-   content.push({ type: "text", text: `Oggi è il ${new Date().toISOString().slice(0, 10)}.` + (hint ? ` Aiuto scritto dall'allevatore: «${hint}».` : "") });
+   const hint = String(p.hint || "").slice(0, 600).trim();
+   // 27/10/2026 (anteprima 88): anche senza foto, solo con il messaggio scritto o dettato
+   if (!content.length && !hint) return json({ ok: false, error: "Manca la foto o il messaggio." });
+   const oggi = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Rome" });
+   content.push({ type: "text", text: content.length ? `Oggi è il ${oggi}.` + (hint ? ` Aiuto scritto dall'allevatore: «${hint}».` : "")
+    : `Oggi è il ${oggi}. NON c'è nessuna foto: il documento è questo messaggio dell'allevatore, scritto o dettato a voce (può avere errori di trascrizione): «${hint}». «Oggi», «ieri», «sabato scorso» vanno trasformati in date vere. Se il messaggio non è nessuno dei tipi (per esempio un appuntamento) usa "altro" e spiegalo in "note".` });
    const KS = [ "ped", "cane", "sh", "rp", "litter", "w", "nasc", "famiglia", "inc", "farm", "enti" ].filter(k => CK[k]);
    const LIB = `### lib: le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini, sverminazioni, antiparassitari)
 Invece di "f" metti "items": ogni vaccinazione e trattamento registrato, [{"t":"vacc (vaccini polivalenti, cimurro, parvovirosi, leptospirosi, tosse dei canili) | rab (antirabbica) | vle (vaccino leishmania) | ple (collare o spot contro la leishmania) | pfi (prevenzione filaria) | pz (pulci e zecche) | verm (vermifugo)","date":"AAAA-MM-GG","prod":"nome del prodotto","next":"prossimo richiamo AAAA-MM-GG se scritto, altrimenti \"\"","note":""}]`;

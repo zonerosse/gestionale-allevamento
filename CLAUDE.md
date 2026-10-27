@@ -1693,3 +1693,8 @@ Accessi e copie
   con «a tutti» → `SM.who.t="multi"`: gruppi `SM_GRP` (Tutti i cani di casa = `smHome`, fattrici, maschi, Cuccioli ancora qui = `smPup`,
   nessuno) + spunte `data-smd`; chi ha già la voce (`lbHas`) è grigio; «Va bene» scrive in `health` come `lbSave`. La foto della confezione
   non si salva. Ceduti, deceduti ed esterni (`smGone`) non si propongono più in «Di quale cane è?» (salvo microchip/registro).
+- Smista documenti con la voce (27/10/2026, anteprima 88, scelta 1B di Paolo): «Parla» (`smMicBtn`, solo se c'è `SpeechRecognition`/
+  `webkitSpeechRecognition` = `SM_SR`; `smMic`, stato `listen` «Ti ascolto…», «Fine» `smMicStop`; se il microfono è negato `SM.noMic` e resta
+  quello della tastiera). Il campo `#smHint` è un textarea (`smField`): con foto = aiuto, senza foto = il messaggio; «Leggi il messaggio»
+  (`#smTxtBts`) compare quando c'è testo. Server `smista`: senza pagine usa il messaggio come documento (date relative → vere, «altro» per
+  cose come gli appuntamenti).
