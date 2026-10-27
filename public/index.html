@@ -10014,7 +10014,7 @@ function agMsgRem(x){if(x.k==="v")return`Ciao ${x.who||""}, ti ricordo la visita
   const f=agFam(x.dog);return`Ciao ${x.who||f.fam||""}, ti ricordo che domani alle ${x.time} ti aspetto per ${f.pup}.\nIndirizzo: ${AG_ADDR_F()}: ${AG_MAP_F()}\nSe cambia qualcosa scrivimi pure. ${FM().first}`}
 function agMsgAsk(x){if(x.k==="v")return`Ciao ${x.who||""}, quando ti farebbe comodo passare a conoscerci? Dimmi giorno e ora, così ti tengo libero il momento. ${FM().first}`;
   const f=agFam(x.dog);return`Ciao ${f.fam||""}, ${f.pup} è pronto per venire a casa. Quando ti farebbe comodo passare a prenderlo? Dimmi giorno e ora, così ti tengo libero il momento. ${FM().first}`}
-function agIcs(x){const [y,m,d]=x.date.split("-"),[hh,mm]=(x.time||"10:00").split(":"),s=y+m+d+"T"+hh.padStart(2,"0")+mm.padStart(2,"0")+"00",tit=x.k==="v"?"Visita "+(x.who||""):"Ritiro "+agFam(x.dog).pup+(x.who?" ("+x.who+")":"");
+function agIcs(x){if(agCal(x))return;const [y,m,d]=x.date.split("-"),[hh,mm]=(x.time||"10:00").split(":"),s=y+m+d+"T"+hh.padStart(2,"0")+mm.padStart(2,"0")+"00",tit=x.k==="v"?"Visita "+(x.who||""):"Ritiro "+agFam(x.dog).pup+(x.who?" ("+x.who+")":"");
   const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//DelPiccoloDiavolo//Agenda//IT","BEGIN:VEVENT","UID:"+x.id+"@delpiccolodiavolo","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART:"+s,"DURATION:PT1H","SUMMARY:"+tit,"LOCATION:"+AG_ADDR_F(),"DESCRIPTION:"+(x.tel?"Tel. "+x.tel+" ":"")+(x.note||""),"BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+tit,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
   const u=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})),a=document.createElement("a");a.href=u;a.download=tit.replace(/[^\w\- ]+/g,"")+".ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function agForm(x){const L=agPups(),isR=x.k==="r";
@@ -10062,6 +10062,24 @@ function agSmDogs() {
  };
  O.sort((a, b) => hit(b) - hit(a) || smNm(a).localeCompare(smNm(b)));
  return { P: P, O: O, hit: hit };
+}
+// 27/10/2026 (scelta 1C di Paolo: «sono su PC, non ho calendari»): «Al calendario» sul computer e su Android apre Google Calendar con
+// l'appuntamento già scritto (si tocca «Salva»); su iPhone/iPad apre «Aggiungi al calendario» del telefono. Senza ora = tutto il giorno.
+function agCal(x) {
+ const tit = x.k === "v" ? "Visita " + (x.who || "") : "Ritiro " + agFam(x.dog).pup + (x.who ? " (" + x.who + ")" : ""), d0 = x.date.replace(/-/g, ""), d1 = addD(x.date, 1).replace(/-/g, "");
+ const tm = /^\d{1,2}:\d{2}$/.test(x.time || "") ? x.time.split(":").map(n => n.padStart(2, "0")) : null;
+ const st = tm ? d0 + "T" + tm[0] + tm[1] + "00" : d0, en = tm ? (h => d0 + "T" + String(Math.min(23, h + 1)).padStart(2, "0") + tm[1] + "00")(+tm[0]) : d1;
+ const det = [ x.tel ? "Tel. " + x.tel : "", x.note || "" ].filter(Boolean).join("\n"), loc = AG_ADDR_F().replace(/^[\s,]+|[\s,]+$/g, "");
+ if (!SM_IOS) {
+  const u = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(tit) + "&dates=" + st + "/" + en + "&ctz=Europe/Rome&details=" + encodeURIComponent(det) + "&location=" + encodeURIComponent(loc);
+  const w = window.open(u, "_blank", "noopener");
+  if (!w) location.href = u;
+  return true;
+ }
+ const e = s => String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+ const ics = [ "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Gestionale//Agenda//IT", "BEGIN:VEVENT", "UID:" + x.id + "@gestionale-allevamento", "DTSTAMP:" + (new Date).toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z", tm ? "DTSTART;TZID=Europe/Rome:" + st : "DTSTART;VALUE=DATE:" + st, tm ? "DTEND;TZID=Europe/Rome:" + en : "DTEND;VALUE=DATE:" + en, "SUMMARY:" + e(tit), "LOCATION:" + e(loc), "DESCRIPTION:" + e(det), "BEGIN:VALARM", "TRIGGER:" + (tm ? "-PT2H" : "-PT6H"), "ACTION:DISPLAY", "DESCRIPTION:" + e(tit), "END:VALARM", "END:VEVENT", "END:VCALENDAR" ].join("\r\n");
+ location.href = "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+ return true;
 }
 function agTopBox() {
  if (!AG.src) return "";

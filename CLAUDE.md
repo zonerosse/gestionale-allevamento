@@ -1715,3 +1715,6 @@ Accessi e copie
   gli altri cani di casa (`agSmDogs`, il nome nel testo va primo), «Nessuno: salvalo come appuntamento»), tasti Salva / Non è giusto / Annulla;
   `agSmFoot()` = barra Salva fissa in fondo (sopra la barra del telefono). `agSmSave`: «Nessuno» o tipo «altro» = visita con la nota del
   messaggio; dopo il salvataggio `AG.flash` apre la sezione e la scheda nuova è evidenziata (`.ag-new`). `agSmX` = Annulla.
+- Agenda «Al calendario» (27/10/2026, scelta 1C di Paolo: «sono su PC, non ho calendari»; prima scaricava un .ics che sul PC non si vedeva):
+  `agCal(x)` all'inizio di `agIcs`: computer e Android → Google Calendar con l'appuntamento già scritto (calendar.google.com/calendar/render
+  action=TEMPLATE, ctz Europe/Rome); iPhone/iPad (`SM_IOS`) → data:text/calendar = «Aggiungi al calendario» del telefono. Senza ora = tutto il giorno.
