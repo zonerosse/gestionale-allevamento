@@ -2147,7 +2147,7 @@ function dogFacts(d,id,st,own){
     ${L("Nome completo",`<input id="ef_name" value="${esc(d.name)}">`,1)}${L("Soprannome",`<input id="ef_nick" value="${esc(d.nick||"")}">`)}
     ${L("Sesso",sel("ef_sex",[["M","Maschio"],["F","Femmina"],["","Da definire"]],d.sex||""))}${L("Nascita",`<input type="date" id="ef_birth" value="${esc(d.birth||"")}">`)}
     ${EG("stato","Stato e proprietario",esc(stx)+" · "+esc(own0))}
-    ${L("Stato",sel("ef_status",Object.entries(STATUS).map(([k,x])=>[k,x[0]]).concat([["ext","Esterno (antenato o stallone)"]]),d.ext?"ext":(d.status||"")))}
+    ${L("Stato",sel("ef_status",Object.entries(STATUS).map(([k,x])=>[k,x[0]]).concat([["ext","Esterno (antenato o stallone)"]]),d.ext?"ext":(d.status||"")))}${moField(d)}
     ${L("Proprietario",`<select id="ef_owner"><option value="">${esc(FM().person)} (nessun proprietario)</option>${Object.keys(D.owners).sort((a,b)=>D.owners[a].name.localeCompare(D.owners[b].name)).map(k=>`<option value="${k}" ${d.owner===k?"selected":""}>${esc(D.owners[k].name)}</option>`).join("")}<option value="__new">+ Nuovo proprietario…</option></select>
     <div id="ef_newown" class="newown" style="display:none"><input id="no_name" placeholder="Nome e cognome (obbligatorio)"><input id="no_country" placeholder="Paese"><input id="no_phone" type="tel" placeholder="Telefono"><input id="no_email" type="email" placeholder="Email">
     <select id="no_lang"><option value="it">Pagina privata in italiano</option><option value="en">Pagina privata in inglese</option></select></div>`)}
@@ -2187,7 +2187,7 @@ function editSave(id){const d=D.dogs[id],v=k=>($("#"+k)||{value:""}).value.trim(
   let own=v("ef_owner");
   if(own==="__new"){const nm=v("no_name");if(!nm){$("#no_name").focus();return}own=newId("o");
     D.owners[own]={name:nm,country:v("no_country"),phone:v("no_phone"),email:v("no_email"),lang:v("no_lang")}}
-  const stv=v("ef_status");
+  const stv=v("ef_status");moSave(d,stv);
   Object.assign(d,{name,nick:v("ef_nick"),sex:v("ef_sex"),birth:v("ef_birth"),color:v("ef_color"),loi:v("ef_loi"),chip:v("ef_chip"),sire,dam,
     ext:stv==="ext",status:stv==="ext"?"":stv,bred:v("ef_bred")==="me",breeder:v("ef_bred")==="me"?"":v("ef_breeder"),owner:own,coiSbt:v("ef_coi").replace("%",""),
     sbt:((v("ef_sbt").match(/dogs_id=(\d+)/)||v("ef_sbt").match(/^(\d+)$/)||[])[1])||"",tests:v("ef_tests"),titles:v("ef_titles"),notes:v("ef_notes")});
@@ -3497,6 +3497,133 @@ function tmPdfShow(){const X=pairData(mateS,mateD),N=x=>x==null||x===""?"—":pf
 const ANAG_DEF={get paolo(){const f=FM();return{name:f.person,sex:"M",cf:"",bplace:"",bdate:"",addr:f.addr+", "+f.cityProv,tel:f.phoneIntl,email:f.email}},
   daniela:{name:"Daniela Veronesi",sex:"F",cf:"",bplace:"",bdate:"",get addr(){return FM().addr+", "+FM().cityProv},tel:"",email:""}};
 function anagHolders(){D.settings=D.settings||{};const S=D.settings.holders||{};D.settings.holders=Object.fromEntries(Object.keys(Object.assign({},ANAG_DEF,S)).map(k=>[k,Object.assign({},ANAG_DEF[k]||{},S[k]||{})]));return D.settings.holders}
+
+// ===== Morte del cane (27/10/2026, anteprima 95 approvata, scelta 1A di Paolo: «la mail già preimpostata, cambiano solo i dati»).
+// Legge regionale Emilia-Romagna 27/2000 art. 11: la morte si comunica al Comune entro 15 giorni. In Modifica, con lo stato «Deceduto»,
+// il campo «Data della morte» (d.death); in Scadenze «Comunica al Comune la morte di …» (src "morte", data = morte + 15);
+// nella pratica dell'Anagrafe il riquadro «Morte del cane» (moBox): certificato del veterinario e attestato di cremazione nei documenti
+// privati del cane (mo:"vet"/"crem"), email fissa all'anagrafe (moMail, stesso indirizzo ppAddr) e «Comunicata» (d.anag.deathSent).
+function moIt() { return typeof natIT !== "function" || natIT(); }
+function moOn(d) { return !!d && d.status === "deceduto" && !!d.death && !d.ext && (!!d.anag || !d.owner) && moIt(); }
+function moTodo(d) { return moOn(d) && !(d.anag && d.anag.deathSent); }
+function moField(d) {
+ const on = (d.ext ? "ext" : d.status || "") === "deceduto";
+ return `<label class="f" id="ef_deathW"${on ? "" : ' style="display:none"'}><span>Data della morte</span><input type="date" id="ef_death" value="${esc(d.death || "")}"></label>`;
+}
+function moSave(d, stv) {
+ const i = document.getElementById("ef_death");
+ if (stv === "deceduto" && i) d.death = i.value || d.death || "";
+}
+document.addEventListener("change", e => {
+ if (!e.target || e.target.id !== "ef_status") return;
+ const w = document.getElementById("ef_deathW");
+ if (w) w.style.display = e.target.value === "deceduto" ? "" : "none";
+});
+(() => {
+ const ad = window.anagDogs, se = window.scEvents, ao = window.anagOpen;
+ if (typeof ad === "function") window.anagDogs = function() {
+  const L = ad.apply(this, arguments), x = Object.keys(D.dogs).filter(k => moTodo(D.dogs[k]) && !L.includes(k) && !(D.dogs[k].anag || {}).hidden);
+  return L.concat(x);
+ };
+ if (typeof se === "function") window.scEvents = function() {
+  const R = se.apply(this, arguments);
+  if (!Array.isArray(R)) return R;
+  for (const [k, d] of Object.entries(D.dogs)) if (moTodo(d)) R.push({ id: "mo" + k, src: "morte", dog: k, nm: d.nick || d.name, cat: "m", ico: "🪪", date: addD(d.death, 15), t: "Comunica al Comune la morte di " + (d.nick || d.name), s: "entro 15 giorni dalla morte (" + fmt(d.death) + ") \xb7 legge regionale 27/2000" });
+  return R;
+ };
+ if (typeof ao === "function") window.anagOpen = function(k) {
+  const r = ao.apply(this, arguments), d = D.dogs[k];
+  if (d && d.status === "deceduto" && moIt()) {
+   const a = document.querySelector("#sheet .actions");
+   if (a) a.insertAdjacentHTML("beforebegin", moBox(k));
+   if (MO_GO) { MO_GO = 0; setTimeout(() => { const b = document.getElementById("moBox"); b && b.scrollIntoView({ block: "start", behavior: "smooth" }); }, 120); }
+  }
+  return r;
+ };
+})();
+let MO_GO = 0;
+function moDoc(d, t) { return (d.docs || []).find(x => x.mo === t); }
+function moData(k) {
+ const d = D.dogs[k], A = d.anag || {}, H = (typeof anagHolders === "function" ? anagHolders() : {})[A.holder || "paolo"] || {}, F = FM();
+ const nm = A.nm || d.nick || d.name, ped = A.pedName || d.name, chip = String(A.chip || d.chip || "").replace(/\D/g, "");
+ const vet = moDoc(d, "vet"), crem = moDoc(d, "crem"), att = [ vet ? "il certificato di morte del veterinario" : "", crem ? "l'attestato di cremazione" : "" ].filter(Boolean);
+ const subj = "Comunicazione decesso cane" + (chip ? " – microchip " + chip : " – " + nm);
+ const txt = `Buongiorno,\ncomunico il decesso del cane sotto indicato, iscritto all'anagrafe canina di questo Comune.\n\nNome: ${nm}${ped && ped !== nm ? " (" + ped + ")" : ""}\nMicrochip: ${chip || "—"}\nRazza e sesso: ${[ F.breed, d.sex === "M" ? "maschio" : d.sex === "F" ? "femmina" : "" ].filter(Boolean).join(", ")}\n${d.birth ? (d.sex === "F" ? "Nata il: " : "Nato il: ") + fmt(d.birth) + "\n" : ""}${d.sex === "F" ? "Morta il: " : "Morto il: "}${fmt(d.death)}\nIntestatario: ${H.name || F.person}\n\n${att.length ? "In allegato " + att.join(" e ") + ".\n\n" : ""}Cordiali saluti\n${H.name || F.person}`;
+ return { d, A, nm, chip, vet, crem, subj, txt };
+}
+function moBox(k) {
+ const M = moData(k), d = M.d, A = M.A, sent = A.deathSent;
+ const row = (ok, t, s, btn) => `<div class="mo-li"><span class="mo-ck${ok ? " y" : ""}">${ok ? "✓" : "+"}</span><span class="mo-t">${t}<small>${s}</small></span>${btn || ""}</div>`;
+ const doc = (t, lab, sub) => { const x = moDoc(d, t); return row(!!x, lab, x ? esc(x.fname || x.title) : sub, x ? fBtns(docHref(x.file), x.fname) + `<button class="btn small ghost" data-mo="up" data-k="${k}" data-v="${t}">Cambia</button>` : `<button class="btn small ghost" data-mo="up" data-k="${k}" data-v="${t}">Carica foto o PDF</button>`); };
+ return `<div class="mo-box" id="moBox"><h3 style="margin:14px 0 2px">Morte del cane${sent ? ' <span class="ok-v">✓</span>' : ""}</h3><p class="row-meta" style="margin:0 0 6px">${esc(M.nm)}${M.chip ? " \xb7 microchip " + esc(M.chip) : ""}</p>
+${d.death ? row(1, "Data della morte", fmt(d.death) + (sent ? "" : " \xb7 da comunicare entro il " + fmt(addD(d.death, 15)))) : row(0, "Data della morte", "scrivila in Modifica della scheda del cane")}
+${doc("vet", "Certificato di morte del veterinario", "foto o PDF del certificato")}${doc("crem", "Attestato di cremazione", "facoltativo: allegalo se il centro di cremazione te lo d\xe0")}
+<p class="row-meta" style="margin:10px 0 0">A: <b>${esc(typeof ppAddr === "function" && ppAddr() || "")}</b>${typeof ppAddr === "function" && ppAddr() ? "" : "scrivi l'indirizzo in Account \u2192 Enti e destinatari"}<br>Oggetto: <b>${esc(M.subj)}</b></p><div class="mo-mail">${esc(M.txt)}</div>
+${sent ? `<div class="mo-done">✓ Comunicata il ${fmt(sent)} <button class="btn small ghost" data-mo="undo" data-k="${k}">Togli</button></div>` : `<div class="row2" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" data-mo="mail" data-k="${k}"${d.death ? "" : " disabled"}>Email all'anagrafe</button><button class="btn ghost" data-mo="done" data-k="${k}">Comunicata</button></div>`}</div>`;
+}
+function moRedraw(k) { if (typeof anagOpen === "function") { MO_GO = 1; anagOpen(k); } }
+function moUp(k, t) {
+ const i = document.createElement("input");
+ i.type = "file";
+ i.accept = "image/*,application/pdf";
+ i.onchange = async () => {
+  const f = i.files[0];
+  if (!f) return;
+  let file, fname = f.name;
+  if (/^image\//.test(f.type)) { const r = await shrink(f); file = r && (r.data || r); fname = fname.replace(/\.[^.]+$/, "") + ".jpg"; }
+  else file = await new Promise(ok => { const r = new FileReader; r.onload = () => ok(r.result); r.readAsDataURL(f); });
+  if (!file) return;
+  const d = D.dogs[k];
+  d.docs = (d.docs || []).filter(x => x.mo !== t);
+  d.docs.push({ title: t === "vet" ? "Certificato di morte del veterinario" : "Attestato di cremazione", date: todayS(), file: file, fname: fname, private: true, mo: t });
+  if (typeof saveNow === "function") saveNow();
+  moRedraw(k);
+ };
+ i.click();
+}
+async function moMail(k, b) {
+ const M = moData(k);
+ if (!M.vet && !confirm("Il certificato del veterinario non \xe8 ancora caricato. Mando lo stesso?")) return;
+ if (typeof aiBusy === "function") aiBusy(b, 1, "Preparo…");
+ const F = [];
+ for (const x of [ M.vet, M.crem ].filter(Boolean)) {
+  try { const bl = await (await fetch(typeof docHref === "function" ? docHref(x.file) : x.file)).blob(); F.push(new File([ bl ], x.fname || "allegato", { type: bl.type || "application/pdf" })); } catch (e) {}
+ }
+ if (typeof aiBusy === "function") aiBusy(b, 0);
+ const to = typeof ppAddr === "function" ? ppAddr() : "";
+ if (isPhone() && navigator.canShare && F.length && navigator.canShare({ files: F })) {
+  try { await navigator.clipboard.writeText(to); toast("Indirizzo copiato: incollalo in “A:”."); } catch (x) {}
+  try { await navigator.share({ files: F, title: M.subj, text: M.txt }); } catch (x) {}
+ } else {
+  F.forEach(f => { const u = URL.createObjectURL(f), e = document.createElement("a"); e.href = u; e.download = f.name; document.body.appendChild(e); e.click(); e.remove(); });
+  window.open("https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(to) + "&su=" + encodeURIComponent(M.subj) + "&body=" + encodeURIComponent(M.txt), "_blank");
+  if (F.length) toast("Ho scaricato gli allegati: in Gmail premi la graffetta e allegali.");
+ }
+ setTimeout(() => { if (confirm("L'email all'anagrafe \xe8 partita? Tocca OK per segnarla come comunicata.")) moSet(k, todayS()); }, 1500);
+}
+function moSet(k, v) {
+ const d = D.dogs[k];
+ d.anag = d.anag || {};
+ if (v) d.anag.deathSent = v; else delete d.anag.deathSent;
+ if (typeof saveNow === "function") saveNow();
+ moRedraw(k);
+ if (typeof render === "function" && !document.getElementById("sheet")) render();
+}
+document.addEventListener("click", e => {
+ const b = e.target.closest && e.target.closest("[data-mo]");
+ if (!b) return;
+ e.preventDefault();
+ const k = b.dataset.k, a = b.dataset.mo;
+ if (a === "up") return moUp(k, b.dataset.v);
+ if (a === "mail") return moMail(k, b);
+ if (a === "done") return moSet(k, todayS());
+ if (a === "undo") return moSet(k, "");
+ if (a === "open") { MO_GO = 1; if (typeof closeSheet === "function") closeSheet(); setTimeout(() => anagOpen(k), 60); }
+});
+const MO_CSS = `.mo-box{border-top:1px solid var(--line);margin-top:12px}.mo-li{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #EEF0F3}.mo-ck{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:#F2F4F7;color:#98A2B3;flex:none}.mo-ck.y{background:#E8F1EA;color:#2F6B3F}.mo-t{flex:1;min-width:160px}.mo-t small{display:block;color:var(--muted)}
+.mo-mail{background:#F7F8FA;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;white-space:pre-wrap;margin:6px 0 0}.mo-done{display:flex;gap:10px;align-items:center;background:#E8F1EA;border-radius:10px;padding:8px 12px;color:#2F6B3F;font-weight:600;margin-top:10px}.mo-done .btn{margin-left:auto}`;
+(() => { try { const s = document.createElement("style"); s.textContent = MO_CSS; document.head.appendChild(s); } catch (e) {} })();
+
 function anagDogs(){return Object.keys(D.dogs).filter(k=>{const d=D.dogs[k];if(d.anag&&d.anag.hidden)return false;return d.anag||(!d.ext&&!d.owner&&d.status!=="deceduto"&&!(d.litter&&D.litters[d.litter]&&d.bred&&["prenotato","ceduto"].includes(d.status||"")))}).sort((a,b)=>(D.dogs[a].nick||D.dogs[a].name).localeCompare(D.dogs[b].nick||D.dogs[b].name))}
 const ANAG_REQ=[["Passaporto",/passaport|passport/i],["Certificato vaccinale / libretto",/vaccin|libretto|booklet/i],["Documento d'identità dell'intestatario",/identit|carta d.identit|documento/i]];
 function anagDocs(d){const A=d.anag||{};return(d.docs||[]).map((x,i)=>({x,i,on:A.att?A.att.includes(i):ANAG_REQ.some(r=>r[1].test((x.title||"")+" "+(x.fname||"")))}))}
@@ -7506,7 +7633,7 @@ function scAct(id){const e=scFind(id);if(!e)return;const health=e.k&&SC_K[e.k],o
   ${e.src==="enci"&&e.f==="enciB"?`<button class="btn mb-go2" data-a="mbForm" data-v="${e.ref}">📄 Prepara il Modello B</button>`:""}
   ${e.src==="enci"?B("scEnci","✔ Fatto: consegnato oggi","sc-ok"):""}
   ${e.src==="dna"?`<button class="btn sc-ok" data-a="dnaForm" data-v="${e.dog}">🧬 Segna il deposito fatto</button>`:""}
-  ${e.src==="bk"?`<button class="btn sc-ok" data-a="bkNow">✔ Fatto: scaricala adesso</button>`:""}
+  ${e.src==="bk"?`<button class="btn sc-ok" data-a="bkNow">✔ Fatto: scaricala adesso</button>`:""}${e.src==="morte"?`<button class="btn sc-ok" data-mo="open" data-k="${e.dog}">Prepara l'email</button>`:""}
   ${e.src==="rev"?`<button class="btn sc-ok" data-a="litterSheet" data-v="${e.ref}">⭐ Apri la Scheda della cucciolata (Link ai proprietari)</button>`+B("scRevDone","✔ Fatto: le ho già chieste"):""}
   ${e.src==="expo"?`<button class="btn sc-ok" data-a="exOpen" data-v="${e.ref}">🏅 Apri l'esposizione</button><button class="btn ghost" data-a="exSt" data-v="${e.ref}|iscr">✔ Fatto: iscritto</button>`:""}
   ${e.src==="show"?`<button class="btn sc-ok" data-a="shForm" data-v="${e.dog}|${e.ref}">🏅 Inserisci il risultato</button>`:""}

@@ -1733,3 +1733,9 @@ Accessi e copie
   (`smFatSug`: con `lit` la cucciolata pianificata o nata da ≤120 giorni, se no "gen"), `smFatHtml` (righe con la voce, «Dove va questa spesa?»:
   cucciolata proposta / Spese generali / Un'altra cucciolata), `smFatApply`: "gen" = `invSave` (crocchette con `aeMatch`), cucciolata = una spesa
   per riga in `acL(lid).exp` con la voce da `smFatCat`, fattura allegata (`inv:1`); poi «Fatto: ecco dove l'ho messa» con «Apri i Conti…».
+- Morte del cane (27/10/2026, anteprima 95 approvata, scelta 1A di Paolo; legge regionale ER 27/2000 art. 11: al Comune entro 15 giorni):
+  blocco «Morte del cane» prima di `anagDogs` (solo index). Modifica del cane: con stato «Deceduto» il campo «Data della morte» (`moField`,
+  `moSave` → `d.death`). `scEvents` avvolta: src "morte" (data = morte + 15) con «Prepara l'email» (`data-mo="open"`); `anagDogs` avvolta
+  (i cani da comunicare restano in elenco); `anagOpen` avvolta: riquadro `moBox` (data, certificato del veterinario e attestato di cremazione
+  nei documenti privati `mo:"vet"/"crem"`, email FISSA `moData` dove cambiano solo i dati, «Email all'anagrafe» `moMail` come anagMail, «Comunicata»
+  → `d.anag.deathSent`). In Kennel Manager solo con nazione Italia (`moIt`).
