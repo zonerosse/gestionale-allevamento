@@ -6248,6 +6248,9 @@ function smBox() {
  let b = "";
  if (SM.st === "read") b = `<div class="sm-got">${th}<span><b>${esc(SM.pages.map(p => p.name).join(", "))}</b><span class="sm-wait"><span class="cf-spin"></span>Lo leggo e cerco di chi \xe8…</span>${SM.hint ? `<small>Aiuto: \xab${esc(SM.hint)}\xbb</small>` : ""}</span></div>`;
  else if (SM.st === "res") b = smResHtml(th);
+ else if (SM.st === "ready") b = `<div class="sm-pgs">${SM.pages.map((p, i) => `<span class="sm-th">${/^data:image/.test(p.data) ? `<img src="${p.data}" alt="">` : "PDF"}<button type="button" class="sm-x" data-sm="del" data-v="${i}" aria-label="Togli">\u00d7</button></span>`).join("")}</div>
+<label class="sm-hint"><input id="smHint" class="nodirty" value="${esc(SM.hint)}" placeholder="Aiutami (facoltativo): es. \xabpedigree di Tikus\xbb, \xabvaccino di Luna\xbb"></label>${SM.err ? `<div class="cf-err">${esc(SM.err)}</div>` : ""}
+<div class="sm-bts sm-l"><button class="btn small" data-sm="go">Leggi ${SM.pages.length === 1 ? "la foto" : SM.pages.length + " pagine"}</button>${SM.pages.length < 6 ? `<label class="btn small ghost">Aggiungi una pagina<input type="file" accept="image/*,application/pdf" data-smf="1" multiple hidden></label>` : ""}<button class="btn small ghost" data-sm="cancel">Annulla</button></div>`;
  else b = `<div class="sm-drop"><div class="sm-bts"><label class="btn small">${CF_IC.cam}Foto<input type="file" accept="image/*" data-smf="1" multiple hidden></label><label class="btn small ghost">${CF_IC.doc}File<input type="file" accept="image/*,application/pdf" data-smf="1" multiple hidden></label></div><small>Sul computer puoi anche trascinarlo qui \xb7 fino a 6 pagine</small></div>
 <label class="sm-hint"><input id="smHint" class="nodirty" value="${esc(SM.hint)}" placeholder="Aiutami (facoltativo): es. \xabpedigree di Tikus\xbb, \xabvaccino di Luna\xbb"></label>${SM.err ? `<div class="cf-err">${esc(SM.err)}</div>` : ""}`;
  return `<section class="sm-box" id="smBox">${head}${b}</section>`;
@@ -6348,12 +6351,12 @@ function smDraw() {
  if (b) b.outerHTML = smBox(); else if (typeof render === "function") render();
 }
 
-async function smRead(files) {
+async function smAdd(files) {
  SM.err = "";
  const h = document.getElementById("smHint");
  SM.hint = h ? h.value.trim() : SM.hint;
- SM.pages = [];
- for (const f of [ ...files ].slice(0, 6)) {
+ for (const f of [ ...files ]) {
+  if (SM.pages.length >= 6) { SM.err = "Al massimo 6 pagine per volta."; break; }
   const u = await new Promise(ok => {
    const r = new FileReader;
    r.onload = () => ok(r.result);
@@ -6367,6 +6370,17 @@ async function smRead(files) {
   SM.pages.push({ data: img ? await aiImg(u) : u, media: img ? "image/jpeg" : "application/pdf", name: (f.name || "documento").replace(/\.[^.]+$/, "") + (img ? ".jpg" : ".pdf") });
  }
  if (!SM.pages.length) { SM.err = SM.err || "Si leggono solo foto e PDF."; return smDraw(); }
+ SM.st = "ready";
+ smDraw();
+ // 27/10/2026 (Paolo: «dopo averla allegata scompare il testo Aiutami»): la foto resta in attesa, l'aiuto si scrive anche dopo, poi «Leggi»
+ setTimeout(() => { const i = document.getElementById("smHint"); if (i && !i.value && !matchMedia("(pointer:coarse)").matches) i.focus(); }, 50);
+}
+
+async function smGo() {
+ const h = document.getElementById("smHint");
+ SM.hint = h ? h.value.trim() : SM.hint;
+ if (!SM.pages.length) return;
+ SM.err = "";
  SM.st = "read";
  smDraw();
  try {
@@ -6458,7 +6472,7 @@ document.addEventListener("change", e => {
  if (!t.dataset || !t.dataset.smf) return;
  const F = [ ...t.files || [] ];
  t.value = "";
- if (F.length && SM.st !== "read") smRead(F);
+ if (F.length && SM.st !== "read") smAdd(F);
 });
 
 document.addEventListener("input", e => {
@@ -6471,6 +6485,8 @@ document.addEventListener("click", e => {
  e.preventDefault();
  const a = b.dataset.sm;
  if (a === "cancel") { smReset(); return smDraw(); }
+ if (a === "go") return smGo();
+ if (a === "del") { SM.pages.splice(+b.dataset.v, 1); if (!SM.pages.length) SM.st = ""; return smDraw(); }
  if (a === "other") { SM.pick = 1; return smDraw(); }
  if (a === "who") { SM.who.id = b.dataset.v; SM.pick = 0; return smDraw(); }
  if (a === "ok") { if (typeof GD !== "undefined" && GD.g && GD.clk) GD.clk.add("smOk"); return smApply(); }
@@ -6485,7 +6501,7 @@ document.addEventListener("drop", e => {
  e.preventDefault();
  b.classList.remove("sm-on");
  const F = [ ...(e.dataTransfer && e.dataTransfer.files || []) ];
- if (F.length && SM.st !== "read") smRead(F);
+ if (F.length && SM.st !== "read") smAdd(F);
 });
 
 (function() {
@@ -6494,7 +6510,7 @@ document.addEventListener("drop", e => {
 .sm-h{display:flex;gap:12px;align-items:flex-start}.sm-ic{width:34px;height:34px;border-radius:9px;background:#3E5C76;display:grid;place-items:center;flex:0 0 34px}.sm-h b{display:block;font-size:1.02rem}.sm-h small{display:block;color:var(--muted);font-size:.86rem;line-height:1.4}
 .sm-drop{margin:12px 0 8px;border:1.5px dashed #9FB2C4;border-radius:12px;background:#F3F6F9;padding:12px;text-align:center;color:#3E5C76}.sm-drop small{font-size:.8rem}
 .sm-bts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:4px 0}.sm-box .sm-where+.sm-bts,.sm-box .row-meta+.sm-bts{justify-content:flex-start}
-.sm-hint{display:block}.sm-hint input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:#fff}
+.sm-hint{display:block}.sm-pgs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px}.sm-pgs .sm-th{position:relative;overflow:visible}.sm-pgs .sm-th img{border-radius:6px}.sm-x{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:14px;line-height:1;cursor:pointer;color:var(--ink);padding:0}.sm-bts.sm-l{justify-content:flex-start;margin-top:10px}.sm-hint input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:#fff}
 .sm-got{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0}.sm-got b{display:block}.sm-got small{display:block;color:var(--muted);font-size:.84rem}
 .sm-th{width:54px;height:68px;border-radius:6px;border:1px solid var(--line);background:#F3F6F9;display:grid;place-items:center;font-size:.7rem;color:var(--muted);flex:0 0 54px;overflow:hidden}.sm-th img{width:100%;height:100%;object-fit:cover}
 .sm-wait{display:flex;gap:8px;align-items:center;color:#3E5C76;font-weight:600;font-size:.9rem;margin:4px 0}
@@ -6512,7 +6528,7 @@ Object.assign(GUIDES, {
   done: gdDone1("smOk"),
   why: gdW("Smista documenti", "In cima alla pagina Oggi carichi una foto o un documento qualsiasi: il gestionale capisce che cos'\xe8 e di chi \xe8, ti dice dove lo mette e, dopo il tuo \xabVa bene\xbb, apre il modulo giusto gi\xe0 compilato. Non devi sapere dove andare.", [ "Pedigree, libretto, carta d'identit\xe0, progesterone, esposizioni, pesate, parto, pagamenti", "Una foto = una lettura" ], "Un minuto."),
   end: "Fatto: controlla i campi in verde e salva. La prossima volta puoi scrivere subito in \xabAiutami\xbb di chi \xe8.",
-  S: [ gdNavS("oggi", "Oggi", "Il riquadro \xe8 il primo della pagina."), gdI(() => gdVis("#smHint"), "Aiutami (facoltativo)", "Se vuoi, scrivi che cos'\xe8 e di chi \xe8: es. \xabpedigree di Tikus\xbb.", "Serve quando sul documento non c'\xe8 il nome del cane, come in molti libretti."), { t: "Tocca \xabFoto\xbb o \xabFile\xbb", p: "Scegli la foto o il PDF (fino a 6 pagine). Sul computer puoi anche trascinarlo nel riquadro.", w: "Claude lo legge e cerca di chi \xe8 nell'archivio: nome, microchip, numero di registro.", el: () => gdVis("#smBox .sm-drop") || gdVis("#smBox"), ok: () => SM.st === "read" || SM.st === "res" || GD.clk.has("smRead") }, { t: "Controlla dove lo metto", p: "Leggi le righe con la spunta: \xe8 tutto quello che far\xf2. Se il cane \xe8 sbagliato tocca \xabNo, \xe8 di un altro cane\xbb; se te lo chiedo, toccalo nell'elenco.", w: "Niente viene scritto senza il tuo \xabVa bene\xbb, e quello che hai gi\xe0 inserito non viene cambiato.", el: () => gdVis('#smBox [data-sm="ok"]') || gdVis("#smBox .sm-pick") || gdVis("#smBox"), ok: () => GD.clk.has("smOk") } ]
+  S: [ gdNavS("oggi", "Oggi", "Il riquadro \xe8 il primo della pagina."), { t: "Tocca \xabFoto\xbb o \xabFile\xbb", p: "Scegli la foto o il PDF (fino a 6 pagine). Sul computer puoi anche trascinarlo nel riquadro.", w: "Non legge ancora: prima puoi aggiungere altre pagine e scrivere l'aiuto.", el: () => gdVis("#smBox .sm-drop") || gdVis("#smBox"), ok: () => !!SM.st }, { t: "Aiutami (facoltativo)", p: "Se vuoi, scrivi che cos'\xe8 e di chi \xe8: es. \xabpedigree di Tikus\xbb. Poi tocca \xabLeggi\xbb.", w: "Serve quando sul documento non c'\xe8 il nome del cane, come in molti libretti.", el: () => gdVis('#smBox [data-sm="go"]') || gdVis("#smHint") || gdVis("#smBox"), ok: () => SM.st === "read" || SM.st === "res" || GD.clk.has("smRead") }, { t: "Controlla dove lo metto", p: "Leggi le righe con la spunta: \xe8 tutto quello che far\xf2. Se il cane \xe8 sbagliato tocca \xabNo, \xe8 di un altro cane\xbb; se te lo chiedo, toccalo nell'elenco.", w: "Niente viene scritto senza il tuo \xabVa bene\xbb, e quello che hai gi\xe0 inserito non viene cambiato.", el: () => gdVis('#smBox [data-sm="ok"]') || gdVis("#smBox .sm-pick") || gdVis("#smBox"), ok: () => GD.clk.has("smOk") } ]
  }
 });
 (GD_SEC.find(x => x[0] === "oggi") || [ , , [] ])[2].unshift("smista");

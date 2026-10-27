@@ -1683,7 +1683,7 @@ Accessi e copie
   `link_generico` in `tools/controlli/verifica.py` (ERRORE): niente link che cominciano con Vedi/Leggi/Scopri/See/Read/Mehr/Hier…
 - Tasto «Aggiorna» fisso nella fascia in alto (25/10/2026, Paolo: nell'app dal desktop F5 non funziona): `nvReload()`; non ricarica durante una modifica, con una finestra aperta o mentre la Biblioteca legge.
 - Smista documenti (27/10/2026, anteprime 85-86, scelta 1B + nome 1D di Paolo): primo riquadro di Oggi (`smBox()` dopo il titolo in `ogPage`).
-  Foto o PDF (fino a 6 pagine, anche trascinati) + «Aiutami» facoltativo → `/api/ai` task `smista` (UNA chiamata: `kind` fra ped, cane, lib,
+  Foto o PDF (fino a 6 pagine, anche trascinati; `smAdd` li tiene in attesa con ×, «Aiutami» resta scrivibile, poi «Leggi» = `smGo`) → `/api/ai` task `smista` (UNA chiamata: `kind` fra ped, cane, lib,
   sh, rp, litter, w, nasc, famiglia, inc, farm, enti, altro; `subj` come scritto; campi con `cfOut(kind)`, che ora usa anche `compila`; `CK` sta
   fuori da compila). La pagina abbina all'archivio (`smWho`/`smDogs`: microchip, registro, nome, nome di chiamata, parole dell'aiuto) o chiede
   «Di quale cane è?»; riepilogo con «Va bene» / «No, è di un altro…» / «Annulla»; NIENTE si scrive prima di «Va bene» (`smApply`: apre il modulo
