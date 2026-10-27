@@ -326,18 +326,20 @@ Invece di "f" metti "items": ogni vaccinazione e trattamento registrato, [{"t":"
 ${KS.map(k => `- "${k}": ${CK[k][0]}`).join("\n")}
 - "lib": le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini e trattamenti)
 Un pedigree con l'albero degli antenati è "ped", non "cane". Se l'allevatore ha scritto un aiuto, usalo per capire che cos'è e di chi è.
+La foto di una confezione di vaccino, antiparassitario o vermifugo è "lib": una voce con quel prodotto e la data scritta nell'aiuto (anno di oggi se manca; senza data, oggi).
+"all": true se il documento o l'aiuto dicono che è stato dato a più cani (es. «a tutti», «tutte le fattrici»), altrimenti false; "grp": "tutti", "fattrici", "maschi" o "cuccioli" se l'aiuto lo dice, altrimenti "".
 2) "subj": di chi è, con i dati COME SONO SCRITTI sul documento o nell'aiuto: {"name":"nome del cane o della persona","nick":"nome di chiamata del cane se l'aiuto lo dice (es. aiuto «pedigree di Tikus» → \"Tikus\")","chip":"microchip solo cifre","loi":"numero di registro","sex":"M o F o \"\"","dam":"madre (per cucciolate e pesate)","sire":"padre"}. Metti "" dove non c'è.
 3) Leggi TUTTO e compila i campi del tipo scelto, SOLO con quello che c'è scritto, senza inventare ("" se manca). Date sempre AAAA-MM-GG (scritte a mano di solito GG/MM/AAAA europeo).
 Campi per tipo:
 ${KS.map(k => `### ${k}\n${Object.entries(CK[k][1]).map(([a, d]) => `- "${a}": ${d}`).join("\n")}`).join("\n")}
 ${LIB}
-Rispondi con {"kind":"","label":"descrizione breve in italiano di cosa hai letto, es. Pedigree di Amazing Paddy the Baddy","subj":{...},"f":{...},"items":[],"note":"una frase su quello che non hai letto bene, altrimenti \"\""}.`, content, 8000);
+Rispondi con {"kind":"","all":false,"grp":"","label":"descrizione breve in italiano di cosa hai letto, es. Pedigree di Amazing Paddy the Baddy","subj":{...},"f":{...},"items":[],"note":"una frase su quello che non hai letto bene, altrimenti \"\""}.`, content, 8000);
    const kind = KS.includes(o.kind) || o.kind === "lib" ? o.kind : "altro";
    const S1 = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
    const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
    const s0 = o.subj && typeof o.subj === "object" ? o.subj : {};
    const subj = { name: S1(s0.name, 120), nick: S1(s0.nick, 60), chip: S1(s0.chip, 30).replace(/\D/g, ""), loi: S1(s0.loi, 120), sex: /^[MF]$/.test(String(s0.sex || "")) ? s0.sex : "", dam: S1(s0.dam, 120), sire: S1(s0.sire, 120) };
-   const out = { ok: true, kind, label: S1(o.label, 160), subj, note: S1(o.note, 300) };
+   const out = { ok: true, kind, label: S1(o.label, 160), subj, note: S1(o.note, 300), all: o.all === true, grp: [ "tutti", "fattrici", "maschi", "cuccioli" ].includes(o.grp) ? o.grp : "" };
    if (kind === "lib") {
     const T = [ "vacc", "rab", "vle", "ple", "pfi", "pz", "verm" ];
     out.items = (Array.isArray(o.items) ? o.items : []).slice(0, 80).map(x => ({ t: T.includes(x && x.t) ? x.t : "", date: D8(x && x.date), prod: S1(x && x.prod, 120), next: D8(x && x.next), note: S1(x && x.note, 160) })).filter(x => x.t && x.date);

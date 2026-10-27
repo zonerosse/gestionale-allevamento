@@ -1689,3 +1689,7 @@ Accessi e copie
   «Di quale cane è?»; riepilogo con «Va bene» / «No, è di un altro…» / «Annulla»; NIENTE si scrive prima di «Va bene» (`smApply`: apre il modulo
   giusto con `CF_FILL`, libretto in `LB` passo 2, pedigree in `pedForm`+`CF_FILL.ped`, documento della persona anche in `owners[id].ids`).
   Guida `smista` (prima di Oggi in GD_SEC). Stesso codice in Kennel Manager e nel gestionale di Paolo.
+- Smista documenti, trattamento a più cani (27/10/2026, anteprima 87, scelta 1A di Paolo): `smista` risponde anche `all`/`grp`; un "lib"
+  con «a tutti» → `SM.who.t="multi"`: gruppi `SM_GRP` (Tutti i cani di casa = `smHome`, fattrici, maschi, Cuccioli ancora qui = `smPup`,
+  nessuno) + spunte `data-smd`; chi ha già la voce (`lbHas`) è grigio; «Va bene» scrive in `health` come `lbSave`. La foto della confezione
+  non si salva. Ceduti, deceduti ed esterni (`smGone`) non si propongono più in «Di quale cane è?» (salvo microchip/registro).

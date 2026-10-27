@@ -5337,10 +5337,43 @@ function smDogs(sj, hint) {
  return R.sort((a, b) => b[0] - a[0]);
 }
 
+// 27/10/2026 (anteprima 87, scelta 1A di Paolo): gruppi di cani. Cuccioli ancora qui = nati da noi da meno di un anno, non ceduti;
+// cani di casa = non esterni, senza famiglia, non ceduti né deceduti, non cuccioli. Ceduti, deceduti ed esterni non si propongono.
+function smAge(d) {
+ return d.birth ? dDiff(todayS(), d.birth) : 9999;
+}
+function smGone(d) {
+ return !d || d.ext || d.status === "ceduto" || d.status === "deceduto";
+}
+function smPup(d) {
+ return !smGone(d) && !!d.litter && smAge(d) <= 365;
+}
+function smHome(d) {
+ return !smGone(d) && !smPup(d) && !d.owner && d.status !== "prenotato";
+}
+const SM_GRP = [ [ "tutti", "Tutti i cani di casa", d => smHome(d) ], [ "fattrici", "Solo le fattrici", d => smHome(d) && d.sex === "F" ], [ "maschi", "Solo i maschi", d => smHome(d) && d.sex === "M" ], [ "cuccioli", "Cuccioli ancora qui", d => smPup(d) ], [ "nessuno", "Nessuno", () => false ] ];
+function smGroup(g) {
+ const G = SM_GRP.find(x => x[0] === g) || SM_GRP[0];
+ return Object.keys(D.dogs || {}).filter(k => G[2](D.dogs[k]));
+}
+function smDupOf(id) {
+ const d = D.dogs[id];
+ return !d || (SM.res.items || []).every(x => !LB_T[x.t] || lbHas(d, x));
+}
+function smNm(id) {
+ const d = D.dogs[id] || {};
+ return d.nick || d.name || "";
+}
+
 function smWho(r, hint) {
  const k = r.kind, sj = r.subj || {};
  if (SM_DOG.includes(k)) {
-  const R = smDogs(sj, hint), top = R[0], sure = !!top && top[0] >= 50 && (!R[1] || top[0] - R[1][0] >= 25);
+  if (k === "lib" && (r.all || /\btutt[ie]\b|\bpi\xf9 cani\b/i.test(hint || ""))) {
+   const g = SM_GRP.some(x => x[0] === r.grp) ? r.grp : "tutti";
+   return { t: "multi", grp: g, ids: smGroup(g) };
+  }
+  // ceduti, deceduti ed esterni solo se il documento li indica con sicurezza (microchip o registro)
+  const R = smDogs(sj, hint).filter(x => x[0] >= 80 || !smGone(D.dogs[x[1]])), top = R[0], sure = !!top && top[0] >= 50 && (!R[1] || top[0] - R[1][0] >= 25);
   return { t: "dog", id: sure ? top[1] : "", cand: R.slice(0, 6).map(x => x[1]) };
  }
  if (SM_LIT.includes(k)) {
@@ -5372,9 +5405,25 @@ function smResHtml(th) {
  const nmOf = id => W.t === "dog" ? D.dogs[id] && esc(D.dogs[id].nick || D.dogs[id].name) : W.t === "lit" ? D.litters[id] && esc(dn(D.litters[id].dam) + " \xd7 " + dn(D.litters[id].sire)) : W.t === "own" ? D.owners[id] && esc(D.owners[id].name) : "";
  const who = W.id === "new" ? (k === "famiglia" ? "una persona nuova" : "un cane nuovo") : W.id ? nmOf(W.id) : "";
  const li = (t, s) => `<li><span class="sm-ck">✓</span><span><b>${t}</b>${s ? `<small>${s}</small>` : ""}</span></li>`;
+ // più cani insieme (anteprima 87): gruppi + spunte
+ if (W.t === "multi") {
+  const I = r.items || [], dogs = Object.keys(D.dogs || {}), H = dogs.filter(k => smHome(D.dogs[k])), P = dogs.filter(k => smPup(D.dogs[k]));
+  const srt = L => L.sort((a, b) => smNm(a).localeCompare(smNm(b)));
+  const row = id => {
+   const d = D.dogs[id], dup = smDupOf(id), on = W.ids.includes(id) && !dup;
+   const sub = [ isFattrice(d) ? "fattrice" : d.sex === "M" ? "maschio" : d.sex === "F" ? "femmina" : "", d.birth ? smAge(d) < 365 ? Math.max(1, Math.round(smAge(d) / 30)) + " mesi" : Math.floor(smAge(d) / 365) + (smAge(d) < 730 ? " anno" : " anni") : "" ].filter(Boolean).join(" \xb7 ");
+   return `<label class="sm-dl${dup ? " dup" : ""}"><input type="checkbox" data-smd="${id}"${on ? " checked" : ""}${dup ? " disabled" : ""}><span><b>${esc(smNm(id))}</b><small>${esc(sub)}${dup ? " \xb7 c'\xe8 gi\xe0" : ""}</small></span></label>`;
+  };
+  const n = W.ids.filter(id => !smDupOf(id)).length, x0 = I[0] || {}, lt = LB_T[x0.t] ? LB_T[x0.t][0] : "Salute";
+  return `<div class="sm-got">${th}<span><b>Ho capito: ${esc(r.label || "trattamento a pi\xf9 cani")}</b><span class="sm-chip">${n} ${n === 1 ? "cane" : "cani"}</span><small>Libretto sanitario \xb7 ${esc(lt)}${r.note ? " \xb7 " + esc(r.note) : ""}</small></span></div>
+<p class="sm-q">A quali cani l'hai dato?</p><div class="sm-grp">${SM_GRP.map(([g, t]) => `<button data-sm="grp" data-v="${g}"${W.grp === g ? ' class="on"' : ""}>${t}</button>`).join("")}</div>
+${H.length ? `<div class="sm-gh">Cani di casa</div><div class="sm-dls">${srt(H).map(row).join("")}</div>` : ""}${P.length ? `<div class="sm-gh">Cuccioli ancora in allevamento</div><div class="sm-dls">${srt(P).map(row).join("")}</div>` : ""}
+<ul class="sm-where"><li><span class="sm-ck">✓</span><span><b>Salute di ${n} ${n === 1 ? "cane" : "cani"} → ${esc(lt)}</b><small>${esc(I.map(x => (x.prod || LB_T[x.t] && LB_T[x.t][0] || "") + (x.date ? " \xb7 " + fmt(x.date) : "")).join(" — "))}</small></span></li></ul>
+<div class="sm-bts sm-l"><button class="btn small" data-sm="ok"${n ? "" : " disabled"}>Va bene, aggiungi a ${n} ${n === 1 ? "cane" : "cani"}</button><button class="btn small ghost" data-sm="cancel">Annulla</button></div><p class="row-meta" style="margin:6px 0 0">Niente viene scritto prima di \xabVa bene\xbb. La prossima scadenza di ognuno si calcola da sola.</p>`;
+ }
  // manca di chi è: lo chiede
  if (W.t && !W.id || SM.pick) {
-  const C = (W.cand || []).length ? W.cand : W.t === "dog" ? Object.keys(D.dogs).filter(x => !D.dogs[x].ext).sort((a, b) => (D.dogs[a].nick || D.dogs[a].name || "").localeCompare(D.dogs[b].nick || D.dogs[b].name || "")).slice(0, 12) : W.t === "lit" ? Object.keys(D.litters || {}).slice(0, 8) : Object.keys(D.owners || {}).slice(0, 8);
+  const C = (W.cand || []).length ? W.cand : W.t === "dog" ? Object.keys(D.dogs).filter(x => smHome(D.dogs[x]) || smPup(D.dogs[x])).sort((a, b) => (D.dogs[a].nick || D.dogs[a].name || "").localeCompare(D.dogs[b].nick || D.dogs[b].name || "")).slice(0, 12) : W.t === "lit" ? Object.keys(D.litters || {}).slice(0, 8) : Object.keys(D.owners || {}).slice(0, 8);
   const sub = id => W.t === "dog" ? [ D.dogs[id].sex === "M" ? "maschio" : D.dogs[id].sex === "F" ? "femmina" : "", D.dogs[id].birth ? (D.dogs[id].sex === "F" ? "nata il " : "nato il ") + fmt(D.dogs[id].birth) : "" ].filter(Boolean).join(" \xb7 ") : W.t === "lit" ? D.litters[id].date ? "nata il " + fmt(D.litters[id].date) : "" : D.owners[id].phone || "";
   const q = W.t === "dog" ? "Di quale cane \xe8?" : W.t === "lit" ? "Di quale cucciolata \xe8?" : "Di quale famiglia \xe8?";
   const nw = W.t === "dog" && [ "ped", "cane" ].includes(k) ? `<button data-sm="who" data-v="new"><b>Un cane nuovo</b><small>lo aggiungo all'archivio</small></button>` : W.t === "own" ? `<button data-sm="who" data-v="new"><b>Una persona nuova</b><small>nuovo proprietario</small></button>` : "";
@@ -5462,6 +5511,31 @@ function smApply() {
  const r = SM.res, W = SM.who || {}, k = r.kind, f = r.f || {}, id = W.id, pages = SM.pages;
  const msg = n => ({ k: k, t: Date.now(), h: `<div class="cf-ok">Ho compilato i campi in verde dal documento caricato in Smista documenti: controlla e salva.${r.note ? " " + esc(r.note) : ""}</div>` });
  const go = (t, v) => { tab = t; view = v || null; if (typeof render === "function") render(); };
+ if (W.t === "multi") {
+  // trattamento dato a più cani: una voce per cane, saltando chi ce l'ha già (come «Leggi il libretto»)
+  let n = 0, c = 0;
+  for (const id of W.ids) {
+   const d = D.dogs[id];
+   if (!d) continue;
+   let any = 0;
+   for (const x of r.items || []) {
+    if (!LB_T[x.t] || lbHas(d, x)) continue;
+    const [, hk, kd] = LB_T[x.t], e = { date: x.date, prod: x.t === "rab" && !/rabb|rabi/i.test(x.prod || "") ? (x.prod ? x.prod + " (antirabbica)" : "Antirabbica") : x.prod || LB_T[x.t][0], prod_en: "" };
+    if (hk === "lf") e.kind = kd;
+    if (hk !== "verm") e.next = x.next || "";
+    HA(d, hk).push(e);
+    n++;
+    any = 1;
+   }
+   c += any;
+  }
+  smReset();
+  CF.att = null;
+  render();
+  if (typeof saveNow === "function") saveNow();
+  toast(n ? `Aggiunto alla Salute di ${c} ${c === 1 ? "cane" : "cani"}. Gli avvisi sono in Scadenze.` : "Nessuna voce aggiunta: c'era gi\xe0.");
+  return;
+ }
  smReset();
  CF.att = { pages: pages, title: "" };
  if (k === "cane") { CF.msg = msg(); go("cani", id !== "new" ? id : null); dogForm(id !== "new" ? id : undefined); CF_FILL.cane(f); return; }
@@ -5535,6 +5609,16 @@ document.addEventListener("input", e => {
  if (e.target && e.target.id === "smHint") SM.hint = e.target.value;
 });
 
+document.addEventListener("change", e => {
+ const t = e.target;
+ if (!t.dataset || !t.dataset.smd || !SM.who || SM.who.t !== "multi") return;
+ const id = t.dataset.smd, L = SM.who.ids.filter(x => x !== id);
+ if (t.checked) L.push(id);
+ SM.who.ids = L;
+ SM.who.grp = "";
+ smDraw();
+});
+
 document.addEventListener("click", e => {
  const b = e.target.closest && e.target.closest("[data-sm]");
  if (!b) return;
@@ -5542,6 +5626,7 @@ document.addEventListener("click", e => {
  const a = b.dataset.sm;
  if (a === "cancel") { smReset(); return smDraw(); }
  if (a === "go") return smGo();
+ if (a === "grp") { SM.who.grp = b.dataset.v; SM.who.ids = smGroup(b.dataset.v); return smDraw(); }
  if (a === "del") { SM.pages.splice(+b.dataset.v, 1); if (!SM.pages.length) SM.st = ""; return smDraw(); }
  if (a === "other") { SM.pick = 1; return smDraw(); }
  if (a === "who") { SM.who.id = b.dataset.v; SM.pick = 0; return smDraw(); }
@@ -5566,6 +5651,8 @@ document.addEventListener("drop", e => {
 .sm-h{display:flex;gap:12px;align-items:flex-start}.sm-ic{width:34px;height:34px;border-radius:9px;background:#3E5C76;display:grid;place-items:center;flex:0 0 34px}.sm-h b{display:block;font-size:1.02rem}.sm-h small{display:block;color:var(--muted);font-size:.86rem;line-height:1.4}
 .sm-drop{margin:12px 0 8px;border:1.5px dashed #9FB2C4;border-radius:12px;background:#F3F6F9;padding:12px;text-align:center;color:#3E5C76}.sm-drop small{font-size:.8rem}
 .sm-bts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:4px 0}.sm-box .sm-where+.sm-bts,.sm-box .row-meta+.sm-bts{justify-content:flex-start}
+.sm-grp{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}.sm-grp button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:600 .82rem/1.2 inherit;cursor:pointer;color:var(--ink)}.sm-grp button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sm-gh{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}.sm-dls{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}.sm-dl{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;font-size:.9rem;cursor:pointer}.sm-dl input{width:18px;height:18px;flex:0 0 18px;accent-color:var(--ok,#2F6B3F)}.sm-dl small{display:block;color:var(--muted);font-size:.78rem}.sm-dl.dup{opacity:.55;cursor:default}
 .sm-hint{display:block}.sm-pgs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px}.sm-pgs .sm-th{position:relative;overflow:visible}.sm-pgs .sm-th img{border-radius:6px}.sm-x{position:absolute;top:-7px;right:-7px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:14px;line-height:1;cursor:pointer;color:var(--ink);padding:0}.sm-bts.sm-l{justify-content:flex-start;margin-top:10px}.sm-hint input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:#fff}
 .sm-got{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0}.sm-got b{display:block}.sm-got small{display:block;color:var(--muted);font-size:.84rem}
 .sm-th{width:54px;height:68px;border-radius:6px;border:1px solid var(--line);background:#F3F6F9;display:grid;place-items:center;font-size:.7rem;color:var(--muted);flex:0 0 54px;overflow:hidden}.sm-th img{width:100%;height:100%;object-fit:cover}
