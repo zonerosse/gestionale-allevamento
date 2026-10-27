@@ -1682,3 +1682,10 @@ Accessi e copie
   «Pedigree della cucciolata su SBTPedigree», «diario della cucciolata <madre> × <padre>» (IT/EN/DE). Il sito ha il controllo
   `link_generico` in `tools/controlli/verifica.py` (ERRORE): niente link che cominciano con Vedi/Leggi/Scopri/See/Read/Mehr/Hier…
 - Tasto «Aggiorna» fisso nella fascia in alto (25/10/2026, Paolo: nell'app dal desktop F5 non funziona): `nvReload()`; non ricarica durante una modifica, con una finestra aperta o mentre la Biblioteca legge.
+- Smista documenti (27/10/2026, anteprime 85-86, scelta 1B + nome 1D di Paolo): primo riquadro di Oggi (`smBox()` dopo il titolo in `ogPage`).
+  Foto o PDF (fino a 6 pagine, anche trascinati) + «Aiutami» facoltativo → `/api/ai` task `smista` (UNA chiamata: `kind` fra ped, cane, lib,
+  sh, rp, litter, w, nasc, famiglia, inc, farm, enti, altro; `subj` come scritto; campi con `cfOut(kind)`, che ora usa anche `compila`; `CK` sta
+  fuori da compila). La pagina abbina all'archivio (`smWho`/`smDogs`: microchip, registro, nome, nome di chiamata, parole dell'aiuto) o chiede
+  «Di quale cane è?»; riepilogo con «Va bene» / «No, è di un altro…» / «Annulla»; NIENTE si scrive prima di «Va bene» (`smApply`: apre il modulo
+  giusto con `CF_FILL`, libretto in `LB` passo 2, pedigree in `pedForm`+`CF_FILL.ped`, documento della persona anche in `owners[id].ids`).
+  Guida `smista` (prima di Oggi in GD_SEC). Stesso codice in Kennel Manager e nel gestionale di Paolo.

@@ -6233,6 +6233,290 @@ GUIDES.bbRef.S[4].el = () => gdVis("[data-rpsave]");
 
 (GD_SEC.find(x => x[0] === "biblioteca") || [ , , [] ])[2].push("bbRef");
 
+/* Smista documenti (27/10/2026, anteprime 85-86, Paolo): primo riquadro di Oggi. Una foto o un PDF qualsiasi (+ aiuto facoltativo):
+   /api/ai task «smista» dice che cos'è, di chi è e legge i campi; la pagina abbina all'archivio (smWho) e mostra il riepilogo.
+   Niente viene scritto prima di «Va bene»: poi si apre il modulo giusto già compilato (CF_FILL) o la lista del libretto (LB). */
+let SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
+const SM_KIND = { ped: "Pedigree", cane: "Documento del cane", lib: "Libretto sanitario", sh: "Risultato di un'esposizione", rp: "Progesterone o visita", litter: "Denuncia di monta e nascita", w: "Pesate dei cuccioli", nasc: "Foglio del parto", famiglia: "Documento di una persona", inc: "Pagamento ricevuto", farm: "Dati dell'allevamento", enti: "Delegazione ENCI o anagrafe", altro: "Documento" };
+const SM_DOG = [ "ped", "cane", "lib", "sh", "rp", "altro" ], SM_LIT = [ "w", "nasc" ];
+
+function smBox() {
+ if (typeof RO !== "undefined" && RO || typeof OWNER_MODE !== "undefined") return "";
+ const ic = `<span class="sm-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6l2 3h8v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 11v6M9 14l3 3 3-3"/></svg></span>`;
+ const head = `<div class="sm-h">${ic}<span><b>Smista documenti</b><small>Carica una foto o un documento qualsiasi: pedigree, libretto, carta d'identit\xe0, progesterone, risultato di un'esposizione, pesate… Lo leggo e ti dico dove lo metto.</small></span></div>`;
+ const th = SM.pages.length ? `<span class="sm-th">${/^data:image/.test(SM.pages[0].data) ? `<img src="${SM.pages[0].data}" alt="">` : "PDF"}</span>` : "";
+ let b = "";
+ if (SM.st === "read") b = `<div class="sm-got">${th}<span><b>${esc(SM.pages.map(p => p.name).join(", "))}</b><span class="sm-wait"><span class="cf-spin"></span>Lo leggo e cerco di chi \xe8…</span>${SM.hint ? `<small>Aiuto: \xab${esc(SM.hint)}\xbb</small>` : ""}</span></div>`;
+ else if (SM.st === "res") b = smResHtml(th);
+ else b = `<div class="sm-drop"><div class="sm-bts"><label class="btn small">${CF_IC.cam}Foto<input type="file" accept="image/*" data-smf="1" multiple hidden></label><label class="btn small ghost">${CF_IC.doc}File<input type="file" accept="image/*,application/pdf" data-smf="1" multiple hidden></label></div><small>Sul computer puoi anche trascinarlo qui \xb7 fino a 6 pagine</small></div>
+<label class="sm-hint"><input id="smHint" class="nodirty" value="${esc(SM.hint)}" placeholder="Aiutami (facoltativo): es. \xabpedigree di Tikus\xbb, \xabvaccino di Luna\xbb"></label>${SM.err ? `<div class="cf-err">${esc(SM.err)}</div>` : ""}`;
+ return `<section class="sm-box" id="smBox">${head}${b}</section>`;
+}
+
+function smNorm(s) {
+ return typeof cfNorm === "function" ? cfNorm(s) : String(s || "").toLowerCase().trim();
+}
+
+function smWords(s) {
+ return smNorm(s).split(/[^a-z0-9\xe0-\xff]+/).filter(w => w.length >= 3);
+}
+
+// chi è: punteggio su microchip, registro, nome, nome di chiamata e parole dell'aiuto
+function smDogs(sj, hint) {
+ const H = smWords(hint), R = [];
+ for (const [k, d] of Object.entries(D.dogs || {})) {
+  let s = 0;
+  const nm = smNorm(d.name), nk = smNorm(d.nick), lo = smNorm(d.loi).replace(/^(loi|roi) /, "");
+  if (sj.chip && sj.chip.length > 8 && String(d.chip || "").replace(/\D/g, "") === sj.chip) s += 100;
+  if (sj.loi && lo.length > 3 && smNorm(sj.loi).includes(lo)) s += 80;
+  if (sj.name && nm && smNorm(sj.name) === nm) s += 60; else if (sj.name && nm && nm.length > 4 && (smNorm(sj.name).includes(nm) || nm.includes(smNorm(sj.name)))) s += 30;
+  if (sj.nick && (nk === smNorm(sj.nick) || nm === smNorm(sj.nick))) s += 55;
+  if (H.length && (nk && H.includes(nk) || smWords(d.name).some(w => w.length > 3 && H.includes(w)))) s += 50;
+  if (sj.sex && d.sex && sj.sex !== d.sex) s -= 30;
+  if (s > 0) R.push([ s, k ]);
+ }
+ return R.sort((a, b) => b[0] - a[0]);
+}
+
+function smWho(r, hint) {
+ const k = r.kind, sj = r.subj || {};
+ if (SM_DOG.includes(k)) {
+  const R = smDogs(sj, hint), top = R[0], sure = !!top && top[0] >= 50 && (!R[1] || top[0] - R[1][0] >= 25);
+  return { t: "dog", id: sure ? top[1] : "", cand: R.slice(0, 6).map(x => x[1]) };
+ }
+ if (SM_LIT.includes(k)) {
+  const H = smWords(hint), dm = cfDog(sj.dam, "", "F"), sr = cfDog(sj.sire, "", "M");
+  const L = Object.entries(D.litters || {}).filter(([, l]) => l.state !== "pianificata").sort((a, b) => (b[1].date || "").localeCompare(a[1].date || ""));
+  const sc = ([id, l]) => (dm && l.dam === dm ? 50 : 0) + (sr && l.sire === sr ? 40 : 0) + ([ l.dam, l.sire ].some(x => D.dogs[x] && [ D.dogs[x].nick, D.dogs[x].name ].some(n => n && H.includes(smNorm(n).split(" ")[0]))) ? 40 : 0);
+  const R = L.map(x => [ sc(x), x[0] ]).filter(x => x[0] > 0).sort((a, b) => b[0] - a[0]);
+  const recent = L.filter(([, l]) => l.date && dDiff(todayS(), l.date) <= 120);
+  const id = R.length && (!R[1] || R[0][0] > R[1][0]) ? R[0][1] : !R.length && recent.length === 1 ? recent[0][0] : "";
+  return { t: "lit", id, cand: (R.length ? R.map(x => x[1]) : L.map(x => x[0])).slice(0, 6) };
+ }
+ if (k === "famiglia") {
+  const n = smNorm(sj.name), H = smWords(hint);
+  const R = Object.entries(D.owners || {}).map(([id, o]) => {
+   const on = smNorm(o.name);
+   return [ on && n && (on === n ? 100 : on.split(" ").every(w => n.includes(w)) ? 70 : 0) + (on && H.length && on.split(" ").some(w => w.length > 2 && H.includes(w)) ? 40 : 0), id ];
+  }).filter(x => x[0] > 0).sort((a, b) => b[0] - a[0]);
+  return { t: "own", id: R.length && R[0][0] >= 70 ? R[0][1] : "", cand: R.slice(0, 6).map(x => x[1]), isNew: !R.length };
+ }
+ return { t: "", id: "" };
+}
+
+function smCount(t) {
+ return !t || typeof t !== "object" ? 0 : (t.name ? 1 : 0) + smCount(t.s) + smCount(t.d);
+}
+
+function smResHtml(th) {
+ const r = SM.res, W = SM.who || {}, k = r.kind, f = r.f || {};
+ const nmOf = id => W.t === "dog" ? D.dogs[id] && esc(D.dogs[id].nick || D.dogs[id].name) : W.t === "lit" ? D.litters[id] && esc(dn(D.litters[id].dam) + " \xd7 " + dn(D.litters[id].sire)) : W.t === "own" ? D.owners[id] && esc(D.owners[id].name) : "";
+ const who = W.id === "new" ? (k === "famiglia" ? "una persona nuova" : "un cane nuovo") : W.id ? nmOf(W.id) : "";
+ const li = (t, s) => `<li><span class="sm-ck">✓</span><span><b>${t}</b>${s ? `<small>${s}</small>` : ""}</span></li>`;
+ // manca di chi è: lo chiede
+ if (W.t && !W.id || SM.pick) {
+  const C = (W.cand || []).length ? W.cand : W.t === "dog" ? Object.keys(D.dogs).filter(x => !D.dogs[x].ext).sort((a, b) => (D.dogs[a].nick || D.dogs[a].name || "").localeCompare(D.dogs[b].nick || D.dogs[b].name || "")).slice(0, 12) : W.t === "lit" ? Object.keys(D.litters || {}).slice(0, 8) : Object.keys(D.owners || {}).slice(0, 8);
+  const sub = id => W.t === "dog" ? [ D.dogs[id].sex === "M" ? "maschio" : D.dogs[id].sex === "F" ? "femmina" : "", D.dogs[id].birth ? (D.dogs[id].sex === "F" ? "nata il " : "nato il ") + fmt(D.dogs[id].birth) : "" ].filter(Boolean).join(" \xb7 ") : W.t === "lit" ? D.litters[id].date ? "nata il " + fmt(D.litters[id].date) : "" : D.owners[id].phone || "";
+  const q = W.t === "dog" ? "Di quale cane \xe8?" : W.t === "lit" ? "Di quale cucciolata \xe8?" : "Di quale famiglia \xe8?";
+  const nw = W.t === "dog" && [ "ped", "cane" ].includes(k) ? `<button data-sm="who" data-v="new"><b>Un cane nuovo</b><small>lo aggiungo all'archivio</small></button>` : W.t === "own" ? `<button data-sm="who" data-v="new"><b>Una persona nuova</b><small>nuovo proprietario</small></button>` : "";
+  return `<div class="sm-got">${th}<span><b>${esc(r.label || SM_KIND[k])}</b><small>${esc(SM_KIND[k])}${(r.subj || {}).name ? " \xb7 sul documento: " + esc(r.subj.name) : ""}</small></span></div><p class="sm-q">${q}</p><div class="sm-pick">${C.filter(id => nmOf(id)).map(id => `<button data-sm="who" data-v="${id}"><b>${nmOf(id)}</b><small>${esc(sub(id))}</small></button>`).join("")}${nw}</div>${C.length ? "" : '<p class="row-meta">Non trovo niente nell\'archivio.</p>'}<p class="row-meta">La prossima volta scrivilo in \xabAiutami\xbb e non te lo chiedo.</p><div class="sm-bts"><button class="btn small ghost" data-sm="cancel">Annulla</button></div>`;
+ }
+ let L = "";
+ if (k === "ped") {
+  const n = smCount((f.tree || {}).s) + smCount((f.tree || {}).d);
+  L = li(`Scheda di ${who} → Pedigree e parenti`, `${n} antenati letti`) + li("Antenati nuovi in archivio, quelli che ci sono gi\xe0 li completo", "solo i dati che mancano: quello che hai scritto non lo tocco") + li(`La foto va nei documenti di ${who}`, "privata: le famiglie non la vedono");
+ } else if (k === "cane") L = W.id === "new" ? li("Nuovo cane: apro il modulo gi\xe0 compilato", "controlli e salvi") : li(`Scheda di ${who}: apro i dati gi\xe0 compilati`, "i campi in verde sono quelli letti: controlli e salvi");
+ else if (k === "lib") {
+  const d = D.dogs[W.id], I = r.items || [], dup = d ? I.filter(x => LB_T[x.t] && lbHas(d, x)).length : 0;
+  L = li(`${I.length} ${I.length === 1 ? "voce" : "voci"} per la Salute di ${who}`, "vaccini, sverminazioni e antiparassitari con le date") + (dup ? li(`${dup} ${dup === 1 ? "c'\xe8 gi\xe0" : "ci sono gi\xe0"}: non le aggiungo due volte`, "") : "") + li("Prima di aggiungerle le vedi tutte e puoi correggerle", "");
+ } else if (k === "sh") L = li(`Risultato dell'esposizione di ${who}`, [ f.show, f.date ? fmt(f.date) : "", f.qual ].filter(Boolean).map(esc).join(" \xb7 ")) + li("Apro il modulo gi\xe0 compilato", "controlli e salvi");
+ else if (k === "rp") L = li(`${f.value ? "Progesterone" : "Visita"} di ${who}`, [ f.date ? fmt(f.date) : "", f.value ? f.value + " ng/ml" : "" ].filter(Boolean).join(" \xb7 ")) + li("Apro il modulo gi\xe0 compilato nel riquadro Calori e monte", "controlli e salvi");
+ else if (k === "w") L = li(`Pesate della cucciolata ${who}`, `${(f.pups || []).length} cuccioli${f.date ? " \xb7 " + fmt(f.date) : ""}`) + li("Apro la pesata gi\xe0 compilata", "controlli e salvi");
+ else if (k === "nasc") L = li(`Parto della cucciolata ${who}`, `${(f.pups || []).length} cuccioli`) + li("Apro la nascita gi\xe0 compilata", "controlli e salvi");
+ else if (k === "litter") L = li("Nuova cucciolata", [ f.dam, f.sire ].filter(Boolean).map(esc).join(" \xd7 ")) + li("Apro il modulo gi\xe0 compilato", "controlli e salvi");
+ else if (k === "famiglia") L = li(W.id === "new" ? "Nuovo proprietario: apro il modulo gi\xe0 compilato" : `Scheda di ${who}: apro i dati gi\xe0 compilati`, "controlli e salvi") + (W.id !== "new" ? li(`Il documento va nei documenti d'identit\xe0 di ${who}`, "privato: la famiglia non lo vede") : "");
+ else if (k === "inc") L = li("Nuova entrata", [ f.amount ? f.amount + " €" : "", f.date ? fmt(f.date) : "", f.txt ].filter(Boolean).map(esc).join(" \xb7 ")) + li("Apro il modulo gi\xe0 compilato in Conti", "controlli e salvi");
+ else if (k === "farm") L = li("Account → Allevamento", "apro i dati gi\xe0 compilati: controlli e salvi");
+ else if (k === "enti") L = li("Account → Enti e destinatari", "apro gli indirizzi gi\xe0 compilati: controlli e salvi");
+ else L = li(`Lo allego ai documenti di ${who}`, "non \xe8 un documento che so leggere: lo tengo come allegato");
+ const re = W.t === "dog" ? "No, \xe8 di un altro cane" : W.t === "lit" ? "No, \xe8 un'altra cucciolata" : W.t === "own" ? "No, \xe8 un'altra persona" : "";
+ return `<div class="sm-got">${th}<span><b>Ho capito: ${esc(r.label || SM_KIND[k])}</b>${W.id && W.id !== "new" ? '<span class="sm-chip">trovato in archivio</span>' : ""}<small>${esc(SM_KIND[k])}${r.note ? " \xb7 " + esc(r.note) : ""}</small></span></div><ul class="sm-where">${L}</ul><div class="sm-bts"><button class="btn small" data-sm="ok">Va bene</button>${re ? `<button class="btn small ghost" data-sm="other">${re}</button>` : ""}<button class="btn small ghost" data-sm="cancel">Annulla</button></div><p class="row-meta" style="margin:6px 0 0">Niente viene scritto prima di \xabVa bene\xbb.</p>`;
+}
+
+function smDraw() {
+ const b = document.getElementById("smBox");
+ if (b) b.outerHTML = smBox(); else if (typeof render === "function") render();
+}
+
+async function smRead(files) {
+ SM.err = "";
+ const h = document.getElementById("smHint");
+ SM.hint = h ? h.value.trim() : SM.hint;
+ SM.pages = [];
+ for (const f of [ ...files ].slice(0, 6)) {
+  const u = await new Promise(ok => {
+   const r = new FileReader;
+   r.onload = () => ok(r.result);
+   r.onerror = () => ok("");
+   r.readAsDataURL(f);
+  });
+  if (!u) continue;
+  const img = /^image\//.test(f.type);
+  if (!img && f.type !== "application/pdf") continue;
+  if (!img && u.length > 6e6) { SM.err = "Il PDF \xe8 troppo grande: fotografa le pagine."; continue; }
+  SM.pages.push({ data: img ? await aiImg(u) : u, media: img ? "image/jpeg" : "application/pdf", name: (f.name || "documento").replace(/\.[^.]+$/, "") + (img ? ".jpg" : ".pdf") });
+ }
+ if (!SM.pages.length) { SM.err = SM.err || "Si leggono solo foto e PDF."; return smDraw(); }
+ SM.st = "read";
+ smDraw();
+ try {
+  const r = await aiCall("smista", { pages: SM.pages.map(p => ({ data: p.data, media: p.media })), hint: SM.hint });
+  if (r.kind === "lib" && !(r.items || []).length) throw new Error("Sembra un libretto, ma non trovo vaccini o trattamenti con la data. Prova con una foto pi\xf9 nitida, una pagina per foto.");
+  SM.res = r;
+  SM.who = smWho(r, SM.hint);
+  SM.pick = 0;
+  SM.st = "res";
+ } catch (e) {
+  SM.st = "";
+  SM.err = e.message || String(e);
+ }
+ smDraw();
+ if (typeof GD !== "undefined" && GD.g && GD.clk) GD.clk.add("smRead");
+}
+
+function smReset() {
+ SM = { st: "", pages: [], hint: "", res: null, who: null, pick: 0, err: "" };
+}
+
+function smApply() {
+ const r = SM.res, W = SM.who || {}, k = r.kind, f = r.f || {}, id = W.id, pages = SM.pages;
+ const msg = n => ({ k: k, t: Date.now(), h: `<div class="cf-ok">Ho compilato i campi in verde dal documento caricato in Smista documenti: controlla e salva.${r.note ? " " + esc(r.note) : ""}</div>` });
+ const go = (t, v) => { tab = t; view = v || null; if (typeof render === "function") render(); };
+ smReset();
+ CF.att = { pages: pages, title: "" };
+ if (k === "cane") { CF.msg = msg(); go("cani", id !== "new" ? id : null); dogForm(id !== "new" ? id : undefined); CF_FILL.cane(f); return; }
+ if (k === "ped") {
+  let did = id;
+  if (id === "new") {
+   const x = f.dog || {}, sj = r.subj || {};
+   did = newId("d");
+   D.dogs[did] = { name: x.name || sj.name || "Cane nuovo", sex: x.sex || sj.sex || "", birth: x.birth || "", loi: x.loi || "", chip: x.chip || "", color: x.color || "", status: "" };
+  }
+  go("cani", did);
+  pedForm(did);
+  CF_FILL.ped(f);
+  if (typeof saveNow === "function") saveNow();
+  return;
+ }
+ if (k === "lib") {
+  const d = D.dogs[id];
+  go("cani", id);
+  LB = { id: id, step: 2, pages: pages, items: (r.items || []).filter(x => LB_T[x.t]).map(x => Object.assign({}, x, { ck: true })), unread: r.note || "", err: "" };
+  LB.items.forEach(x => x.dup = lbHas(d, x));
+  const O = Object.keys(LB_T);
+  LB.items.sort((a, b) => O.indexOf(a.t) - O.indexOf(b.t) || a.date.localeCompare(b.date));
+  CF.att = null;
+  lbDraw();
+  return;
+ }
+ if (k === "sh") { CF.msg = msg(); go("cani", id); shForm(id + "|"); CF_FILL.sh(f); return; }
+ if (k === "rp") { CF.msg = msg(); go("cani", id); rpForm(id + "|" + (f.value ? "prog" : "visit")); CF_FILL.rp(f); CF.att = null; return; }
+ if (k === "w") { CF.msg = msg(); go("cucciolate"); wForm(id, f.date || undefined); CF_FILL.w(f); CF.att = null; return; }
+ if (k === "nasc") { CF.msg = msg(); go("cucciolate"); bForm(id); CF_FILL.nasc(f); CF.att = null; return; }
+ if (k === "litter") { CF.msg = msg(); go("cucciolate"); litterForm(); CF_FILL.litter(f); CF.att = null; return; }
+ if (k === "famiglia") {
+  if (id && id !== "new" && typeof idsList === "function") {
+   const L = idsList("o:" + id);
+   pages.forEach(p => L.push({ id: newId("i"), title: "Documento d'identit\xe0", fname: p.name, date: todayS(), file: p.data }));
+   if (typeof saveNow === "function") saveNow();
+  }
+  CF.msg = msg();
+  CF.att = null;
+  go("proprietari", id && id !== "new" ? id : null);
+  ownerForm(id && id !== "new" ? id : undefined);
+  CF_FILL.famiglia(f);
+  return;
+ }
+ if (k === "inc") { CF.msg = msg(); CF.att = null; go("conti"); acIncForm("gen|"); CF_FILL.inc(f); return; }
+ if (k === "farm" || k === "enti") {
+  CF.msg = msg();
+  CF.att = null;
+  if (typeof AC !== "undefined") { AC.ed = k; AC.pp = null; }
+  go("account");
+  setTimeout(() => { CF_FILL[k](f); const fm = document.querySelector("#main .ac-form"); fm && fm.scrollIntoView({ block: "center", behavior: "smooth" }); }, 80);
+  return;
+ }
+ // altro: allegato ai documenti del cane
+ cfDoc(id, r.label || "Documento");
+ if (typeof saveNow === "function") saveNow();
+ go("cani", id);
+ toast("Allegato ai documenti di " + (D.dogs[id] ? D.dogs[id].nick || D.dogs[id].name : "") + ".");
+}
+
+document.addEventListener("change", e => {
+ const t = e.target;
+ if (!t.dataset || !t.dataset.smf) return;
+ const F = [ ...t.files || [] ];
+ t.value = "";
+ if (F.length && SM.st !== "read") smRead(F);
+});
+
+document.addEventListener("input", e => {
+ if (e.target && e.target.id === "smHint") SM.hint = e.target.value;
+});
+
+document.addEventListener("click", e => {
+ const b = e.target.closest && e.target.closest("[data-sm]");
+ if (!b) return;
+ e.preventDefault();
+ const a = b.dataset.sm;
+ if (a === "cancel") { smReset(); return smDraw(); }
+ if (a === "other") { SM.pick = 1; return smDraw(); }
+ if (a === "who") { SM.who.id = b.dataset.v; SM.pick = 0; return smDraw(); }
+ if (a === "ok") { if (typeof GD !== "undefined" && GD.g && GD.clk) GD.clk.add("smOk"); return smApply(); }
+});
+
+// trascinare un file sul riquadro (computer)
+document.addEventListener("dragover", e => { if (e.target.closest && e.target.closest("#smBox")) { e.preventDefault(); e.target.closest("#smBox").classList.add("sm-on"); } });
+document.addEventListener("dragleave", e => { const b = e.target.closest && e.target.closest("#smBox"); if (b) b.classList.remove("sm-on"); });
+document.addEventListener("drop", e => {
+ const b = e.target.closest && e.target.closest("#smBox");
+ if (!b) return;
+ e.preventDefault();
+ b.classList.remove("sm-on");
+ const F = [ ...(e.dataTransfer && e.dataTransfer.files || []) ];
+ if (F.length && SM.st !== "read") smRead(F);
+});
+
+(function() {
+ const st = document.createElement("style");
+ st.textContent = `.sm-box{background:var(--paper,#fff);border:1px solid var(--line);border-left:4px solid #3E5C76;border-radius:14px;padding:14px 16px;margin:0 0 14px}.sm-box.sm-on{background:#F3F6F9}
+.sm-h{display:flex;gap:12px;align-items:flex-start}.sm-ic{width:34px;height:34px;border-radius:9px;background:#3E5C76;display:grid;place-items:center;flex:0 0 34px}.sm-h b{display:block;font-size:1.02rem}.sm-h small{display:block;color:var(--muted);font-size:.86rem;line-height:1.4}
+.sm-drop{margin:12px 0 8px;border:1.5px dashed #9FB2C4;border-radius:12px;background:#F3F6F9;padding:12px;text-align:center;color:#3E5C76}.sm-drop small{font-size:.8rem}
+.sm-bts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:4px 0}.sm-box .sm-where+.sm-bts,.sm-box .row-meta+.sm-bts{justify-content:flex-start}
+.sm-hint{display:block}.sm-hint input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:#fff}
+.sm-got{display:flex;gap:12px;align-items:flex-start;margin:12px 0 0}.sm-got b{display:block}.sm-got small{display:block;color:var(--muted);font-size:.84rem}
+.sm-th{width:54px;height:68px;border-radius:6px;border:1px solid var(--line);background:#F3F6F9;display:grid;place-items:center;font-size:.7rem;color:var(--muted);flex:0 0 54px;overflow:hidden}.sm-th img{width:100%;height:100%;object-fit:cover}
+.sm-wait{display:flex;gap:8px;align-items:center;color:#3E5C76;font-weight:600;font-size:.9rem;margin:4px 0}
+.sm-chip{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--ok-soft,#E1EEE4);color:var(--ok,#2F6B3F);margin:2px 0}
+ul.sm-where{list-style:none;margin:10px 0;padding:0}ul.sm-where li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:.92rem}ul.sm-where li:last-child{border-bottom:0}.sm-ck{color:var(--ok,#2F6B3F);font-weight:800;flex:0 0 14px}ul.sm-where small{display:block;color:var(--muted)}
+.sm-q{margin:10px 0 4px;font-weight:600}.sm-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:6px 0}.sm-pick button{text-align:left;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 11px;font:inherit;cursor:pointer;color:var(--ink)}.sm-pick button small{display:block;color:var(--muted);font-size:.8rem}`;
+ document.head.appendChild(st);
+})();
+
+Object.assign(GUIDES, {
+ smista: {
+  n: "Smista documenti",
+  kw: "smista documenti foto documento carica qualsiasi pedigree libretto carta identita progesterone esposizione pesate",
+  base: () => 0,
+  done: gdDone1("smOk"),
+  why: gdW("Smista documenti", "In cima alla pagina Oggi carichi una foto o un documento qualsiasi: il gestionale capisce che cos'\xe8 e di chi \xe8, ti dice dove lo mette e, dopo il tuo \xabVa bene\xbb, apre il modulo giusto gi\xe0 compilato. Non devi sapere dove andare.", [ "Pedigree, libretto, carta d'identit\xe0, progesterone, esposizioni, pesate, parto, pagamenti", "Una foto = una lettura" ], "Un minuto."),
+  end: "Fatto: controlla i campi in verde e salva. La prossima volta puoi scrivere subito in \xabAiutami\xbb di chi \xe8.",
+  S: [ gdNavS("oggi", "Oggi", "Il riquadro \xe8 il primo della pagina."), gdI(() => gdVis("#smHint"), "Aiutami (facoltativo)", "Se vuoi, scrivi che cos'\xe8 e di chi \xe8: es. \xabpedigree di Tikus\xbb.", "Serve quando sul documento non c'\xe8 il nome del cane, come in molti libretti."), { t: "Tocca \xabFoto\xbb o \xabFile\xbb", p: "Scegli la foto o il PDF (fino a 6 pagine). Sul computer puoi anche trascinarlo nel riquadro.", w: "Claude lo legge e cerca di chi \xe8 nell'archivio: nome, microchip, numero di registro.", el: () => gdVis("#smBox .sm-drop") || gdVis("#smBox"), ok: () => SM.st === "read" || SM.st === "res" || GD.clk.has("smRead") }, { t: "Controlla dove lo metto", p: "Leggi le righe con la spunta: \xe8 tutto quello che far\xf2. Se il cane \xe8 sbagliato tocca \xabNo, \xe8 di un altro cane\xbb; se te lo chiedo, toccalo nell'elenco.", w: "Niente viene scritto senza il tuo \xabVa bene\xbb, e quello che hai gi\xe0 inserito non viene cambiato.", el: () => gdVis('#smBox [data-sm="ok"]') || gdVis("#smBox .sm-pick") || gdVis("#smBox"), ok: () => GD.clk.has("smOk") } ]
+ }
+});
+(GD_SEC.find(x => x[0] === "oggi") || [ , , [] ])[2].unshift("smista");
+
 // Compila da foto o documento (25/10/2026): in cima ai moduli una riga con «Foto» e «File». Una foto vale come un PDF:
 // Claude legge (task ai «compila») e riempie i campi, che restano in verde finché non si salva. Funziona per tutti i moduli
 // riconosciuti da cfKind(); il documento resta allegato dove ha senso (cane, pedigree, esposizione, anagrafe).
@@ -9780,7 +10064,7 @@ function ogPage(){const td=todayS(),w=addD(td,7),wd=d=>["domenica","lunedì","ma
   else if(late.length)top=PCTA(`${late.length===1?"1 scadenza in ritardo":late.length+" scadenze in ritardo"}`,`${esc(late[0].t)} · ${esc(late[0].nm)}, dal ${fmt(late[0].date)}`,`<button class="btn small" data-a="go" data-v="scadenze">Apri le Scadenze</button>`);
   else if(AT.t.length)top=PCTA(`Oggi${AT.t[0].time?" alle "+esc(AT.t[0].time):""}: ${esc(noEmo(agLabel(AT.t[0])))}`,AT.t.length>1?"e altri "+(AT.t.length-1)+" appuntamenti oggi":"",`<button class="btn small" data-a="go" data-v="agenda">Apri l'Agenda</button>`);
   const sub=wd(td).replace(/^./,c=>c.toUpperCase())+" "+new Date(td+"T12:00").toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"})+" · "+(tot?tot+(tot===1?" cosa da fare":" cose da fare"):"niente da fare");
-  return PGH(`${sal}, ${esc(FM().first)}`,sub)+top+ogWeb()+
+  return PGH(`${sal}, ${esc(FM().first)}`,sub)+smBox()+top+ogWeb()+
     PSEC("og-ag","cal","Agenda",A.length?`oggi ${AT.t.length} · domani ${AT.m.length}`:"niente oggi e domani",AT.t.length,agB,!A.length)+
     PSEC("og-sc","clock","Scadenze",late.length?`${late.length} in ritardo · ${E.length-late.length} nei prossimi 7 giorni`:E.length?`${E.length} nei prossimi 7 giorni`:"niente nei prossimi 7 giorni",late.length,scB,!E.length||(E.length?E.length+" in arrivo":""))+
     PSEC("og-rq","list","Richieste nuove",nR?`${RQ.length} dal sito · ${IN.length} da WhatsApp`:"nessuna richiesta nuova",nR,rqB,!nR)+

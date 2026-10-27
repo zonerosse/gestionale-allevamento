@@ -68,7 +68,8 @@ export async function onRequestPost({ request, env }) {
   // permessi per sezione: ogni compito vale per la sua voce del menu; quelli non elencati solo per l'admin
   const p0 = await request.clone().json().catch(() => ({}));
   const NEED = { in: [["traduci", "attesa", "agenda"], 1], out: [["traduci", "attesa"], 1], risposte: [["traduci", "attesa"], 1], interessato: ["attesa", 2],
-    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2], libretto: [ "cani", 2 ], compila: [ [ "cani", "cucciolate", "proprietari", "conti", "anagrafe", "esposizioni" ], 2 ] };
+    richiesta: ["attesa", 2], agenda: ["agenda", 2], referto: [["cani", "coi"], 2], cessione: ["proprietari", 2], testmating: ["coi", 2], recensione: ["recensioni", 2], post: ["recensioni", 2], pulisci: ["recensioni", 2], foto: ["recensioni", 2], sito: ["recensioni", 2], sacco: ["cani", 1], kcalnome: ["cani", 1], fattura: ["conti", 2], expo: ["esposizioni", 2], libretto: [ "cani", 2 ], compila: [ [ "cani", "cucciolate", "proprietari", "conti", "anagrafe", "esposizioni" ], 2 ],
+ smista: [ [ "cani", "cucciolate", "proprietari", "conti", "anagrafe", "esposizioni" ], 2 ] };
   const nd = NEED[p0.task];
   if ((await role(request, env)) !== "admin" && !(nd && await can(request, env, nd[0], nd[1]))) return deny();
   if (!env.ANTHROPIC_API_KEY) return json({ ok: false, error: "Manca la chiave ANTHROPIC_API_KEY in Cloudflare (Settings → Variables and Secrets)." });
@@ -271,7 +272,7 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
       return json({ ok: true, shop: String(o.shop || ""), date: /^\d{4}-\d{2}-\d{2}$/.test(o.date || "") ? o.date : "", total: n(o.total), lines });
     }
   // Compila da foto o documento (25/10/2026): una foto vale come un PDF. Claude legge e restituisce i campi del modulo indicato da "kind".
-  if (task === "compila") {
+  // 27/10/2026 (Smista documenti): i campi di ogni modulo e la pulizia della risposta servono sia a «compila» sia a «smista»
    const CK = {
     cane: ["un pedigree, un certificato LOI/ROI, un libretto o un passaporto di un cane", { name: "nome completo del cane come sul documento (con l'affisso)", sex: "\"M\" o \"F\"", birth: "data di nascita", color: "mantello / colore", loi: "numero LOI o ROI o del libro genealogico (es. \"LOI 23/123456\")", chip: "numero del microchip (solo cifre)", sire: "nome del padre", sire_loi: "LOI del padre", dam: "nome della madre", dam_loi: "LOI della madre", titles: "titoli del cane scritti sul documento", tests: "test sanitari scritti sul documento", breeder: "allevatore" }],
     ped: ["un pedigree (anche estero, qualsiasi lingua)", { tree: "albero degli antenati: {\"s\":{\"name\":\"\",\"loi\":\"\",\"s\":{...},\"d\":{...}},\"d\":{...}} dove s = padre e d = madre; fino a 4 generazioni sopra il cane, solo quelli scritti" }],
@@ -288,6 +289,62 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
     farm: ["un biglietto da visita, una carta intestata o una pagina con i dati di un allevamento", { name: "nome dell'allevamento senza la parola Allevamento", first: "nome del titolare", last: "cognome del titolare", street: "via", num: "numero civico", cap: "CAP", city: "comune", prov: "sigla della provincia", provName: "provincia per esteso", phone: "telefono senza +39", email: "email", site: "sito senza https://", breed: "razza", since: "anno da cui alleva" }],
     enti: ["una lettera, un'email o una pagina della delegazione ENCI o dell'anagrafe canina", { deleg: "delegazione ENCI (città)", email: "email della delegazione", who: "persona di riferimento", wa: "telefono o WhatsApp della delegazione", ana: "email dell'anagrafe canina" }]
    };
+  const cfOut = (kind, F0) => {
+   const F = F0 && typeof F0 === "object" ? F0 : {}, out = {};
+   const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "", S = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
+   const tree = (t, lv) => { if (!t || typeof t !== "object" || lv > 4) return null; const r = { name: S(t.name, 120), loi: S(t.loi, 40) }; const s = tree(t.s, lv + 1), d = tree(t.d, lv + 1); if (s) r.s = s; if (d) r.d = d; return r.name || r.s || r.d ? r : null; };
+   for (const k of Object.keys(CK[kind][1])) {
+    const v = F[k];
+    if (k === "tree") out.tree = tree(v, 0) || {};
+    else if (k === "pups" && kind === "nasc") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ time: /^\d{1,2}[:.]\d{2}$/.test(String(x && x.time || "")) ? String(x.time).replace(".", ":").padStart(5, "0") : "", collar: S(x && x.collar, 30), sex: /^[MF]$/.test(String(x && x.sex || "")) ? x.sex : "", g: +String(x && x.g || "").replace(",", ".") || 0 }));
+    else if (k === "pups" && kind === "w") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ name: S(x && x.name, 40), g: +String(x && x.g || "").replace(",", ".") || 0 })).filter(x => x.name && x.g > 0);
+    else if (k === "titles" && kind === "sh") out.titles = (Array.isArray(v) ? v : String(v || "").split(/[,;]/)).map(x => S(x, 30)).filter(Boolean).slice(0, 12);
+    else if (/^(birth|bdate|date)$/.test(k)) out[k] = D8(v);
+    else if (k === "text") out[k] = S(v, 3000);
+    else out[k] = S(v);
+   }
+   return out;
+  };
+  // Smista documenti (27/10/2026, anteprime 85-86): una foto o un PDF qualsiasi. In UNA chiamata Claude dice che cos'è, di chi è
+  // (nome, microchip, registro come scritti: l'abbinamento all'archivio lo fa la pagina) e legge i campi del modulo giusto.
+  if (task === "smista") {
+   const P = (Array.isArray(p.pages) ? p.pages : []).slice(0, 6), content = [];
+   for (const x of P) {
+    const data = String(x && x.data || "").replace(/^data:[^,]*,/, ""), media = String(x && x.media || "image/jpeg");
+    if (!data) continue;
+    content.push(media === "application/pdf" ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
+     : { type: "image", source: { type: "base64", media_type: /^image\/(jpeg|png|gif|webp)$/.test(media) ? media : "image/jpeg", data } });
+   }
+   if (!content.length) return json({ ok: false, error: "Manca la foto o il documento." });
+   const hint = String(p.hint || "").slice(0, 200);
+   content.push({ type: "text", text: `Oggi è il ${new Date().toISOString().slice(0, 10)}.` + (hint ? ` Aiuto scritto dall'allevatore: «${hint}».` : "") });
+   const KS = [ "ped", "cane", "sh", "rp", "litter", "w", "nasc", "famiglia", "inc", "farm", "enti" ].filter(k => CK[k]);
+   const LIB = `### lib: le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini, sverminazioni, antiparassitari)
+Invece di "f" metti "items": ogni vaccinazione e trattamento registrato, [{"t":"vacc (vaccini polivalenti, cimurro, parvovirosi, leptospirosi, tosse dei canili) | rab (antirabbica) | vle (vaccino leishmania) | ple (collare o spot contro la leishmania) | pfi (prevenzione filaria) | pz (pulci e zecche) | verm (vermifugo)","date":"AAAA-MM-GG","prod":"nome del prodotto","next":"prossimo richiamo AAAA-MM-GG se scritto, altrimenti \"\"","note":""}]`;
+   const o = await ask(env, `Ti arriva una foto o un documento caricato da un allevatore di cani nel suo gestionale. Fai tre cose.
+1) "kind": che cos'è, uno di questi tipi (se non è nessuno: "altro"):
+${KS.map(k => `- "${k}": ${CK[k][0]}`).join("\n")}
+- "lib": le pagine del libretto sanitario o del passaporto europeo di un cane (vaccini e trattamenti)
+Un pedigree con l'albero degli antenati è "ped", non "cane". Se l'allevatore ha scritto un aiuto, usalo per capire che cos'è e di chi è.
+2) "subj": di chi è, con i dati COME SONO SCRITTI sul documento o nell'aiuto: {"name":"nome del cane o della persona","nick":"nome di chiamata del cane se l'aiuto lo dice (es. aiuto «pedigree di Tikus» → \"Tikus\")","chip":"microchip solo cifre","loi":"numero di registro","sex":"M o F o \"\"","dam":"madre (per cucciolate e pesate)","sire":"padre"}. Metti "" dove non c'è.
+3) Leggi TUTTO e compila i campi del tipo scelto, SOLO con quello che c'è scritto, senza inventare ("" se manca). Date sempre AAAA-MM-GG (scritte a mano di solito GG/MM/AAAA europeo).
+Campi per tipo:
+${KS.map(k => `### ${k}\n${Object.entries(CK[k][1]).map(([a, d]) => `- "${a}": ${d}`).join("\n")}`).join("\n")}
+${LIB}
+Rispondi con {"kind":"","label":"descrizione breve in italiano di cosa hai letto, es. Pedigree di Amazing Paddy the Baddy","subj":{...},"f":{...},"items":[],"note":"una frase su quello che non hai letto bene, altrimenti \"\""}.`, content, 8000);
+   const kind = KS.includes(o.kind) || o.kind === "lib" ? o.kind : "altro";
+   const S1 = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
+   const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
+   const s0 = o.subj && typeof o.subj === "object" ? o.subj : {};
+   const subj = { name: S1(s0.name, 120), nick: S1(s0.nick, 60), chip: S1(s0.chip, 30).replace(/\D/g, ""), loi: S1(s0.loi, 120), sex: /^[MF]$/.test(String(s0.sex || "")) ? s0.sex : "", dam: S1(s0.dam, 120), sire: S1(s0.sire, 120) };
+   const out = { ok: true, kind, label: S1(o.label, 160), subj, note: S1(o.note, 300) };
+   if (kind === "lib") {
+    const T = [ "vacc", "rab", "vle", "ple", "pfi", "pz", "verm" ];
+    out.items = (Array.isArray(o.items) ? o.items : []).slice(0, 80).map(x => ({ t: T.includes(x && x.t) ? x.t : "", date: D8(x && x.date), prod: S1(x && x.prod, 120), next: D8(x && x.next), note: S1(x && x.note, 160) })).filter(x => x.t && x.date);
+   } else if (kind !== "altro") out.f = cfOut(kind, o.f);
+   return json(out);
+  }
+  if (task === "compila") {
    const K = CK[p.kind];
    if (!K) return json({ ok: false, error: "Modulo sconosciuto." });
    const P = (Array.isArray(p.pages) ? p.pages : []).slice(0, 6), content = [];
@@ -303,19 +360,8 @@ Formato: {"shop":"","date":"","total":null,"lines":[{"desc":"","cat":"","puppy":
 Rispondi con {"f":{...},"note":""} dove "f" ha questi campi:
 ${Object.entries(K[1]).map(([k, d]) => `- "${k}": ${d}`).join("\n")}
 "note": una frase in italiano su quello che non hai potuto leggere bene, altrimenti "".`, content, p.kind === "ped" ? 8000 : 2500);
-   const F = o.f && typeof o.f === "object" ? o.f : {}, out = {};
    const D8 = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "", S = (v, n) => typeof v === "string" || typeof v === "number" ? String(v).trim().slice(0, n || 200) : "";
-   const tree = (t, lv) => { if (!t || typeof t !== "object" || lv > 4) return null; const r = { name: S(t.name, 120), loi: S(t.loi, 40) }; const s = tree(t.s, lv + 1), d = tree(t.d, lv + 1); if (s) r.s = s; if (d) r.d = d; return r.name || r.s || r.d ? r : null; };
-   for (const k of Object.keys(K[1])) {
-    const v = F[k];
-    if (k === "tree") out.tree = tree(v, 0) || {};
-    else if (k === "pups" && p.kind === "nasc") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ time: /^\d{1,2}[:.]\d{2}$/.test(String(x && x.time || "")) ? String(x.time).replace(".", ":").padStart(5, "0") : "", collar: S(x && x.collar, 30), sex: /^[MF]$/.test(String(x && x.sex || "")) ? x.sex : "", g: +String(x && x.g || "").replace(",", ".") || 0 }));
-    else if (k === "pups" && p.kind === "w") out.pups = (Array.isArray(v) ? v : []).slice(0, 20).map(x => ({ name: S(x && x.name, 40), g: +String(x && x.g || "").replace(",", ".") || 0 })).filter(x => x.name && x.g > 0);
-    else if (k === "titles" && p.kind === "sh") out.titles = (Array.isArray(v) ? v : String(v || "").split(/[,;]/)).map(x => S(x, 30)).filter(Boolean).slice(0, 12);
-    else if (/^(birth|bdate|date)$/.test(k)) out[k] = D8(v);
-    else if (k === "text") out[k] = S(v, 3000);
-    else out[k] = S(v);
-   }
+   const out = cfOut(p.kind, o.f);
    if (!Object.values(out).some(v => v && (typeof v !== "object" || Object.keys(v).length))) return json({ ok: false, error: "Non riesco a leggere niente di utile. Prova con una foto più nitida, dritta e con più luce." + (o.note ? " " + S(o.note, 200) : "") });
    return json({ ok: true, f: out, note: S(o.note, 300) });
   }
