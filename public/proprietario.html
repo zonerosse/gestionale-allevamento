@@ -5762,7 +5762,7 @@ document.addEventListener("click", e => {
  const a = b.dataset.sm;
  if (a === "cancel") { smReset(); return smDraw(); }
  if (a === "go") return smGo();
- if (a === "agenda") { const t = SM.hint; smReset(); location.hash = "#agenda=" + encodeURIComponent(t); if (typeof agFromHash === "function") setTimeout(agFromHash, 0); return; }
+ if (a === "agenda") { const t = SM.hint; smReset(); window.AG_SM = 1; location.hash = "#agenda=" + encodeURIComponent(t); if (typeof agFromHash === "function") setTimeout(agFromHash, 0); return; }
  if (a === "mic") { SM.keep = (document.getElementById("smHint") || {}).value || SM.hint; return smMic(); }
  if (a === "micStop") return smMicStop(false);
  if (a === "micCancel") return smMicStop(true);
@@ -7821,7 +7821,7 @@ document.addEventListener("click",e=>{
     case "litterSheet":litterSheet(v);break;
     case "ppForm":PP_BACK=null;ppForm(v);break;case "ppGo":ppGo(v);break;
     case "idDel":idDel(v);break;case "depShare":{const d=D.dogs[v],x=(d.docs||[]).find(z=>z.dep);if(x){x.depShare=!x.depShare;x.private=!x.depShare;render();typeof saveNow==="function"&&saveNow();toast(x.depShare?"Ricevuta condivisa con il proprietario.":"Ricevuta di nuovo solo per te.")}break}case "depGo":depGo(v);break;case "drSave":drSave(v);break;case "mbForm":mbForm(v);break;case "mbGo":mbGo(v);break;case "maGo":maGo(v);break;case "stBorn":stBornF(v);break;case "stBornSave":stBornSave(v);break;case "lkRev":lkRev(v);break;case "cuTog":{const l=D.litters[v];l.web=!l.web;l.inSite=false;litterSheet(v);typeof saveNow==="function"&&saveNow();break}case "cuPub":cuPub(v);break;case "mateGraph":MATE_GRAPH=!MATE_GRAPH;calcMate();break;case "mateGraphTop":if(!mateS||!mateD){toast("Scegli femmina e maschio.");break}MATE_GRAPH=true;$("#mateSug")&&($("#mateSug").innerHTML="");calcMate();setTimeout(()=>{const e=$("#mateOut");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},60);break;case "mateSug":mateSug();break;case "mateSugPick":mateS=v;render();setTimeout(()=>{const e=document.querySelector(".pick");e&&e.scrollIntoView({block:"start",behavior:"smooth"})},50);break;case "intFromTr":intFromTr(el);break;case "intOpen":intForm(v);break;case "intSave":intSave(v);break;case "intGone":intGone(v);break;case "intToWl":intToWl(v);break;case "intMsg":intMsg(v);break;case "wlLink":wlLink(v);break;case "wlLinkDo":wlLinkDo(v);break;case "wlSend":wlSend(v);break;case "wlSendEdit":wlSendEdit(v);break;case "wlSendAll":wlSendAll(v);break;case "tmPick":tmPick();break;case "tmSave":tmSave();break;case "tmNo":TM=null;$("#tmRes").innerHTML="";break;case "wlMsg":wlMsg(v);break;case "wlAll":wlAll(v);break;case "wbTr":wbTr(el);break;case "wbSent":if(WB){WB.sent[v]=1;setTimeout(wlAllSheet,600)}break;case "trIn":case "trOut":case "trCopy":case "trFree":case "trReply":case "trProp":case "trOptCopy":case "trOptEdit":case "trIdea":case "trWa":trAct(a,el);break;case "trOpen":trOpen(v);break;case "instrView":instrView(v);break;case "instrPrint":instrPrint(v);break;case "nvSheet":nvSheet(v);break;case "nvSkip":nvSkip(v);break;case "nvDone":nvDone(v);break;case "nvAllDone":nvAllDone();break;case "nvUndo":nvUndo(v);break;case "nvSend":nvSend(v);break;case "ogStats":WS.sub="sito";WS.days=1;WS.data=null;tab="statistiche";view=null;render();scrollTo(0,0);break;case "qPh":qPhOpen(v);break;case "mateImg":{const x=D.dogs[v];if(x&&x.photo)lbShow(x.photo);break}case "guide":closeSheetRaw();gdStart(v);break;case "gdStop":gdStop();break;case "gdGo":gdGo();break;case "gdToggle":gdToggle();break;case "exAdd":case "exManual":case "exLink":case "exSave":case "exOpen":case "exEdit":case "exF":case "exMonth":case "exSt":case "exDel":case "exAddAll":exAct(a,v);break;
-    case "acEd":case "acSave":case "acSig":case "acSigPad":case "acSigSave":case "acReload":case "acOpenSec":case "acPpDel":case "acPpSet":case "acPpAdd":acAct(a,v);break;case "kitxAdd":case "kitxSave":case "kitxCancel":case "kitxDel":kitxAct(a,v);break;case "agHint":case "agHintX":case "agF":case "agRead":case "agApply":case "agNope":case "agNewV":case "agCancel":case "agSave":case "agEdit":case "agDel":case "agConf":case "agRem":case "agAsk":case "agIcs":case "agDone":case "agVdone":case "agAtt":agAct(a,v);break;case "stSub":case "wsDays":case "wsLoad":case "wsSort":case "wsIt":case "wsMapsEd":case "wsAllQ":wsAct(a,v);break;case "wsMapsRun":wsMapsRun(el);break;case "wsMapsSave":wsMapsSave(el);break;case "dogDelAsk":dogDelAsk(v);break;case "dogDel":dogDel(v);break;case "pgLoad":case "pgOpen":case "pgBack":case "pgLang":case "pgPub":case "pgTog":case "pgLinkAdd":case "pgLinkDel":case "pgTr":case "pgUndo":case "pgGsRe":case "pgSug":case "pgUse":case "pgSugX":pgAct(a,v,el);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "gpView":gpView(v);break;case "gpPhDel":gpPhDel(v);break;case "vdGo":vdGo();break;case "vdUse":vdUse(el);break;case "vdSave":vdSave();break;case "vsUse":case "vsNew":case "vsCopy":case "vsWrite":vsAct(a,el);break;case "gpVidSave":vdSave(GP.vid);break;case "gpVidDel":GP.vid=null;if(GP.free&&GP.free.photo===-2)GP.free.photo=GP.up.length?0:0;render();toast("Video tolto dal post.");break;case "vzOpen":vzOpen(v);break;case "vzT":case "vzLv":case "vzUndo":case "vzReset":case "vzUse":vzAct(a,v,el);break;case "gpDelAsk":gpView(v,1);break;case "gpEdit":gpEdit(v);break;case "gpFix":gpFix(v,el);break;case "gpSave":gpSave(v,el);break;case "gpDel":gpDel(v,el);break;case "gpFree":case "gpFreeClose":case "gpFreePh":case "gpFreeWrite":case "gpFreePub":gpFreeAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":{const K=ppChecked();if(!K.length){toast("Spunta almeno un cucciolo.");break}PP_SEL=K;ppPack(v,"dl").finally(()=>{PP_SEL=null});break}case "ppMail":ppMailGo(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
+    case "acEd":case "acSave":case "acSig":case "acSigPad":case "acSigSave":case "acReload":case "acOpenSec":case "acPpDel":case "acPpSet":case "acPpAdd":acAct(a,v);break;case "kitxAdd":case "kitxSave":case "kitxCancel":case "kitxDel":kitxAct(a,v);break;case "agHint":case "agHintX":case "agF":case "agRead":case "agApply":case "agNope":case "agSmSave":case "agSmX":case "agNewV":case "agCancel":case "agSave":case "agEdit":case "agDel":case "agConf":case "agRem":case "agAsk":case "agIcs":case "agDone":case "agVdone":case "agAtt":agAct(a,v);break;case "stSub":case "wsDays":case "wsLoad":case "wsSort":case "wsIt":case "wsMapsEd":case "wsAllQ":wsAct(a,v);break;case "wsMapsRun":wsMapsRun(el);break;case "wsMapsSave":wsMapsSave(el);break;case "dogDelAsk":dogDelAsk(v);break;case "dogDel":dogDel(v);break;case "pgLoad":case "pgOpen":case "pgBack":case "pgLang":case "pgPub":case "pgTog":case "pgLinkAdd":case "pgLinkDel":case "pgTr":case "pgUndo":case "pgGsRe":case "pgSug":case "pgUse":case "pgSugX":pgAct(a,v,el);break;case "rvLoad":case "rvF":case "rvUse":case "rvGen":case "rvEdit":case "rvCancel":case "rvPub":case "rvSugRetry":case "rvSub":rvAct(a,v,el);break;case "gpOpen":case "gpClose":case "gpSkip":case "gpPh":case "gpRedo":case "gpPub":gpAct(a,v,el);break;case "gpView":gpView(v);break;case "gpPhDel":gpPhDel(v);break;case "vdGo":vdGo();break;case "vdUse":vdUse(el);break;case "vdSave":vdSave();break;case "vsUse":case "vsNew":case "vsCopy":case "vsWrite":vsAct(a,el);break;case "gpVidSave":vdSave(GP.vid);break;case "gpVidDel":GP.vid=null;if(GP.free&&GP.free.photo===-2)GP.free.photo=GP.up.length?0:0;render();toast("Video tolto dal post.");break;case "vzOpen":vzOpen(v);break;case "vzT":case "vzLv":case "vzUndo":case "vzReset":case "vzUse":vzAct(a,v,el);break;case "gpDelAsk":gpView(v,1);break;case "gpEdit":gpEdit(v);break;case "gpFix":gpFix(v,el);break;case "gpSave":gpSave(v,el);break;case "gpDel":gpDel(v,el);break;case "gpFree":case "gpFreeClose":case "gpFreePh":case "gpFreeWrite":case "gpFreePub":gpFreeAct(a,v,el);break;case "rvSite":rvSite(el);break;case "wlAi":wlAi(v,el);break;case "wlAiTr":wlAiTr(v,el);break;case "wlAiSend":wlAiSend(v);break;case "docAi":docAi(v,el);break;case "siHome":case "siStage":case "siTog":siAct(a,v);break;case "shPub":shPub();break;case "cuPrep":cuPrep();break;case "mateNo":MATE_NO=!MATE_NO;render();break;case "scF":SC_F=v;render();break;case "scAct":scAct(v);break;case "scBell":scBell(v);break;case "scBellGo":scBellGo(v);break;case "alSet":{const [k,n]=v.split("|");AL_ED[k]=+n;scBellDraw();break}case "scRevDone":{const e=scFind(v);if(e){D.litters[e.ref].revDone=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow()}break}case "scEnci":{const e=scFind(v);if(e){D.litters[e.ref][e.f]=todayS();closeSheet();render();typeof saveNow==="function"&&saveNow();toast("Segnato come consegnato.")}break}case "scDone":scDoneAct(v);break;case "scMoveF":scMoveF(v);break;case "scMove":scMove(v);break;case "scSkip":scSkip(v);break;case "scDel":scDel(v);break;case "scUnskip":scUnskip(v);break;case "scAddF":scAddF();break;case "scAdd":scAdd();break;case "scPhone":scPhone();break;case "scCopy":scCopy();break;case "shForm":shForm(v);break;case "shSave":shSave(v);break;case "shDel":shDel(v);break;case "shTog":shTog(v);break;case "shPrep":shPrep();break;case "lkWa":lkSend(v,"wa");break;case "lkMail":lkSend(v,"mail");break;case "abEdit":abEdit(v);break;case "abSave":abSave(v);break;case "iscSave":iscSave(v);break;case "ppPack":{const K=ppChecked();if(!K.length){toast("Spunta almeno un cucciolo.");break}PP_SEL=K;ppPack(v,"dl").finally(()=>{PP_SEL=null});break}case "ppMail":ppMailGo(v);break;case "ppMailGo":ppMailGo(v);break;case "ppMailNo":litterSheet(v);break;
     case "ppSentYes":ppSentYes(v);break;case "ppSignNow":PP_BACK=D.dogs[v].litter||null;ppForm(v);break;case "ppSel":ppSel(v);break;case "ppView":ppView(v);break;
     case "ppMailAddr":{const a=prompt("Indirizzo email dell'anagrafe canina:",ppAddr());if(a!=null){D.settings=D.settings||{};D.settings.anagrafeEmail=a.trim();typeof saveNow==="function"&&saveNow();litterSheet(v)}break}
     case "more":{const n=$("#navBottom");if(n)n.classList.toggle("more-on");break}
@@ -8761,7 +8761,7 @@ function agCard(x){const f=x.k==="r"?agFam(x.dog):null,ed=AG.ed&&AG.ed.id===x.id
   return`<div class="ag-c"><span class="ag-h">${esc(x.time||"–")}</span><div>${head}</div><span class="ag-st ${x.st}">${x.st==="c"?"✓ Confermato":"Da confermare"}</span>
     <div class="ag-acts"><button class="btn ghost small" data-a="agIcs" data-v="${x.id}">📅 Al calendario</button>${x.k==="r"?`<button class="btn ghost small" data-a="agDone" data-v="${x.id}">🐾 Ritirato</button>`:`<button class="btn ghost small" data-a="agVdone" data-v="${x.id}">👍 Visita fatta</button>`}<button class="btn ghost small" data-a="agEdit" data-v="${x.id}">✏️ Modifica</button></div>${ed?agForm(AG.ed):""}</div>`}
 function agPage(){const F=AG.f,A=agItems(),ok=x=>F==="all"||x.k===F,t=todayS(),m=addD(t,1),AT=agTodayTomorrow(),AW=agWarnings();
-  let h=PGH("Agenda","Ritiri dei cuccioli e visite in allevamento",`<button class="btn small" data-a="agNewV">${dIc("plus")} Nuova visita</button>`);
+  let h=PGH("Agenda","Ritiri dei cuccioli e visite in allevamento",`<button class="btn small" data-a="agNewV">${dIc("plus")} Nuova visita</button>`);h+=agTopBox();
   const nx=AT.t[0]||AT.m[0];
   if(nx)h+=PCTA(`${AT.t[0]?"Oggi":"Domani"}${nx.time?" alle "+esc(nx.time):""}: ${esc(noEmo(agLabel(nx)))}`,(AT.t.length+AT.m.length>1?"e altri "+(AT.t.length+AT.m.length-1)+" appuntamenti oggi e domani":"")+(nx.k==="r"?(AT.t.length+AT.m.length>1?" · ":"")+"prima controlla Consegna e Passaggio di proprietà":""),`<button class="btn small" data-a="agEdit" data-v="${nx.id}">Apri</button>`);
   else if(AW.length)h+=PCTA(noEmo(AW[0]),"");
@@ -8770,18 +8770,90 @@ function agPage(){const F=AG.f,A=agItems(),ok=x=>F==="all"||x.k===F,t=todayS(),m
   const todo=A.filter(x=>!x.date&&(x.st==="d"||x.st==="c")&&ok(x));
   const tdB=todo.length?`<ul class="ag-todo">${todo.map(x=>{const lab=x.k==="r"?`Ritiro di <b>${esc(agFam(x.dog).pup)}</b> · ${esc(agFam(x.dog).fam)}`:`Visita · <b>${esc(x.who||"?")}</b>${x.from?" ("+esc(x.from)+")":""}${x.note?" · "+esc(x.note):""}`;
     return`<li><span>${lab}</span><span><button class="btn small ghost" data-a="agAsk" data-v="${x.id}">${x.k==="r"?"Chiedi quando viene":"Proponi un giorno"}</button> <button class="btn ghost small" data-a="agEdit" data-v="${x.id}">Fissa</button></span>${AG.ed&&AG.ed.id===x.id?agForm(AG.ed):""}</li>`}).join("")}</ul>`:PROW("ok","Niente da fissare");
-  h+=PSEC("ag-td","alert","Da fissare","cuccioli prenotati e visite senza giorno",todo.length,tdB,!todo.length,todo.some(x=>AG.ed&&AG.ed.id===x.id));
+  h+=PSEC("ag-td","alert","Da fissare","cuccioli prenotati e visite senza giorno",todo.length,tdB,!todo.length,todo.some(x=>AG.ed&&AG.ed.id===x.id||AG.flash===x.id));
   const plan=A.filter(x=>x.date&&(x.st==="d"||x.st==="c")&&ok(x)).sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||""))),by={};plan.forEach(x=>(by[x.date]=by[x.date]||[]).push(x));
   const pB=(AW.length?AW.map(w=>`<p class="small" style="color:var(--warn);margin:6px 0">${noEmo(w)}</p>`).join(""):"")+(plan.length?Object.entries(by).map(([d,L])=>`<div class="ag-day"><p class="ag-dh">${agDay(d)}${d===t?" · oggi":d===m?" · domani":d<t?" · passato":""}</p>${L.map(agCard).join("")}</div>`).join(""):PROW("no","Niente in programma"));
   const nC=plan.filter(x=>x.st==="d").length;
-  h+=PSEC("ag-pl","cal","In programma",plan.length?plan.length+(plan.length===1?" appuntamento":" appuntamenti")+(nC?" · "+nC+" da confermare":""):"niente in programma",0,pB,plan.length?plan.length+"":"",plan.some(x=>AG.ed&&AG.ed.id===x.id));
+  h+=PSEC("ag-pl","cal","In programma",plan.length?plan.length+(plan.length===1?" appuntamento":" appuntamenti")+(nC?" · "+nC+" da confermare":""):"niente in programma",0,pB,plan.length?plan.length+"":"",plan.some(x=>AG.ed&&AG.ed.id===x.id||AG.flash===x.id));
   const vd=A.filter(x=>x.k==="v"&&x.st==="f");if(vd.length&&F!=="r")h+=PSEC("ag-vd","fam","Visite fatte",vd.length+(vd.length===1?" visita":" visite"),0,vd.slice(-15).reverse().map(x=>PROW(x.att?"ok":"no",`<b>${esc(x.who||"?")}</b>${x.from?" ("+esc(x.from)+")":""}${x.want?" · cerca: "+esc(x.want):""}`,x.date?agDay(x.date):"",x.att?`<span class="dph-v">in Attesa</span>`:`<button class="btn small ghost" data-a="agAtt" data-v="${x.id}">Aggiungi all'Attesa</button>`)).join(""),vd.length+"");
   const rd=A.filter(x=>x.k==="r"&&x.st==="r");if(rd.length&&F!=="v")h+=PSEC("ag-rd","paw","Già ritirati",rd.length+(rd.length===1?" cucciolo":" cuccioli"),0,rd.map(x=>PROW("ok",esc(agFam(x.dog).pup),x.date?agDay(x.date):"")).join(""),rd.length+"");
   h+=PSEC("ag-wa","msg","Leggi un messaggio di WhatsApp","incolla il messaggio: Claude capisce se è un ritiro o una visita",0,`<p class="row-meta" style="margin:4px 0 8px">Arriva da solo con il comando rapido «Agenda allevamento» (in WhatsApp: tieni premuto il messaggio → Condividi), oppure incollalo qui.</p>
     <textarea id="ag_txt" rows="3" placeholder="Es. Ciao ${esc(FM().first)}, per Brando veniamo sabato alle 15, io e mio figlio">${esc(AG.txt)}</textarea>
     <div class="ag-who"><label for="ag_hq">Chi ti ha scritto? <span class="row-meta">(facoltativo: scrivi due lettere del nome o del cucciolo)</span></label>${AG.hint&&D.dogs[AG.hint]?`<span class="ag-chip">✓ ${esc(agFam(AG.hint).fam)} · ${esc(agFam(AG.hint).pup)} <button data-a="agHintX" aria-label="Togli">✕</button></span>`:`<input id="ag_hq" value="${esc(AG.hq)}" autocomplete="off" placeholder="es. Laura, oppure Rocco"><div id="ag_hs" class="ag-hs" hidden></div>`}</div>
-    <div class="row2" style="margin-top:8px"><button class="btn rv-go" data-a="agRead" ${AG.busy?"disabled":""}>${AG.busy?"Claude legge…":"Leggi il messaggio"}</button></div>${agReadHtml()}`,"",!!((AG.txt||"").trim()||AG.busy||AG.read||AG.hint));
-  return h}
+    <div class="row2" style="margin-top:8px"><button class="btn rv-go" data-a="agRead" ${AG.busy?"disabled":""}>${AG.busy?"Claude legge…":"Leggi il messaggio"}</button></div>${AG.src?"":agReadHtml()}`,"",!!((AG.txt||"").trim()||AG.busy||AG.read||AG.hint));
+  return h+agSmFoot()}
+
+// 27/10/2026 (anteprima 89, Paolo: «serve il tasto SALVA a piè pagina e in alto»): dall'«Apri in Agenda» di Smista documenti
+// Claude legge subito; riquadro «Dal tuo messaggio» in cima con Salva e barra Salva fissa in fondo; con «Nessuno» lo salva come appuntamento.
+function agSmDogs() {
+ const P = agPups().map(([k]) => k), txt = smNorm(AG.txt || ""), O = Object.keys(D.dogs || {}).filter(k => !P.includes(k) && !smGone(D.dogs[k]));
+ const hit = k => {
+  const d = D.dogs[k] || {};
+  return [ d.nick, d.name ].some(n => n && smNorm(n).length > 2 && (" " + txt + " ").includes(" " + smNorm(n) + " "));
+ };
+ O.sort((a, b) => hit(b) - hit(a) || smNm(a).localeCompare(smNm(b)));
+ return { P: P, O: O, hit: hit };
+}
+function agTopBox() {
+ if (!AG.src) return "";
+ const r = AG.read, msg = `<div class="ag-sm-msg">\xab${esc(AG.txt || "")}\xbb</div>`;
+ let b;
+ if (AG.busy || !r) b = `<div class="row2"><button class="btn save" disabled><span class="cf-spin"></span> Claude legge…</button><button class="btn ghost" data-a="agSmX">Annulla</button></div>`;
+ else if (r.err) b = `<p class="fnote">${esc(r.err)}</p><div class="row2"><button class="btn save" data-a="agRead">Riprova</button><button class="btn ghost" data-a="agSmX">Annulla</button></div>`;
+ else {
+  const isR = r.type === "ritiro", isV = r.type === "visita";
+  let sel = "";
+  if (isR) {
+   const S = agSmDogs(), pick = r.dog || AG.hint || S.O.find(S.hit) || "";
+   sel = `<label class="ag-sm-l">Per quale cane<select id="ag_rdog">${S.P.map(k => `<option value="${k}"${pick === k ? " selected" : ""}>${esc(agFam(k).pup)} → ${esc(agFam(k).fam)}</option>`).join("")}${S.O.map(k => `<option value="${k}"${pick === k ? " selected" : ""}>${esc(smNm(k))}${agFam(k).fam ? " → " + esc(agFam(k).fam) : ""}</option>`).join("")}<option value="-"${pick ? "" : " selected"}>Nessuno: salvalo come appuntamento</option></select></label>`;
+  }
+  const what = isR ? "<b>ritiro</b>" : isV ? "<b>visita</b>" : "<b>appuntamento</b>";
+  b = `<div class="ag-sm-got">Ho capito: ${what}${r.who ? " \xb7 viene <b>" + esc(r.who) + "</b>" : ""}${r.from ? " da " + esc(r.from) : ""} \xb7 ${r.date ? "<b>" + agDay(r.date) + "</b>" : "<i>giorno non detto</i>"}${r.time ? " alle <b>" + esc(r.time) + "</b>" : " \xb7 <i>ora non detta</i>"}${r.want ? " \xb7 cerca: " + esc(r.want) : ""}${!isR && !isV && r.summary ? "<br><span class='ag-s'>" + esc(r.summary) + "</span>" : r.note ? "<br><span class='ag-s'>" + esc(r.note) + "</span>" : ""}</div>${sel}
+  <div class="row2"><button class="btn save" data-a="agSmSave">Salva</button><button class="btn ghost" data-a="agNope">Non \xe8 giusto</button><button class="btn ghost" data-a="agSmX">Annulla</button></div>`;
+ }
+ return `<div class="ag-sm" id="agSmTop"><p class="ag-sm-h"><span></span>Dal tuo messaggio</p>${msg}${b}</div>`;
+}
+function agSmFoot() {
+ const r = AG.read;
+ return AG.src && r && !r.err && !AG.busy ? `<div class="ag-sm-foot"><button class="btn ghost" data-a="agSmX">Annulla</button><button class="btn save" data-a="agSmSave">Salva</button></div>` : "";
+}
+function agSmSave() {
+ const r = AG.read;
+ if (!r || r.err) return;
+ const sel = document.getElementById("ag_rdog"), v = sel ? sel.value : "", key = x => [ x.id, x.dog, x.date, x.time, x.who, x.note ].join("|");
+ const before = new Set(agL().map(key));
+ if (r.type !== "ritiro" && r.type !== "visita" || r.type === "ritiro" && (!v || v === "-")) AG.read = Object.assign({}, r, { type: "visita", note: [ r.note, AG.txt ].filter(Boolean).join(" \xb7 ") });
+ AG.src = 0;
+ agApply();
+ const n = agL().find(x => !before.has(key(x)));
+ if (!n) return;
+ AG.flash = n.id;
+ render();
+ setTimeout(() => {
+  const e = document.querySelector(`.ag-c [data-v="${n.id}"]`), c = e && e.closest(".ag-c");
+  if (c) {
+   c.classList.add("ag-new");
+   c.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  setTimeout(() => { AG.flash = ""; }, 3e3);
+ }, 80);
+}
+function agSmX() {
+ AG.src = 0;
+ AG.read = null;
+ AG.busy = 0;
+ AG.txt = "";
+ AG.hint = "";
+ AG.hq = "";
+ render();
+}
+const AG_SM_CSS = `.ag-sm{background:#fff;border:1.5px solid var(--ok,#2F6B3F);border-radius:14px;padding:12px 14px;margin:0 0 14px}.ag-sm-h{display:flex;gap:8px;align-items:center;font-weight:700;margin:0 0 6px}.ag-sm-h span{width:10px;height:10px;border-radius:50%;background:var(--ok,#2F6B3F)}
+.ag-sm-msg{background:#f5f6f8;border-radius:10px;padding:8px 10px;font-style:italic;color:#344054;margin:0 0 10px;white-space:pre-wrap}.ag-sm-got{margin:0 0 4px}.ag-sm-l{display:block;margin:8px 0 0}.ag-sm-l select{display:block;width:100%;margin-top:4px}.ag-sm .row2{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.ag-sm .btn.save .cf-spin{display:inline-block;vertical-align:-3px;border-top-color:#fff}
+.ag-sm-foot{position:sticky;bottom:0;z-index:9;display:flex;gap:8px;justify-content:flex-end;background:#fff;border-top:1px solid var(--line);padding:10px 12px;margin:14px -4px 0;box-shadow:0 -4px 12px rgba(0,0,0,.06)}
+@media (max-width:760px){.ag-sm-foot{bottom:calc(58px + env(safe-area-inset-bottom,0px))}}
+.ag-c.ag-new{outline:2px solid var(--ok,#2F6B3F);outline-offset:2px;border-radius:10px;transition:outline-color 1s}`;
+(() => { try { const s = document.createElement("style"); s.textContent = AG_SM_CSS; document.head.appendChild(s); } catch (e) {} })();
+
 function agReadHtml(){const r=AG.read;if(!r)return"";if(r.err)return`<p class="fnote">${esc(r.err)}</p>`;
   if(r.type==="altro")return`<div class="ag-found">Non sembra un ritiro né una visita: ${esc(r.summary||"")}</div>`;
   const pups=agPups();
@@ -8809,7 +8881,7 @@ function agSave(id){const v=s=>{const e=$(s);return e?e.value.trim():undefined},
 function agAct(a,v){const x=v?agFind(v):null;
   if(a==="agF"){AG.f=v;render();return}
   if(a==="agHint"){AG.hint=v;AG.hq="";render();return}if(a==="agHintX"){AG.hint="";render();return}
-  if(a==="agRead"){agRead();return}if(a==="agApply"){agApply();return}if(a==="agNope"){AG.read=null;render();return}
+  if(a==="agRead"){agRead();return}if(a==="agApply"){agApply();return}if(a==="agSmSave")return agSmSave();if(a==="agSmX")return agSmX();if(a==="agNope"){AG.src=0;AG.read=null;render();return}
   if(a==="agNewV"){AG.ed={id:"new",k:"v",st:"d"};render();return}
   if(a==="agCancel"){AG.ed=null;render();return}
   if(a==="agSave"){agSave(v);return}
@@ -8827,7 +8899,7 @@ function agAct(a,v){const x=v?agFind(v):null;
 /* comando rapido dell'iPhone: #agenda=<testo del messaggio> */
 function agFromHash(){const h=location.hash||"";if(!h.startsWith("#agenda="))return;let t="";try{t=decodeURIComponent(h.slice(8))}catch(e){t=h.slice(8)}
   history.replaceState(null,"",location.pathname+location.search);if((typeof RO!=="undefined"&&RO)||(typeof CONTI!=="undefined"&&CONTI)||typeof OWNER_MODE!=="undefined")return;
-  AG.txt=t;AG.read=null;AG.hint="";AG.hq="";tab="agenda";view=null;render();
+  AG.txt=t;AG.src=window.AG_SM?1:0;window.AG_SM=0;AG.read=null;AG.hint="";AG.hq="";tab="agenda";view=null;if(AG.src)return agRead();render();
   /* scelta di Paolo: prima scrive chi gli ha scritto (facoltativo), poi preme "Leggi il messaggio" */
   setTimeout(()=>{const i=document.getElementById("ag_hq");i&&i.focus()},250)}
 window.addEventListener("hashchange",agFromHash);

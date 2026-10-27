@@ -1709,3 +1709,9 @@ Accessi e copie
   giusta (messaggio → Agenda); il trattamento a più cani apre la finestra «Fatto» con i cani toccati e «Apri la scheda».
   27/10/2026 (Paolo: «in caso di più posti… li voglio vedere tutti»): `smDone(prima, testo, cane, tasto)` = finestra «Fatto: ecco dove l'ho
   messo» con OGNI cane cambiato o nuovo (confronto `smSnap`/`smJ` prima e dopo, campi `SM_F`) e «Apri la scheda»; pedigree anche «Il pedigree».
+- Agenda da Smista documenti (27/10/2026, anteprima 89 approvata, Paolo: «serve il tasto SALVA a piè pagina e in alto»): «Apri in Agenda»
+  mette `window.AG_SM=1`, `agFromHash` dà `AG.src=1` e chiama subito `agRead` (la scorciatoia di WhatsApp resta come prima: niente lettura
+  automatica). `agTopBox()` in cima alla pagina («Dal tuo messaggio»: testo, «Ho capito», tendina «Per quale cane» = cuccioli prenotati, poi
+  gli altri cani di casa (`agSmDogs`, il nome nel testo va primo), «Nessuno: salvalo come appuntamento»), tasti Salva / Non è giusto / Annulla;
+  `agSmFoot()` = barra Salva fissa in fondo (sopra la barra del telefono). `agSmSave`: «Nessuno» o tipo «altro» = visita con la nota del
+  messaggio; dopo il salvataggio `AG.flash` apre la sezione e la scheda nuova è evidenziata (`.ag-new`). `agSmX` = Annulla.
