@@ -1719,3 +1719,4 @@ Accessi e copie
   `agCal(x)` all'inizio di `agIcs`: computer e Android → Google Calendar con l'appuntamento già scritto (calendar.google.com/calendar/render
   action=TEMPLATE, ctz Europe/Rome); iPhone/iPad (`SM_IOS`) → data:text/calendar = «Aggiungi al calendario» del telefono. Senza ora = tutto il giorno.
   Si apre con un link in una scheda nuova (prima window.open con "noopener" dava null e la pagina andava via dal gestionale).
+  Poi (Paolo: «buttato fuori ancora… data del 27»): indirizzo calendar/u/0/r/eventedit (render?action=TEMPLATE apriva il calendario di oggi) in una finestra piccola sopra il gestionale (window.open "popup", opener=null), mai location.href.

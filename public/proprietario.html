@@ -8802,17 +8802,14 @@ function agCal(x) {
  const st = tm ? d0 + "T" + tm[0] + tm[1] + "00" : d0, en = tm ? (h => d0 + "T" + String(Math.min(23, h + 1)).padStart(2, "0") + tm[1] + "00")(+tm[0]) : d1;
  const det = [ x.tel ? "Tel. " + x.tel : "", x.note || "" ].filter(Boolean).join("\n"), loc = AG_ADDR_F().replace(/^[\s,]+|[\s,]+$/g, "");
  if (!SM_IOS) {
-  const u = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(tit) + "&dates=" + st + "/" + en + "&ctz=Europe/Rome&details=" + encodeURIComponent(det) + "&location=" + encodeURIComponent(loc);
-  // 27/10/2026 (Paolo: «mi ha buttato fuori dal gestionale»): con "noopener" window.open dà sempre null e si andava via dalla pagina.
-  // Ora un link in una scheda nuova: il gestionale resta aperto.
-  const a = document.createElement("a");
-  a.href = u;
-  a.target = "_blank";
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  toast("Google Calendar si apre in una scheda nuova: tocca \xabSalva\xbb e torna qui.");
+  const u = "https://calendar.google.com/calendar/u/0/r/eventedit?text=" + encodeURIComponent(tit) + "&dates=" + st + "/" + en + "&ctz=Europe/Rome&details=" + encodeURIComponent(det) + "&location=" + encodeURIComponent(loc);
+  // 27/10/2026 (Paolo: «buttato fuori ancora… con una data del 27»): pagina «eventedit» (la vecchia render?action=TEMPLATE su certi
+  // account apriva il calendario di oggi senza l'appuntamento) in una finestra piccola SOPRA il gestionale; mai location.href.
+  const w = window.open(u, "gcal", "popup,width=980,height=760,left=60,top=40");
+  if (w) {
+   try { w.opener = null; } catch (e) {}
+   toast("Google Calendar \xe8 nella finestra sopra: tocca \xabSalva\xbb e chiudila, il gestionale \xe8 qui sotto.");
+  } else toast("Il browser ha bloccato la finestra di Google Calendar: consenti i popup per il gestionale e riprova.");
   return true;
  }
  const e = s => String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
